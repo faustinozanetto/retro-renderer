@@ -48,6 +48,16 @@ namespace retro::renderer
         return location;
     }
 
+    void shader::bind()
+    {
+        glUseProgram(m_handle_id);
+    }
+
+    void shader::un_bind()
+    {
+        glUseProgram(0);
+    }
+
     void shader::set_int(const std::string &uniform_name, int value)
     {
         glUniform1i(get_uniform_location(uniform_name), value);

@@ -20,6 +20,9 @@ namespace retro::renderer
         uint32_t get_handle_id() const { return m_handle_id; }
         uint32_t get_uniform_location(const std::string &uniform_name);
 
+        void bind();
+        void un_bind();
+
         void set_int(const std::string &uniform_name, int value);
         void set_vec_int2(const std::string &uniform_name, const glm::ivec2 &value);
         void set_vec_int3(const std::string &uniform_name, const glm::ivec3 &value);

@@ -31,6 +31,8 @@ namespace retro::core
             renderer::renderer::set_clear_color({0.15f, 0.15f, 0.15f, 1.0f});
             renderer::renderer::clear_screen();
 
+            on_update();
+
             renderer::renderer::poll_input();
             renderer::renderer::swap_buffers();
         }

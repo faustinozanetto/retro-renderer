@@ -22,5 +22,5 @@ uniform vec3 u_color;
 
 void main()
 {
-    frag_color = vec4(u_color, 1.0);
+    frag_color = vec4(o_tex_coord.x, o_tex_coord.y, 0.0, 1.0);
 }

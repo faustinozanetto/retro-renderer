@@ -33,6 +33,7 @@ namespace retro::renderer
         void bind();
         void un_bind();
 
+        void set_attribute(uint32_t index, int size, uint32_t type, int stride, const void *data);
         void set_data(vertex_buffer_object_usage buffer_usage, int size, const void *data) const;
 
         static uint32_t get_buffer_target_to_opengl(vertex_buffer_object_target buffer_target);

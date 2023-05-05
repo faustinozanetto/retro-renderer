@@ -12,9 +12,12 @@ namespace retro::core
     public:
         application(const std::string &working_directory);
         virtual ~application();
+
         /* Getters */
         static application &get() { return *s_instance; }
         std::shared_ptr<renderer::window> &get_window() { return m_window; }
+
+        virtual void on_update() = 0;
 
     private:
         void main_loop();

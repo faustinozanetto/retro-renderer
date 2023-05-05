@@ -31,6 +31,12 @@ namespace retro::renderer
         glBufferData(get_buffer_target_to_opengl(m_buffer_target), size, data, get_buffer_usage_to_opengl(buffer_usage));
     }
 
+    void vertex_buffer_object::set_attribute(uint32_t index, int size, uint32_t type, int stride, const void *data)
+    {
+        glVertexAttribPointer(index, size, type, GL_FALSE, stride, data);
+        glEnableVertexAttribArray(index);
+    }
+
     uint32_t vertex_buffer_object::get_buffer_target_to_opengl(vertex_buffer_object_target buffer_target)
     {
         switch (buffer_target)
@@ -44,7 +50,7 @@ namespace retro::renderer
         return -1;
     }
 
-    static uint32_t get_buffer_usage_to_opengl(vertex_buffer_object_usage buffer_usage)
+    uint32_t vertex_buffer_object::get_buffer_usage_to_opengl(vertex_buffer_object_usage buffer_usage)
     {
         switch (buffer_usage)
         {
