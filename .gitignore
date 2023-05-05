@@ -5,6 +5,9 @@
 *.dll
 *.lib
 
+# IntelliJ
+*.idea/
+
 # Visual Studio files and folder
 .vs/
 **.sln

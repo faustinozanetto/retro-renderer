@@ -7,6 +7,9 @@ project "retro"
     targetdir("%{wks.location}/binaries/" .. output_dir .. "/%{prj.name}")
     objdir("%{wks.location}/intermediates/" .. output_dir .. "/%{prj.name}")
 
+	pchheader "rtpch.h"
+	pchsource "src/rtpch.cpp"
+
     files {
         "src/**.h",
         "src/**.cpp",
