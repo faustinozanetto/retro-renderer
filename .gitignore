@@ -8,6 +8,9 @@
 # IntelliJ
 *.idea/
 
+# VSCode
+*.vscode/
+
 # Visual Studio files and folder
 .vs/
 **.sln

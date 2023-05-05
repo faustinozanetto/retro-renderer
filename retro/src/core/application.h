@@ -1,4 +1,5 @@
 ﻿#pragma once
+
 #include "utils/singleton.h"
 
 // Entry point used in applications.
