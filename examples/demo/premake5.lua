@@ -9,8 +9,9 @@ project "demo"
     files {
         "src/**.h",
         "src/**.cpp",
+        "%{wks.location}/third_party/stb/**.h",
+        "%{wks.location}/third_party/stb/**.cpp",
     }
-    
 
     includedirs {
         "%{wks.location}/retro/src",

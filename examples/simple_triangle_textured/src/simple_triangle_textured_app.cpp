@@ -5,6 +5,7 @@
 simple_triangle_textured_app::simple_triangle_textured_app() : application("./")
 {
     load_shaders();
+    load_texture();
     setup_triangle();
 }
 
@@ -18,9 +19,8 @@ void simple_triangle_textured_app::on_update()
     glm::mat4 model = glm::mat4(1.0f);
     model = glm::scale(model, glm::vec3(glm::abs(glm::sin(static_cast<float>(glfwGetTime())))));
     m_shader->set_mat4("u_transform", model);
-    m_shader->set_vec_float3("u_color", {0.15f, 0.45f, 0.75f});
-    m_triangle_vao->bind();
-    glDrawArrays(GL_TRIANGLES, 0, 3);
+    retro::renderer::renderer::bind_texture(0, m_texture->get_handle_id());
+    retro::renderer::renderer::submit_vao(m_triangle_vao, 3);
     m_shader->un_bind();
 }
 
@@ -30,6 +30,11 @@ void simple_triangle_textured_app::load_shaders()
         "resources/shaders/screen_textured.rrs");
     const auto &shader_sources = retro::renderer::shader_loader::parse_shader_source(shader_contents);
     m_shader = std::make_shared<retro::renderer::shader>(shader_sources);
+}
+
+void simple_triangle_textured_app::load_texture()
+{
+    m_texture = std::make_shared<retro::renderer::texture>("resources/textures/texture.png");
 }
 
 void simple_triangle_textured_app::setup_triangle()
@@ -50,7 +55,7 @@ void simple_triangle_textured_app::setup_triangle()
     triangle_vbo->set_attribute(0, 3, GL_FLOAT, 5 * sizeof(float), nullptr);
     triangle_vbo->set_attribute(1, 2, GL_FLOAT, 5 * sizeof(float), reinterpret_cast<void *>(3 * sizeof(float)));
 
-    triangle_vbo->un_bind();
+    // triangle_vbo->un_bind();
     m_triangle_vao->un_bind();
 }
 

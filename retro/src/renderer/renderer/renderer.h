@@ -4,6 +4,8 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 
+#include "renderer/buffers/vertex_array_object.h"
+
 namespace retro::renderer
 {
     struct renderer_data
@@ -24,5 +26,10 @@ namespace retro::renderer
         static void swap_buffers();
         static void set_clear_color(const glm::vec4 &clear_color);
         static void set_vsync_enabled(bool is_vsync_enabled);
+
+        static void bind_texture(uint32_t slot, uint32_t handle_id);
+
+        static void submit_arrays(uint32_t draw_mode, int count);
+        static void submit_vao(const std::shared_ptr<vertex_array_object> &vao, int count);
     };
 }

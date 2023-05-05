@@ -12,6 +12,7 @@ namespace retro::renderer
         if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress)))
             assert(false);
 
+        glEnable(GL_DEPTH_TEST);
         RT_TRACE("Retro Renderer | Renderer context initialization completed.");
     }
 }

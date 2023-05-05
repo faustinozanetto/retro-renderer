@@ -1,4 +1,4 @@
-project "simple-triangle-textured"
+project "simple-3d"
     kind "ConsoleApp"
     language "C++"
     cppdialect "C++20"

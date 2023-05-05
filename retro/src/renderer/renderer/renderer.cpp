@@ -49,4 +49,22 @@ namespace retro::renderer
         s_data.vsync_enabled = is_vsync_enabled;
         glfwSwapInterval(s_data.vsync_enabled ? 1 : 0);
     }
+
+    void renderer::bind_texture(uint32_t slot, uint32_t handle_id)
+    {
+        glBindTextureUnit(slot, handle_id);
+    }
+
+    void renderer::submit_arrays(uint32_t draw_mode, int count)
+    {
+        glDrawArrays(draw_mode, 0, count);
+    }
+
+    void renderer::submit_vao(const std::shared_ptr<vertex_array_object> &vao, int count)
+    {
+        vao->bind();
+        submit_arrays(GL_TRIANGLES, count);
+        vao->un_bind();
+    }
+
 }

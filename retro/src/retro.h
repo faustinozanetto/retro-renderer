@@ -12,3 +12,5 @@
 
 #include "renderer/buffers/vertex_array_object.h"
 #include "renderer/buffers/vertex_buffer_object.h"
+
+#include "renderer/textures/texture.h"
