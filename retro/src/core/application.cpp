@@ -18,4 +18,11 @@ namespace retro::core
     application::~application()
     {
     }
+
+    void application::main_loop()
+    {
+        while (!renderer::renderer::get_window_should_close())
+        {
+        }
+    }
 }

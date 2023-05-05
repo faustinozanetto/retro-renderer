@@ -16,6 +16,7 @@ project "demo"
         "%{wks.location}/retro/src",
         "%{include_dirs.glfw}",
 		"%{include_dirs.glad}",
+        "%{include_dirs.glm}",
     }
 
     links {
