@@ -3,6 +3,7 @@
 #include "application.h"
 
 #include "renderer/renderer/renderer.h"
+#include "logging/logger.h"
 
 namespace retro::core
 {
@@ -10,6 +11,8 @@ namespace retro::core
 
     application::application()
     {
+        logging::logger::initialize();
+        RT_INFO("Retro Renderer | Window Initialization Started.");
         s_instance = this;
         m_window = std::make_shared<renderer::window>(1280, 720, "Retro Renderer");
         renderer::renderer::initialize();
@@ -23,6 +26,11 @@ namespace retro::core
     {
         while (!renderer::renderer::get_window_should_close())
         {
+            renderer::renderer::set_clear_color({0.15f, 0.15f, 0.15f, 1.0f});
+            renderer::renderer::clear_screen();
+
+            renderer::renderer::poll_input();
+            renderer::renderer::swap_buffers();
         }
     }
 }

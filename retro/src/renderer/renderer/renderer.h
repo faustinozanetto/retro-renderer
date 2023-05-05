@@ -22,7 +22,7 @@ namespace retro::renderer
         static void clear_screen();
         static void poll_input();
         static void swap_buffers();
-        static void set_clear_color();
+        static void set_clear_color(const glm::vec4 &clear_color);
         static void set_vsync_enabled(bool is_vsync_enabled);
     };
 }

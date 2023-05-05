@@ -36,8 +36,9 @@ namespace retro::renderer
         glfwSwapBuffers(s_data.window_handle);
     }
 
-    void renderer::set_clear_color()
+    void renderer::set_clear_color(const glm::vec4 &clear_color)
     {
+        s_data.clear_color = clear_color;
         glClearColor(s_data.clear_color.r, s_data.clear_color.g, s_data.clear_color.b, s_data.clear_color.a);
     }
 

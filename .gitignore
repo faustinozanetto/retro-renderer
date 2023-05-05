@@ -5,8 +5,6 @@
 *.dll
 *.lib
 
-third_party/*
-
 # IntelliJ
 *.idea/
 
