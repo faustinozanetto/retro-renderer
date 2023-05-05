@@ -2,6 +2,12 @@
 
 namespace retro::renderer
 {
+    enum class shader_type
+    {
+        fragment,
+        vertex,
+    };
+
     class shader
     {
     public:
