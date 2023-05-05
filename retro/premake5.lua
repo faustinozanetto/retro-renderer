@@ -18,6 +18,14 @@ project "retro"
     includedirs
 	{
 		"src",
+        "%{include_dirs.glfw}",
+		"%{include_dirs.glad}",
+    }
+
+    links
+	{
+        "glfw",
+        "glad"
     }
 
     filter "configurations:debug"

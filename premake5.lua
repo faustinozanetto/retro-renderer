@@ -1,3 +1,5 @@
+include "dependencies.lua"
+
 output_dir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
 workspace "retro"
@@ -13,6 +15,12 @@ workspace "retro"
 	{
 		"MultiProcessorCompile"
 	}
+
+group "Dependencies"
+	include "third_party/glfw"
+	include "third_party/glad"
+group ""
+
 
 group "core"
     include "retro"
