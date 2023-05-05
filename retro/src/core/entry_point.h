@@ -10,6 +10,7 @@ int main(int argc, char **argv)
     // application->run();
     while (true)
     {
+        
     }
     delete application;
 }

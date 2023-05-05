@@ -3,7 +3,7 @@
 
 namespace retro::renderer
 {
-    window::window(int width, int height, std::string title)
+    window::window(int width, int height, const std::string& title)
     {
         m_data.width = width;
         m_data.height = height;

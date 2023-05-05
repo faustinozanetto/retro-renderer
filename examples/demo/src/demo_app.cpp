@@ -4,7 +4,6 @@
 
 demo_app::demo_app()
 {
-    retro::renderer::window *window = new retro::renderer::window(1920, 1080, "Retro Renderer");
 }
 
 demo_app::~demo_app()
