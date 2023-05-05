@@ -1,18 +1,18 @@
-﻿#include "simple_triangle_app.h"
+﻿#include "simple_triangle_textured_app.h"
 
 #include <glm/ext/matrix_transform.hpp>
 
-simple_triangle_app::simple_triangle_app() : application("./")
+simple_triangle_textured_app::simple_triangle_textured_app() : application("./")
 {
     load_shaders();
     setup_triangle();
 }
 
-simple_triangle_app::~simple_triangle_app()
+simple_triangle_textured_app::~simple_triangle_textured_app()
 {
 }
 
-void simple_triangle_app::on_update()
+void simple_triangle_textured_app::on_update()
 {
     m_shader->bind();
     glm::mat4 model = glm::mat4(1.0f);
@@ -24,15 +24,15 @@ void simple_triangle_app::on_update()
     m_shader->un_bind();
 }
 
-void simple_triangle_app::load_shaders()
+void simple_triangle_textured_app::load_shaders()
 {
     const std::string &shader_contents = retro::renderer::shader_loader::read_shader_from_file(
-        "resources/shaders/screen.rrs");
+        "resources/shaders/screen_textured.rrs");
     const auto &shader_sources = retro::renderer::shader_loader::parse_shader_source(shader_contents);
     m_shader = std::make_shared<retro::renderer::shader>(shader_sources);
 }
 
-void simple_triangle_app::setup_triangle()
+void simple_triangle_textured_app::setup_triangle()
 {
     m_triangle_vao = std::make_shared<retro::renderer::vertex_array_object>();
     std::shared_ptr<retro::renderer::vertex_buffer_object> triangle_vbo = std::make_shared<
@@ -56,5 +56,5 @@ void simple_triangle_app::setup_triangle()
 
 retro::core::application *retro::core::create_application()
 {
-    return new simple_triangle_app();
+    return new simple_triangle_textured_app();
 }

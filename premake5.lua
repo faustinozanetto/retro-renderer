@@ -19,6 +19,7 @@ workspace "retro"
 group "Dependencies"
 	include "third_party/glfw"
 	include "third_party/glad"
+	include "third_party/stb"
 group ""
 
 
@@ -29,4 +30,5 @@ group ""
 group "examples"
     include "examples/demo"
 	include "examples/simple_triangle"
+	include "examples/simple_triangle_textured"
 group ""

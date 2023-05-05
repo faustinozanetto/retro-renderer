@@ -1,4 +1,4 @@
-project "demo"
+project "simple-triangle-textured"
     kind "ConsoleApp"
     language "C++"
     cppdialect "C++20"
@@ -11,7 +11,6 @@ project "demo"
         "src/**.cpp",
     }
     
-
     includedirs {
         "%{wks.location}/retro/src",
         "%{include_dirs.glfw}",

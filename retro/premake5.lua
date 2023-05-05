@@ -22,6 +22,7 @@ project "retro"
 		"%{include_dirs.glad}",
         "%{include_dirs.glm}",
         "%{include_dirs.spdlog}",
+        "%{include_dirs.stb}",
     }
 
     links
