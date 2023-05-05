@@ -17,3 +17,7 @@ workspace "retro"
 group "core"
     include "retro"
 group ""
+
+group "examples"
+    include "examples/demo"
+group ""
