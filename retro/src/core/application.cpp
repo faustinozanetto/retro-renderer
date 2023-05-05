@@ -1,26 +1,23 @@
 ﻿#include "rtpch.h"
 
+#include <filesystem>
+
 #include "application.h"
 
 #include "renderer/renderer/renderer.h"
-#include "renderer/shaders/shader.h"
-#include "renderer/shaders/shader_loader.h"
 
 namespace retro::core
 {
     application *application::s_instance = nullptr;
 
-    application::application()
+    application::application(const std::string &working_directory)
     {
         logging::logger::initialize();
+        std::filesystem::current_path(working_directory);
         RT_TRACE("Retro Renderer | Application initialization started.");
         s_instance = this;
         m_window = std::make_shared<renderer::window>(1280, 720, "Retro Renderer");
         renderer::renderer::initialize();
-
-        const std::string &shader_contents = renderer::shader_loader::read_shader_from_file("../../resources/shaders/test.rrs");
-        const auto& shader_sources = renderer::shader_loader::parse_shader_source(shader_contents);
-        const std::shared_ptr<renderer::shader> &shader = std::make_shared<renderer::shader>(shader_sources);
     }
 
     application::~application()

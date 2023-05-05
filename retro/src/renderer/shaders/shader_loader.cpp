@@ -17,7 +17,7 @@ namespace retro::renderer
             {
                 shader_contents.resize(size);
                 in.seekg(0, std::ios::beg);
-                in.read(&shader_contents[0], size);
+                in.read(shader_contents.data(), size);
             }
             else
             {

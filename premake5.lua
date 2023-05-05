@@ -28,4 +28,5 @@ group ""
 
 group "examples"
     include "examples/demo"
+	include "examples/simple_triangle"
 group ""

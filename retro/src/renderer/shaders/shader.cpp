@@ -1,8 +1,9 @@
 #include "rtpch.h"
 #include "shader.h"
 
-#include "glad/glad.h"
-#include "GLFW/glfw3.h"
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+#include <glm/gtc/type_ptr.hpp>
 
 namespace retro::renderer
 {
@@ -35,6 +36,66 @@ namespace retro::renderer
         RT_TRACE("Retro Renderer | Started creating shader.");
         compile_contents(shader_contents);
         RT_TRACE("Retro Renderer | Shader created successfully.");
+    }
+
+    uint32_t shader::get_uniform_location(const std::string &uniform_name)
+    {
+        if (m_uniforms.contains(uniform_name))
+            return m_uniforms[uniform_name];
+
+        uint32_t location = glGetUniformLocation(m_handle_id, uniform_name.c_str());
+        m_uniforms.insert(std::make_pair(uniform_name, location));
+        return location;
+    }
+
+    void shader::set_int(const std::string &uniform_name, int value)
+    {
+        glUniform1i(get_uniform_location(uniform_name), value);
+    }
+
+    void shader::set_vec_int2(const std::string &uniform_name, const glm::ivec2 &value)
+    {
+        glUniform2i(get_uniform_location(uniform_name), value.x, value.y);
+    }
+
+    void shader::set_vec_int3(const std::string &uniform_name, const glm::ivec3 &value)
+    {
+        glUniform3i(get_uniform_location(uniform_name), value.x, value.y, value.z);
+    }
+
+    void shader::set_vec_int4(const std::string &uniform_name, const glm::ivec4 &value)
+    {
+        glUniform4i(get_uniform_location(uniform_name), value.x, value.y, value.z, value.w);
+    }
+
+    void shader::set_float(const std::string &uniform_name, float value)
+    {
+        glUniform1f(get_uniform_location(uniform_name), value);
+    }
+
+    void shader::set_vec_float2(const std::string &uniform_name, const glm::vec2 &value)
+    {
+        glUniform2f(get_uniform_location(uniform_name), value.x, value.y);
+    }
+
+    void shader::set_vec_float3(const std::string &uniform_name, const glm::vec3 &value)
+    {
+        glUniform3f(get_uniform_location(uniform_name), value.x, value.y, value.z);
+    }
+
+    void shader::set_vec_float4(const std::string &uniform_name, const glm::vec4 &value)
+    {
+        glUniform4f(get_uniform_location(uniform_name), value.x, value.y, value.z, value.w);
+    }
+
+    void shader::set_mat3(const std::string &uniform_name, const glm::mat3 &value)
+    {
+        glUniformMatrix3fv(get_uniform_location(uniform_name), 1, GL_FALSE, glm::value_ptr(value));
+    }
+
+    void shader::set_mat4(const std::string &uniform_name, const glm::mat4 &value)
+    {
+        glUniformMatrix4fv(get_uniform_location(uniform_name), 1, GL_FALSE, glm::value_ptr(value));
     }
 
     void shader::compile_contents(const std::unordered_map<shader_type, std::string> &shader_contents)

@@ -10,7 +10,7 @@ namespace retro::core
     class application
     {
     public:
-        application();
+        application(const std::string &working_directory);
         virtual ~application();
         /* Getters */
         static application &get() { return *s_instance; }
@@ -18,7 +18,7 @@ namespace retro::core
 
     private:
         void main_loop();
-        
+
         std::shared_ptr<renderer::window> m_window;
 
         friend int ::main(int argc, char **argv);

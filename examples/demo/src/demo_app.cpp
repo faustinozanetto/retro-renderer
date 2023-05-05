@@ -2,7 +2,7 @@
 
 #include "core/entry_point.h"
 
-demo_app::demo_app()
+demo_app::demo_app() : application("../")
 {
 }
 

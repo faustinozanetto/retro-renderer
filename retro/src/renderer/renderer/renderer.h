@@ -1,8 +1,8 @@
 ﻿#pragma once
 
-#include "glm/glm.hpp"
-#include "glad/glad.h"
-#include "GLFW/glfw3.h"
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
 
 namespace retro::renderer
 {
