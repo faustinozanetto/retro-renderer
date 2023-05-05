@@ -3,7 +3,6 @@
 #include "application.h"
 
 #include "renderer/renderer/renderer.h"
-#include "logging/logger.h"
 
 namespace retro::core
 {
@@ -12,7 +11,7 @@ namespace retro::core
     application::application()
     {
         logging::logger::initialize();
-        RT_INFO("Retro Renderer | Window Initialization Started.");
+        RT_TRACE("Retro Renderer | Application initialization started.");
         s_instance = this;
         m_window = std::make_shared<renderer::window>(1280, 720, "Retro Renderer");
         renderer::renderer::initialize();

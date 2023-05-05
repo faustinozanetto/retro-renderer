@@ -10,10 +10,12 @@ namespace retro::renderer
 
     void renderer::initialize()
     {
+        RT_TRACE("Retro Renderer | Renderer initialization started.");
         core::application &application = core::application::get();
         renderer_context::initialize(application.get_window());
 
         s_data.window_handle = application.get_window()->get_handle();
+        RT_TRACE("Retro Renderer | Renderer initialization completed.");
     }
 
     bool renderer::get_window_should_close()

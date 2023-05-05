@@ -5,6 +5,8 @@
 *.dll
 *.lib
 
+*.log
+
 # IntelliJ
 *.idea/
 

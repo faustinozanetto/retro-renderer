@@ -3,8 +3,12 @@
 
 namespace retro::renderer
 {
-    window::window(int width, int height, const std::string& title)
+    window::window(int width, int height, const std::string &title)
     {
+        RT_TRACE("Retro Renderer | Window Initialization");
+        RT_TRACE("   - Title: {0}", title);
+        RT_TRACE("   - Width: {0}", width);
+        RT_TRACE("   - Height: {0}", height);
         m_data.width = width;
         m_data.height = height;
         m_data.title = title;
@@ -33,5 +37,7 @@ namespace retro::renderer
 
         // Store data pointer
         glfwSetWindowUserPointer(m_handle, &m_data);
+
+        RT_TRACE("Retro Renderer | Window initialization completed.");
     }
 }

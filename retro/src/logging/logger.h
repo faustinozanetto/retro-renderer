@@ -20,5 +20,6 @@ namespace retro::logging
 
 // Logging macros
 #define RT_INFO(...) ::retro::logging::logger::get_logger()->info(__VA_ARGS__)
+#define RT_TRACE(...) ::retro::logging::logger::get_logger()->trace(__VA_ARGS__)
 #define RT_WARN(...) ::retro::logging::logger::get_logger()->warn(__VA_ARGS__)
 #define RT_ERROR(...) ::retro::logging::logger::get_logger()->error(__VA_ARGS__)

@@ -12,4 +12,5 @@
 
 #include <assert.h>
 
+#include "logging/logger.h"
 #include <Windows.h>
