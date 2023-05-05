@@ -3,6 +3,8 @@
 #include "application.h"
 
 #include "renderer/renderer/renderer.h"
+#include "renderer/shaders/shader.h"
+#include "renderer/shaders/shader_loader.h"
 
 namespace retro::core
 {
@@ -15,6 +17,10 @@ namespace retro::core
         s_instance = this;
         m_window = std::make_shared<renderer::window>(1280, 720, "Retro Renderer");
         renderer::renderer::initialize();
+
+        const std::string &shader_contents = renderer::shader_loader::read_shader_from_file("../../resources/shaders/test.rrs");
+        const auto& shader_sources = renderer::shader_loader::parse_shader_source(shader_contents);
+        const std::shared_ptr<renderer::shader> &shader = std::make_shared<renderer::shader>(shader_sources);
     }
 
     application::~application()

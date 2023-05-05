@@ -5,7 +5,7 @@ namespace retro::renderer
 {
     std::string shader_loader::read_shader_from_file(const std::string &file_path)
     {
-        RT_ERROR("Retro Renderer | Started reading shader from file {0}", file_path);
+        RT_TRACE("Retro Renderer | Started reading shader from file '{0}'", file_path);
         std::string shader_contents;
         std::ifstream in(file_path, std::ios::in | std::ios::binary);
 
@@ -21,15 +21,17 @@ namespace retro::renderer
             }
             else
             {
-                RT_ERROR("Retro Renderer | An error ocurred while reading shader file {0}", file_path);
+                RT_ERROR("Retro Renderer | An error ocurred while reading shader file '{0}'", file_path);
+                assert(false);
             }
         }
         else
         {
-            RT_ERROR("Retro Renderer | An error ocurred while opening shader file {0}", file_path);
+            RT_ERROR("Retro Renderer | An error ocurred while opening shader file '{0}'", file_path);
+            assert(false);
         }
         in.close();
-        RT_ERROR("Retro Renderer | Shader read successfully.");
+        RT_TRACE("Retro Renderer | Shader read successfully.");
 
         return shader_contents;
     }
