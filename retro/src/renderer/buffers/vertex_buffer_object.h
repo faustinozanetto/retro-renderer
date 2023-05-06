@@ -1,5 +1,7 @@
 #pragma once
 
+#include "renderer/buffers/vertex_buffer_layout_descriptor.h"
+
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
@@ -29,6 +31,7 @@ namespace retro::renderer
 
         /* Getters */
         uint32_t get_handle_id() const { return m_handle_id; }
+        const std::shared_ptr<vertex_buffer_layout_descriptor> &get_layout_descriptor() const { return m_layout_descriptor; }
 
         void bind();
         void un_bind();
@@ -36,11 +39,14 @@ namespace retro::renderer
         void set_attribute(uint32_t index, int size, uint32_t type, int stride, const void *data);
         void set_data(vertex_buffer_object_usage buffer_usage, int size, const void *data) const;
 
+        void set_layout_descriptor(const std::shared_ptr<vertex_buffer_layout_descriptor> &layout_descriptor) { m_layout_descriptor = layout_descriptor; };
+
         static uint32_t get_buffer_target_to_opengl(vertex_buffer_object_target buffer_target);
         static uint32_t get_buffer_usage_to_opengl(vertex_buffer_object_usage buffer_usage);
 
     private:
         uint32_t m_handle_id;
         vertex_buffer_object_target m_buffer_target;
+        std::shared_ptr<vertex_buffer_layout_descriptor> m_layout_descriptor;
     };
 }

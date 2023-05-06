@@ -21,13 +21,13 @@ namespace retro::camera
         m_front = glm::vec3(0.0f, 0.0f, -1.0f);
 
         RT_TRACE("  - Type: {0}", get_camera_type_to_string(m_type));
-        RT_TRACE("  - Fov: {0}", m_fov),
-            RT_TRACE("  - Near Plane: {0}", m_near_plane),
-            RT_TRACE("  - Far Plane: {0}", m_far_plane),
-            RT_TRACE("  - Yaw: {0}", m_yaw),
-            RT_TRACE("  - Pitch: {0}", m_pitch),
+        RT_TRACE("  - Fov: {0}", m_fov);
+        RT_TRACE("  - Near Plane: {0}", m_near_plane);
+        RT_TRACE("  - Far Plane: {0}", m_far_plane);
+        RT_TRACE("  - Yaw: {0}", m_yaw);
+        RT_TRACE("  - Pitch: {0}", m_pitch);
 
-            construct_matrices();
+        construct_matrices();
         update_vectors();
         RT_TRACE("Retro Renderer | Camera initialization completed.");
     }

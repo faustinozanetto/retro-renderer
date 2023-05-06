@@ -7,10 +7,10 @@ This folder contains several examples that are using the retro renderer features
 
 ![simple-triangle](../assets/example-projects/simple-triangle-example.png)
 
-## Simple Triangle Textured
+<!-- ## Simple Triangle Textured
 
 ![simple-triangle-textured](../assets/example-projects/simple-triangle-textured-example.png)
 
 ## Simple 3D
 
-![simple-3d](../assets/example-projects/simple-3d-example.png)
+![simple-3d](../assets/example-projects/simple-3d-example.png) -->
