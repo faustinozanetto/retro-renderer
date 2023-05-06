@@ -26,6 +26,7 @@ project "retro"
         "%{include_dirs.spdlog}",
         "%{include_dirs.stb}",
         "%{include_dirs.imgui}",
+        "%{include_dirs.assimp}",
     }
 
     links
@@ -40,7 +41,16 @@ project "retro"
         runtime "Debug"
         symbols "on"
 
+        links {
+            "%{library_dirs.assimp_debug}",
+        }
+
     filter "configurations:release"
         defines "RT_RELEASE"
         runtime "Release"
         optimize "on"
+
+        links {
+            "%{library_dirs.assimp_release}",
+        }
+

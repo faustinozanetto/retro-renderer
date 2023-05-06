@@ -21,6 +21,7 @@ project "simple-3d"
         "%{include_dirs.spdlog}",
         "%{include_dirs.stb}",
         "%{include_dirs.imgui}",
+        "%{include_dirs.assimp}",
     }
 
     links {
