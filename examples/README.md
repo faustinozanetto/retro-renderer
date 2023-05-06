@@ -1,5 +1,4 @@
-Examples
-========
+# Examples
 
 This folder contains several examples that are using the retro renderer features. Here you can see some pictures of the results generated from the examples.
 

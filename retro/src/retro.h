@@ -23,6 +23,9 @@
 #include "renderer/models/model.h"
 #include "renderer/models/model_loader.h"
 
+#include "renderer/lighting/light.h"
+#include "renderer/lighting/point_light.h"
+
 // Events Include
 #include "events/base_event.h"
 #include "events/window_events.h"
