@@ -22,13 +22,13 @@ namespace retro::renderer
             else
             {
                 RT_ERROR("Retro Renderer | An error ocurred while reading shader file '{0}'", file_path);
-                assert(false);
+                RT_ASSERT(false);
             }
         }
         else
         {
             RT_ERROR("Retro Renderer | An error ocurred while opening shader file '{0}'", file_path);
-            assert(false);
+            RT_ASSERT(false);
         }
         in.close();
         RT_TRACE("Retro Renderer | Shader read successfully.");

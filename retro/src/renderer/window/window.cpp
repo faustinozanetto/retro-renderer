@@ -23,8 +23,7 @@ namespace retro::renderer
     void window::initialize()
     {
         const int glfwInitializeState = glfwInit();
-        if (glfwInitializeState == GLFW_FALSE)
-            assert(false);
+        RT_ASSERT_MSG(glfwInitializeState != GLFW_FALSE, "Could not initialize GLFW!");
 
         // GLFW window hints
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);

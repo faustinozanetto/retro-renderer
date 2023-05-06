@@ -47,7 +47,7 @@ namespace retro::renderer
         case vertex_buffer_object_target::elements:
             return GL_ELEMENT_ARRAY_BUFFER;
         }
-        assert(false);
+        RT_ASSERT_MSG(false, "Invalid vertex buffer object target!");
         return -1;
     }
 
@@ -68,7 +68,7 @@ namespace retro::renderer
         case (vertex_buffer_object_usage::dynamic_copy):
             return GL_DYNAMIC_COPY;
         }
-        assert(false);
+        RT_ASSERT_MSG(false, "Invalid vertex buffer object usage!");
         return -1;
     }
 

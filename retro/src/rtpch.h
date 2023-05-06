@@ -13,7 +13,7 @@
 #include <map>
 #include <string>
 
-#include <assert.h>
-
 #include "logging/logger.h"
+#include "core/assert.h"
+
 #include <Windows.h>

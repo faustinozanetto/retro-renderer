@@ -90,6 +90,6 @@ namespace retro::camera
         case camera_type::orthographic:
             return "orthographic";
         }
-        assert(false);
+        RT_ASSERT_MSG(false, "Invalid camera type!");
     }
 }

@@ -50,7 +50,7 @@ namespace retro::renderer
                                           vertex_buffer_layout_entry::get_vertex_buffer_entry_to_opengl(descriptor_element.get_type()),
                                           descriptor_element.get_is_normalized() ? GL_TRUE : GL_FALSE,
                                           layout_descriptor->get_stride(),
-                                          reinterpret_cast<const void*>(descriptor_element.get_offset() + sizeof(float) * count * i));
+                                          reinterpret_cast<const void *>(descriptor_element.get_offset() + sizeof(float) * count * i));
                     glVertexAttribDivisor(m_vbo_index, 1);
                     m_vbo_index++;
                 }

@@ -16,7 +16,7 @@ namespace retro::renderer
         case shader_type::vertex:
             return GL_VERTEX_SHADER;
         }
-        assert(false);
+        RT_ASSERT_MSG(false, "Invalid shader type!");
     }
 
     std::string shader::get_shader_type_to_string(shader_type type)
@@ -28,7 +28,7 @@ namespace retro::renderer
         case shader_type::vertex:
             return "vertex";
         }
-        assert(false);
+        RT_ASSERT_MSG(false, "Invalid shader type!");
     }
 
     shader::shader(const std::unordered_map<shader_type, std::string> &shader_contents)
@@ -137,7 +137,7 @@ namespace retro::renderer
                 std::string error_message = std::string(
                     infoLog.begin(), infoLog.end());
                 RT_ERROR("  - An error ocurred while compiling shader '{0}'", error_message);
-                assert(false);
+                RT_ASSERT(false);
             }
 
             RT_TRACE("  - Shader '{0}' compiled successfully.", get_shader_type_to_string(shader.first));
@@ -171,7 +171,7 @@ namespace retro::renderer
             std::string error_message = std::string(
                 infoLog.begin(), infoLog.end());
             RT_ERROR("  - An error ocurred while linking shader '{0}'", error_message);
-            assert(false);
+            RT_ASSERT(false);
         }
 
         RT_TRACE("  - Shader compiled successfully.");

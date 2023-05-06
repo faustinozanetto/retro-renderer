@@ -39,7 +39,7 @@ namespace retro::renderer
         case vertex_buffer_entry_type::sbool:
             return 1;
         }
-        assert(false);
+        RT_ASSERT_MSG(false, "Invalid vertex buffer entry type!");
         return 0;
     }
 
@@ -70,7 +70,7 @@ namespace retro::renderer
         case vertex_buffer_entry_type::sbool:
             return 1;
         }
-        assert(false);
+        RT_ASSERT_MSG(false, "Invalid vertex buffer entry type!");
         return 0;
     }
 
@@ -101,7 +101,7 @@ namespace retro::renderer
         case vertex_buffer_entry_type::sbool:
             return GL_INT;
         }
-        assert(false);
+        RT_ASSERT_MSG(false, "Invalid vertex buffer entry type!");
         return 0;
     }
 
