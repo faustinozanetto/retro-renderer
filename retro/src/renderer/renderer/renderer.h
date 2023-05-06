@@ -34,5 +34,6 @@ namespace retro::renderer
 
         static void submit_arrays(uint32_t draw_mode, int count);
         static void submit_vao(const std::shared_ptr<vertex_array_object> &vao, int count);
+        static void submit_vao_instanced(const std::shared_ptr<vertex_array_object> &vao, int count, int instance_count);
     };
 }

@@ -71,4 +71,10 @@ namespace retro::renderer
         vao->un_bind();
     }
 
+    void renderer::submit_vao_instanced(const std::shared_ptr<vertex_array_object> &vao, int count, int instance_count)
+    {
+        vao->bind();
+        glDrawArraysInstanced(GL_TRIANGLES, 0, count, instance_count);
+        vao->un_bind();
+    }
 }

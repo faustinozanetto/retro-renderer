@@ -39,24 +39,28 @@ void simple_triangle_textured_app::load_texture()
 
 void simple_triangle_textured_app::setup_triangle()
 {
-    m_triangle_vao = std::make_shared<retro::renderer::vertex_array_object>();
-    std::shared_ptr<retro::renderer::vertex_buffer_object> triangle_vbo = std::make_shared<
-        retro::renderer::vertex_buffer_object>(retro::renderer::vertex_buffer_object_target::arrays);
-    m_triangle_vao->bind();
-
     std::vector<float> vertices = {
         -0.5f, -0.5f, 0.0f, 0.0f, 0.0f,
         0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
         0.0f, 0.5f, 0.0f, 0.5f, 1.0f};
     size_t size = vertices.size() * sizeof(&vertices[0]);
 
-    triangle_vbo->bind();
-    triangle_vbo->set_data(retro::renderer::vertex_buffer_object_usage::static_draw, size, vertices.data());
-    triangle_vbo->set_attribute(0, 3, GL_FLOAT, 5 * sizeof(float), nullptr);
-    triangle_vbo->set_attribute(1, 2, GL_FLOAT, 5 * sizeof(float), reinterpret_cast<void *>(3 * sizeof(float)));
+    m_triangle_vao = std::make_shared<retro::renderer::vertex_array_object>();
+    m_triangle_vao->bind();
+    std::shared_ptr<retro::renderer::vertex_buffer_object> triangle_vbo = std::make_shared<
+        retro::renderer::vertex_buffer_object>(retro::renderer::vertex_buffer_object_target::arrays);
+    triangle_vbo->set_data(retro::renderer::vertex_buffer_object_usage::dynamic_draw, size, vertices.data());
 
-    // triangle_vbo->un_bind();
-    m_triangle_vao->un_bind();
+    std::initializer_list<retro::renderer::vertex_buffer_layout_entry>
+        layout_elements = {
+            {"a_pos", retro::renderer::vertex_buffer_entry_type::vec_float3, false},
+            {"a_tex_coord", retro::renderer::vertex_buffer_entry_type::vec_float2, false}};
+
+    std::shared_ptr<retro::renderer::vertex_buffer_layout_descriptor> triangle_vbo_vbo_layout_descriptor = std::make_shared<
+        retro::renderer::vertex_buffer_layout_descriptor>(layout_elements);
+    triangle_vbo->set_layout_descriptor(triangle_vbo_vbo_layout_descriptor);
+
+    m_triangle_vao->add_vertex_buffer(triangle_vbo);
 }
 
 retro::core::application *retro::core::create_application()
