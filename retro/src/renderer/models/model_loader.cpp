@@ -19,6 +19,8 @@ namespace retro::renderer
             RT_ASSERT_MSG(false, "An error ocurred while loading model from file.");
         }
 
+        RT_TRACE("  - Mesh Count: {0}", scene->mNumMeshes);
+        // Recursively parse all the assimp nodes and store the parsed mesh into the meshes vector.
         std::vector<std::shared_ptr<mesh>> model_meshes;
         parse_assimp_node(scene->mRootNode, scene, model_meshes);
         RT_TRACE("Retro Renderer | Model loaded successfully.");
@@ -42,6 +44,8 @@ namespace retro::renderer
 
     std::shared_ptr<mesh> model_loader::parse_assimp_mesh(aiMesh *assimp_mesh, const aiScene *assimp_scene)
     {
+        RT_TRACE("  - Mesh: '{0}'", assimp_mesh->mName.C_Str());
+        RT_TRACE("      - Vertex Count: {0}", assimp_mesh->mNumVertices);
         // 1. Initialize vectors for storing the data.
         std::vector<mesh_vertex> vertices;
         std::vector<mesh_index> indices;

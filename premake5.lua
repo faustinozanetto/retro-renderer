@@ -27,7 +27,6 @@ group "core"
 group ""
 
 group "examples"
-    include "examples/demo"
 	include "examples/simple_triangle"
 	include "examples/simple_triangle_textured"
 	include "examples/simple_3d"
