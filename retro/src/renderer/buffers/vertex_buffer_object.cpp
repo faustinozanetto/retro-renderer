@@ -28,13 +28,14 @@ namespace retro::renderer
         vertex_buffer_object_usage buffer_usage, int size,
         const void *data) const
     {
+        glBindBuffer(get_buffer_target_to_opengl(m_buffer_target), m_handle_id);
         glBufferData(get_buffer_target_to_opengl(m_buffer_target), size, data, get_buffer_usage_to_opengl(buffer_usage));
     }
 
     void vertex_buffer_object::set_attribute(uint32_t index, int size, uint32_t type, int stride, const void *data)
     {
-        glVertexAttribPointer(index, size, type, GL_FALSE, stride, data);
         glEnableVertexAttribArray(index);
+        glVertexAttribPointer(index, size, type, GL_FALSE, stride, data);
     }
 
     uint32_t vertex_buffer_object::get_buffer_target_to_opengl(vertex_buffer_object_target buffer_target)

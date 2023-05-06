@@ -4,6 +4,9 @@
 #include "core/application.h"
 #include "core/entry_point.h"
 
+// Camera includes
+#include "camera/camera.h"
+
 // Renderer Includes
 #include "renderer/window/window.h"
 #include "renderer/renderer/renderer.h"

@@ -1,16 +1,17 @@
 ﻿#pragma once
 
+#include "renderer/window/window.h"
+#include "renderer/buffers/vertex_array_object.h"
+
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
-
-#include "renderer/buffers/vertex_array_object.h"
 
 namespace retro::renderer
 {
     struct renderer_data
     {
-        GLFWwindow *window_handle;
+        std::shared_ptr<window> window;
         glm::vec4 clear_color;
         bool vsync_enabled;
     };
@@ -19,6 +20,8 @@ namespace retro::renderer
     {
     public:
         static void initialize();
+
+        static glm::ivec2 get_viewport_size();
 
         static bool get_window_should_close();
         static void clear_screen();

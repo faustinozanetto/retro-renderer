@@ -12,15 +12,19 @@ namespace retro::renderer
     {
         RT_TRACE("Retro Renderer | Renderer initialization started.");
         core::application &application = core::application::get();
+        s_data.window = application.get_window();
         renderer_context::initialize(application.get_window());
-
-        s_data.window_handle = application.get_window()->get_handle();
         RT_TRACE("Retro Renderer | Renderer initialization completed.");
+    }
+
+    glm::ivec2 renderer::get_viewport_size()
+    {
+        return glm::ivec2(s_data.window->get_width(), s_data.window->get_height());
     }
 
     bool renderer::get_window_should_close()
     {
-        return glfwWindowShouldClose(s_data.window_handle);
+        return glfwWindowShouldClose(s_data.window->get_handle());
     }
 
     void renderer::clear_screen()
@@ -35,7 +39,7 @@ namespace retro::renderer
 
     void renderer::swap_buffers()
     {
-        glfwSwapBuffers(s_data.window_handle);
+        glfwSwapBuffers(s_data.window->get_handle());
     }
 
     void renderer::set_clear_color(const glm::vec4 &clear_color)

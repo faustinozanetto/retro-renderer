@@ -2,15 +2,16 @@
 
 #include <iostream>
 
-namespace retro::core
+namespace retro::utils
 {
     template <class T>
     class singleton
     {
     public:
-        static T& get()
+        static T &get()
         {
-            if (!s_instance) s_instance = new T();
+            if (!s_instance)
+                s_instance = new T();
             return *s_instance;
         }
 
@@ -39,9 +40,9 @@ namespace retro::core
         {
         }
 
-        static T* s_instance;
+        static T *s_instance;
     };
 
     template <class T>
-    T* singleton<T>::s_instance = nullptr;
+    T *singleton<T>::s_instance = nullptr;
 }
