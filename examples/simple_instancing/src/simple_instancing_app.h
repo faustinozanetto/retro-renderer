@@ -21,5 +21,6 @@ private:
     std::shared_ptr<retro::camera::camera> m_camera;
     std::shared_ptr<retro::renderer::texture> m_texture;
     std::shared_ptr<retro::renderer::shader> m_shader;
+    std::shared_ptr<retro::renderer::shader> m_instancing_shader;
     std::shared_ptr<retro::renderer::vertex_array_object> m_cube_vao;
 };

@@ -11,6 +11,8 @@ simple_instancing_app::simple_instancing_app() : application("./")
     setup_cube();
     setup_camera();
     setup_instancing();
+
+    retro::renderer::renderer::set_vsync_enabled(false);
 }
 
 simple_instancing_app::~simple_instancing_app()
@@ -19,15 +21,24 @@ simple_instancing_app::~simple_instancing_app()
 
 void simple_instancing_app::on_update()
 {
+    /* 1. Draw center cube */
     m_shader->bind();
-    glm::mat4 model = glm::mat4(1.0f);
-    model = glm::rotate(model, static_cast<float>(glfwGetTime()), {1, 1, 0});
-    m_shader->set_mat4("u_transform", model);
     m_shader->set_mat4("u_view", m_camera->get_view_matrix());
     m_shader->set_mat4("u_projection", m_camera->get_projection_matrix());
     retro::renderer::renderer::bind_texture(0, m_texture->get_handle_id());
-    retro::renderer::renderer::submit_vao_instanced(m_cube_vao, 36, m_instances_count);
+    glm::mat4 model = glm::mat4(1.0f);
+    model = glm::scale(model, glm::vec3(50.0f));
+    model = glm::rotate(model, (float)glfwGetTime(), {0, 1, 0});
+    m_shader->set_mat4("u_transform", model);
+    retro::renderer::renderer::submit_vao(m_cube_vao, 36);
     m_shader->un_bind();
+
+    /* 2. Draw the instanced cubes */
+    m_instancing_shader->bind();
+    m_instancing_shader->set_mat4("u_view", m_camera->get_view_matrix());
+    m_instancing_shader->set_mat4("u_projection", m_camera->get_projection_matrix());
+    retro::renderer::renderer::submit_vao_instanced(m_cube_vao, 36, m_instances_count);
+    m_instancing_shader->un_bind();
 
     retro::ui::interface::begin_frame();
 
@@ -56,10 +67,18 @@ void simple_instancing_app::on_update()
 
 void simple_instancing_app::load_shaders()
 {
-    const std::string &shader_contents = retro::renderer::shader_loader::read_shader_from_file(
-        "resources/shaders/screen_textured_instancing.rrs");
-    const auto &shader_sources = retro::renderer::shader_loader::parse_shader_source(shader_contents);
-    m_shader = std::make_shared<retro::renderer::shader>(shader_sources);
+    {
+        const std::string &shader_contents = retro::renderer::shader_loader::read_shader_from_file(
+            "resources/shaders/screen_textured.rrs");
+        const auto &shader_sources = retro::renderer::shader_loader::parse_shader_source(shader_contents);
+        m_shader = std::make_shared<retro::renderer::shader>(shader_sources);
+    }
+    {
+        const std::string &shader_contents = retro::renderer::shader_loader::read_shader_from_file(
+            "resources/shaders/screen_textured_instancing.rrs");
+        const auto &shader_sources = retro::renderer::shader_loader::parse_shader_source(shader_contents);
+        m_instancing_shader = std::make_shared<retro::renderer::shader>(shader_sources);
+    }
 }
 
 void simple_instancing_app::load_texture()
@@ -138,7 +157,7 @@ void simple_instancing_app::setup_instancing()
     std::shared_ptr<retro::renderer::vertex_buffer_object> instancing_matrices_vbo = std::make_shared<
         retro::renderer::vertex_buffer_object>(retro::renderer::vertex_buffer_object_target::arrays);
     std::vector<glm::mat4> instancing_matrices;
-    float radius = 150.0;
+    float radius = 120.0;
     float offset = 25.0f;
     for (int i = 0; i < m_instances_count; i++)
     {

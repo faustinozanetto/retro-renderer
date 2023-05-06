@@ -13,8 +13,8 @@ namespace retro::camera
         m_fov = fov;
         m_near_plane = near_plane;
         m_far_plane = far_plane;
-        m_yaw = -70.0f;
-        m_pitch = 0.0f;
+        m_yaw = -90.0f;
+        m_pitch = -40.0f;
 
         m_position = glm::vec3(0.0f);
         m_world_up = glm::vec3(0, 1, 0);
