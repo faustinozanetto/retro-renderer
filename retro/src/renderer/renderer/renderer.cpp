@@ -54,6 +54,11 @@ namespace retro::renderer
         glfwSwapInterval(s_data.vsync_enabled ? 1 : 0);
     }
 
+    void renderer::set_viewport_size(const glm::ivec2 &viewport_size)
+    {
+        glViewport(0, 0, viewport_size.x, viewport_size.y);
+    }
+
     void renderer::bind_texture(uint32_t slot, uint32_t handle_id)
     {
         glBindTextureUnit(slot, handle_id);

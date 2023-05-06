@@ -15,7 +15,6 @@ namespace retro::events
         /* Getters */
         virtual event_type get_type() const = 0;
 
-    protected:
         bool m_handled = false;
     };
 }

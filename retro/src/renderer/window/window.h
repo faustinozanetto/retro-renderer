@@ -1,6 +1,9 @@
 #pragma once
 
 #include "iostream"
+#include "events/base_event.h"
+#include "events/event_dispatcher.h"
+#include "events/window_events.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -12,6 +15,7 @@ namespace retro::renderer
         int width;
         int height;
         std::string title;
+        std::function<void(events::base_event &)> event_func;
     };
 
     class window
@@ -26,8 +30,11 @@ namespace retro::renderer
         std::string get_title() const { return m_data.title; }
         GLFWwindow *get_handle() const { return m_handle; }
 
+        void set_event_function(const std::function<void(events::base_event &)> func);
+
     private:
         void initialize();
+        void setup_callbacks();
 
         window_data m_data;
         GLFWwindow *m_handle;

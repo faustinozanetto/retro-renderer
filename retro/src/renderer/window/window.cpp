@@ -37,6 +37,26 @@ namespace retro::renderer
         // Store data pointer
         glfwSetWindowUserPointer(m_handle, &m_data);
 
+        setup_callbacks();
+
         RT_TRACE("Retro Renderer | Window initialization completed.");
+    }
+
+    void window::setup_callbacks()
+    {
+        // 1. Resize callback
+        glfwSetWindowSizeCallback(m_handle, [](GLFWwindow *native_window, int width, int height)
+                                  {
+            window_data &data = *static_cast<window_data *>(glfwGetWindowUserPointer(native_window));
+            data.width = width;
+            data.height = height;
+
+            events::window_resize_event event({width, height});
+            data.event_func(event); });
+    }
+
+    void window::set_event_function(const std::function<void(events::base_event &)> func)
+    {
+        m_data.event_func = func;
     }
 }

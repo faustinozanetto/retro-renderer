@@ -23,5 +23,10 @@
 #include "renderer/models/model.h"
 #include "renderer/models/model_loader.h"
 
+// Events Include
+#include "events/base_event.h"
+#include "events/window_events.h"
+#include "events/event_dispatcher.h"
+
 // Interface Includes
 #include "interfaces/interface.h"

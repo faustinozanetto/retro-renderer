@@ -30,6 +30,7 @@ namespace retro::renderer
         static void swap_buffers();
         static void set_clear_color(const glm::vec4 &clear_color);
         static void set_vsync_enabled(bool is_vsync_enabled);
+        static void set_viewport_size(const glm::ivec2 &viewport_size);
 
         static void bind_texture(uint32_t slot, uint32_t handle_id);
 
