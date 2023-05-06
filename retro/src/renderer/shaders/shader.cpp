@@ -15,6 +15,8 @@ namespace retro::renderer
             return GL_FRAGMENT_SHADER;
         case shader_type::vertex:
             return GL_VERTEX_SHADER;
+        case shader_type::geometry:
+            return GL_GEOMETRY_SHADER;
         }
         RT_ASSERT_MSG(false, "Invalid shader type!");
     }
@@ -27,6 +29,8 @@ namespace retro::renderer
             return "fragment";
         case shader_type::vertex:
             return "vertex";
+        case shader_type::geometry:
+            return "geometry";
         }
         RT_ASSERT_MSG(false, "Invalid shader type!");
     }
@@ -111,7 +115,7 @@ namespace retro::renderer
     void shader::compile_contents(const std::unordered_map<shader_type, std::string> &shader_contents)
     {
         uint32_t shader_program = glCreateProgram();
-        uint32_t shader_ids[2] = {};
+        std::vector<uint32_t> shader_ids;
         int shader_index = 0;
 
         for (auto &shader : shader_contents)
@@ -143,7 +147,7 @@ namespace retro::renderer
             RT_TRACE("  - Shader '{0}' compiled successfully.", get_shader_type_to_string(shader.first));
             // Attach
             glAttachShader(shader_program, shader_id);
-            shader_ids[shader_index] = shader_id;
+            shader_ids.push_back(shader_id);
             shader_index++;
         }
 

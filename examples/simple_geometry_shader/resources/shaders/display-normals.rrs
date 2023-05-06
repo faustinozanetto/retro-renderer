@@ -1,0 +1,60 @@
+#shader vertex
+#version 450 core
+
+layout (location = 0) in vec3 a_pos;
+layout (location = 1) in vec2 a_tex_coord;
+layout (location = 2) in vec3 a_normal;
+
+uniform mat4 u_transform;
+uniform mat4 u_view;
+
+out VS_OUT {
+    vec3 normal;
+} vs_out;
+
+void main() {
+    gl_Position = u_view * u_transform * vec4(a_pos, 1.0f);
+
+    mat3 normal_matrix = mat3(transpose(inverse(u_view * u_transform)));
+    vs_out.normal = normalize(vec3(vec4(normal_matrix * a_normal, 0.0)));
+}
+
+#shader geometry
+#version 450 core
+
+layout (triangles) in;
+layout (line_strip, max_vertices = 6) out;
+
+in VS_OUT {
+    vec3 normal;
+} gs_in[];
+
+const float MAGNITUDE = 0.4;
+layout (location = 0) uniform mat4 u_projection;
+
+void generate_line(int index)
+{
+    gl_Position = u_projection * gl_in[index].gl_Position;
+    EmitVertex();
+    gl_Position = u_projection * (gl_in[index].gl_Position + 
+                                vec4(gs_in[index].normal, 0.0) * MAGNITUDE);
+    EmitVertex();
+    EndPrimitive();
+}
+
+void main()
+{
+    generate_line(0); // first vertex normal
+    generate_line(1); // second vertex normal
+    generate_line(2); // third vertex normal
+}  
+
+#shader fragment
+#version 450 core
+
+layout (location = 0) out vec4 frag_color;
+
+void main()
+{
+    frag_color = vec4(1.0, 1.0, 0.0, 1.0);
+}

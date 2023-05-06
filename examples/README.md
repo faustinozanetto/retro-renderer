@@ -23,3 +23,7 @@ This folder contains several examples that are using the retro renderer features
 
 ![simple-model-loading](../assets/example-projects/simple-model-loading-example.png)
 Model from <https://skfb.ly/ooDDN>
+
+## Simple Geometry Shader
+
+![simple-geometry-shader](../assets/example-projects/simple-geometry-shader-example.png)

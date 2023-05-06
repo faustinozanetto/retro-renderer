@@ -54,10 +54,12 @@ namespace retro::renderer
             const size_t next_line_pos = shader_source.find_first_not_of("\r\n", eol);
             pos = shader_source.find(SHADER_TYPE_TOKEN, next_line_pos);
 
-            if (type == "vertex")
+            if (type == shader::get_shader_type_to_string(shader_type::vertex))
                 current_type = shader_type::vertex;
-            else
+            else if (type == shader::get_shader_type_to_string(shader_type::fragment))
                 current_type = shader_type::fragment;
+            else if (type == shader::get_shader_type_to_string(shader_type::geometry))
+                current_type = shader_type::geometry;
 
             shader_contents[current_type] = (pos == std::string::npos)
                                                 ? shader_source.substr(next_line_pos)

@@ -9,6 +9,7 @@ namespace retro::renderer
     {
         fragment,
         vertex,
+        geometry,
     };
 
     class shader
