@@ -64,6 +64,11 @@ namespace retro::renderer
         glDrawArrays(draw_mode, 0, count);
     }
 
+    void renderer::submit_elements(uint32_t draw_mode, int count)
+    {
+        glDrawElements(draw_mode, count, GL_UNSIGNED_INT, 0);
+    }
+
     void renderer::submit_vao(const std::shared_ptr<vertex_array_object> &vao, int count)
     {
         vao->bind();
@@ -76,5 +81,15 @@ namespace retro::renderer
         vao->bind();
         glDrawArraysInstanced(GL_TRIANGLES, 0, count, instance_count);
         vao->un_bind();
+    }
+
+    void renderer::submit_model(const std::shared_ptr<model> &model)
+    {
+        for (const auto &mesh : model->get_meshes())
+        {
+            mesh->get_vao()->bind();
+            submit_elements(GL_TRIANGLES, mesh->get_vao()->get_index_buffer()->get_count());
+            mesh->get_vao()->un_bind();
+        }
     }
 }

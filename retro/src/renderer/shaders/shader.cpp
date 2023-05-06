@@ -136,7 +136,7 @@ namespace retro::renderer
                 // Print error log.
                 std::string error_message = std::string(
                     infoLog.begin(), infoLog.end());
-                RT_ERROR("  - An error ocurred while compiling shader '{0}'", error_message);
+                RT_ERROR("An error ocurred while compiling shader '{0}'", error_message);
                 RT_ASSERT(false);
             }
 
@@ -170,7 +170,7 @@ namespace retro::renderer
             // Print error log.
             std::string error_message = std::string(
                 infoLog.begin(), infoLog.end());
-            RT_ERROR("  - An error ocurred while linking shader '{0}'", error_message);
+            RT_ERROR("An error ocurred while linking shader '{0}'", error_message);
             RT_ASSERT(false);
         }
 

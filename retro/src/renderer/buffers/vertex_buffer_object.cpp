@@ -3,9 +3,10 @@
 
 namespace retro::renderer
 {
-    vertex_buffer_object::vertex_buffer_object(vertex_buffer_object_target buffer_target)
+    vertex_buffer_object::vertex_buffer_object(vertex_buffer_object_target buffer_target, uint32_t count)
     {
         m_buffer_target = buffer_target;
+        m_count = count;
         glGenBuffers(1, &m_handle_id);
     }
 

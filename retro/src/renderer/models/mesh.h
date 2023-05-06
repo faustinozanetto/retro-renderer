@@ -12,12 +12,15 @@ namespace retro::renderer
     {
         glm::vec3 position;
         glm::vec2 tex_coords;
+        glm::vec3 normals;
     };
 
     class mesh
     {
     public:
         mesh(const std::vector<mesh_vertex> &vertices, const std::vector<mesh_index> &indices);
+
+        const std::shared_ptr<vertex_array_object> &get_vao() const { return m_vao; }
 
     private:
         void construct_buffers();

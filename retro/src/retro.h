@@ -19,5 +19,9 @@
 
 #include "renderer/textures/texture.h"
 
+#include "renderer/models/mesh.h"
+#include "renderer/models/model.h"
+#include "renderer/models/model_loader.h"
+
 // Interface Includes
 #include "interfaces/interface.h"
