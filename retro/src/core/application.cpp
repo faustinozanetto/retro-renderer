@@ -5,6 +5,7 @@
 #include "application.h"
 
 #include "renderer/renderer/renderer.h"
+#include "interfaces/interface.h"
 
 namespace retro::core
 {
@@ -18,6 +19,7 @@ namespace retro::core
         s_instance = this;
         m_window = std::make_shared<renderer::window>(1280, 720, "Retro Renderer");
         renderer::renderer::initialize();
+        ui::interface::initialize();
     }
 
     application::~application()

@@ -12,7 +12,7 @@ layout (location = 2) uniform mat4 u_projection;
 
 void main() {
     o_tex_coord = a_tex_coord;
-    gl_Position = a_instance_matrix * u_view * u_transform * vec4(a_pos, 1.0f);
+    gl_Position = u_projection * u_view * a_instance_matrix * vec4(a_pos, 1.0f);
 }
 
 #shader fragment

@@ -20,6 +20,7 @@ project "simple-instancing"
         "%{include_dirs.glm}",
         "%{include_dirs.spdlog}",
         "%{include_dirs.stb}",
+        "%{include_dirs.imgui}",
     }
 
     links {

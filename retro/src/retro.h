@@ -4,7 +4,7 @@
 #include "core/application.h"
 #include "core/entry_point.h"
 
-// Camera includes
+// Camera Includes
 #include "camera/camera.h"
 
 // Renderer Includes
@@ -18,3 +18,6 @@
 #include "renderer/buffers/vertex_buffer_layout_descriptor.h"
 
 #include "renderer/textures/texture.h"
+
+// Interface Includes
+#include "interfaces/interface.h"
