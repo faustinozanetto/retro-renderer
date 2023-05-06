@@ -12,6 +12,7 @@
 #include <unordered_map>
 #include <map>
 #include <string>
+#include <vector>
 
 #include "logging/logger.h"
 #include "core/assert.h"
