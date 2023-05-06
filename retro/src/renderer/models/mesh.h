@@ -20,6 +20,7 @@ namespace retro::renderer
     public:
         mesh(const std::vector<mesh_vertex> &vertices, const std::vector<mesh_index> &indices);
 
+        /* Getters */
         const std::shared_ptr<vertex_array_object> &get_vao() const { return m_vao; }
 
     private:
