@@ -52,9 +52,7 @@ namespace retro::core
     bool application::on_window_resize(events::window_resize_event &resize_event)
     {
         RT_TRACE("Retro Renderer | Window resized to: {0}x{1}", resize_event.get_size().x, resize_event.get_size().y);
-
         renderer::renderer::set_viewport_size(resize_event.get_size());
-
         return false;
     }
 }

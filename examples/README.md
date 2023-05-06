@@ -19,7 +19,7 @@ This folder contains several examples that are using the retro renderer features
 
 ![simple-instancing](../assets/example-projects/simple-instancing-example.png)
 
-
 ## Simple Model Loading
 
 ![simple-model-loading](../assets/example-projects/simple-model-loading-example.png)
+Model from <https://skfb.ly/ooDDN>
