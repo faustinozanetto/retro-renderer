@@ -44,7 +44,7 @@ void simple_triangle_app::setup_triangle()
     m_triangle_vao->bind();
     std::shared_ptr<retro::renderer::vertex_buffer_object> triangle_vbo = std::make_shared<
         retro::renderer::vertex_buffer_object>(retro::renderer::vertex_buffer_object_target::arrays);
-    triangle_vbo->set_data(retro::renderer::vertex_buffer_object_usage::dynamic_draw, size, vertices.data());
+    triangle_vbo->set_data(retro::renderer::vertex_buffer_object_usage::static_draw, size, vertices.data());
 
     std::initializer_list<retro::renderer::vertex_buffer_layout_entry>
         layout_elements = {

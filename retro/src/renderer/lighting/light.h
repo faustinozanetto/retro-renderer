@@ -23,6 +23,8 @@ namespace retro::renderer
         /* Setters */
         void set_color(const glm::vec3 &color) { m_color = color; }
 
+        static std::string get_light_type_to_string(light_type type);
+
     private:
         light_type m_type;
         glm::vec3 m_color;

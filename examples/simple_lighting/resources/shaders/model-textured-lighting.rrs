@@ -7,6 +7,7 @@ layout (location = 2) in vec3 a_normal;
 
 layout (location = 0) out vec2 o_tex_coord;
 layout (location = 1) out vec3 o_frag_pos;
+layout (location = 2) out vec3 o_normal;
 
 layout (location = 0) uniform mat4 u_transform;
 layout (location = 1) uniform mat4 u_view;
@@ -14,6 +15,7 @@ layout (location = 2) uniform mat4 u_projection;
 
 void main() {
     o_tex_coord = a_tex_coord;
+    o_normal = a_normal;
     o_frag_pos = vec3(u_transform * vec4(a_pos, 1.0));
     gl_Position = u_projection * u_view * vec4(o_frag_pos, 1.0);
 }
@@ -25,24 +27,76 @@ layout (location = 0) out vec4 frag_color;
 
 layout (location = 0) in vec2 o_tex_coord;
 layout (location = 1) in vec3 o_frag_pos;
+layout (location = 2) in vec3 o_normal;
 
 layout (binding = 0) uniform sampler2D u_texture;
 
-uniform vec3 u_light_pos;
-uniform vec3 u_light_color;
+uniform vec3 u_cam_pos;
+
+struct point_light {
+    vec3 position;
+    vec3 color;
+};
+
+struct spot_light {
+    vec3 position;
+    vec3 color;
+    vec3 direction;
+
+    float inner_angle;
+    float outer_angle;
+};
+
+uniform point_light p_light;
+uniform spot_light s_light;
+
+uniform int u_light_type;
 
 float light_constant = 1.0f;
 float light_linear = 0.09f;
 float light_quadratic = 0.032f;
 
+vec3 calculate_point_light(point_light light, vec3 normal, vec3 frag_pos, vec3 view_dir) {
+    vec3 light_dir = normalize(light.position - frag_pos);
+    // diffuse shading
+    float diff = max(dot(normal, light_dir), 0.0);
+    // attenuation
+    float distance = length(light.position - frag_pos);
+    float attenuation = 1.0 / (light_constant + light_linear * distance + light_quadratic * (distance * distance));    
+    // combine results
+    vec3 ambient = light.color * vec3(texture(u_texture, o_tex_coord));
+    ambient *= attenuation;
+    return ambient;
+}
+
+vec3 calculate_spot_light(spot_light light, vec3 normal, vec3 frag_pos, vec3 view_dir) { 
+    vec3 light_dir = normalize(light.position - frag_pos);
+    // diffuse shading
+    float diff = max(dot(normal, light_dir), 0.0);
+    // attenuation
+    float distance = length(light.position - frag_pos);
+    float attenuation = 1.0 / (light_constant + light_linear * distance + light_quadratic * (distance * distance));       
+    // spotlight intensity
+    float theta = dot(light_dir, normalize(-light.direction)); 
+    float epsilon = light.inner_angle - light.outer_angle;
+    float intensity = clamp((theta - light.outer_angle) / epsilon, 0.0, 1.0);
+    // combine results
+    vec3 ambient = light.color * vec3(texture(u_texture, o_tex_coord));
+    ambient *= attenuation * intensity;
+    return ambient;
+}
+
 void main()
 {
-    // attenuation
-    float distance    = length(u_light_pos - o_frag_pos);
-    float attenuation = 1.0 / (light_constant + light_linear * distance + light_quadratic * (distance * distance));    
+    vec3 normal = normalize(o_normal);
+    vec3 view_dir = normalize(u_cam_pos - o_frag_pos);
 
-    vec3 albedo = texture(u_texture, o_tex_coord).rgb * u_light_color;
-    albedo *= attenuation;
+    vec3 result;
+    if (u_light_type == 0) {
+        result = calculate_point_light(p_light, normal, o_frag_pos, view_dir);
+    } else if (u_light_type == 1){
+        result = calculate_spot_light(s_light, normal, o_frag_pos, view_dir);
+    }
 
-    frag_color = vec4(albedo, 1.0);
+   frag_color = vec4(result, 1.0);
 }
