@@ -1,0 +1,39 @@
+#shader vertex
+#version 450 core
+
+layout (location = 0) in vec3 a_pos;
+layout (location = 1) in vec2 a_tex_coord;
+layout (location = 2) in vec3 a_normal;
+layout (location = 3) in vec3 a_tangent;
+layout (location = 4) in vec3 a_bitangnet;
+
+layout (location = 0) out vec2 o_tex_coord;
+layout (location = 1) out vec3 o_normal;
+
+layout (location = 0) uniform mat4 u_transform;
+layout (location = 1) uniform mat4 u_view;
+layout (location = 2) uniform mat4 u_projection;
+
+void main() {
+    o_tex_coord = a_tex_coord;
+    o_normal = a_normal;
+    gl_Position = u_projection * u_view * u_transform * vec4(a_pos, 1.0f);
+}
+
+#shader fragment
+#version 450 core
+
+layout (location = 0) out vec4 frag_color;
+
+layout (location = 0) in vec2 o_tex_coord;
+layout (location = 1) in vec3 o_normal;
+
+layout (binding = 0) uniform sampler2D u_albedo_map;
+layout (binding = 1) uniform sampler2D u_normal_map;
+
+void main()
+{
+    vec3 normal = texture(u_normal_map, o_tex_coord).rgb;
+    normal = normalize(normal * 2.0 - 1.0);
+    frag_color = vec4(texture(u_texture, o_tex_coord).rgb, 1.0);
+}
