@@ -23,6 +23,9 @@ namespace retro::camera
         float get_yaw() const { return m_yaw; }
         float get_pitch() const { return m_pitch; }
         const glm::vec3 &get_position() const { return m_position; }
+        const glm::vec3 &get_front() const { return m_front; }
+        const glm::vec3 &get_up() const { return m_up; }
+        const glm::vec3 &get_right() const { return m_right; }
 
         const glm::mat4 &get_projection_matrix() const { return m_projection_matrix; }
         const glm::mat4 &get_view_matrix() const { return m_view_matrix; }

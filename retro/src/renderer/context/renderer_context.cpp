@@ -13,6 +13,7 @@ namespace retro::renderer
         RT_ASSERT_MSG(glad_result, "An error ocurred when initializing GLAD!");
 
         glEnable(GL_DEPTH_TEST);
+        glEnable(GL_CULL_FACE);
         RT_TRACE("Retro Renderer | Renderer context initialization completed.");
     }
 }

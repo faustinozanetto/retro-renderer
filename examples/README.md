@@ -26,3 +26,11 @@ Model from <https://skfb.ly/ooDDN>
 ## Simple Geometry Shader
 
 ![simple-geometry-shader](../assets/example-projects/simple-geometry-shader-example.png)
+
+## Simple Lighting
+
+![simple-lighting](../assets/example-projects/simple-lighting-example.png)
+
+## Point Shadows
+
+![point-shadows](../assets/example-projects/point-shadows-example.png)

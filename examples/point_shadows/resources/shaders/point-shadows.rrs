@@ -1,0 +1,51 @@
+#shader vertex
+#version 450 core
+
+layout (location = 0) in vec3 a_pos;
+
+layout (location = 0) uniform mat4 u_transform;
+
+void main() {
+    gl_Position = u_transform * vec4(a_pos, 1.0f);
+}
+
+#shader geometry
+#version 450 core
+
+layout (triangles) in;
+layout (triangle_strip, max_vertices=18) out;
+
+uniform mat4 u_shadow_transformations[6];
+
+layout (location = 0) out vec4 o_frag_pos;
+
+void main()
+{
+    for(int face = 0; face < 6; ++face)
+    {
+        gl_Layer = face; // built-in variable that specifies to which face we render.
+        for(int i = 0; i < 3; ++i) // for each triangle's vertices
+        {
+            o_frag_pos = gl_in[i].gl_Position;
+            gl_Position = u_shadow_transformations[face] * o_frag_pos;
+            EmitVertex();
+        }    
+        EndPrimitive();
+    }
+} 
+
+#shader fragment
+#version 450 core
+
+layout (location = 0) in vec4 o_frag_pos;
+
+uniform vec3 u_light_pos;
+uniform float u_far_plane;
+
+void main()
+{
+    float light_distance = length(o_frag_pos.xyz - u_light_pos);
+    light_distance /= u_far_plane;
+
+    gl_FragDepth = light_distance;
+}

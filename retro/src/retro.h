@@ -25,6 +25,7 @@
 
 #include "renderer/lighting/light.h"
 #include "renderer/lighting/point_light.h"
+#include "renderer/lighting/spot_light.h"
 
 // Events Include
 #include "events/base_event.h"
