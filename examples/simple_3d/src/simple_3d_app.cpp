@@ -16,6 +16,7 @@ simple_3d_app::~simple_3d_app()
 
 void simple_3d_app::on_update()
 {
+    glDisable(GL_CULL_FACE);
     m_shader->bind();
     glm::mat4 model = glm::mat4(1.0f);
     model = glm::rotate(model, static_cast<float>(glfwGetTime()), {1, 1, 0});

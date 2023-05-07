@@ -1,9 +1,7 @@
-<h1 align="center">Retro Renderer</h1>
+# Retro Renderer
 
-<div align="center">
-  <img src="assets/example-projects/simple-triangle-example.png" alt="Retro Renderer Showcase" />
-  <hr/>
-</div>
+![simple-model-loading](/assets/example-projects/simple-model-loading-example.png)
+Model from <https://skfb.ly/ooDDN>
 
 ## ✨ About
 

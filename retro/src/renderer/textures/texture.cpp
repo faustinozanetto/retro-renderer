@@ -190,11 +190,10 @@ namespace retro::renderer
         glTextureStorage2D(m_handle_id, m_mipmap_levels, m_format, m_width, m_height);
 
         // Filtering
-        set_filtering(texture_filtering_type::filter_min, texture_filtering::linear);
+        set_filtering(texture_filtering_type::filter_min, texture_filtering::linear_mipmap_linear);
         set_filtering(texture_filtering_type::filter_mag, texture_filtering::linear);
 
         // Wrapping
-        set_wrapping(texture_wrapping_type::wrap_r, texture_wrapping::repeat);
         set_wrapping(texture_wrapping_type::wrap_s, texture_wrapping::repeat);
         set_wrapping(texture_wrapping_type::wrap_t, texture_wrapping::repeat);
 

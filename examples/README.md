@@ -38,3 +38,7 @@ Model from <https://skfb.ly/ooDDN>
 ## Normal Mapping
 
 ![normal-mapping](../assets/example-projects/normal-mapping-example.png)
+
+## Parallax Mapping
+
+![parallax-mapping](../assets/example-projects/parallax-mapping-example.png)

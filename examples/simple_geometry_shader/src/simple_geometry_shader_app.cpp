@@ -23,6 +23,7 @@ void simple_geometry_shader_app::on_update()
     m_shader->set_mat4("u_transform", model);
     m_shader->set_mat4("u_view", m_camera->get_view_matrix());
     m_shader->set_mat4("u_projection", m_camera->get_projection_matrix());
+    m_shader->set_vec_float3("u_color", {0.15f, 0.65f, 0.45f});
     retro::renderer::renderer::submit_model(m_model);
     m_shader->un_bind();
 

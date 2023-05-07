@@ -21,6 +21,7 @@ simple_instancing_app::~simple_instancing_app()
 
 void simple_instancing_app::on_update()
 {
+    glDisable(GL_CULL_FACE);
     /* 1. Draw center cube */
     m_shader->bind();
     m_shader->set_mat4("u_view", m_camera->get_view_matrix());
