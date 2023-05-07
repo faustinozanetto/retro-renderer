@@ -66,14 +66,27 @@ namespace retro::renderer
             normals.z = assimp_mesh->mNormals[i].z;
             // Tex coords
             glm::vec2 tex_coords(0.0f);
+
             if (assimp_mesh->HasTextureCoords(0)) // does the mesh contain texture coordinates?
             {
                 // tex coords
                 tex_coords = glm::vec2(assimp_mesh->mTextureCoords[0][i].x, assimp_mesh->mTextureCoords[0][i].y);
             }
+            glm::vec3 tangent(0.0f);
+            glm::vec3 bi_tangent(0.0f);
+            // tangent
+            tangent.x = assimp_mesh->mTangents[i].x;
+            tangent.y = assimp_mesh->mTangents[i].y;
+            tangent.z = assimp_mesh->mTangents[i].z;
+            // bitangent
+            bi_tangent.x = assimp_mesh->mBitangents[i].x;
+            bi_tangent.y = assimp_mesh->mBitangents[i].y;
+            bi_tangent.z = assimp_mesh->mBitangents[i].z;
             vertex.position = position;
             vertex.tex_coords = tex_coords;
             vertex.normals = normals;
+            vertex.tangent = tangent;
+            vertex.bitangent = bi_tangent;
             vertices.push_back(vertex);
         }
 

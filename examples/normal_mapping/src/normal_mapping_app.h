@@ -13,6 +13,7 @@ public:
     void load_shaders();
     void load_texture();
     void setup_model();
+    void setup_light();
     void setup_camera();
 
 private:
@@ -21,4 +22,8 @@ private:
     std::shared_ptr<retro::renderer::texture> m_normal_texture;
     std::shared_ptr<retro::renderer::shader> m_shader;
     std::shared_ptr<retro::renderer::model> m_model;
+
+    std::shared_ptr<retro::renderer::point_light> m_point_light;
+    glm::vec3 m_light_pos;
+    glm::vec3 m_light_color;
 };

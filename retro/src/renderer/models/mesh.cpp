@@ -34,7 +34,9 @@ namespace retro::renderer
             layout_elements = {
                 {"a_pos", retro::renderer::vertex_buffer_entry_type::vec_float3, false},
                 {"a_tex_coord", retro::renderer::vertex_buffer_entry_type::vec_float2, false},
-                {"a_normal", retro::renderer::vertex_buffer_entry_type::vec_float3, false}};
+                {"a_normal", retro::renderer::vertex_buffer_entry_type::vec_float3, false},
+                {"a_tangent", retro::renderer::vertex_buffer_entry_type::vec_float3, false},
+                {"a_bitangent", retro::renderer::vertex_buffer_entry_type::vec_float3, false}};
 
         std::shared_ptr<retro::renderer::vertex_buffer_layout_descriptor> vertices_vbo_layout_descriptor = std::make_shared<
             retro::renderer::vertex_buffer_layout_descriptor>(layout_elements);

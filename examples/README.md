@@ -34,3 +34,7 @@ Model from <https://skfb.ly/ooDDN>
 ## Point Shadows
 
 ![point-shadows](../assets/example-projects/point-shadows-example.png)
+
+## Normal Mapping
+
+![normal-mapping](../assets/example-projects/normal-mapping-example.png)
