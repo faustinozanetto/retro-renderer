@@ -7,6 +7,9 @@
 
 *.log
 
+**/models
+**/textures
+
 # IntelliJ
 *.idea/
 
