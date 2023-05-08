@@ -4,6 +4,7 @@ namespace retro::renderer
 {
     enum class texture_filtering
     {
+        none,
         nearest,
         linear,
         nearest_mipmap_nearest,
@@ -20,6 +21,7 @@ namespace retro::renderer
 
     enum class texture_wrapping
     {
+        none,
         repeat,
         mirrored_repeat,
         clamp_to_edge,

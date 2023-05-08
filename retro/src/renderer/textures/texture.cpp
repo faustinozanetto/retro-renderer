@@ -20,6 +20,8 @@ namespace retro::renderer
     {
         switch (filtering)
         {
+        case texture_filtering::none:
+            return "none";
         case texture_filtering::nearest:
             return "nearest";
         case texture_filtering::linear:
@@ -52,6 +54,8 @@ namespace retro::renderer
     {
         switch (wrapping)
         {
+        case texture_wrapping::none:
+            return "none";
         case texture_wrapping::repeat:
             return "repeat";
         case texture_wrapping::mirrored_repeat:
