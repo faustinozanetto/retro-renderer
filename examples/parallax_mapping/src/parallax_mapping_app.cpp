@@ -87,9 +87,9 @@ void parallax_mapping_app::load_shaders()
 
 void parallax_mapping_app::load_texture()
 {
-    m_albedo_texture = std::make_shared<retro::renderer::texture>("../resources/textures/brick-wall/beaten-down-brick_albedo.png");
-    m_normal_texture = std::make_shared<retro::renderer::texture>("../resources/textures/brick-wall/beaten-down-brick_normal-ogl.png");
-    m_height_texture = std::make_shared<retro::renderer::texture>("../resources/textures/brick-wall/beaten-down-brick_height.png");
+    m_albedo_texture = retro::renderer::texture_loader::load_texture_from_file("../resources/textures/brick-wall/beaten-down-brick_albedo.png");
+    m_normal_texture = retro::renderer::texture_loader::load_texture_from_file("../resources/textures/brick-wall/beaten-down-brick_normal-ogl.png");
+    m_height_texture = retro::renderer::texture_loader::load_texture_from_file("../resources/textures/brick-wall/beaten-down-brick_height.png");
 }
 
 void parallax_mapping_app::setup_model()

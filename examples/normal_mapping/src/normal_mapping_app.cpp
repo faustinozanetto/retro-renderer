@@ -60,8 +60,8 @@ void normal_mapping_app::load_shaders()
 
 void normal_mapping_app::load_texture()
 {
-    m_albedo_texture = std::make_shared<retro::renderer::texture>("../resources/models/tv/tv-albedo.png");
-    m_normal_texture = std::make_shared<retro::renderer::texture>("../resources/models/tv/tv-normal.png");
+    m_albedo_texture = retro::renderer::texture_loader::load_texture_from_file("../resources/models/tv/tv-albedo.png");
+    m_normal_texture = retro::renderer::texture_loader::load_texture_from_file("../resources/models/tv/tv-normal.png");
 }
 
 void normal_mapping_app::setup_model()

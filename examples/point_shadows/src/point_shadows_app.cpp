@@ -127,7 +127,7 @@ void point_shadows_app::load_shaders()
 
 void point_shadows_app::load_texture()
 {
-    m_texture = std::make_shared<retro::renderer::texture>("resources/textures/wood.jpg");
+    m_texture = retro::renderer::texture_loader::load_texture_from_file("resources/textures/wood.jpg");
 }
 
 void point_shadows_app::setup_model()

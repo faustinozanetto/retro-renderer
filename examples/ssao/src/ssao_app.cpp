@@ -50,7 +50,6 @@ void ssao_app::on_update()
         m_geometry_shader->set_mat4("u_transform", model);
         retro::renderer::renderer::submit_model(m_light_model);
     }
-
     m_geometry_shader->un_bind();
     m_geometry_fbo->un_bind();
 
@@ -220,7 +219,7 @@ void ssao_app::setup_fbo()
             retro::renderer::texture_filtering::linear,
             retro::renderer::texture_wrapping::clamp_to_edge,
         };
-        m_geometry_fbo = std::make_shared<retro::renderer::frame_buffer>(attachments, viewport_size.x, viewport_size.y, true, depth_attachment);
+        m_geometry_fbo = std::make_shared<retro::renderer::frame_buffer>(attachments, viewport_size.x, viewport_size.y, depth_attachment);
     }
 
     // 2. Setup ssao color buffer
@@ -233,13 +232,7 @@ void ssao_app::setup_fbo()
                 retro::renderer::texture_filtering::nearest,
                 retro::renderer::texture_wrapping::none,
             }};
-        retro::renderer::frame_buffer_attachment depth_attachment = {
-            GL_RGBA,
-            GL_RGBA16F,
-            retro::renderer::texture_filtering::linear,
-            retro::renderer::texture_wrapping::clamp_to_edge,
-        };
-        m_ssao_color_fbo = std::make_shared<retro::renderer::frame_buffer>(attachments, viewport_size.x, viewport_size.y, false, depth_attachment);
+        m_ssao_color_fbo = std::make_shared<retro::renderer::frame_buffer>(attachments, viewport_size.x, viewport_size.y);
     }
     // 3 Setup ssao blur buffer
     {
@@ -251,13 +244,7 @@ void ssao_app::setup_fbo()
                 retro::renderer::texture_filtering::nearest,
                 retro::renderer::texture_wrapping::none,
             }};
-        retro::renderer::frame_buffer_attachment depth_attachment = {
-            GL_RGBA,
-            GL_RGBA16F,
-            retro::renderer::texture_filtering::linear,
-            retro::renderer::texture_wrapping::clamp_to_edge,
-        };
-        m_ssao_blur_fbo = std::make_shared<retro::renderer::frame_buffer>(attachments, viewport_size.x, viewport_size.y, false, depth_attachment);
+        m_ssao_blur_fbo = std::make_shared<retro::renderer::frame_buffer>(attachments, viewport_size.x, viewport_size.y);
     }
 }
 

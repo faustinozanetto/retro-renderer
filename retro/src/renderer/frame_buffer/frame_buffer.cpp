@@ -5,12 +5,12 @@
 
 namespace retro::renderer
 {
-    frame_buffer::frame_buffer(const std::vector<frame_buffer_attachment> &attachments, int width, int height, bool has_depth_attachment, frame_buffer_attachment depth_attachment)
+    frame_buffer::frame_buffer(const std::vector<frame_buffer_attachment> &attachments, int width, int height, frame_buffer_attachment depth_attachment)
     {
         RT_TRACE("Retro Renderer | Started creating frame buffer.");
         m_width = width;
         m_height = height;
-        m_has_depth_attachment = has_depth_attachment;
+        m_has_depth_attachment = true;
 
         m_attachments_data = attachments;
         m_depth_attachment_data = depth_attachment;
@@ -30,6 +30,25 @@ namespace retro::renderer
         glDeleteTextures(m_attachments.size(), m_attachments.data());
         if (m_has_depth_attachment)
             glDeleteTextures(1, &m_depth_attachment);
+    }
+
+    frame_buffer::frame_buffer(const std::vector<frame_buffer_attachment> &attachments, int width, int height)
+    {
+        RT_TRACE("Retro Renderer | Started creating frame buffer.");
+        m_width = width;
+        m_height = height;
+        m_has_depth_attachment = false;
+
+        m_attachments_data = attachments;
+        m_depth_attachment_data = {};
+
+        RT_TRACE("  - Width: {0}px", m_width);
+        RT_TRACE("  - Height: {0}px", m_height);
+        RT_TRACE("  - Attachments Count: {0}", m_attachments_data.size());
+        RT_TRACE("  - Has Depth Attachment: '{0}'", m_has_depth_attachment ? "true" : "false");
+
+        initialize();
+        RT_TRACE("Retro Renderer | Frame buffer created successfully.");
     }
 
     void frame_buffer::initialize()

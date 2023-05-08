@@ -19,7 +19,8 @@ namespace retro::renderer
     class frame_buffer
     {
     public:
-        frame_buffer(const std::vector<frame_buffer_attachment> &attachments, int width, int height, bool has_depth_attachment, frame_buffer_attachment depth_attachment = {});
+        frame_buffer(const std::vector<frame_buffer_attachment> &attachments, int width, int height);
+        frame_buffer(const std::vector<frame_buffer_attachment> &attachments, int width, int height, frame_buffer_attachment depth_attachment);
         ~frame_buffer();
 
         /* Getters */

@@ -84,7 +84,7 @@ void simple_instancing_app::load_shaders()
 
 void simple_instancing_app::load_texture()
 {
-    m_texture = std::make_shared<retro::renderer::texture>("../resources/textures/texture.png");
+    m_texture = retro::renderer::texture_loader::load_texture_from_file("../resources/textures/texture.png");
 }
 
 void simple_instancing_app::setup_cube()

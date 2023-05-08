@@ -37,7 +37,7 @@ void simple_model_loading_app::load_shaders()
 
 void simple_model_loading_app::load_texture()
 {
-    m_texture = std::make_shared<retro::renderer::texture>("../resources/models/tv/tv-albedo.png");
+    m_texture = retro::renderer::texture_loader::load_texture_from_file("../resources/models/tv/tv-albedo.png");
 }
 
 void simple_model_loading_app::setup_model()
