@@ -19,6 +19,8 @@
 
 #include "renderer/textures/texture.h"
 
+#include "renderer/frame_buffer/frame_buffer.h"
+
 #include "renderer/models/mesh.h"
 #include "renderer/models/model.h"
 #include "renderer/models/model_loader.h"

@@ -16,7 +16,7 @@ This folder contains several examples that are using the retro renderer features
 
 ## Simple Instancing
 
-![simple-instancing](../assets/example-projects/simple-instancing-example.png)
+![simple-instancing](../assets/example-projects/simple-instancing-example.jpg)
 
 ## Simple Model Loading
 

@@ -1,26 +1,34 @@
 #include "rtpch.h"
 #include "frame_buffer.h"
 
+#include "renderer/renderer/renderer.h"
+
 namespace retro::renderer
 {
-    frame_buffer::frame_buffer(int width, int height, const std::vector<frame_buffer_attachment> &attachments)
+    frame_buffer::frame_buffer(int width, int height, bool has_depth_attachment, const std::vector<frame_buffer_attachment> &attachments, frame_buffer_attachment depth_attachment)
     {
+        RT_TRACE("Retro Renderer | Started creating frame buffer.");
         m_width = width;
         m_height = height;
+        m_has_depth_attachment = has_depth_attachment;
 
-        for (auto &attachment : attachments)
-        {
-            if (attachment.format == GL_DEPTH_COMPONENT32F)
-            {
-                m_depth_attachment_data = attachment;
-            }
-            else
-            {
-                m_attachments_data.push_back(attachment);
-            }
-        }
+        m_attachments_data = attachments;
+        m_depth_attachment_data = depth_attachment;
+
+        RT_TRACE("  - Width: {0}px", m_width);
+        RT_TRACE("  - Height: {0}px", m_height);
+        RT_TRACE("  - Attachments Count: {0}", m_attachments_data.size());
 
         initialize();
+        RT_TRACE("Retro Renderer | Frame buffer created successfully.");
+    }
+
+    frame_buffer::~frame_buffer()
+    {
+        glDeleteFramebuffers(1, &m_handle_id);
+        glDeleteTextures(m_attachments.size(), m_attachments.data());
+        if (m_has_depth_attachment)
+            glDeleteTextures(1, &m_depth_attachment);
     }
 
     void frame_buffer::initialize()
@@ -30,13 +38,16 @@ namespace retro::renderer
         {
             glDeleteFramebuffers(1, &m_handle_id);
             glDeleteTextures(m_attachments.size(), m_attachments.data());
-            glDeleteTextures(1, &m_depth_attachment);
             m_attachments.clear();
-            m_depth_attachment = 0;
+            if (m_has_depth_attachment)
+            {
+                glDeleteTextures(1, &m_depth_attachment);
+                m_depth_attachment = 0;
+            }
         }
 
         // Create fbo
-        glCreateFramebuffers(1, &m_handle_id);
+        glGenFramebuffers(1, &m_handle_id);
         glBindFramebuffer(GL_FRAMEBUFFER, m_handle_id);
         // Add color attachments
         if (!m_attachments_data.empty())
@@ -50,9 +61,12 @@ namespace retro::renderer
         }
 
         // Add depth attachment
-        glCreateTextures(GL_TEXTURE_2D, 1, &m_depth_attachment);
-        glBindTexture(GL_TEXTURE_2D, m_depth_attachment);
-        attach_depth_texture(m_depth_attachment_data, m_depth_attachment);
+        if (m_has_depth_attachment)
+        {
+            glCreateTextures(GL_TEXTURE_2D, 1, &m_depth_attachment);
+            glBindTexture(GL_TEXTURE_2D, m_depth_attachment);
+            attach_depth_texture(m_depth_attachment_data, m_depth_attachment);
+        }
 
         // Draw buffers.
         if (!m_attachments.empty())
@@ -77,6 +91,17 @@ namespace retro::renderer
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
 
+    void frame_buffer::bind()
+    {
+        renderer::set_viewport_size({m_width, m_height});
+        glBindFramebuffer(GL_FRAMEBUFFER, m_handle_id);
+    }
+
+    void frame_buffer::un_bind()
+    {
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    }
+
     void frame_buffer::attach_color_texture(frame_buffer_attachment attachment, uint32_t handle_id, int index)
     {
         glBindTexture(GL_TEXTURE_2D, handle_id);
@@ -85,15 +110,15 @@ namespace retro::renderer
         // Filtering
         if (attachment.filtering != texture_filtering::none)
         {
-            glTextureParameteri(m_handle_id, texture::get_texture_filtering_type_to_opengl(texture_filtering_type::filter_min), texture::get_texture_filtering_to_opengl(attachment.filtering));
-            glTextureParameteri(m_handle_id, texture::get_texture_filtering_type_to_opengl(texture_filtering_type::filter_mag), texture::get_texture_filtering_to_opengl(attachment.filtering));
+            glTextureParameteri(handle_id, texture::get_texture_filtering_type_to_opengl(texture_filtering_type::filter_min), texture::get_texture_filtering_to_opengl(attachment.filtering));
+            glTextureParameteri(handle_id, texture::get_texture_filtering_type_to_opengl(texture_filtering_type::filter_mag), texture::get_texture_filtering_to_opengl(attachment.filtering));
         }
 
         // Wrapping
         if (attachment.wrapping != texture_wrapping::none)
         {
-            glTextureParameteri(m_handle_id, texture::get_texture_wrapping_type_to_opengl(texture_wrapping_type::wrap_s), texture::get_texture_wrapping_to_opengl(attachment.wrapping));
-            glTextureParameteri(m_handle_id, texture::get_texture_wrapping_type_to_opengl(texture_wrapping_type::wrap_t), texture::get_texture_wrapping_to_opengl(attachment.wrapping));
+            glTextureParameteri(handle_id, texture::get_texture_wrapping_type_to_opengl(texture_wrapping_type::wrap_s), texture::get_texture_wrapping_to_opengl(attachment.wrapping));
+            glTextureParameteri(handle_id, texture::get_texture_wrapping_type_to_opengl(texture_wrapping_type::wrap_t), texture::get_texture_wrapping_to_opengl(attachment.wrapping));
         }
 
         // Attach texture
@@ -109,15 +134,15 @@ namespace retro::renderer
         // Filtering
         if (attachment.filtering != texture_filtering::none)
         {
-            glTextureParameteri(m_handle_id, texture::get_texture_filtering_type_to_opengl(texture_filtering_type::filter_min), texture::get_texture_filtering_to_opengl(attachment.filtering));
-            glTextureParameteri(m_handle_id, texture::get_texture_filtering_type_to_opengl(texture_filtering_type::filter_mag), texture::get_texture_filtering_to_opengl(attachment.filtering));
+            glTextureParameteri(handle_id, texture::get_texture_filtering_type_to_opengl(texture_filtering_type::filter_min), texture::get_texture_filtering_to_opengl(attachment.filtering));
+            glTextureParameteri(handle_id, texture::get_texture_filtering_type_to_opengl(texture_filtering_type::filter_mag), texture::get_texture_filtering_to_opengl(attachment.filtering));
         }
 
         // Wrapping
         if (attachment.wrapping != texture_wrapping::none)
         {
-            glTextureParameteri(m_handle_id, texture::get_texture_wrapping_type_to_opengl(texture_wrapping_type::wrap_s), texture::get_texture_wrapping_to_opengl(attachment.wrapping));
-            glTextureParameteri(m_handle_id, texture::get_texture_wrapping_type_to_opengl(texture_wrapping_type::wrap_t), texture::get_texture_wrapping_to_opengl(attachment.wrapping));
+            glTextureParameteri(handle_id, texture::get_texture_wrapping_type_to_opengl(texture_wrapping_type::wrap_s), texture::get_texture_wrapping_to_opengl(attachment.wrapping));
+            glTextureParameteri(handle_id, texture::get_texture_wrapping_type_to_opengl(texture_wrapping_type::wrap_t), texture::get_texture_wrapping_to_opengl(attachment.wrapping));
         }
 
         // Attach texture

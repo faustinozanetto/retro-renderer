@@ -18,10 +18,15 @@ namespace retro::renderer
     class frame_buffer
     {
     public:
-        frame_buffer(int width, int height, const std::vector<frame_buffer_attachment> &attachmentss);
+        frame_buffer(int width, int height, bool has_depth_attachment, const std::vector<frame_buffer_attachment> &attachments, frame_buffer_attachment depth_attachment);
+        ~frame_buffer();
 
         /* Getters */
         uint32_t get_handle_id() const { return m_handle_id; }
+        uint32_t get_attachment_id(int index = 0) const { return m_attachments[index]; }
+
+        void bind();
+        void un_bind();
 
     private:
         void initialize();
@@ -31,6 +36,7 @@ namespace retro::renderer
         uint32_t m_handle_id;
         int m_width;
         int m_height;
+        bool m_has_depth_attachment;
         uint32_t m_depth_attachment;
         std::vector<uint32_t> m_attachments;
         frame_buffer_attachment m_depth_attachment_data;

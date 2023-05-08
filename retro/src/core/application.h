@@ -17,12 +17,13 @@ namespace retro::core
         static application &get() { return *s_instance; }
         std::shared_ptr<renderer::window> &get_window() { return m_window; }
 
-        virtual void on_update() = 0;
         void on_event(events::base_event &event);
+
+        virtual void on_update() = 0;
+        virtual void on_handle_event(events::base_event &event){};
 
     private:
         void main_loop();
-
         bool on_window_resize(events::window_resize_event &resize_event);
 
         std::shared_ptr<renderer::window> m_window;

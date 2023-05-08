@@ -33,6 +33,8 @@ namespace retro::core
         events::event_dispatcher dispatcher(event);
         dispatcher.dispatch<events::window_resize_event>([this](auto &&...args) -> decltype(auto)
                                                          { return application::on_window_resize(std::forward<decltype(args)>(args)...); });
+        // Call event handle to child application classes
+        on_handle_event(event);
     }
 
     void application::main_loop()
