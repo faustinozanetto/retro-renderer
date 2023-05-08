@@ -27,6 +27,7 @@ private:
     std::shared_ptr<retro::renderer::texture> m_albedo_texture;
     std::shared_ptr<retro::renderer::texture> m_normal_texture;
     std::shared_ptr<retro::renderer::shader> m_ssao_shader;
+    std::shared_ptr<retro::renderer::shader> m_ssao_blur_shader;
     std::shared_ptr<retro::renderer::shader> m_geometry_shader;
     std::shared_ptr<retro::renderer::shader> m_lighting_shader;
     std::shared_ptr<retro::renderer::model> m_model;
@@ -38,10 +39,11 @@ private:
     glm::vec3 m_light_color;
 
     std::vector<glm::vec3> m_ssao_kernel;
-    uint32_t m_ssao_noise_texture;
+    std::shared_ptr<retro::renderer::texture> m_ssao_noise_texture;
     std::shared_ptr<retro::renderer::frame_buffer> m_ssao_color_fbo;
     std::shared_ptr<retro::renderer::frame_buffer> m_ssao_blur_fbo;
     float m_ssao_radius;
     float m_ssao_bias;
     float m_ssao_noise_size;
+    bool m_use_ssao;
 };

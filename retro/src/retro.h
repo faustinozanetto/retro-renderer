@@ -18,6 +18,7 @@
 #include "renderer/buffers/vertex_buffer_layout_descriptor.h"
 
 #include "renderer/textures/texture.h"
+#include "renderer/textures/texture_loader.h"
 
 #include "renderer/frame_buffer/frame_buffer.h"
 

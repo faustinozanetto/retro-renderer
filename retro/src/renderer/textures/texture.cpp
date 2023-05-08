@@ -7,13 +7,32 @@
 
 namespace retro::renderer
 {
-    texture::texture(const std::string &file_path)
+    texture::texture(const raw_texture_data &raw_texture_data)
     {
-        RT_TRACE("Retro Renderer | Started loading texture.");
-        RT_TRACE("  - File Path: '{0}'", file_path);
-        m_file_path = file_path;
-        parse_texture_file();
-        RT_TRACE("Retro Renderer | Texture loaded successfully.");
+        m_width = raw_texture_data.width;
+        m_height = raw_texture_data.height;
+        m_channels = raw_texture_data.channels;
+        m_mipmap_levels = floor(log2((std::min)(m_width, m_height)));
+        setup_texture_formats();
+
+        // Create OpenGL texture
+        glCreateTextures(GL_TEXTURE_2D, 1, &m_handle_id);
+        glBindTexture(GL_TEXTURE_2D, m_handle_id);
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+        glTextureStorage2D(m_handle_id, m_mipmap_levels, m_format, m_width, m_height);
+
+        // Filtering
+        set_filtering(texture_filtering_type::filter_min, texture_filtering::linear_mipmap_linear);
+        set_filtering(texture_filtering_type::filter_mag, texture_filtering::linear);
+
+        // Wrapping
+        set_wrapping(texture_wrapping_type::wrap_s, texture_wrapping::repeat);
+        set_wrapping(texture_wrapping_type::wrap_t, texture_wrapping::repeat);
+
+        // Allocating memory.
+        glTextureSubImage2D(m_handle_id, 0, 0, 0, m_width, m_height, m_data_format, GL_UNSIGNED_BYTE, raw_texture_data.data);
+        glGenerateTextureMipmap(m_handle_id);
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
     }
 
     std::string texture::get_texture_filtering_to_string(texture_filtering filtering)
@@ -148,28 +167,9 @@ namespace retro::renderer
         RT_ASSERT_MSG(false, "Invalid texture wrapping type!");
     }
 
-    void texture::parse_texture_file()
+    void texture::setup_texture_formats()
     {
-        int width, height, channels;
-        stbi_uc *data;
-        stbi_set_flip_vertically_on_load(1);
-        {
-            data = stbi_load(m_file_path.c_str(), &width, &height, &channels, 0);
-        }
-        RT_ASSERT_MSG(data != nullptr, "Could not read data from texture image!");
-
-        m_width = width;
-        m_height = height;
-        m_channels = channels;
-        m_mipmap_levels = floor(log2((std::min)(m_width, m_height)));
-
-        RT_ASSERT_MSG(m_channels > 0, "Invalid texture channels count!");
-
-        RT_TRACE("  - Width: {0}px", m_width);
-        RT_TRACE("  - Height: {0}px", m_height);
-        RT_TRACE("  - Channels: {0}", m_channels);
-        RT_TRACE("  - Mip Maps: {0}", m_mipmap_levels);
-
+        RT_ASSERT_MSG(m_channels > 0 && m_channels < 5, "Invalid texture chnnaels count!");
         if (m_channels == 4)
         {
             m_format = GL_RGBA8;
@@ -190,27 +190,6 @@ namespace retro::renderer
             m_format = GL_R8;
             m_data_format = GL_RED;
         }
-
-        // Create OpenGL texture
-        glCreateTextures(GL_TEXTURE_2D, 1, &m_handle_id);
-        glBindTexture(GL_TEXTURE_2D, m_handle_id);
-        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-        glTextureStorage2D(m_handle_id, m_mipmap_levels, m_format, m_width, m_height);
-
-        // Filtering
-        set_filtering(texture_filtering_type::filter_min, texture_filtering::linear_mipmap_linear);
-        set_filtering(texture_filtering_type::filter_mag, texture_filtering::linear);
-
-        // Wrapping
-        set_wrapping(texture_wrapping_type::wrap_s, texture_wrapping::repeat);
-        set_wrapping(texture_wrapping_type::wrap_t, texture_wrapping::repeat);
-
-        // Allocating memory.
-        glTextureSubImage2D(m_handle_id, 0, 0, 0, m_width, m_height, m_data_format, GL_UNSIGNED_BYTE, data);
-        glGenerateTextureMipmap(m_handle_id);
-        glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
-
-        stbi_image_free(data);
     }
 
     void texture::set_filtering(texture_filtering_type filtering_type, texture_filtering filtering)

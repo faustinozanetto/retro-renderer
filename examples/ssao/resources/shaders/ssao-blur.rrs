@@ -1,0 +1,37 @@
+#shader vertex
+#version 450 core
+
+layout (location = 0) in vec3 a_pos;
+layout (location = 1) in vec2 a_tex_coord;
+
+layout (location = 0) out vec2 o_tex_coords;
+
+void main() {
+    o_tex_coords = a_tex_coord;
+    gl_Position = vec4(a_pos, 1.0f);
+}
+
+#shader fragment
+#version 450 core
+
+#define SAMPLES_COUNT 64
+
+layout (location = 0) out float frag_color;
+
+layout(location = 0) in vec2 o_tex_coords;
+
+layout (binding = 0) uniform sampler2D u_ssao_map;
+
+void main() {
+    vec2 texel_size = 1.0 / vec2(textureSize(u_ssao_map, 0));
+    float result = 0.0;
+    for (int x = -2; x < 2; ++x) 
+    {
+        for (int y = -2; y < 2; ++y) 
+        {
+            vec2 offset = vec2(float(x), float(y)) * texel_size;
+            result += texture(u_ssao_map, o_tex_coords + offset).r;
+        }
+    }
+    frag_color = result / (4.0 * 4.0);
+}

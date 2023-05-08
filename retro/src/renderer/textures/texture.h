@@ -2,6 +2,14 @@
 
 namespace retro::renderer
 {
+    struct raw_texture_data
+    {
+        void* data;
+        int width;
+        int height;
+        int channels;
+    };
+
     enum class texture_filtering
     {
         none,
@@ -38,7 +46,7 @@ namespace retro::renderer
     class texture
     {
     public:
-        texture(const std::string &file_path);
+        texture(const raw_texture_data &raw_texture_data);
 
         /* Getters */
         uint32_t get_handle_id() const { return m_handle_id; }
@@ -57,9 +65,8 @@ namespace retro::renderer
         static uint32_t get_texture_wrapping_type_to_opengl(texture_wrapping_type wrapping_type);
 
     private:
-        void parse_texture_file();
+        void setup_texture_formats();
 
-        std::string m_file_path;
         int m_width;
         int m_height;
         int m_channels;
