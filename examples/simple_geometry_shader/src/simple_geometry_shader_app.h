@@ -15,8 +15,13 @@ public:
     void setup_camera();
 
 private:
+    /* Common Variables */
     std::shared_ptr<retro::camera::camera> m_camera;
+
+    /* Model Variables */
     std::shared_ptr<retro::renderer::shader> m_shader;
-    std::shared_ptr<retro::renderer::shader> m_normals_shader;
     std::shared_ptr<retro::renderer::model> m_model;
+
+    /* Geometry Variables */
+    std::shared_ptr<retro::renderer::shader> m_normals_shader;
 };

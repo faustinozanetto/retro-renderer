@@ -17,10 +17,15 @@ public:
     void setup_camera();
 
 private:
-    int m_instances_count;
+    /* Common Variables */
     std::shared_ptr<retro::camera::camera> m_camera;
+
+    /* Model Variables */
     std::shared_ptr<retro::renderer::texture> m_texture;
     std::shared_ptr<retro::renderer::shader> m_shader;
-    std::shared_ptr<retro::renderer::shader> m_instancing_shader;
     std::shared_ptr<retro::renderer::vertex_array_object> m_cube_vao;
+
+    /* Instancing Variables */
+    int m_instances_count;
+    std::shared_ptr<retro::renderer::shader> m_instancing_shader;
 };

@@ -15,6 +15,7 @@ public:
     void setup_triangle();
 
 private:
+    /* Common Variables */
     std::shared_ptr<retro::renderer::texture> m_texture;
     std::shared_ptr<retro::renderer::shader> m_shader;
     std::shared_ptr<retro::renderer::vertex_array_object> m_triangle_vao;
