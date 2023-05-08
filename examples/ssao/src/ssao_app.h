@@ -17,6 +17,7 @@ public:
     void setup_fbo();
     void setup_screen_quad();
     void setup_ssao();
+    void setup_light();
 
     void on_handle_event(retro::events::base_event &event) override;
 
@@ -31,6 +32,7 @@ private:
     std::shared_ptr<retro::renderer::shader> m_geometry_shader;
     std::shared_ptr<retro::renderer::shader> m_lighting_shader;
     std::shared_ptr<retro::renderer::model> m_model;
+    std::shared_ptr<retro::renderer::model> m_light_model;
     std::shared_ptr<retro::renderer::frame_buffer> m_geometry_fbo;
 
     std::shared_ptr<retro::renderer::vertex_array_object> m_quad_vao;

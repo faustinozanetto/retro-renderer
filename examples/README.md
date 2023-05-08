@@ -42,3 +42,7 @@ Model from <https://skfb.ly/ooDDN>
 ## Parallax Mapping
 
 ![parallax-mapping](../assets/example-projects/parallax-mapping-example.png)
+
+## SSAO
+
+![ssao](../assets/example-projects/ssao-example.png)

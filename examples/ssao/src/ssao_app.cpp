@@ -20,8 +20,7 @@ ssao_app::ssao_app() : application("./")
     setup_fbo();
     setup_screen_quad();
     setup_ssao();
-    m_light_pos = glm::vec3(0.0f, 0.0f, 5.0f);
-    m_light_color = glm::vec3(0.85f);
+    setup_light();
 }
 
 ssao_app::~ssao_app()
@@ -34,14 +33,24 @@ void ssao_app::on_update()
     m_geometry_fbo->bind();
     retro::renderer::renderer::clear_screen();
     m_geometry_shader->bind();
-    glm::mat4 model = glm::mat4(1.0f);
-    model = glm::rotate(model, static_cast<float>(glfwGetTime()), {0, 1, 0});
-    m_geometry_shader->set_mat4("u_transform", model);
     m_geometry_shader->set_mat4("u_view", m_camera->get_view_matrix());
     m_geometry_shader->set_mat4("u_projection", m_camera->get_projection_matrix());
-    retro::renderer::renderer::bind_texture(0, m_albedo_texture->get_handle_id());
-    retro::renderer::renderer::bind_texture(1, m_normal_texture->get_handle_id());
-    retro::renderer::renderer::submit_model(m_model);
+    {
+        glm::mat4 model = glm::mat4(1.0f);
+        model = glm::rotate(model, static_cast<float>(glfwGetTime()), {0, 1, 0});
+        m_geometry_shader->set_mat4("u_transform", model);
+        retro::renderer::renderer::bind_texture(0, m_albedo_texture->get_handle_id());
+        retro::renderer::renderer::bind_texture(1, m_normal_texture->get_handle_id());
+        retro::renderer::renderer::submit_model(m_model);
+    }
+    {
+        glm::mat4 model = glm::mat4(1.0f);
+        model = glm::translate(model, m_light_pos);
+        model = glm::scale(model, glm::vec3(0.2f));
+        m_geometry_shader->set_mat4("u_transform", model);
+        retro::renderer::renderer::submit_model(m_light_model);
+    }
+
     m_geometry_shader->un_bind();
     m_geometry_fbo->un_bind();
 
@@ -99,7 +108,12 @@ void ssao_app::on_update()
     ImGui::Begin("SSAO");
     ImGui::Image((void *)(intptr_t)m_ssao_color_fbo->get_attachment_id(0), {256, 256}, ImVec2(0, 1), ImVec2(1, 0));
     ImGui::Image((void *)(intptr_t)m_ssao_blur_fbo->get_attachment_id(0), {256, 256}, ImVec2(0, 1), ImVec2(1, 0));
-    ImGui::Checkbox("Use", &m_use_ssao);
+    ImGui::Image((void *)(intptr_t)m_ssao_noise_texture->get_handle_id(), {256, 256}, ImVec2(0, 1), ImVec2(1, 0));
+    bool use_ssao = m_use_ssao;
+    if (ImGui::Checkbox("Use", &use_ssao))
+    {
+        m_use_ssao = use_ssao;
+    }
     ImGui::SliderFloat("Bias", &m_ssao_bias, 0.01f, 1.5f);
     ImGui::SliderFloat("Radius", &m_ssao_radius, 0.01f, 2.0f);
     ImGui::SliderFloat("Scale", &m_ssao_noise_size, 0.01f, 4.0f);
@@ -336,6 +350,13 @@ void ssao_app::setup_ssao()
     m_ssao_noise_texture->set_filtering(retro::renderer::texture_filtering_type::filter_mag, retro::renderer::texture_filtering::nearest);
     m_ssao_noise_texture->set_wrapping(retro::renderer::texture_wrapping_type::wrap_s, retro::renderer::texture_wrapping::repeat);
     m_ssao_noise_texture->set_wrapping(retro::renderer::texture_wrapping_type::wrap_t, retro::renderer::texture_wrapping::repeat);
+}
+
+void ssao_app::setup_light()
+{
+    m_light_pos = glm::vec3(0.0f, 0.0f, 5.0f);
+    m_light_color = glm::vec3(0.85f);
+    m_light_model = retro::renderer::model_loader::load_model_from_file("../resources/models/cube.obj");
 }
 
 void ssao_app::on_handle_event(retro::events::base_event &event)
