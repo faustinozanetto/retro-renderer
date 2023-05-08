@@ -16,7 +16,6 @@ public:
     void setup_camera();
     void setup_fbo();
     void setup_screen_quad();
-
     void setup_ssao();
 
     void on_handle_event(retro::events::base_event &event) override;
@@ -40,12 +39,8 @@ private:
 
     std::vector<glm::vec3> m_ssao_kernel;
     uint32_t m_ssao_noise_texture;
-    uint32_t m_ssao_fbo;
-    uint32_t m_ssao_color_buffer;
-
     std::shared_ptr<retro::renderer::frame_buffer> m_ssao_color_fbo;
     std::shared_ptr<retro::renderer::frame_buffer> m_ssao_blur_fbo;
-
     float m_ssao_radius;
     float m_ssao_bias;
     float m_ssao_noise_size;

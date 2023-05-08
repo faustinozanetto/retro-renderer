@@ -20,7 +20,8 @@ ssao_app::ssao_app() : application("./")
     setup_fbo();
     setup_screen_quad();
     setup_ssao();
-
+    m_light_pos = glm::vec3(0.0f, 0.0f, 5.0f);
+    m_light_color = glm::vec3(0.85f);
     glEnable(GL_DEPTH_TEST);
 }
 
@@ -46,54 +47,27 @@ void ssao_app::on_update()
     m_geometry_fbo->un_bind();
 
     // 2. Render quad using geometry buffer
-
+    m_ssao_color_fbo->bind();
+    glClear(GL_COLOR_BUFFER_BIT);
+    m_ssao_shader->bind();
+    m_ssao_shader->set_int("u_kernel_size", m_ssao_kernel.size());
+    m_ssao_shader->set_float("u_ssao_radius", m_ssao_radius);
+    m_ssao_shader->set_float("u_ssao_bias", m_ssao_bias);
+    glm::vec2 noise_scale = glm::vec2(retro::renderer::renderer::get_viewport_size().x / m_ssao_noise_size, retro::renderer::renderer::get_viewport_size().y / m_ssao_noise_size);
+    m_ssao_shader->set_vec_float2("u_noise_size", noise_scale);
+    m_ssao_shader->set_mat4("u_view", m_camera->get_view_matrix());
+    m_ssao_shader->set_mat4("u_projection", m_camera->get_projection_matrix());
+    for (int i = 0; i < 64; i++)
     {
-        glBindFramebuffer(GL_FRAMEBUFFER, m_ssao_fbo);
-        glClear(GL_COLOR_BUFFER_BIT);
-        m_ssao_shader->bind();
-        m_ssao_shader->set_int("u_kernel_size", m_ssao_kernel.size());
-        m_ssao_shader->set_float("u_ssao_radius", m_ssao_radius);
-        m_ssao_shader->set_float("u_ssao_bias", m_ssao_bias);
-        glm::vec2 noise_scale = glm::vec2(retro::renderer::renderer::get_viewport_size().x / m_ssao_noise_size, retro::renderer::renderer::get_viewport_size().y / m_ssao_noise_size);
-        m_ssao_shader->set_vec_float2("u_noise_size", noise_scale);
-        m_ssao_shader->set_mat4("u_view", m_camera->get_view_matrix());
-        m_ssao_shader->set_mat4("u_projection", m_camera->get_projection_matrix());
-        for (int i = 0; i < 64; i++)
-        {
-            m_ssao_shader->set_vec_float3("u_samples[" + std::to_string(i) + "]", m_ssao_kernel[i]);
-        }
-        retro::renderer::renderer::bind_texture(0, m_geometry_fbo->get_attachment_id(0)); // Position
-        retro::renderer::renderer::bind_texture(1, m_geometry_fbo->get_attachment_id(2)); // Normal
-        retro::renderer::renderer::bind_texture(2, m_ssao_noise_texture);                 // SSAO Noise
-        m_quad_vao->bind();
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-        m_ssao_shader->un_bind();
-
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        m_ssao_shader->set_vec_float3("u_samples[" + std::to_string(i) + "]", m_ssao_kernel[i]);
     }
-    {
-        m_ssao_color_fbo->bind();
-        glClear(GL_COLOR_BUFFER_BIT);
-        m_ssao_shader->bind();
-        m_ssao_shader->set_int("u_kernel_size", m_ssao_kernel.size());
-        m_ssao_shader->set_float("u_ssao_radius", m_ssao_radius);
-        m_ssao_shader->set_float("u_ssao_bias", m_ssao_bias);
-        glm::vec2 noise_scale = glm::vec2(retro::renderer::renderer::get_viewport_size().x / m_ssao_noise_size, retro::renderer::renderer::get_viewport_size().y / m_ssao_noise_size);
-        m_ssao_shader->set_vec_float2("u_noise_size", noise_scale);
-        m_ssao_shader->set_mat4("u_view", m_camera->get_view_matrix());
-        m_ssao_shader->set_mat4("u_projection", m_camera->get_projection_matrix());
-        for (int i = 0; i < 64; i++)
-        {
-            m_ssao_shader->set_vec_float3("u_samples[" + std::to_string(i) + "]", m_ssao_kernel[i]);
-        }
-        retro::renderer::renderer::bind_texture(0, m_geometry_fbo->get_attachment_id(0)); // Position
-        retro::renderer::renderer::bind_texture(1, m_geometry_fbo->get_attachment_id(2)); // Normal
-        retro::renderer::renderer::bind_texture(2, m_ssao_noise_texture);                 // SSAO Noise
-        m_quad_vao->bind();
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-        m_ssao_shader->un_bind();
-        m_ssao_color_fbo->un_bind();
-    }
+    retro::renderer::renderer::bind_texture(0, m_geometry_fbo->get_attachment_id(0)); // Position
+    retro::renderer::renderer::bind_texture(1, m_geometry_fbo->get_attachment_id(2)); // Normal
+    retro::renderer::renderer::bind_texture(2, m_ssao_noise_texture);                 // SSAO Noise
+    m_quad_vao->bind();
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+    m_ssao_shader->un_bind();
+    m_ssao_color_fbo->un_bind();
 
     // 3. Render lighting result
     retro::renderer::renderer::clear_screen();
@@ -114,7 +88,7 @@ void ssao_app::on_update()
     retro::ui::interface::begin_frame();
     ImGui::Begin("SSAO");
     ImGui::Image((void *)(intptr_t)m_ssao_color_fbo->get_attachment_id(0), {400, 400}, ImVec2(0, 1), ImVec2(1, 0));
-    ImGui::Image((void *)(intptr_t)m_ssao_color_buffer, {400, 400}, ImVec2(0, 1), ImVec2(1, 0));
+    ImGui::Image((void *)(intptr_t)m_ssao_blur_fbo->get_attachment_id(0), {400, 400}, ImVec2(0, 1), ImVec2(1, 0));
     ImGui::Image((void *)(intptr_t)m_geometry_fbo->get_attachment_id(1), {400, 400}, ImVec2(0, 1), ImVec2(1, 0));
     ImGui::End();
 
@@ -213,7 +187,7 @@ void ssao_app::setup_fbo()
             retro::renderer::texture_filtering::linear,
             retro::renderer::texture_wrapping::clamp_to_edge,
         };
-        m_geometry_fbo = std::make_shared<retro::renderer::frame_buffer>(viewport_size.x, viewport_size.y, true, attachments, depth_attachment);
+        m_geometry_fbo = std::make_shared<retro::renderer::frame_buffer>(attachments, viewport_size.x, viewport_size.y, true, depth_attachment);
     }
 
     // 2. Setup ssao color buffer
@@ -232,7 +206,7 @@ void ssao_app::setup_fbo()
             retro::renderer::texture_filtering::linear,
             retro::renderer::texture_wrapping::clamp_to_edge,
         };
-        m_ssao_color_fbo = std::make_shared<retro::renderer::frame_buffer>(viewport_size.x, viewport_size.y, false, attachments, depth_attachment);
+        m_ssao_color_fbo = std::make_shared<retro::renderer::frame_buffer>(attachments, viewport_size.x, viewport_size.y, false, depth_attachment);
     }
     // 3 Setup ssao blur buffer
     {
@@ -250,7 +224,7 @@ void ssao_app::setup_fbo()
             retro::renderer::texture_filtering::linear,
             retro::renderer::texture_wrapping::clamp_to_edge,
         };
-        m_ssao_blur_fbo = std::make_shared<retro::renderer::frame_buffer>(viewport_size.x, viewport_size.y, false, attachments, depth_attachment);
+        m_ssao_blur_fbo = std::make_shared<retro::renderer::frame_buffer>(attachments, viewport_size.x, viewport_size.y, false, depth_attachment);
     }
 }
 
@@ -340,21 +314,6 @@ void ssao_app::setup_ssao()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-    glm::ivec2 viewport_size = retro::renderer::renderer::get_viewport_size();
-    // 3. Setup ssao buffer
-    glGenFramebuffers(1, &m_ssao_fbo);
-    glBindFramebuffer(GL_FRAMEBUFFER, m_ssao_fbo);
-    // SSAO color buffer
-    glGenTextures(1, &m_ssao_color_buffer);
-    glBindTexture(GL_TEXTURE_2D, m_ssao_color_buffer);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, viewport_size.x, viewport_size.y, 0, GL_RED, GL_FLOAT, NULL);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_ssao_color_buffer, 0);
-    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-        std::cout << "SSAO Framebuffer not complete!" << std::endl;
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void ssao_app::on_handle_event(retro::events::base_event &event)
@@ -366,10 +325,9 @@ void ssao_app::on_handle_event(retro::events::base_event &event)
 
 bool ssao_app::on_resize_ssao(retro::events::window_resize_event &resize_event)
 {
-    // glBindTexture(GL_TEXTURE_2D, m_ssao_color_buffer);
-    // glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, resize_event.get_size().x, resize_event.get_size().y, 0, GL_RED, GL_FLOAT, nullptr);
-    setup_ssao();
-    RT_TRACE("SSAO Resize {0}, {0}", resize_event.get_size().x, resize_event.get_size().y);
+    m_ssao_color_fbo->resize(resize_event.get_size());
+    m_ssao_blur_fbo->resize(resize_event.get_size());
+    m_geometry_fbo->resize(resize_event.get_size());
     return false;
 }
 

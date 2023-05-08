@@ -4,6 +4,7 @@
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
 
 namespace retro::renderer
 {
@@ -18,7 +19,7 @@ namespace retro::renderer
     class frame_buffer
     {
     public:
-        frame_buffer(int width, int height, bool has_depth_attachment, const std::vector<frame_buffer_attachment> &attachments, frame_buffer_attachment depth_attachment);
+        frame_buffer(const std::vector<frame_buffer_attachment> &attachments, int width, int height, bool has_depth_attachment, frame_buffer_attachment depth_attachment = {});
         ~frame_buffer();
 
         /* Getters */
@@ -27,6 +28,8 @@ namespace retro::renderer
 
         void bind();
         void un_bind();
+
+        void resize(const glm::ivec2 &dimensions);
 
     private:
         void initialize();

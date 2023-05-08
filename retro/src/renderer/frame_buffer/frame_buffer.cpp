@@ -5,7 +5,7 @@
 
 namespace retro::renderer
 {
-    frame_buffer::frame_buffer(int width, int height, bool has_depth_attachment, const std::vector<frame_buffer_attachment> &attachments, frame_buffer_attachment depth_attachment)
+    frame_buffer::frame_buffer(const std::vector<frame_buffer_attachment> &attachments, int width, int height, bool has_depth_attachment, frame_buffer_attachment depth_attachment)
     {
         RT_TRACE("Retro Renderer | Started creating frame buffer.");
         m_width = width;
@@ -18,6 +18,7 @@ namespace retro::renderer
         RT_TRACE("  - Width: {0}px", m_width);
         RT_TRACE("  - Height: {0}px", m_height);
         RT_TRACE("  - Attachments Count: {0}", m_attachments_data.size());
+        RT_TRACE("  - Has Depth Attachment: '{0}'", m_has_depth_attachment ? "true" : "false");
 
         initialize();
         RT_TRACE("Retro Renderer | Frame buffer created successfully.");
@@ -148,5 +149,12 @@ namespace retro::renderer
         // Attach texture
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, handle_id, 0);
         glBindTexture(GL_TEXTURE_2D, 0);
+    }
+
+    void frame_buffer::resize(const glm::ivec2 &dimensions)
+    {
+        m_width = dimensions.x;
+        m_height = dimensions.y;
+        initialize();
     }
 }
