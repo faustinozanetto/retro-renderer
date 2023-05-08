@@ -2,9 +2,47 @@
 
 namespace retro::renderer
 {
+    enum class texture_internal_format
+    {
+        rg,
+        rgb,
+        rgba,
+        bgr,
+        bgra,
+        red,
+        green,
+        blue,
+        alpha,
+    };
+
+    enum class texture_format
+    {
+        r8,
+        r16,
+        r16f,
+        r32f,
+        rg8,
+        rg16,
+        rg16f,
+        rg32f,
+        rgb8,
+        rgb16,
+        rgb16f,
+        rgb32f,
+        rgba8,
+        rgba16,
+        rgba16f,
+        rgba32f,
+        depth_component16,
+        depth_component24,
+        depth_component32,
+        depth_component32f,
+        stencil_index8
+    };
+
     struct raw_texture_data
     {
-        void* data;
+        void *data;
         int width;
         int height;
         int channels;
@@ -64,8 +102,14 @@ namespace retro::renderer
         static uint32_t get_texture_wrapping_to_opengl(texture_wrapping wrapping);
         static uint32_t get_texture_wrapping_type_to_opengl(texture_wrapping_type wrapping_type);
 
+        static std::string get_texture_format_to_string(texture_format format);
+        static std::string get_texture_internal_format_to_string(texture_internal_format internal_format);
+
+        static uint32_t get_texture_format_to_opengl(texture_format format);
+        static uint32_t get_texture_internal_format_to_opengl(texture_internal_format internal_format);
+
     private:
-        void setup_texture_formats();
+        void infer_formats_from_channel_count();
 
         int m_width;
         int m_height;
@@ -73,7 +117,7 @@ namespace retro::renderer
         int m_mipmap_levels;
 
         uint32_t m_handle_id;
-        uint32_t m_format;
-        uint32_t m_data_format;
+        texture_format m_format;
+        texture_internal_format m_internal_format;
     };
 }

@@ -10,8 +10,8 @@ namespace retro::renderer
 {
     struct frame_buffer_attachment
     {
-        uint32_t format;
-        uint32_t data_format;
+        texture_format format;
+        texture_internal_format internal_format;
         texture_filtering filtering;
         texture_wrapping wrapping;
     };

@@ -24,14 +24,6 @@ namespace retro::renderer
         RT_TRACE("Retro Renderer | Frame buffer created successfully.");
     }
 
-    frame_buffer::~frame_buffer()
-    {
-        glDeleteFramebuffers(1, &m_handle_id);
-        glDeleteTextures(m_attachments.size(), m_attachments.data());
-        if (m_has_depth_attachment)
-            glDeleteTextures(1, &m_depth_attachment);
-    }
-
     frame_buffer::frame_buffer(const std::vector<frame_buffer_attachment> &attachments, int width, int height)
     {
         RT_TRACE("Retro Renderer | Started creating frame buffer.");
@@ -49,6 +41,14 @@ namespace retro::renderer
 
         initialize();
         RT_TRACE("Retro Renderer | Frame buffer created successfully.");
+    }
+
+    frame_buffer::~frame_buffer()
+    {
+        glDeleteFramebuffers(1, &m_handle_id);
+        glDeleteTextures(m_attachments.size(), m_attachments.data());
+        if (m_has_depth_attachment)
+            glDeleteTextures(1, &m_depth_attachment);
     }
 
     void frame_buffer::initialize()
@@ -125,7 +125,7 @@ namespace retro::renderer
     void frame_buffer::attach_color_texture(frame_buffer_attachment attachment, uint32_t handle_id, int index)
     {
         glBindTexture(GL_TEXTURE_2D, handle_id);
-        glTexImage2D(GL_TEXTURE_2D, 0, attachment.data_format, m_width, m_height, 0, attachment.format, GL_FLOAT, nullptr);
+        glTexImage2D(GL_TEXTURE_2D, 0, texture::get_texture_format_to_opengl(attachment.format), m_width, m_height, 0, texture::get_texture_internal_format_to_opengl(attachment.internal_format), GL_FLOAT, nullptr);
 
         // Filtering
         if (attachment.filtering != texture_filtering::none)

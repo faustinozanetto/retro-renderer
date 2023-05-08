@@ -194,28 +194,28 @@ void ssao_app::setup_fbo()
         std::vector<retro::renderer::frame_buffer_attachment> attachments = {
             //  Position
             {
-                GL_RGBA,
-                GL_RGB16F,
+                retro::renderer::texture_format::rgba16f,
+                retro::renderer::texture_internal_format::rgba,
                 retro::renderer::texture_filtering::linear,
                 retro::renderer::texture_wrapping::clamp_to_edge,
             },
             // Albedo
             {
-                GL_RGBA,
-                GL_RGB16F,
+                retro::renderer::texture_format::rgba16f,
+                retro::renderer::texture_internal_format::rgba,
                 retro::renderer::texture_filtering::linear,
                 retro::renderer::texture_wrapping::clamp_to_edge,
             },
             // Normals
             {
-                GL_RGBA,
-                GL_RGB16F,
+                retro::renderer::texture_format::rgba16f,
+                retro::renderer::texture_internal_format::rgba,
                 retro::renderer::texture_filtering::linear,
                 retro::renderer::texture_wrapping::clamp_to_edge,
             }};
         retro::renderer::frame_buffer_attachment depth_attachment = {
-            GL_RGBA,
-            GL_RGBA16F,
+            retro::renderer::texture_format::depth_component32f,
+            retro::renderer::texture_internal_format::rgba,
             retro::renderer::texture_filtering::linear,
             retro::renderer::texture_wrapping::clamp_to_edge,
         };
@@ -227,8 +227,8 @@ void ssao_app::setup_fbo()
         std::vector<retro::renderer::frame_buffer_attachment> attachments = {
             //  SSAO Color
             {
-                GL_RED,
-                GL_RED,
+                retro::renderer::texture_format::r16f,
+                retro::renderer::texture_internal_format::red,
                 retro::renderer::texture_filtering::nearest,
                 retro::renderer::texture_wrapping::none,
             }};
@@ -239,8 +239,8 @@ void ssao_app::setup_fbo()
         std::vector<retro::renderer::frame_buffer_attachment> attachments = {
             //  SSAO Blur
             {
-                GL_RED,
-                GL_RED,
+                retro::renderer::texture_format::r16f,
+                retro::renderer::texture_internal_format::red,
                 retro::renderer::texture_filtering::nearest,
                 retro::renderer::texture_wrapping::none,
             }};
