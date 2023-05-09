@@ -57,6 +57,7 @@ void pbr_app::on_update()
     retro::renderer::renderer::bind_texture(0, m_geometry_fbo->get_attachment_id(0)); // Position
     retro::renderer::renderer::bind_texture(1, m_geometry_fbo->get_attachment_id(1)); // Albedo
     retro::renderer::renderer::bind_texture(2, m_geometry_fbo->get_attachment_id(2)); // Normal
+    retro::renderer::renderer::bind_texture(3, m_geometry_fbo->get_attachment_id(3)); // Roughmetalao
     m_lighting_shader->set_vec_float3("p_light.position", m_light_pos);
     m_lighting_shader->set_vec_float3("p_light.color", m_light_color);
     m_lighting_shader->set_vec_float3("u_cam_pos", m_camera->get_position());
@@ -114,6 +115,7 @@ void pbr_app::load_texture()
     m_normal_texture = retro::renderer::texture_loader::load_texture_from_file("../resources/models/tv/tv-normal.png");
     m_roughness_texture = retro::renderer::texture_loader::load_texture_from_file("../resources/models/tv/tv-roughness.png");
     m_metallic_texture = retro::renderer::texture_loader::load_texture_from_file("../resources/models/tv/tv-metallic.png");
+    m_ao_texture = retro::renderer::texture_loader::load_texture_from_file("../resources/models/tv/tv-ao.jpeg");
 }
 
 void pbr_app::setup_model()
@@ -140,6 +142,11 @@ void pbr_app::setup_model()
     metallic.is_enabled = true;
     metallic.type = retro::renderer::material_texture_type::metallic;
 
+    retro::renderer::material_texture ambient_occlusion;
+    ambient_occlusion.texture = m_ao_texture;
+    ambient_occlusion.is_enabled = true;
+    ambient_occlusion.type = retro::renderer::material_texture_type::ambient_occlusion;
+
     std::map<retro::renderer::material_texture_type, int> material_bindings;
     material_bindings[retro::renderer::material_texture_type::albedo] = 0;
     material_bindings[retro::renderer::material_texture_type::normal] = 1;
@@ -152,6 +159,7 @@ void pbr_app::setup_model()
     textures[retro::renderer::material_texture_type::normal] = normal;
     textures[retro::renderer::material_texture_type::roughness] = roughness;
     textures[retro::renderer::material_texture_type::metallic] = metallic;
+    textures[retro::renderer::material_texture_type::ambient_occlusion] = ambient_occlusion;
 
     m_material = std::make_shared<retro::renderer::material>(textures, material_bindings);
     m_material->set_ambient_occlusion(1.0f);
@@ -256,7 +264,7 @@ void pbr_app::setup_screen_quad()
 void pbr_app::setup_light()
 {
     m_light_pos = glm::vec3(0.0f, 0.0f, 5.0f);
-    m_light_color = glm::vec3(0.85f);
+    m_light_color = glm::vec3(1.0f);
     m_light_model = retro::renderer::model_loader::load_model_from_file("../resources/models/cube.obj");
 }
 

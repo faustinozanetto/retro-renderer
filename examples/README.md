@@ -46,3 +46,7 @@ Model from <https://skfb.ly/ooDDN>
 ## SSAO
 
 ![ssao](../assets/example-projects/ssao-example.png)
+
+## PBR
+
+![pbr](../assets/example-projects/pbr-example.gif)
