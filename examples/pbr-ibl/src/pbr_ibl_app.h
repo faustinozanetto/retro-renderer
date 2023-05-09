@@ -17,6 +17,14 @@ public:
     void setup_fbo();
     void setup_screen_quad();
     void setup_light();
+    void setup_environment();
+    void setup_enviroment_cube();
+    void setup_environment_cubemap();
+    void setup_environment_fbo();
+    void setup_environment_equirectangular_map();
+    void setup_environment_irradiance_map();
+
+    void render_skybox();
 
     void on_handle_event(retro::events::base_event &event) override;
 
@@ -25,7 +33,21 @@ private:
 
     /* Common Variables */
     std::shared_ptr<retro::camera::camera> m_camera;
+    std::shared_ptr<retro::renderer::shader> m_screen_shader;
     std::shared_ptr<retro::renderer::vertex_array_object> m_quad_vao;
+
+    /* Environment */
+    std::shared_ptr<retro::renderer::frame_buffer> m_final_fbo;
+    std::shared_ptr<retro::renderer::texture> m_environment_cubemap_texture;
+    std::shared_ptr<retro::renderer::shader> m_equirectangular_shader;
+    std::shared_ptr<retro::renderer::shader> m_irradiance_shader;
+    std::shared_ptr<retro::renderer::shader> m_skybox_shader;
+    std::shared_ptr<retro::renderer::vertex_array_object> m_environment_cube_vao;
+    unsigned int captureFBO, captureRBO;
+    unsigned int envCubemap;
+    unsigned int irradianceMap;
+    glm::mat4 captureProjection;
+    std::vector<glm::mat4> captureViews;
 
     /* Model Variables */
     std::shared_ptr<retro::renderer::texture> m_albedo_texture;

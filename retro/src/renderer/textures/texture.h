@@ -2,6 +2,12 @@
 
 namespace retro::renderer
 {
+    enum class texture_type
+    {
+        normal,
+        hdr
+    };
+
     enum class texture_internal_format
     {
         rg,
@@ -40,12 +46,23 @@ namespace retro::renderer
         stencil_index8
     };
 
+    struct texture_formats
+    {
+        texture_format format;
+        texture_internal_format internal_format;
+    };
+
     struct raw_texture_data
     {
-        void *data;
         int width;
         int height;
         int channels;
+        texture_formats formats;
+        texture_type type;
+        void *data;
+
+        raw_texture_data(int width, int height, int channels, texture_type type, void *data);
+        raw_texture_data(int width, int height, int channels, texture_formats formats, texture_type type, void *data) : width(width), height(height), channels(channels), data(data), type(type), formats(formats) {}
     };
 
     enum class texture_filtering
@@ -108,16 +125,16 @@ namespace retro::renderer
         static uint32_t get_texture_format_to_opengl(texture_format format);
         static uint32_t get_texture_internal_format_to_opengl(texture_internal_format internal_format);
 
-    private:
-        void infer_formats_from_channel_count();
+        static texture_formats get_texture_formats_from_channel_count(int channel_count);
 
+    private:
         int m_width;
         int m_height;
         int m_channels;
         int m_mipmap_levels;
 
         uint32_t m_handle_id;
-        texture_format m_format;
-        texture_internal_format m_internal_format;
+        texture_type m_type;
+        texture_formats m_formats;
     };
 }

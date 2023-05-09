@@ -3,6 +3,8 @@
 #include "renderer/textures/texture.h"
 #include "renderer/shaders/shader.h"
 
+#include <map>
+
 namespace retro::renderer
 {
     enum class material_texture_type

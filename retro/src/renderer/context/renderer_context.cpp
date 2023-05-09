@@ -12,8 +12,10 @@ namespace retro::renderer
         int glad_result = gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress));
         RT_ASSERT_MSG(glad_result, "An error ocurred when initializing GLAD!");
 
+        glEnable(GL_BLEND);
         glEnable(GL_DEPTH_TEST);
-        glEnable(GL_CULL_FACE);
+        glDepthFunc(GL_LESS);
+        glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
         RT_TRACE("Retro Renderer | Renderer context initialization completed.");
     }
 }

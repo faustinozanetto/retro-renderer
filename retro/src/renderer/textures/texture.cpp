@@ -7,38 +7,72 @@
 
 namespace retro::renderer
 {
+    raw_texture_data::raw_texture_data(int width, int height, int channels, texture_type type, void *data)
+    {
+        this->width = width;
+        this->height = height;
+        this->channels = channels;
+        this->data = data;
+        this->type = type;
+        this->formats = texture::get_texture_formats_from_channel_count(channels);
+    }
+
     texture::texture(const raw_texture_data &raw_texture_data)
     {
         m_width = raw_texture_data.width;
         m_height = raw_texture_data.height;
         m_channels = raw_texture_data.channels;
-        m_mipmap_levels = floor(log2((std::min)(m_width, m_height)));
+        m_mipmap_levels = 1;
+        m_type = raw_texture_data.type;
+        if (m_type == texture_type::normal)
+            m_mipmap_levels = floor(log2((std::min)(m_width, m_height)));
+        m_formats = raw_texture_data.formats;
 
         RT_TRACE("  - Width: {0}px", m_width);
         RT_TRACE("  - Height: {0}px", m_height);
         RT_TRACE("  - Channels: {0}", m_channels);
         RT_TRACE("  - Mipmap Levels: {0}", m_mipmap_levels);
-
-        infer_formats_from_channel_count();
+        RT_TRACE("  - Format: '{0}'", get_texture_format_to_string(m_formats.format));
+        RT_TRACE("  - Internal Format: '{0}'", get_texture_internal_format_to_string(m_formats.internal_format));
 
         // Create OpenGL texture
         glCreateTextures(GL_TEXTURE_2D, 1, &m_handle_id);
         glBindTexture(GL_TEXTURE_2D, m_handle_id);
-        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-        glTextureStorage2D(m_handle_id, m_mipmap_levels, get_texture_format_to_opengl(m_format), m_width, m_height);
+        if (m_type == texture_type::normal)
+        {
 
-        // Filtering
-        set_filtering(texture_filtering_type::filter_min, texture_filtering::linear_mipmap_linear);
-        set_filtering(texture_filtering_type::filter_mag, texture_filtering::linear);
+            glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+            glTextureStorage2D(m_handle_id, m_mipmap_levels, get_texture_format_to_opengl(m_formats.format), m_width, m_height);
 
-        // Wrapping
-        set_wrapping(texture_wrapping_type::wrap_s, texture_wrapping::repeat);
-        set_wrapping(texture_wrapping_type::wrap_t, texture_wrapping::repeat);
+            // Filtering
+            set_filtering(texture_filtering_type::filter_min, texture_filtering::linear_mipmap_linear);
+            set_filtering(texture_filtering_type::filter_mag, texture_filtering::linear);
+
+            // Wrapping
+            set_wrapping(texture_wrapping_type::wrap_s, texture_wrapping::repeat);
+            set_wrapping(texture_wrapping_type::wrap_t, texture_wrapping::repeat);
+        }
+        else if (m_type == texture_type::hdr)
+        {
+            glTexImage2D(GL_TEXTURE_2D, 0, get_texture_format_to_opengl(m_formats.format), m_width, m_height, 0, get_texture_internal_format_to_opengl(m_formats.internal_format), GL_FLOAT, raw_texture_data.data);
+
+            // Wrapping
+            set_wrapping(texture_wrapping_type::wrap_s, texture_wrapping::clamp_to_edge);
+            set_wrapping(texture_wrapping_type::wrap_t, texture_wrapping::clamp_to_edge);
+
+            // Filtering
+            set_filtering(texture_filtering_type::filter_min, texture_filtering::linear);
+            set_filtering(texture_filtering_type::filter_mag, texture_filtering::linear);
+        }
 
         // Allocating memory.
-        glTextureSubImage2D(m_handle_id, 0, 0, 0, m_width, m_height, get_texture_internal_format_to_opengl(m_internal_format), GL_UNSIGNED_BYTE, raw_texture_data.data);
-        glGenerateTextureMipmap(m_handle_id);
-        glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+        if (m_type == texture_type::normal)
+        {
+            glTextureSubImage2D(m_handle_id, 0, 0, 0, m_width, m_height, get_texture_internal_format_to_opengl(m_formats.internal_format), GL_UNSIGNED_BYTE, raw_texture_data.data);
+            glGenerateTextureMipmap(m_handle_id);
+            glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+        }
+        stbi_image_free(raw_texture_data.data);
     }
 
     std::string texture::get_texture_filtering_to_string(texture_filtering filtering)
@@ -325,29 +359,31 @@ namespace retro::renderer
         RT_ASSERT_MSG(false, "Invalid texture format!");
     }
 
-    void texture::infer_formats_from_channel_count()
+    texture_formats texture::get_texture_formats_from_channel_count(int channel_count)
     {
-        RT_ASSERT_MSG(m_channels > 0 && m_channels < 5, "Invalid texture chnnaels count!");
-        if (m_channels == 4)
+        RT_ASSERT_MSG(channel_count > 0 && channel_count < 5, "Invalid texture chnnaels count!");
+        texture_formats formats{};
+        if (channel_count == 4)
         {
-            m_format = texture_format::rgba16f;
-            m_internal_format = texture_internal_format::rgba;
+            formats.format = texture_format::rgba16f;
+            formats.internal_format = texture_internal_format::rgba;
         }
-        else if (m_channels == 3)
+        else if (channel_count == 3)
         {
-            m_format = texture_format::rgb16f;
-            m_internal_format = texture_internal_format::rgb;
+            formats.format = texture_format::rgb16f;
+            formats.internal_format = texture_internal_format::rgb;
         }
-        else if (m_channels == 2)
+        else if (channel_count == 2)
         {
-            m_format = texture_format::rg16f;
-            m_internal_format = texture_internal_format::rg;
+            formats.format = texture_format::rg16f;
+            formats.internal_format = texture_internal_format::rg;
         }
-        else if (m_channels == 1)
+        else if (channel_count == 1)
         {
-            m_format = texture_format::r16f;
-            m_internal_format = texture_internal_format::red;
+            formats.format = texture_format::r16f;
+            formats.internal_format = texture_internal_format::red;
         }
+        return formats;
     }
 
     void texture::set_filtering(texture_filtering_type filtering_type, texture_filtering filtering)

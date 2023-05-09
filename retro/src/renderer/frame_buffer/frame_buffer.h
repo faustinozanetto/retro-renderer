@@ -26,6 +26,8 @@ namespace retro::renderer
         /* Getters */
         uint32_t get_handle_id() const { return m_handle_id; }
         uint32_t get_attachment_id(int index = 0) const { return m_attachments[index]; }
+        int get_width() const { return m_width; }
+        int get_height() const { return m_height; }
 
         void bind();
         void un_bind();
