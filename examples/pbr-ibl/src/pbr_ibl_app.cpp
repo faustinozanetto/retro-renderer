@@ -455,13 +455,11 @@ void pbr_ibl_app::setup_environment_fbo()
 {
     // pbr: setup framebuffer
     // ----------------------
-    glGenFramebuffers(1, &captureFBO);
-    glGenRenderbuffers(1, &captureRBO);
-
-    glBindFramebuffer(GL_FRAMEBUFFER, captureFBO);
-    glBindRenderbuffer(GL_RENDERBUFFER, captureRBO);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, 512, 512);
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, captureRBO);
+    glm::ivec2 viewport_size = retro::renderer::renderer::get_viewport_size();
+    m_environment_capture_fbo = std::make_shared<retro::renderer::frame_buffer>(viewport_size.x, viewport_size.y);
+    m_environment_capture_fbo->bind(false);
+    m_environment_capture_rbo = std::make_shared<retro::renderer::render_buffer>(512, 512, retro::renderer::texture_format::depth_component24);
+    m_environment_capture_rbo->attach_to_frame_buffer(retro::renderer::render_buffer_attachment_type::depth);
 }
 
 void pbr_ibl_app::setup_environment()
@@ -501,7 +499,7 @@ void pbr_ibl_app::setup_environment_equirectangular_map()
     retro::renderer::renderer::bind_texture(0, m_environment_cubemap_texture->get_handle_id());
 
     retro::renderer::renderer::set_viewport_size({512, 512});
-    glBindFramebuffer(GL_FRAMEBUFFER, captureFBO);
+    m_environment_capture_fbo->bind(false);
     for (unsigned int i = 0; i < 6; ++i)
     {
         m_equirectangular_shader->set_mat4("u_view", captureViews[i]);
@@ -529,9 +527,9 @@ void pbr_ibl_app::setup_environment_irradiance_map()
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-    glBindFramebuffer(GL_FRAMEBUFFER, captureFBO);
-    glBindRenderbuffer(GL_RENDERBUFFER, captureRBO);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, 32, 32);
+    m_environment_capture_fbo->bind(false);
+    m_environment_capture_rbo->bind();
+    m_environment_capture_rbo->set_storage_parameters(32, 32, retro::renderer::texture_format::depth_component24);
 
     m_irradiance_shader->bind();
     m_irradiance_shader->set_int("u_environment_map", 0);
@@ -539,7 +537,7 @@ void pbr_ibl_app::setup_environment_irradiance_map()
     retro::renderer::renderer::bind_texture(0, envCubemap);
 
     retro::renderer::renderer::set_viewport_size({32, 32});
-    glBindFramebuffer(GL_FRAMEBUFFER, captureFBO);
+    m_environment_capture_fbo->bind(false);
     for (unsigned int i = 0; i < 6; ++i)
     {
         m_irradiance_shader->set_mat4("u_view", captureViews[i]);

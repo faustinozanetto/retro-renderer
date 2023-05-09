@@ -19,6 +19,7 @@ namespace retro::renderer
     class frame_buffer
     {
     public:
+        frame_buffer(int width, int height);
         frame_buffer(const std::vector<frame_buffer_attachment> &attachments, int width, int height);
         frame_buffer(const std::vector<frame_buffer_attachment> &attachments, int width, int height, frame_buffer_attachment depth_attachment);
         ~frame_buffer();
@@ -29,7 +30,7 @@ namespace retro::renderer
         int get_width() const { return m_width; }
         int get_height() const { return m_height; }
 
-        void bind();
+        void bind(bool set_viewport_size = true);
         void un_bind();
 
         void resize(const glm::ivec2 &dimensions);

@@ -5,6 +5,24 @@
 
 namespace retro::renderer
 {
+    frame_buffer::frame_buffer(int width, int height)
+    {
+        RT_TRACE("Retro Renderer | Started creating frame buffer.");
+        m_width = width;
+        m_height = height;
+        m_has_depth_attachment = false;
+
+        m_attachments_data = {};
+        m_depth_attachment_data = {};
+
+        RT_TRACE("  - Width: {0}px", m_width);
+        RT_TRACE("  - Height: {0}px", m_height);
+        RT_TRACE("  - Attachments Count: {0}", m_attachments_data.size());
+        RT_TRACE("  - Has Depth Attachment: '{0}'", m_has_depth_attachment ? "true" : "false");
+        initialize();
+        RT_TRACE("Retro Renderer | Frame buffer created successfully.");
+    }
+
     frame_buffer::frame_buffer(const std::vector<frame_buffer_attachment> &attachments, int width, int height, frame_buffer_attachment depth_attachment)
     {
         RT_TRACE("Retro Renderer | Started creating frame buffer.");
@@ -96,7 +114,7 @@ namespace retro::renderer
                 GL_COLOR_ATTACHMENT4, GL_COLOR_ATTACHMENT5, GL_COLOR_ATTACHMENT6, GL_COLOR_ATTACHMENT7};
             glDrawBuffers(m_attachments.size(), buffers);
         }
-        else
+        else if (m_has_depth_attachment)
         {
             // Only depth-pass
             glDrawBuffer(GL_NONE);
@@ -104,16 +122,18 @@ namespace retro::renderer
         }
 
         // Error checking
+        /*
         const auto fboStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
         RT_ASSERT_MSG(fboStatus == GL_FRAMEBUFFER_COMPLETE,
                       "An error occurred while creating frame buffer: " + std::to_string(fboStatus))
-
+                      */
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
 
-    void frame_buffer::bind()
+    void frame_buffer::bind(bool set_viewport_size)
     {
-        renderer::set_viewport_size({m_width, m_height});
+        if (set_viewport_size)
+            renderer::set_viewport_size({m_width, m_height});
         glBindFramebuffer(GL_FRAMEBUFFER, m_handle_id);
     }
 

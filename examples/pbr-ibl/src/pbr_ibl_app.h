@@ -43,7 +43,8 @@ private:
     std::shared_ptr<retro::renderer::shader> m_irradiance_shader;
     std::shared_ptr<retro::renderer::shader> m_skybox_shader;
     std::shared_ptr<retro::renderer::vertex_array_object> m_environment_cube_vao;
-    unsigned int captureFBO, captureRBO;
+    std::shared_ptr<retro::renderer::frame_buffer> m_environment_capture_fbo;
+    std::shared_ptr<retro::renderer::render_buffer> m_environment_capture_rbo;
     unsigned int envCubemap;
     unsigned int irradianceMap;
     glm::mat4 captureProjection;

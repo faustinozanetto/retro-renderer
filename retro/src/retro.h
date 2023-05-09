@@ -21,6 +21,7 @@
 #include "renderer/textures/texture_loader.h"
 
 #include "renderer/frame_buffer/frame_buffer.h"
+#include "renderer/render_buffer/render_buffer.h"
 
 #include "renderer/materials/material.h"
 
