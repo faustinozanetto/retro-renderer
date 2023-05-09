@@ -1,10 +1,15 @@
 ﻿#include "rtpch.h"
 #include "pbr_app.h"
 
-#include <glm/ext/matrix_transform.hpp>
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/quaternion.hpp>
+
 #include <random>
 #include <imgui.h>
-#include <glm/gtc/type_ptr.hpp>
 
 float lerp(float a, float b, float f)
 {
@@ -36,7 +41,10 @@ void pbr_app::on_update()
     m_geometry_shader->set_mat4("u_projection", m_camera->get_projection_matrix());
     {
         glm::mat4 model = glm::mat4(1.0f);
-        model = glm::rotate(model, static_cast<float>(glfwGetTime()), {0, 1, 0});
+        //  model = glm::rotate(model, static_cast<float>(glfwGetTime()), {0, 1, 0});
+        model = glm::translate(model, m_object_pos);
+        const glm::mat4 rotation = glm::toMat4(glm::quat(m_object_rot));
+        model *= rotation;
         m_geometry_shader->set_mat4("u_transform", model);
         m_material->bind(m_geometry_shader);
         retro::renderer::renderer::submit_model(m_model);
@@ -68,6 +76,19 @@ void pbr_app::on_update()
     m_lighting_shader->un_bind();
 
     retro::ui::interface::begin_frame();
+
+    ImGui::Begin("Object");
+    glm::vec3 obj_pos = m_object_pos;
+    if (ImGui::SliderFloat3("Position", glm::value_ptr(obj_pos), -10.0f, 10.0f))
+    {
+        m_object_pos = obj_pos;
+    }
+    glm::vec3 obj_rot = m_object_rot;
+    if (ImGui::SliderFloat3("Rotation", glm::value_ptr(obj_rot), -10.0f, 10.0f))
+    {
+        m_object_rot = obj_rot;
+    }
+    ImGui::End();
 
     ImGui::Begin("Camera");
     glm::vec3 cam_pos = m_camera->get_position();
@@ -120,6 +141,8 @@ void pbr_app::load_texture()
 
 void pbr_app::setup_model()
 {
+    m_object_pos = glm::vec3(0);
+    m_object_rot = glm::vec3(0);
     m_model = retro::renderer::model_loader::load_model_from_file("../resources/models/tv/tv.obj");
 
     retro::renderer::material_texture albedo;

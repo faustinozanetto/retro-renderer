@@ -37,6 +37,8 @@ private:
     std::shared_ptr<retro::renderer::model> m_model;
     std::shared_ptr<retro::renderer::frame_buffer> m_geometry_fbo;
     std::shared_ptr<retro::renderer::material> m_material;
+    glm::vec3 m_object_pos;
+    glm::vec3 m_object_rot;
 
     /* Light Variables */
     std::shared_ptr<retro::renderer::model> m_light_model;

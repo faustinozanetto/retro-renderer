@@ -26,6 +26,10 @@ group "core"
     include "retro"
 group ""
 
+group "utils"
+	include "utils/project_creator"
+group ""
+
 group "examples"
 	include "examples/simple_triangle"
 	include "examples/simple_triangle_textured"

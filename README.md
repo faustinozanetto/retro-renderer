@@ -1,6 +1,6 @@
 # Retro Renderer
 
-![simple-model-loading](/assets/example-projects/simple-model-loading-example.png)
+![pbr](assets/example-projects/pbr-example.gif)
 Model from <https://skfb.ly/ooDDN>
 
 ## ✨ About

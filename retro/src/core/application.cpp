@@ -41,7 +41,7 @@ namespace retro::core
     {
         while (!renderer::renderer::get_window_should_close())
         {
-            renderer::renderer::set_clear_color({0.15f, 0.15f, 0.15f, 1.0f});
+            renderer::renderer::set_clear_color({0.1f, 0.1f, 0.1f, 1.0f});
             renderer::renderer::clear_screen();
 
             on_update();
