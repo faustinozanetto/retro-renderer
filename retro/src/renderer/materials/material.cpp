@@ -5,6 +5,10 @@
 
 namespace retro::renderer
 {
+    material::material(const std::map<material_texture_type, int> &texture_bindings) : material({}, texture_bindings)
+    {
+    }
+
     material::material(const std::unordered_map<material_texture_type, material_texture> &textures, const std::map<material_texture_type, int> &texture_bindings)
     {
         const material_texture_type types[] = {

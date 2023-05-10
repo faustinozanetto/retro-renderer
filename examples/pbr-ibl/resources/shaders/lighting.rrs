@@ -43,6 +43,7 @@ struct spot_light {
 uniform point_light p_light;
 uniform spot_light s_light;
 
+uniform int u_use_irradiance;
 float light_constant = 1.0f;
 float light_linear = 0.09f;
 float light_quadratic = 0.032f;
@@ -60,7 +61,7 @@ float DistributionGGX(vec3 N, vec3 H, float roughness)
     float denom = (NdotH2 * (a2 - 1.0) + 1.0);
     denom = PI * denom * denom;
 
-    return nom / denom;
+    return nom / max(denom, 0.001); // prevent divide by zero for roughness=0.0 and NdotH=1.0
 }
 
 float GeometrySchlickGGX(float NdotV, float roughness)
@@ -86,8 +87,13 @@ float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness)
 
 vec3 FresnelSchlick(float cosTheta, vec3 F0)
 {
-    return F0 + (1.0 - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
+    return F0 + (1.0 - F0) * pow(max(1.0 - cosTheta, 0.0), 5.0);
 }
+
+vec3 FresnelSchlickRoughness(float cosTheta, vec3 F0, float roughness)
+{
+    return F0 + (max(vec3(1.0 - roughness), F0) - F0) * pow(max(1.0 - cosTheta, 0.0), 5.0);
+}   
 
 vec3 calculate_point_light(point_light light, vec3 albedo, vec3 normal, vec3 frag_pos, vec3 view_dir, vec3 F0, float roughness, float metallic) {
     vec3 L = normalize(light.position - frag_pos);
@@ -123,6 +129,27 @@ vec3 calculate_point_light(point_light light, vec3 albedo, vec3 normal, vec3 fra
     return (kD * albedo / PI + specular) * radiance * NdotL;  
 }
 
+vec3 CalculateLo(vec3 L, vec3 N, vec3 V, vec3 Ra, vec3 F0, float R, float M, vec3 A)
+{
+	vec3 H = normalize(V + L); //Halfway Vector
+
+	//Cook-Torrance BRDF
+	float D = DistributionGGX(N, H, R);
+	float G = GeometrySmith(N, V, L, R);
+	vec3  F = FresnelSchlick(max(dot(H, V), 0.0), F0);
+
+	vec3 Nominator    = D * G * F;
+	float Denominator = 4 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.001;
+	vec3 Specular	  = Nominator / Denominator;
+
+	vec3 Ks = F;
+	vec3 Kd = vec3(1.0) - Ks;
+	Kd *= 1.0 - M;
+
+	float NDotL = max(dot(N, L), 0.0);
+	return (Kd * A / PI + Specular) * Ra * NDotL;
+}
+
 vec3 calculate_spot_light(spot_light light, vec3 normal, vec3 frag_pos, vec3 view_dir) { 
     vec3 light_dir = normalize(light.position - frag_pos);
     // diffuse shading
@@ -155,15 +182,23 @@ void main()
     vec3 F0 = vec3(0.04); 
     F0 = mix(F0, albedo, metallic);
 
-    vec3 luminance = calculate_point_light(p_light, albedo, normal, frag_pos, view_dir, F0, roughness, metallic);
+    vec3 luminance;
+    // point lighting
+    vec3 L = normalize(p_light.position - frag_pos);
+    float distance = length(p_light.position - frag_pos);
+    float attenuation = 1.0/(distance * distance);
+    vec3 Ra = p_light.color * 100 * attenuation;
+    luminance += CalculateLo(L, normal, view_dir, Ra, F0, roughness, metallic, albedo);
 
     // ambient lighting (we now use IBL as the ambient term)
-    vec3 kS = FresnelSchlick(max(dot(normal, view_dir), 0.0), F0);
-    vec3 kD = 1.0 - kS;
-    kD *= 1.0 - metallic;	  
+    vec3 kS = FresnelSchlickRoughness(max(dot(normal, view_dir), 0.0), F0, roughness);
+	vec3 Kd = 1.0 - kS;
+	Kd *= 1.0 - metallic;
+	
     vec3 irradiance = texture(u_irradiance_map, normal).rgb;
-    vec3 diffuse      = irradiance * albedo;
-    vec3 ambient = (kD * diffuse) * ambient_occlusion;
+    vec3 diffuse      = albedo;
+    if (u_use_irradiance == 1) diffuse *= irradiance;
+    vec3 ambient = (Kd * diffuse) * ambient_occlusion;
 
     vec3 color = ambient + luminance;
     // HDR tonemapping

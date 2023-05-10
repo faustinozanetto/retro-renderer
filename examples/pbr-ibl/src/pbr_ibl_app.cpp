@@ -22,6 +22,7 @@ pbr_ibl_app::pbr_ibl_app() : application("./")
     load_shaders();
     load_texture();
     setup_model();
+    setup_debug_model();
     setup_camera();
     setup_fbo();
     setup_screen_quad();
@@ -53,6 +54,12 @@ void pbr_ibl_app::on_update()
     }
     {
         glm::mat4 model = glm::mat4(1.0f);
+        m_geometry_shader->set_mat4("u_transform", model);
+        m_debug_material->bind(m_geometry_shader);
+        retro::renderer::renderer::submit_model(m_debug_sphere);
+    }
+    {
+        glm::mat4 model = glm::mat4(1.0f);
         model = glm::translate(model, m_light_pos);
         model = glm::scale(model, glm::vec3(0.2f));
         m_geometry_shader->set_mat4("u_transform", model);
@@ -64,14 +71,15 @@ void pbr_ibl_app::on_update()
     // 2. Render unsing the pbr shader
     m_final_fbo->bind();
     m_lighting_shader->bind();
-    retro::renderer::renderer::bind_texture(0, m_geometry_fbo->get_attachment_id(0)); // Position
-    retro::renderer::renderer::bind_texture(1, m_geometry_fbo->get_attachment_id(1)); // Albedo
-    retro::renderer::renderer::bind_texture(2, m_geometry_fbo->get_attachment_id(2)); // Normal
-    retro::renderer::renderer::bind_texture(3, m_geometry_fbo->get_attachment_id(3)); // Roughmetalao
-    retro::renderer::renderer::bind_texture(4, irradianceMap);                        // Irradiance
+    retro::renderer::renderer::bind_texture(0, m_geometry_fbo->get_attachment_id(0));              // Position
+    retro::renderer::renderer::bind_texture(1, m_geometry_fbo->get_attachment_id(1));              // Albedo
+    retro::renderer::renderer::bind_texture(2, m_geometry_fbo->get_attachment_id(2));              // Normal
+    retro::renderer::renderer::bind_texture(3, m_geometry_fbo->get_attachment_id(3));              // Roughmetalao
+    retro::renderer::renderer::bind_texture(4, m_environment_irradiance_texture->get_handle_id()); // Irradiance
 
     m_lighting_shader->set_vec_float3("p_light.position", m_light_pos);
     m_lighting_shader->set_vec_float3("p_light.color", m_light_color);
+    m_lighting_shader->set_int("u_use_irradiance", m_use_irradiance ? 1 : 0);
     m_lighting_shader->set_vec_float3("u_cam_pos", m_camera->get_position());
     m_lighting_shader->set_mat4("u_view", m_camera->get_view_matrix());
     m_lighting_shader->set_mat4("u_projection", m_camera->get_projection_matrix());
@@ -106,6 +114,30 @@ void pbr_ibl_app::on_update()
     m_screen_shader->un_bind();
 
     retro::ui::interface::begin_frame();
+
+    ImGui::Begin("Environment");
+    bool use_irradiance = m_use_irradiance;
+    if (ImGui::Checkbox("Irradiance Map", &use_irradiance))
+    {
+        m_use_irradiance = use_irradiance;
+    }
+    ImGui::End();
+
+    ImGui::Begin("Debug Model");
+
+    float roughness = m_debug_roughness;
+    if (ImGui::SliderFloat("Roughness", &roughness, 0.0f, 1.0f))
+    {
+        m_debug_roughness = roughness;
+    }
+    float metallic = m_debug_metallic;
+    if (ImGui::SliderFloat("Metallic", &metallic, 0.0f, 1.0f))
+    {
+        m_debug_metallic = metallic;
+    }
+    m_debug_material->set_roughness(m_debug_roughness);
+    m_debug_material->set_metallic(m_debug_metallic);
+    ImGui::End();
 
     ImGui::Begin("Object");
     glm::vec3 obj_pos = m_object_pos;
@@ -243,6 +275,22 @@ void pbr_ibl_app::setup_model()
     m_material->set_ambient_occlusion(1.0f);
 }
 
+void pbr_ibl_app::setup_debug_model()
+{
+    m_debug_roughness = 1.0f;
+    m_debug_metallic = 1.0f;
+    m_debug_sphere = retro::renderer::model_loader::load_model_from_file("../resources/models/sphere.obj");
+
+    std::map<retro::renderer::material_texture_type, int> material_bindings;
+    material_bindings[retro::renderer::material_texture_type::albedo] = 0;
+    material_bindings[retro::renderer::material_texture_type::normal] = 1;
+    material_bindings[retro::renderer::material_texture_type::roughness] = 2;
+    material_bindings[retro::renderer::material_texture_type::metallic] = 3;
+    material_bindings[retro::renderer::material_texture_type::ambient_occlusion] = 4;
+
+    m_debug_material = std::make_shared<retro::renderer::material>(material_bindings);
+}
+
 void pbr_ibl_app::setup_camera()
 {
     m_camera = std::make_shared<retro::camera::camera>(retro::camera::camera_type::perspective, 45.0f, 0.01f, 1000.0f);
@@ -257,28 +305,28 @@ void pbr_ibl_app::setup_fbo()
         std::vector<retro::renderer::frame_buffer_attachment> attachments = {
             //  Position
             {
-                retro::renderer::texture_format::rgba16f,
+                retro::renderer::texture_format::rgba8,
                 retro::renderer::texture_internal_format::rgba,
                 retro::renderer::texture_filtering::linear,
                 retro::renderer::texture_wrapping::clamp_to_edge,
             },
             // Albedo
             {
-                retro::renderer::texture_format::rgba16f,
+                retro::renderer::texture_format::rgba8,
                 retro::renderer::texture_internal_format::rgba,
                 retro::renderer::texture_filtering::linear,
                 retro::renderer::texture_wrapping::clamp_to_edge,
             },
             // Normals
             {
-                retro::renderer::texture_format::rgba16f,
+                retro::renderer::texture_format::rgba8,
                 retro::renderer::texture_internal_format::rgba,
                 retro::renderer::texture_filtering::linear,
                 retro::renderer::texture_wrapping::clamp_to_edge,
             },
             // Roughness Metallic AO
             {
-                retro::renderer::texture_format::rgba16f,
+                retro::renderer::texture_format::rgba8,
                 retro::renderer::texture_internal_format::rgba,
                 retro::renderer::texture_filtering::linear,
                 retro::renderer::texture_wrapping::clamp_to_edge,
@@ -297,7 +345,7 @@ void pbr_ibl_app::setup_fbo()
         std::vector<retro::renderer::frame_buffer_attachment> attachments = {
             //  Position
             {
-                retro::renderer::texture_format::rgba16f,
+                retro::renderer::texture_format::rgba8,
                 retro::renderer::texture_internal_format::rgba,
                 retro::renderer::texture_filtering::linear,
                 retro::renderer::texture_wrapping::clamp_to_edge,
@@ -438,17 +486,8 @@ void pbr_ibl_app::setup_environment_cubemap()
 {
     // pbr: setup cubemap to render to and attach to framebuffer
     // ---------------------------------------------------------
-    glGenTextures(1, &envCubemap);
-    glBindTexture(GL_TEXTURE_CUBE_MAP, envCubemap);
-    for (unsigned int i = 0; i < 6; ++i)
-    {
-        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, 512, 512, 0, GL_RGB, GL_FLOAT, nullptr);
-    }
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    retro::renderer::raw_texture_data texture_data = {m_environment_map_size, m_environment_map_size, 3, retro::renderer::texture_type::cubemap, nullptr};
+    m_environment_cubemap_texture = std::make_shared<retro::renderer::texture>(texture_data);
 }
 
 void pbr_ibl_app::setup_environment_fbo()
@@ -458,7 +497,7 @@ void pbr_ibl_app::setup_environment_fbo()
     glm::ivec2 viewport_size = retro::renderer::renderer::get_viewport_size();
     m_environment_capture_fbo = std::make_shared<retro::renderer::frame_buffer>(viewport_size.x, viewport_size.y);
     m_environment_capture_fbo->bind(false);
-    m_environment_capture_rbo = std::make_shared<retro::renderer::render_buffer>(512, 512, retro::renderer::texture_format::depth_component24);
+    m_environment_capture_rbo = std::make_shared<retro::renderer::render_buffer>(m_environment_map_size, m_environment_map_size, retro::renderer::texture_format::depth_component24);
     m_environment_capture_rbo->attach_to_frame_buffer(retro::renderer::render_buffer_attachment_type::depth);
 }
 
@@ -468,7 +507,10 @@ void pbr_ibl_app::setup_environment()
 
     // pbr: load the HDR environment map
     // ---------------------------------
-    m_environment_cubemap_texture = retro::renderer::texture_loader::load_texture_cubemap_from_file("resources/textures/newport_loft.hdr");
+    m_environment_hdr_texture = retro::renderer::texture_loader::load_texture_cubemap_from_file("resources/textures/industrial_sunset_puresky_4k.hdr");
+    m_irradiance_map_size = 128;
+    m_environment_map_size = 2048;
+    m_use_irradiance = true;
 
     setup_environment_fbo();
     setup_environment_cubemap();
@@ -482,8 +524,8 @@ void pbr_ibl_app::setup_environment_equirectangular_map()
 {
     // pbr: set up projection and view matrices for capturing data onto the 6 cubemap face directions
     // ----------------------------------------------------------------------------------------------
-    captureProjection = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 10.0f);
-    captureViews = {
+    m_capture_projection = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 10.0f);
+    m_capture_views = {
         glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)),
         glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)),
         glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)),
@@ -494,59 +536,48 @@ void pbr_ibl_app::setup_environment_equirectangular_map()
     // pbr: convert HDR equirectangular environment map to cubemap equivalent
     // ----------------------------------------------------------------------
     m_equirectangular_shader->bind();
-    m_equirectangular_shader->set_int("u_equirectangular_map", 0);
-    m_equirectangular_shader->set_mat4("u_projection", captureProjection);
+    m_equirectangular_shader->set_mat4("u_projection", m_capture_projection);
     retro::renderer::renderer::bind_texture(0, m_environment_cubemap_texture->get_handle_id());
 
-    retro::renderer::renderer::set_viewport_size({512, 512});
+    retro::renderer::renderer::set_viewport_size({m_environment_map_size, m_environment_map_size});
     m_environment_capture_fbo->bind(false);
     for (unsigned int i = 0; i < 6; ++i)
     {
-        m_equirectangular_shader->set_mat4("u_view", captureViews[i]);
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, envCubemap, 0);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        m_equirectangular_shader->set_mat4("u_view", m_capture_views[i]);
+        m_environment_capture_fbo->attach_texture(m_environment_cubemap_texture, GL_FRAMEBUFFER, retro::renderer::render_buffer_attachment_type::color, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0);
+        retro::renderer::renderer::clear_screen();
 
         retro::renderer::renderer::submit_vao(m_environment_cube_vao, 36);
     }
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    m_environment_capture_fbo->un_bind();
 }
 
 void pbr_ibl_app::setup_environment_irradiance_map()
 {
     // pbr: create an irradiance cubemap, and re-scale capture FBO to irradiance scale.
     // --------------------------------------------------------------------------------
-    glGenTextures(1, &irradianceMap);
-    glBindTexture(GL_TEXTURE_CUBE_MAP, irradianceMap);
-    for (unsigned int i = 0; i < 6; ++i)
-    {
-        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, 32, 32, 0, GL_RGB, GL_FLOAT, nullptr);
-    }
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    retro::renderer::raw_texture_data texture_data = {m_irradiance_map_size, m_irradiance_map_size, 3, retro::renderer::texture_type::cubemap, nullptr};
+    m_environment_irradiance_texture = std::make_shared<retro::renderer::texture>(texture_data);
 
     m_environment_capture_fbo->bind(false);
     m_environment_capture_rbo->bind();
-    m_environment_capture_rbo->set_storage_parameters(32, 32, retro::renderer::texture_format::depth_component24);
+    m_environment_capture_rbo->set_storage_parameters(m_irradiance_map_size, m_irradiance_map_size, retro::renderer::texture_format::depth_component24);
 
     m_irradiance_shader->bind();
-    m_irradiance_shader->set_int("u_environment_map", 0);
-    m_irradiance_shader->set_mat4("u_projection", captureProjection);
-    retro::renderer::renderer::bind_texture(0, envCubemap);
+    m_irradiance_shader->set_mat4("u_projection", m_capture_projection);
+    retro::renderer::renderer::bind_texture(0, m_environment_cubemap_texture->get_handle_id());
 
-    retro::renderer::renderer::set_viewport_size({32, 32});
+    retro::renderer::renderer::set_viewport_size({m_irradiance_map_size, m_irradiance_map_size});
     m_environment_capture_fbo->bind(false);
     for (unsigned int i = 0; i < 6; ++i)
     {
-        m_irradiance_shader->set_mat4("u_view", captureViews[i]);
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, irradianceMap, 0);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        m_irradiance_shader->set_mat4("u_view", m_capture_views[i]);
+        m_environment_capture_fbo->attach_texture(m_environment_irradiance_texture, GL_FRAMEBUFFER, retro::renderer::render_buffer_attachment_type::color, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0);
+        retro::renderer::renderer::clear_screen();
 
         retro::renderer::renderer::submit_vao(m_environment_cube_vao, 36);
     }
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    m_environment_capture_fbo->un_bind();
 }
 
 void pbr_ibl_app::render_skybox()

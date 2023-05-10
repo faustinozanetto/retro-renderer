@@ -5,7 +5,8 @@ namespace retro::renderer
     enum class texture_type
     {
         normal,
-        hdr
+        hdr,
+        cubemap,
     };
 
     enum class texture_internal_format

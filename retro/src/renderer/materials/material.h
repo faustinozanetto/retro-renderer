@@ -26,6 +26,7 @@ namespace retro::renderer
     class material
     {
     public:
+        material(const std::map<material_texture_type, int> &texture_bindings);
         material(const std::unordered_map<material_texture_type, material_texture> &textures, const std::map<material_texture_type, int> &texture_bindings);
         ~material();
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "renderer/textures/texture.h"
+#include "renderer/render_buffer/render_buffer.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -8,6 +9,7 @@
 
 namespace retro::renderer
 {
+
     struct frame_buffer_attachment
     {
         texture_format format;
@@ -32,6 +34,8 @@ namespace retro::renderer
 
         void bind(bool set_viewport_size = true);
         void un_bind();
+
+        void attach_texture(const std::shared_ptr<texture> &texture, uint32_t target, render_buffer_attachment_type attachment, uint32_t texture_target, int mipmaps_level = 0);
 
         void resize(const glm::ivec2 &dimensions);
 

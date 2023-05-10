@@ -196,4 +196,9 @@ namespace retro::renderer
         m_height = dimensions.y;
         initialize();
     }
+
+    void frame_buffer::attach_texture(const std::shared_ptr<texture> &texture, uint32_t target, render_buffer_attachment_type attachment, uint32_t texture_target, int mipmaps_level)
+    {
+        glFramebufferTexture2D(target, render_buffer::get_render_buffer_attachment_type_to_opengl(attachment), texture_target, texture->get_handle_id(), mipmaps_level);
+    }
 }
