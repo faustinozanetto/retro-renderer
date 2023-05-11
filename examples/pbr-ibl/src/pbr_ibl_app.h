@@ -20,10 +20,13 @@ public:
     void setup_light();
     void setup_environment();
     void setup_enviroment_cube();
+    void setup_environment_quad();
     void setup_environment_cubemap();
     void setup_environment_fbo();
     void setup_environment_equirectangular_map();
     void setup_environment_irradiance_map();
+    void setup_environment_prefilter_map();
+    void setup_environment_brdf_map();
 
     void render_skybox();
 
@@ -42,16 +45,23 @@ private:
     std::shared_ptr<retro::renderer::texture> m_environment_hdr_texture;
     std::shared_ptr<retro::renderer::texture> m_environment_cubemap_texture;
     std::shared_ptr<retro::renderer::texture> m_environment_irradiance_texture;
+    std::shared_ptr<retro::renderer::texture> m_environment_prefilter_texture;
+    uint32_t m_environment_brdf_texture;
     std::shared_ptr<retro::renderer::shader> m_equirectangular_shader;
     std::shared_ptr<retro::renderer::shader> m_irradiance_shader;
     std::shared_ptr<retro::renderer::shader> m_skybox_shader;
+    std::shared_ptr<retro::renderer::shader> m_prefilter_shader;
+    std::shared_ptr<retro::renderer::shader> m_brdf_shader;
     std::shared_ptr<retro::renderer::vertex_array_object> m_environment_cube_vao;
+    std::shared_ptr<retro::renderer::vertex_array_object> m_environment_quad_vao;
     std::shared_ptr<retro::renderer::frame_buffer> m_environment_capture_fbo;
     std::shared_ptr<retro::renderer::render_buffer> m_environment_capture_rbo;
     glm::mat4 m_capture_projection;
     std::vector<glm::mat4> m_capture_views;
     int m_irradiance_map_size;
     int m_environment_map_size;
+    int m_prefilter_map_size;
+    int m_brdf_map_size;
     bool m_use_irradiance;
 
     /* Model Variables */

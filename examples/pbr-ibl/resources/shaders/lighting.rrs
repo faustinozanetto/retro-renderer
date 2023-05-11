@@ -23,6 +23,8 @@ layout (binding = 1) uniform sampler2D u_albedo_map;
 layout (binding = 2) uniform sampler2D u_normal_map;
 layout (binding = 3) uniform sampler2D u_roughmetalao_map;
 layout (binding = 4) uniform samplerCube u_irradiance_map;
+layout (binding = 5) uniform samplerCube u_prefilter_map;
+layout (binding = 6) uniform sampler2D u_brdf_map;
 
 uniform vec3 u_cam_pos;
 
@@ -44,110 +46,75 @@ uniform point_light p_light;
 uniform spot_light s_light;
 
 uniform int u_use_irradiance;
+
+uniform mat4 u_view;
+uniform mat4 u_projection;
+
 float light_constant = 1.0f;
 float light_linear = 0.09f;
 float light_quadratic = 0.032f;
 
 const float PI = 3.14159265359;
 
-float DistributionGGX(vec3 N, vec3 H, float roughness)
-{
-    float a = roughness*roughness;
-    float a2 = a*a;
-    float NdotH = max(dot(N, H), 0.0);
-    float NdotH2 = NdotH*NdotH;
-
-    float nom   = a2;
-    float denom = (NdotH2 * (a2 - 1.0) + 1.0);
-    denom = PI * denom * denom;
-
-    return nom / max(denom, 0.001); // prevent divide by zero for roughness=0.0 and NdotH=1.0
+float DistributionGGX(float NdotH, float a) {
+  float a2 = a * a;
+  float f = (NdotH * a2 - NdotH) * NdotH + 1.0;
+  return a2 / (PI * f * f);
 }
 
-float GeometrySchlickGGX(float NdotV, float roughness)
-{
-    float r = (roughness + 1.0);
-    float k = (r*r) / 8.0;
-
-    float nom   = NdotV;
-    float denom = NdotV * (1.0 - k) + k;
-
-    return nom / denom;
+vec3 FresnelSchlick(float LdotH, vec3 F0) {
+  return F0 + (vec3(1.0) - F0) * pow(1.0 - LdotH, 5.0);
 }
 
-float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness)
-{
-    float NdotV = max(dot(N, V), 0.0);
-    float NdotL = max(dot(N, L), 0.0);
-    float ggx2 = GeometrySchlickGGX(NdotV, roughness);
-    float ggx1 = GeometrySchlickGGX(NdotL, roughness);
-
-    return ggx1 * ggx2;
+vec3 FresnelSchlickRoughness(float LdotV, vec3 F0, float roughness) {
+  return F0 + (max(vec3(1.0 - roughness), F0) - F0) * pow(1.0 - LdotV, 5.0);
 }
 
-vec3 FresnelSchlick(float cosTheta, vec3 F0)
-{
-    return F0 + (1.0 - F0) * pow(max(1.0 - cosTheta, 0.0), 5.0);
+float VisibilitySmithGGXCorrelated(float NdotV, float NdotL, float a) {
+  float a2 = a * a;
+  float GGXV = NdotL * sqrt((NdotV - NdotV * a2) * NdotV + a2);
+  float GGXL = NdotV * sqrt((NdotL - NdotL * a2) * NdotL + a2);
+  return 0.5 / (GGXV + GGXL);
 }
 
-vec3 FresnelSchlickRoughness(float cosTheta, vec3 F0, float roughness)
-{
-    return F0 + (max(vec3(1.0 - roughness), F0) - F0) * pow(max(1.0 - cosTheta, 0.0), 5.0);
-}   
+vec3 calculate_cook_torrance_ggx(vec3 normal, vec3 view_direction, vec3 light_direction, vec3 albedo, float roughness, float metallic) {
+    vec3 halfway_vec = normalize(light_direction + view_direction);
 
-vec3 calculate_point_light(point_light light, vec3 albedo, vec3 normal, vec3 frag_pos, vec3 view_dir, vec3 F0, float roughness, float metallic) {
-    vec3 L = normalize(light.position - frag_pos);
-    vec3 halway_vec = normalize(view_dir + L);
-    float distance = length(light.position - frag_pos);
-    float attenuation = 1.0 / (distance * distance);
-    vec3 radiance = light.color * 120.0 * attenuation;
+    vec3 F0 = vec3(0.04);
+    F0 = mix(F0, albedo, metallic);
 
-      // Cook-Torrance BRDF
-    float NDF = DistributionGGX(normal, halway_vec, roughness);   
-    float G   = GeometrySmith(normal, view_dir, L, roughness);      
-    vec3 F    = FresnelSchlick(max(dot(halway_vec, view_dir), 0.0), F0);
+    float a = max(roughness * roughness, 0.002025);
+    float NdotV = max(dot(normal, view_direction), 1e-4);
+    float NdotL = clamp(dot(normal, light_direction), 0.0, 1.0);
+    float NdotH = clamp(dot(normal, halfway_vec), 0.0, 1.0);
+    float LdotH = clamp(dot(light_direction, halfway_vec), 0.0, 1.0);
 
-    vec3 numerator    = NDF * G * F; 
-    float denominator = 4.0 * max(dot(normal, view_dir), 0.0) * max(dot(normal, L), 0.0) + 0.0001; // + 0.0001 to prevent divide by zero
-    vec3 specular = numerator / denominator;
+    float D = DistributionGGX(NdotH, a);
+    vec3 F = FresnelSchlick(LdotH, F0);
+    float V = VisibilitySmithGGXCorrelated(NdotV, NdotL, a);
 
-    // kS is equal to Fresnel
-    vec3 kS = F;
-    // for energy conservation, the diffuse and specular light can't
-    // be above 1.0 (unless the surface emits light); to preserve this
-    // relationship the diffuse component (kD) should equal 1.0 - kS.
-    vec3 kD = vec3(1.0) - kS;
-    // multiply kD by the inverse metalness such that only non-metals 
-    // have diffuse lighting, or a linear blend if partly metal (pure metals
-    // have no diffuse light).
-    kD *= 1.0 - metallic;	 
+    // Specular BRDF.
+    vec3 specular = (D * V) * F;
 
-    // scale light by NdotL
-    float NdotL = max(dot(normal, L), 0.0);        
+    vec3 diffuseColor = (1.0 - metallic) * albedo;
+    vec3 diffuse = diffuseColor / PI;
 
-    // add to outgoing radiance Lo
-    return (kD * albedo / PI + specular) * radiance * NdotL;  
+    // Calculate shading.
+    vec3 light_diffuse = vec3(0.5);
+    vec3 light_specular = vec3(1.0);
+    return (diffuse * light_diffuse + specular * light_specular) * NdotL;
 }
 
-vec3 CalculateLo(vec3 L, vec3 N, vec3 V, vec3 Ra, vec3 F0, float R, float M, vec3 A)
-{
-	vec3 H = normalize(V + L); //Halfway Vector
+vec3 calculate_point_light(point_light light, vec3 albedo, vec3 normal, vec3 frag_pos, float roughness, float metallic) {
+    vec3 light_direction = normalize(light.position - frag_pos);
+    vec3 view_direction = normalize(u_cam_pos - frag_pos);
 
-	//Cook-Torrance BRDF
-	float D = DistributionGGX(N, H, R);
-	float G = GeometrySmith(N, V, L, R);
-	vec3  F = FresnelSchlick(max(dot(H, V), 0.0), F0);
+    // Point light attenuation
+    float light_distance = length(light.position - frag_pos);
+    float attenuation = 1.0 / max(light_constant + light_linear * light_distance + light_quadratic * (light_distance * light_distance), 1e-4);
 
-	vec3 Nominator    = D * G * F;
-	float Denominator = 4 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.001;
-	vec3 Specular	  = Nominator / Denominator;
-
-	vec3 Ks = F;
-	vec3 Kd = vec3(1.0) - Ks;
-	Kd *= 1.0 - M;
-
-	float NDotL = max(dot(N, L), 0.0);
-	return (Kd * A / PI + Specular) * Ra * NDotL;
+    vec3 shading_result = calculate_cook_torrance_ggx(normal, view_direction, light_direction, albedo, roughness, metallic);
+    return shading_result;
 }
 
 vec3 calculate_spot_light(spot_light light, vec3 normal, vec3 frag_pos, vec3 view_dir) { 
@@ -167,42 +134,64 @@ vec3 calculate_spot_light(spot_light light, vec3 normal, vec3 frag_pos, vec3 vie
     return ambient;
 }
 
+vec3 sample_irradiance_map(vec3 normal_world_space) {
+    return texture(u_irradiance_map, normalize(normal_world_space)).rgb;
+}
+
+vec3 sample_prefilter_map(vec3 reflection_dir_world_space, float roughness) {
+    const float MAX_REFLECTION_LOD = 4.0;
+    float mip_level = roughness * MAX_REFLECTION_LOD;
+    return textureLod(u_prefilter_map, reflection_dir_world_space, mip_level).rgb;
+}
+
+vec2 sample_brdf_lut_map(vec3 view_dir_world_space, vec3 normal_world_space, float roughness) {
+ //   float NdotV = clamp(dot(normal_world_space, view_dir_world_space), 0.0, 1.0);
+   // return texture(u_brdf_map, vec2(NdotV, roughness)).rg;
+    return texture(u_brdf_map, vec2(max(dot(normal_world_space, view_dir_world_space), 0.0), roughness)).rg;
+}
+
+vec3 calculate_ambient_ibl(vec3 albedo, vec3 normal, vec3 view_dir, vec3 irradiance, vec3 prefilter, vec2 brdf_lut, float roughness, float metallic, float ambient_occlusion) {
+    vec3 F0 = vec3(0.04);
+    F0 = mix(F0, albedo, metallic);
+
+    vec3 F = FresnelSchlickRoughness(clamp(dot(normal, view_dir), 0.0, 1.0), F0, roughness);
+
+    vec3 kS = F;
+    vec3 kD = 1.0 - kS;
+    kD *= 1.0 - metallic;
+
+    vec3 diffuse = kD * irradiance * albedo;
+    vec3 specular = prefilter * (F * brdf_lut.x + brdf_lut.y);
+
+    return (diffuse + specular) * ambient_occlusion;
+}
+
 void main()
 {
-    vec3 frag_pos = texture(u_position_map, o_tex_coord).rgb;
-    vec3 albedo = pow(texture(u_albedo_map, o_tex_coord).rgb, vec3(2.2));
-    vec3 normal = texture(u_normal_map, o_tex_coord).rgb;
+    vec3 frag_pos_view_space = texture(u_position_map, o_tex_coord).rgb;
+    vec3 normal_view_space = texture(u_normal_map, o_tex_coord).rgb;
+    vec3 albedo = texture(u_albedo_map, o_tex_coord).rgb;
     vec3 roughmetalao = texture(u_roughmetalao_map, o_tex_coord).rgb;
     float roughness = roughmetalao.r;
     float metallic = roughmetalao.g;
     float ambient_occlusion = roughmetalao.b;
 
-    vec3 view_dir = normalize(u_cam_pos - frag_pos);
-
-    vec3 F0 = vec3(0.04); 
-    F0 = mix(F0, albedo, metallic);
-
     vec3 luminance;
     // point lighting
-    vec3 L = normalize(p_light.position - frag_pos);
-    float distance = length(p_light.position - frag_pos);
-    float attenuation = 1.0/(distance * distance);
-    vec3 Ra = p_light.color * 100 * attenuation;
-    luminance += CalculateLo(L, normal, view_dir, Ra, F0, roughness, metallic, albedo);
+    luminance = calculate_point_light(p_light, albedo, normal_view_space, frag_pos_view_space, roughness, metallic);
 
-    // ambient lighting (we now use IBL as the ambient term)
-    vec3 kS = FresnelSchlickRoughness(max(dot(normal, view_dir), 0.0), F0, roughness);
-	vec3 Kd = 1.0 - kS;
-	Kd *= 1.0 - metallic;
-	
-    vec3 irradiance = texture(u_irradiance_map, normal).rgb;
-    vec3 diffuse      = albedo;
-    if (u_use_irradiance == 1) diffuse *= irradiance;
-    vec3 ambient = (Kd * diffuse) * ambient_occlusion;
+    // ibl ambient
+    vec3 normal_world_space = mat3(transpose(u_view)) * normal_view_space;
+    vec3 view_dir_world_space = mat3(inverse(u_view)) * normalize(u_cam_pos - frag_pos_view_space);
+    vec3 reflection_dir_world_space = reflect(-view_dir_world_space, normal_world_space);
 
-    vec3 color = ambient + luminance;
-    // HDR tonemapping
-    color = color / (color + vec3(1.0));
+    vec3 irradiance = sample_irradiance_map(normal_world_space);
+    vec3 prefilter = sample_prefilter_map(reflection_dir_world_space, roughness);
+    vec2 brdf_lut = sample_brdf_lut_map(view_dir_world_space, normal_world_space, roughness);
+
+    luminance += calculate_ambient_ibl(albedo, normal_world_space, view_dir_world_space, irradiance, prefilter, brdf_lut, roughness, metallic, ambient_occlusion);
+
+    vec3 color = luminance;
     // gamma correct
     color = pow(color, vec3(1.0/2.2)); 
 

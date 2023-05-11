@@ -10,30 +10,22 @@ layout (location = 4) in vec3 a_bitangent;
 layout (location = 0) uniform mat4 u_transform;
 layout (location = 1) uniform mat4 u_view;
 layout (location = 2) uniform mat4 u_projection;
+layout (location = 3) uniform mat3 u_normal_matrix;
 
 struct geometry_out {
     vec3 frag_pos;
     vec2 tex_coords;
     vec3 normal;
-    mat3 tbn;
 };
 
 layout (location = 0) out geometry_out o_geometry;
 
 void main() {
-    vec4 view_pos  = u_view * u_transform * vec4(a_pos, 1.0);
     o_geometry.tex_coords = a_tex_coord;
-    o_geometry.frag_pos = vec3(u_transform * vec4(a_pos, 1.0));
+    o_geometry.frag_pos = vec3(u_view * u_transform * vec4(a_pos, 1.0));
+    o_geometry.normal = mat3(transpose(inverse(u_view * u_transform))) * a_normal;
 
-    mat3 normalMatrix = transpose(inverse(mat3(u_transform)));
-    vec3 T = normalize(normalMatrix * a_tangent);
-    vec3 N = normalize(normalMatrix * a_normal);
-	T = normalize(T - dot(T, N) * N);
-    vec3 B = cross(N, T);
-    o_geometry.tbn =  mat3(T, B, N);
-    o_geometry.normal = N;
-
-    gl_Position = u_projection * view_pos;
+    gl_Position =  u_projection * u_view * u_transform * vec4(a_pos, 1.0);
 }
 
 #shader fragment
@@ -43,7 +35,6 @@ struct geometry_out {
     vec3 frag_pos;
     vec2 tex_coords;
     vec3 normal;
-    mat3 tbn;
 };
 
 layout(location = 0) in geometry_out o_geometry;
@@ -87,28 +78,28 @@ void main() {
     if (u_material.normal_map_enabled == 1) {
         vec3 normal = texture(u_normal_map, o_geometry.tex_coords).rgb;
         normal = normalize(normal * 2.0 - 1.0);
-        g_normal = normalize(o_geometry.tbn * normal);
+        g_normal = normal;
     } else {
         g_normal = o_geometry.normal;
     }
 
     float roughness;
     if (u_material.roughness_map_enabled == 1) {
-        roughness = texture(u_roughness_map, o_geometry.tex_coords).r * u_material.roughness;
+        roughness = texture(u_roughness_map, o_geometry.tex_coords).r;
     } else {
         roughness = u_material.roughness;
     }
 
     float metallic;
     if (u_material.metallic_map_enabled == 1) {
-        metallic = texture(u_metallic_map, o_geometry.tex_coords).r * u_material.metallic;
+        metallic = texture(u_metallic_map, o_geometry.tex_coords).r;
     } else {
         metallic = u_material.metallic;
     }
 
     float ambient_occlusion;
     if (u_material.ambient_occlusion_map_enabled == 1) {
-        ambient_occlusion = texture(u_ambient_occlusion_map, o_geometry.tex_coords).r * u_material.ambient_occlusion;
+        ambient_occlusion = texture(u_ambient_occlusion_map, o_geometry.tex_coords).r;
     } else {
         ambient_occlusion = u_material.ambient_occlusion;
     }
