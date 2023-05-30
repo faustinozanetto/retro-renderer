@@ -81,6 +81,12 @@ namespace retro::camera
         construct_matrices();
     }
 
+    void camera::set_yaw(float yaw)
+    {
+        m_yaw = yaw;
+        construct_matrices();
+    }
+
     std::string camera::get_camera_type_to_string(camera_type type)
     {
         switch (type)

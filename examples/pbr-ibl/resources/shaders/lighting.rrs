@@ -30,29 +30,20 @@ uniform vec3 u_cam_pos;
 
 struct point_light {
     vec3 position;
-    vec3 color;
-};
-
-struct spot_light {
-    vec3 position;
-    vec3 color;
-    vec3 direction;
-
-    float inner_angle;
-    float outer_angle;
+    vec3 diffuse;
+    vec3 specular;
 };
 
 uniform point_light p_light;
-uniform spot_light s_light;
 
 uniform int u_use_irradiance;
 
 uniform mat4 u_view;
 uniform mat4 u_projection;
 
-float light_constant = 1.0f;
-float light_linear = 0.09f;
-float light_quadratic = 0.032f;
+float light_constant = 1.0;
+float light_linear = 0.09;
+float light_quadratic = 0.032;
 
 const float PI = 3.14159265359;
 
@@ -100,9 +91,7 @@ vec3 calculate_cook_torrance_ggx(vec3 normal, vec3 view_direction, vec3 light_di
     vec3 diffuse = diffuseColor / PI;
 
     // Calculate shading.
-    vec3 light_diffuse = vec3(0.5);
-    vec3 light_specular = vec3(1.0);
-    return (diffuse * light_diffuse + specular * light_specular) * NdotL;
+    return (diffuse * p_light.diffuse + specular * p_light.specular) * NdotL;
 }
 
 vec3 calculate_point_light(point_light light, vec3 albedo, vec3 normal, vec3 frag_pos, float roughness, float metallic) {
@@ -117,23 +106,6 @@ vec3 calculate_point_light(point_light light, vec3 albedo, vec3 normal, vec3 fra
     return shading_result;
 }
 
-vec3 calculate_spot_light(spot_light light, vec3 normal, vec3 frag_pos, vec3 view_dir) { 
-    vec3 light_dir = normalize(light.position - frag_pos);
-    // diffuse shading
-    float diff = max(dot(normal, light_dir), 0.0);
-    // attenuation
-    float distance = length(light.position - frag_pos);
-    float attenuation = 1.0 / (light_constant + light_linear * distance + light_quadratic * (distance * distance));       
-    // spotlight intensity
-    float theta = dot(light_dir, normalize(-light.direction)); 
-    float epsilon = light.inner_angle - light.outer_angle;
-    float intensity = clamp((theta - light.outer_angle) / epsilon, 0.0, 1.0);
-    // combine results
-    vec3 ambient = light.color * vec3(texture(u_albedo_map, o_tex_coord));
-    ambient *= attenuation * intensity;
-    return ambient;
-}
-
 vec3 sample_irradiance_map(vec3 normal_world_space) {
     return texture(u_irradiance_map, normalize(normal_world_space)).rgb;
 }
@@ -145,9 +117,8 @@ vec3 sample_prefilter_map(vec3 reflection_dir_world_space, float roughness) {
 }
 
 vec2 sample_brdf_lut_map(vec3 view_dir_world_space, vec3 normal_world_space, float roughness) {
- //   float NdotV = clamp(dot(normal_world_space, view_dir_world_space), 0.0, 1.0);
-   // return texture(u_brdf_map, vec2(NdotV, roughness)).rg;
-    return texture(u_brdf_map, vec2(max(dot(normal_world_space, view_dir_world_space), 0.0), roughness)).rg;
+    float NdotV = clamp(dot(normal_world_space, view_dir_world_space), 0.0, 1.0);
+    return texture(u_brdf_map, vec2(NdotV, roughness)).rg;
 }
 
 vec3 calculate_ambient_ibl(vec3 albedo, vec3 normal, vec3 view_dir, vec3 irradiance, vec3 prefilter, vec2 brdf_lut, float roughness, float metallic, float ambient_occlusion) {
@@ -164,6 +135,17 @@ vec3 calculate_ambient_ibl(vec3 albedo, vec3 normal, vec3 view_dir, vec3 irradia
     vec3 specular = prefilter * (F * brdf_lut.x + brdf_lut.y);
 
     return (diffuse + specular) * ambient_occlusion;
+}
+
+vec3 aces_tonemapping(vec3 color) {
+    color *= 0.6;
+    float a = 2.51;
+    float b = 0.03;
+    float c = 2.43;
+    float d = 0.59;
+    float e = 0.14;
+    return clamp((color * (a * color + b)) / (color * (c * color + d) + e), 0.0,
+                1.0);
 }
 
 void main()
@@ -194,6 +176,7 @@ void main()
     vec3 color = luminance;
     // gamma correct
     color = pow(color, vec3(1.0/2.2)); 
+    color = aces_tonemapping(color);
 
     frag_color = vec4(color, 1.0);
 }

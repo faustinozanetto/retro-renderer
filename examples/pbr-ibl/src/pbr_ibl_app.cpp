@@ -47,6 +47,7 @@ void pbr_ibl_app::on_update()
         glm::mat4 model = glm::mat4(1.0f);
         //  model = glm::rotate(model, static_cast<float>(glfwGetTime()), {0, 1, 0});
         model = glm::translate(model, m_object_pos);
+        model = glm::scale(model, glm::vec3(3));
         const glm::mat4 rotation = glm::toMat4(glm::quat(m_object_rot));
         model *= rotation;
         m_geometry_shader->set_mat4("u_transform", model);
@@ -89,7 +90,7 @@ void pbr_ibl_app::on_update()
      */
     {
         glm::mat4 model = glm::mat4(1.0f);
-        model = glm::translate(model, m_light_pos);
+        model = glm::translate(model, m_point_light->get_position());
         model = glm::scale(model, glm::vec3(0.2f));
         m_geometry_shader->set_mat4("u_transform", model);
         retro::renderer::renderer::submit_model(m_light_model);
@@ -110,8 +111,9 @@ void pbr_ibl_app::on_update()
 
     m_lighting_shader->set_mat4("u_view", m_camera->get_view_matrix());
     m_lighting_shader->set_mat4("u_projection", m_camera->get_projection_matrix());
-    m_lighting_shader->set_vec_float3("p_light.position", m_light_pos);
-    m_lighting_shader->set_vec_float3("p_light.color", m_light_color);
+    m_lighting_shader->set_vec_float3("p_light.position", m_point_light->get_position());
+    m_lighting_shader->set_vec_float3("p_light.diffuse", m_point_light->get_diffuse());
+    m_lighting_shader->set_vec_float3("p_light.specular", m_point_light->get_specular());
     m_lighting_shader->set_int("u_use_irradiance", m_use_irradiance ? 1 : 0);
     m_lighting_shader->set_vec_float3("u_cam_pos", m_camera->get_position());
     m_lighting_shader->set_mat4("u_view", m_camera->get_view_matrix());
@@ -193,17 +195,21 @@ void pbr_ibl_app::on_update()
     }
     ImGui::End();
     ImGui::Begin("Light");
-    glm::vec3 position = m_light_pos;
+    glm::vec3 position = m_point_light->get_position();
     if (ImGui::SliderFloat3("Position", glm::value_ptr(position), -10.0f, 10.0f))
     {
-        m_light_pos = position;
+        m_point_light->set_position(position);
     }
-    glm::vec3 color = m_light_color;
-    if (ImGui::ColorEdit3("Color", glm::value_ptr(color)))
+    glm::vec3 diffuse = m_point_light->get_diffuse();
+    if (ImGui::ColorEdit3("Diffuse", glm::value_ptr(diffuse)))
     {
-        m_light_color = color;
+        m_point_light->set_diffuse(diffuse);
     }
-
+    glm::vec3 specular = m_point_light->get_specular();
+    if (ImGui::ColorEdit3("Specular", glm::value_ptr(specular)))
+    {
+        m_point_light->set_specular(specular);
+    }
     ImGui::End();
     retro::ui::interface::end_frame();
 }
@@ -228,14 +234,12 @@ void pbr_ibl_app::load_shaders()
         const auto &shader_sources = retro::renderer::shader_loader::parse_shader_source(shader_contents);
         m_equirectangular_shader = std::make_shared<retro::renderer::shader>(shader_sources);
     }
-
     {
         const std::string &shader_contents = retro::renderer::shader_loader::read_shader_from_file(
             "resources/shaders/irradiance.rrs");
         const auto &shader_sources = retro::renderer::shader_loader::parse_shader_source(shader_contents);
         m_irradiance_shader = std::make_shared<retro::renderer::shader>(shader_sources);
     }
-
     {
         const std::string &shader_contents = retro::renderer::shader_loader::read_shader_from_file(
             "resources/shaders/skybox.rrs");
@@ -264,18 +268,18 @@ void pbr_ibl_app::load_shaders()
 
 void pbr_ibl_app::load_texture()
 {
-    m_albedo_texture = retro::renderer::texture_loader::load_texture_from_file("../resources/models/tv/tv-albedo.png");
-    m_normal_texture = retro::renderer::texture_loader::load_texture_from_file("../resources/models/tv/tv-normal.png");
-    m_roughness_texture = retro::renderer::texture_loader::load_texture_from_file("../resources/models/tv/tv-roughness.png");
-    m_metallic_texture = retro::renderer::texture_loader::load_texture_from_file("../resources/models/tv/tv-metallic.png");
-    m_ao_texture = retro::renderer::texture_loader::load_texture_from_file("../resources/models/tv/tv-ao.jpeg");
+    m_albedo_texture = retro::renderer::texture_loader::load_texture_from_file("resources/models/crate/textures/crate_baseColor.jpeg");
+    m_normal_texture = retro::renderer::texture_loader::load_texture_from_file("resources/models/crate/textures/crate_normal.jpeg");
+    m_roughness_texture = retro::renderer::texture_loader::load_texture_from_file("resources/models/crate/textures/crate_metallicRoughness.png");
+    m_metallic_texture = retro::renderer::texture_loader::load_texture_from_file("resources/models/crate/textures/crate_metallicRoughness.png");
+    //  m_ao_texture = retro::renderer::texture_loader::load_texture_from_file("resources/models/crate/textures/tv-ao.jpeg");
 }
 
 void pbr_ibl_app::setup_model()
 {
     m_object_pos = glm::vec3(0);
     m_object_rot = glm::vec3(0);
-    m_model = retro::renderer::model_loader::load_model_from_file("../resources/models/tv/tv.obj");
+    m_model = retro::renderer::model_loader::load_model_from_file("resources/models/crate/scene.gltf");
 
     retro::renderer::material_texture albedo;
     albedo.texture = m_albedo_texture;
@@ -298,8 +302,8 @@ void pbr_ibl_app::setup_model()
     metallic.type = retro::renderer::material_texture_type::metallic;
 
     retro::renderer::material_texture ambient_occlusion;
-    ambient_occlusion.texture = m_ao_texture;
-    ambient_occlusion.is_enabled = true;
+    ambient_occlusion.texture = nullptr;
+    ambient_occlusion.is_enabled = false;
     ambient_occlusion.type = retro::renderer::material_texture_type::ambient_occlusion;
 
     std::map<retro::renderer::material_texture_type, int> material_bindings;
@@ -455,8 +459,7 @@ void pbr_ibl_app::setup_screen_quad()
 
 void pbr_ibl_app::setup_light()
 {
-    m_light_pos = glm::vec3(0.0f, 0.0f, 5.0f);
-    m_light_color = glm::vec3(1.0f);
+    m_point_light = std::make_shared<retro::renderer::point_light>(glm::vec3(0.0f, 0.0f, 5.0f), glm::vec3(0.85f), glm::vec3(1.0f));
     m_light_model = retro::renderer::model_loader::load_model_from_file("../resources/models/cube.obj");
 }
 
@@ -600,11 +603,11 @@ void pbr_ibl_app::setup_environment()
 
     // pbr: load the HDR environment map
     // ---------------------------------
-    m_environment_hdr_texture = retro::renderer::texture_loader::load_texture_cubemap_from_file("resources/textures/kloofendal_48d_partly_cloudy_puresky_4k.hdr");
+    m_environment_hdr_texture = retro::renderer::texture_loader::load_texture_cubemap_from_file("resources/textures/je_gray_park_4k.hdr");
     m_irradiance_map_size = 128;
-    m_prefilter_map_size = 2048;
-    m_brdf_map_size = 2048;
-    m_environment_map_size = 4096;
+    m_prefilter_map_size = 1024;
+    m_brdf_map_size = 1024;
+    m_environment_map_size = 2048;
     m_use_irradiance = true;
 
     setup_environment_fbo();

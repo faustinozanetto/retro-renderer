@@ -27,6 +27,7 @@ project "retro"
         "%{include_dirs.stb}",
         "%{include_dirs.imgui}",
         "%{include_dirs.assimp}",
+        "%{include_dirs.freetype}",
     }
 
     links
@@ -43,6 +44,7 @@ project "retro"
 
         links {
             "%{library_dirs.assimp_debug}",
+            "%{library_dirs.freetype_debug}",
         }
 
     filter "configurations:release"
@@ -52,5 +54,6 @@ project "retro"
 
         links {
             "%{library_dirs.assimp_release}",
+            "%{library_dirs.freetype_release}",
         }
 

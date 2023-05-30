@@ -7,7 +7,7 @@ namespace retro::renderer
     class point_light : public light
     {
     public:
-        point_light(const glm::vec3 &position, const glm::vec3 &color) : light(light_type::point, color), m_position(position) {}
+        point_light(const glm::vec3 &position, const glm::vec3& diffuse, const glm::vec3& specular) : light(light_type::point, diffuse, specular), m_position(position) {}
 
         /* Getters */
         glm::vec3 get_position() const { return m_position; }

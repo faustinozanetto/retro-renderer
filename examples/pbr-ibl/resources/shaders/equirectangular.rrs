@@ -52,6 +52,6 @@ vec3 reinhard_tonemap(vec3 color, float gamma, float a, float l_white) {
 void main() {
     vec2 uv = sample_spherical_map(normalize(o_local_pos)); // make sure to normalize localPos
     vec3 color = texture(u_equirectangular_map, uv).rgb;
-    color = reinhard_tonemap(color, 2.2, 1.75, 1.0);
+    color = reinhard_tonemap(color, 2.2, 1.5, 1.0);
     frag_color = vec4(color, 1.0);
 }

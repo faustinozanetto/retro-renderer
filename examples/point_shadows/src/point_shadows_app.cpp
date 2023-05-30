@@ -30,12 +30,12 @@ void point_shadows_app::on_update()
     // 0. create depth cubemap transformation matrices
     glm::mat4 shadow_projection = glm::perspective(glm::radians(90.0f), (float)m_shadow_map_size / (float)m_shadow_map_size, m_near_plane, m_far_plane);
     std::vector<glm::mat4> shadow_transforms;
-    shadow_transforms.push_back(shadow_projection * glm::lookAt(m_light_pos, m_light_pos + glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
-    shadow_transforms.push_back(shadow_projection * glm::lookAt(m_light_pos, m_light_pos + glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
-    shadow_transforms.push_back(shadow_projection * glm::lookAt(m_light_pos, m_light_pos + glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)));
-    shadow_transforms.push_back(shadow_projection * glm::lookAt(m_light_pos, m_light_pos + glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)));
-    shadow_transforms.push_back(shadow_projection * glm::lookAt(m_light_pos, m_light_pos + glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
-    shadow_transforms.push_back(shadow_projection * glm::lookAt(m_light_pos, m_light_pos + glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
+    shadow_transforms.push_back(shadow_projection * glm::lookAt(m_point_light->get_position(), m_point_light->get_position() + glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
+    shadow_transforms.push_back(shadow_projection * glm::lookAt(m_point_light->get_position(), m_point_light->get_position() + glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
+    shadow_transforms.push_back(shadow_projection * glm::lookAt(m_point_light->get_position(), m_point_light->get_position() + glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)));
+    shadow_transforms.push_back(shadow_projection * glm::lookAt(m_point_light->get_position(), m_point_light->get_position() + glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)));
+    shadow_transforms.push_back(shadow_projection * glm::lookAt(m_point_light->get_position(), m_point_light->get_position() + glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
+    shadow_transforms.push_back(shadow_projection * glm::lookAt(m_point_light->get_position(), m_point_light->get_position() + glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
 
     // 1. render scene to the shadow cubemap
     retro::renderer::renderer::set_viewport_size({m_shadow_map_size, m_shadow_map_size});
@@ -46,7 +46,7 @@ void point_shadows_app::on_update()
     {
         m_shadow_shader->set_mat4("u_shadow_transformations[" + std::to_string(i) + "]", shadow_transforms[i]);
     }
-    m_shadow_shader->set_vec_float3("u_light_pos", m_light_pos);
+    m_shadow_shader->set_vec_float3("u_light_pos", m_point_light->get_position());
     m_shadow_shader->set_float("u_far_plane", m_far_plane);
     render_elements(m_shadow_shader);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -57,8 +57,8 @@ void point_shadows_app::on_update()
     m_shader->bind();
     m_shader->set_mat4("u_view", m_camera->get_view_matrix());
     m_shader->set_mat4("u_projection", m_camera->get_projection_matrix());
-    m_shader->set_vec_float3("p_light.position", m_light_pos);
-    m_shader->set_vec_float3("p_light.color", m_light_color);
+    m_shader->set_vec_float3("p_light.position", m_point_light->get_position());
+    m_shader->set_vec_float3("p_light.color", m_point_light->get_diffuse());
     m_shader->set_float("u_far_plane", m_far_plane);
     m_shader->set_float("u_shadow_bias", m_shadow_bias);
     m_shader->set_vec_float3("u_cam_pos", m_camera->get_position());
@@ -66,8 +66,8 @@ void point_shadows_app::on_update()
     render_elements(m_shader);
     m_shader->un_bind();
 
-    m_light_pos.z = static_cast<float>(sin(glfwGetTime() * 0.5) * 3.0);
-    m_light_pos.x = static_cast<float>(cos(glfwGetTime() * 0.5) * 3.0);
+   // m_point_light->get_position().z = static_cast<float>(sin(glfwGetTime() * 0.5) * 3.0);
+   // m_point_light->get_position().x = static_cast<float>(cos(glfwGetTime() * 0.5) * 3.0);
 
     retro::ui::interface::begin_frame();
     ImGui::Begin("Object");
@@ -84,18 +84,18 @@ void point_shadows_app::on_update()
     ImGui::End();
 
     ImGui::Begin("Light");
-    glm::vec3 position = m_light_pos;
+    glm::vec3 position = m_point_light->get_position();
     if (ImGui::SliderFloat3("Position", glm::value_ptr(position), -10.0f, 10.0f))
     {
-        m_light_pos = position;
+        m_point_light->set_position(position);
     }
     ImGui::SliderFloat("Bias", &m_shadow_bias, 0.01f, 5.0f);
     ImGui::SliderFloat("Near Plane", &m_near_plane, 0.01f, 10.0f);
     ImGui::SliderFloat("Far Plane", &m_far_plane, 0.1f, 100.0f);
-    glm::vec3 color = m_light_color;
+    glm::vec3 color = m_point_light->get_diffuse();
     if (ImGui::ColorEdit3("Color", glm::value_ptr(color)))
     {
-        m_light_color = color;
+        m_point_light->set_diffuse(color);
     }
     ImGui::End();
     glm::vec3 cam_pos = m_camera->get_position();
@@ -139,9 +139,7 @@ void point_shadows_app::setup_model()
 
 void point_shadows_app::setup_light()
 {
-    m_light_pos = glm::vec3(0.0f, 0.0f, 3.0f);
-    m_light_color = glm::vec3(0.85f);
-    m_point_light = std::make_shared<retro::renderer::point_light>(m_light_pos, m_light_color);
+    m_point_light = std::make_shared<retro::renderer::point_light>(glm::vec3(0.0f, 0.0f, 5.0f), glm::vec3(0.85f), glm::vec3(1.0f));
 }
 
 void point_shadows_app::setup_light_cube()
@@ -302,7 +300,7 @@ void point_shadows_app::render_elements(const std::shared_ptr<retro::renderer::s
     // Render Light Cube
     {
         glm::mat4 model = glm::mat4(1.0f);
-        model = glm::translate(model, m_light_pos);
+        model = glm::translate(model, m_point_light->get_position());
         model = glm::scale(model, glm::vec3(0.1f));
         shader->set_mat4("u_transform", model);
         retro::renderer::renderer::submit_vao(m_light_cube_vao, 36);

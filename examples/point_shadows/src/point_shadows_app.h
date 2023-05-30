@@ -34,8 +34,6 @@ private:
     /* Light Variables */
     std::shared_ptr<retro::renderer::point_light> m_point_light;
     std::shared_ptr<retro::renderer::vertex_array_object> m_light_cube_vao;
-    glm::vec3 m_light_pos;
-    glm::vec3 m_light_color;
 
     /* Shadowss Variables */
     std::shared_ptr<retro::renderer::shader> m_shadow_shader;

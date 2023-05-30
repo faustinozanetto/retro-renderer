@@ -35,6 +35,7 @@ namespace retro::camera
         void set_near_plane(float near_plane);
         void set_far_plane(float far_plane);
         void set_position(const glm::vec3 &position);
+        void set_yaw(float yaw);
 
         static std::string get_camera_type_to_string(camera_type type);
 

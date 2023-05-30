@@ -27,8 +27,8 @@ void normal_mapping_app::on_update()
     m_shader->set_mat4("u_view", m_camera->get_view_matrix());
     m_shader->set_mat4("u_projection", m_camera->get_projection_matrix());
     m_shader->set_vec_float3("u_cam_pos", m_camera->get_position());
-    m_shader->set_vec_float3("p_light.position", m_light_pos);
-    m_shader->set_vec_float3("p_light.color", m_light_color);
+    m_shader->set_vec_float3("p_light.position", m_point_light->get_position());
+    m_shader->set_vec_float3("p_light.color", m_point_light->get_diffuse());
     retro::renderer::renderer::bind_texture(0, m_albedo_texture->get_handle_id());
     retro::renderer::renderer::bind_texture(1, m_normal_texture->get_handle_id());
     retro::renderer::renderer::submit_model(m_model);
@@ -36,15 +36,15 @@ void normal_mapping_app::on_update()
 
     retro::ui::interface::begin_frame();
     ImGui::Begin("Light");
-    glm::vec3 position = m_light_pos;
+    glm::vec3 position = m_point_light->get_position();
     if (ImGui::SliderFloat3("Position", glm::value_ptr(position), -10.0f, 10.0f))
     {
-        m_light_pos = position;
+        m_point_light->set_position(position);
     }
-    glm::vec3 color = m_light_color;
-    if (ImGui::ColorEdit3("Color", glm::value_ptr(color)))
+    glm::vec3 color = m_point_light->get_diffuse();
+    if (ImGui::ColorEdit3("Diffuse", glm::value_ptr(color)))
     {
-        m_light_color = color;
+        m_point_light->set_diffuse(color);
     }
     ImGui::End();
     retro::ui::interface::end_frame();
@@ -71,9 +71,7 @@ void normal_mapping_app::setup_model()
 
 void normal_mapping_app::setup_light()
 {
-    m_light_pos = glm::vec3(0.0f, 0.0f, 5.0f);
-    m_light_color = glm::vec3(0.85f);
-    m_point_light = std::make_shared<retro::renderer::point_light>(m_light_pos, m_light_color);
+    m_point_light = std::make_shared<retro::renderer::point_light>(glm::vec3(0.0f, 0.0f, 5.0f), glm::vec3(0.85f), glm::vec3(1.0f));
 }
 
 void normal_mapping_app::setup_camera()

@@ -7,7 +7,7 @@ namespace retro::renderer
     class spot_light : public light
     {
     public:
-        spot_light(const glm::vec3 &position, const glm::vec3 &direction, float inner_angle, float outer_angle, const glm::vec3 &color) : light(light_type::point, color), m_position(position), m_direction(direction), m_inner_angle(inner_angle), m_outer_angle(outer_angle) {}
+        spot_light(const glm::vec3 &position, const glm::vec3 &direction, const glm::vec3& diffuse, const glm::vec3& specular, float inner_angle, float outer_angle) : light(light_type::point, diffuse, specular), m_position(position), m_direction(direction), m_inner_angle(inner_angle), m_outer_angle(outer_angle) {}
 
         /* Getters */
         glm::vec3 get_position() const { return m_position; }

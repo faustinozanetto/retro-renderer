@@ -24,11 +24,11 @@ void simple_lighting_app::on_update()
         m_shader->bind();
         m_shader->set_mat4("u_view", m_camera->get_view_matrix());
         m_shader->set_mat4("u_projection", m_camera->get_projection_matrix());
-        m_shader->set_vec_float3("p_light.position", m_light_pos);
-        m_shader->set_vec_float3("p_light.color", m_light_color);
+        m_shader->set_vec_float3("p_light.position", m_point_light->get_position());
+        m_shader->set_vec_float3("p_light.color", m_point_light->get_diffuse());
 
-        m_shader->set_vec_float3("s_light.position", m_light_pos);
-        m_shader->set_vec_float3("s_light.color", m_light_color);
+        m_shader->set_vec_float3("s_light.position", m_spot_light->get_position());
+        m_shader->set_vec_float3("s_light.color", m_spot_light->get_diffuse());
 
         m_shader->set_vec_float3("s_light.direction", m_light_dir);
         m_shader->set_float("s_light.inner_angle", m_inner_angle);
@@ -46,9 +46,9 @@ void simple_lighting_app::on_update()
         m_shader_light->bind();
         m_shader_light->set_mat4("u_view", m_camera->get_view_matrix());
         m_shader_light->set_mat4("u_projection", m_camera->get_projection_matrix());
-        m_shader_light->set_vec_float3("u_color", m_light_color);
+        m_shader_light->set_vec_float3("u_color", m_point_light->get_diffuse());
         glm::mat4 model = glm::mat4(1.0f);
-        model = glm::translate(model, m_light_pos);
+        model = glm::translate(model, m_point_light->get_position());
         m_shader_light->set_mat4("u_transform", model);
         retro::renderer::renderer::submit_vao(m_light_cube_vao, 36);
         m_shader_light->un_bind();
@@ -71,15 +71,15 @@ void simple_lighting_app::on_update()
         ImGui::EndCombo();
     }
 
-    glm::vec3 position = m_light_pos;
+    glm::vec3 position = m_point_light->get_position();
     if (ImGui::SliderFloat3("Position", glm::value_ptr(position), -10.0f, 10.0f))
     {
-        m_light_pos = position;
+        m_spot_light->set_position(position);
     }
-    glm::vec3 color = m_light_color;
-    if (ImGui::ColorEdit3("Color", glm::value_ptr(color)))
+    glm::vec3 color = m_point_light->get_diffuse();
+    if (ImGui::ColorEdit3("Diffuse", glm::value_ptr(color)))
     {
-        m_light_color = color;
+        m_point_light->set_diffuse(color);
     }
 
     if (m_selected_light == retro::renderer::light_type::spot)
@@ -134,14 +134,12 @@ void simple_lighting_app::setup_model()
 void simple_lighting_app::setup_light()
 {
     m_selected_light = retro::renderer::light_type::point;
-    m_light_pos = glm::vec3(0.0f, 0.0f, 5.0f);
-    m_light_color = glm::vec3(0.85f);
-    m_point_light = std::make_shared<retro::renderer::point_light>(m_light_pos, m_light_color);
+    m_point_light = std::make_shared<retro::renderer::point_light>(glm::vec3(0.0f, 0.0f, 5.0f), glm::vec3(0.85f), glm::vec3(1.0f));
     m_light_dir = m_camera->get_front();
     m_inner_angle = 1.45f;
     m_outer_angle = 0.5f;
 
-    m_spot_light = std::make_shared<retro::renderer::spot_light>(m_light_pos, m_light_dir, m_inner_angle, m_outer_angle, m_light_color);
+    m_spot_light = std::make_shared<retro::renderer::spot_light>(glm::vec3(0.0f, 0.0f, 5.0f), m_light_dir, glm::vec3(0.85f), glm::vec3(1.0f), m_inner_angle, m_outer_angle);
 }
 
 void simple_lighting_app::setup_light_cube()

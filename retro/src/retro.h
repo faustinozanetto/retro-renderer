@@ -33,6 +33,13 @@
 #include "renderer/lighting/point_light.h"
 #include "renderer/lighting/spot_light.h"
 
+#include "renderer/text/font.h"
+#include "renderer/text/text.h"
+
+// Input Include
+#include "input/input.h"
+#include "input/key_codes.h"
+
 // Events Include
 #include "events/base_event.h"
 #include "events/window_events.h"

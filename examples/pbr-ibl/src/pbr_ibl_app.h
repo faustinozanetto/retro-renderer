@@ -88,6 +88,5 @@ private:
     /* Light Variables */
     std::shared_ptr<retro::renderer::model> m_light_model;
     std::shared_ptr<retro::renderer::shader> m_lighting_shader;
-    glm::vec3 m_light_pos;
-    glm::vec3 m_light_color;
+    std::shared_ptr<retro::renderer::point_light> m_point_light;
 };

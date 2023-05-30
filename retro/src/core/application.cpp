@@ -21,6 +21,7 @@ namespace retro::core
         m_window->set_event_function([this](auto &&...args) -> decltype(auto)
                                      { return application::on_event(std::forward<decltype(args)>(args)...); });
         renderer::renderer::initialize();
+     
         ui::interface::initialize();
     }
 

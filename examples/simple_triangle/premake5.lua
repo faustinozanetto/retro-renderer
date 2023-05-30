@@ -22,6 +22,7 @@ project "simple-triangle"
         "%{include_dirs.stb}",
         "%{include_dirs.imgui}",
         "%{include_dirs.assimp}",
+        "%{include_dirs.freetype}",
     }
 
     links {
