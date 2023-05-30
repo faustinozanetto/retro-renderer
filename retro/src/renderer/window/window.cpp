@@ -1,9 +1,11 @@
 #include "rtpch.h"
 #include "window.h"
 
+#include "events/key_events.h"
+
 namespace retro::renderer
 {
-    window::window(int width, int height, const std::string &title)
+    window::window(int width, int height, const std::string& title)
     {
         RT_TRACE("Retro Renderer | Window Initialization");
         RT_TRACE("   - Title: {0}", title);
@@ -45,17 +47,46 @@ namespace retro::renderer
     void window::setup_callbacks()
     {
         // 1. Resize callback
-        glfwSetWindowSizeCallback(m_handle, [](GLFWwindow *native_window, int width, int height)
-                                  {
-            window_data &data = *static_cast<window_data *>(glfwGetWindowUserPointer(native_window));
+        glfwSetWindowSizeCallback(m_handle, [](GLFWwindow* native_window, int width, int height)
+        {
+            window_data& data = *static_cast<window_data*>(glfwGetWindowUserPointer(native_window));
             data.width = width;
             data.height = height;
 
             events::window_resize_event event({width, height});
-            data.event_func(event); });
+            data.event_func(event);
+        });
+
+        // 2. Key callback
+        glfwSetKeyCallback(m_handle, [](GLFWwindow* window, int key, int scancode, int action, int mods)
+        {
+            const window_data& data = *static_cast<window_data*>(glfwGetWindowUserPointer(window));
+
+            switch (action)
+            {
+            case GLFW_PRESS:
+                {
+                    events::key_pressed_event event(key, false);
+                    data.event_func(event);
+                    break;
+                }
+            case GLFW_RELEASE:
+                {
+                    events::key_released_event event(key);
+                    data.event_func(event);
+                    break;
+                }
+            case GLFW_REPEAT:
+                {
+                    events::key_pressed_event event(key, true);
+                    data.event_func(event);
+                    break;
+                }
+            }
+        });
     }
 
-    void window::set_event_function(const std::function<void(events::base_event &)> func)
+    void window::set_event_function(const std::function<void(events::base_event&)> func)
     {
         m_data.event_func = func;
     }

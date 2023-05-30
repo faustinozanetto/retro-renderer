@@ -3,6 +3,7 @@
 // Core Includes
 #include "core/application.h"
 #include "core/entry_point.h"
+#include "core/engine_time.h"
 
 // Camera Includes
 #include "camera/camera.h"
@@ -43,6 +44,7 @@
 // Events Include
 #include "events/base_event.h"
 #include "events/window_events.h"
+#include "events/key_events.h"
 #include "events/event_dispatcher.h"
 
 // Interface Includes

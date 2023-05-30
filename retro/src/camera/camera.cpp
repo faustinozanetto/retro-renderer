@@ -53,7 +53,8 @@ namespace retro::camera
         }
         else
         {
-            m_projection_matrix = glm::ortho(0.0f, 800.0f, 0.0f, 600.0f, m_near_plane, m_far_plane);
+            m_projection_matrix = glm::ortho(0.0f, static_cast<float>(renderer::renderer::get_viewport_size().x), 0.0f, static_cast<float>(renderer::renderer::get_viewport_size().y), m_near_plane, m_far_plane);
+            m_view_matrix = glm::lookAt(m_position, m_position + m_front, m_up);
         }
     }
 

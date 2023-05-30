@@ -13,6 +13,7 @@ namespace retro::events
 
         /* Getters */
         glm::ivec2 get_size() const { return m_window_size; }
+        
         static event_type get_static_type() { return event_type::window_resize; }
         virtual event_type get_type() const override { return event_type::window_resize; }
 

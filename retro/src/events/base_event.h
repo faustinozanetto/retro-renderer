@@ -5,6 +5,8 @@ namespace retro::events
     enum class event_type
     {
         window_resize,
+        key_pressed,
+        key_released,
     };
 
     class base_event
