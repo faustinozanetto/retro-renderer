@@ -2,7 +2,6 @@
 
 // Core Includes
 #include "core/application.h"
-#include "core/entry_point.h"
 #include "core/engine_time.h"
 
 // Camera Includes

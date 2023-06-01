@@ -15,7 +15,8 @@ namespace retro::core::time
     float get_raw_delta_time();
     float get_delta_time();
 
-    float get_time_scale();
+    float get_frame_time();
+    float get_fps();
 
-    std::pair<float*, size_t> get_times();
+    float get_time_scale();
 }

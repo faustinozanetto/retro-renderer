@@ -1,0 +1,32 @@
+#shader vertex
+#version 450 core
+
+layout (location = 0) in vec3 a_pos;
+layout (location = 1) in vec2 a_tex_coord;
+
+layout (location = 0) out vec2 o_tex_coord;
+
+layout (location = 0) uniform mat4 u_transform;
+layout (location = 1) uniform mat4 u_view;
+layout (location = 2) uniform mat4 u_projection;
+
+void main() {
+    gl_Position = u_projection * u_view * u_transform * vec4(a_pos, 1.0);
+    o_tex_coord = a_tex_coord;
+}
+
+#shader fragment
+#version 450 core
+
+layout (location = 0) out vec4 frag_color;
+
+layout (location = 0) in vec2 o_tex_coord;
+
+layout (binding = 0) uniform sampler2D u_texture;
+
+void main()
+{
+    vec4 color = texture(u_texture, o_tex_coord);
+    if (color.a < 0.1) discard;
+    frag_color = color;
+}

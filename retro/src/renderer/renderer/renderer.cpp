@@ -64,6 +64,13 @@ namespace retro::renderer
         set_text_projection();
     }
 
+    void renderer::set_depth_test(bool is_enabled)
+    {
+        if (is_enabled)
+            glEnable(GL_DEPTH_TEST);
+        else glDisable(GL_DEPTH_TEST);
+    }
+
     void renderer::bind_texture(uint32_t slot, uint32_t handle_id)
     {
         glBindTextureUnit(slot, handle_id);
