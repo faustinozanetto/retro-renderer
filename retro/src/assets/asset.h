@@ -25,7 +25,6 @@ namespace retro::assets
 
         /* Functions */
         virtual void serialize(std::ofstream &asset_pack_file) = 0;
-        virtual void deserialize(std::ifstream &asset_pack_file) = 0;
 
     protected:
         asset_type m_type;

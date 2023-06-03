@@ -1,6 +1,8 @@
 #include "rtpch.h"
 #include "texture_loader.h"
 
+#include "utils/utils.h"
+
 #include <stb_image.h>
 
 namespace retro::renderer
@@ -8,18 +10,18 @@ namespace retro::renderer
     std::shared_ptr<texture> texture_loader::load_texture_from_file(const std::string &file_path)
     {
         const texture_data &data = parse_texture_file_contents(file_path);
-        return std::make_shared<texture>(data);
+        return std::make_shared<texture>(utils::extract_file_name(file_path), data);
     }
 
     std::shared_ptr<texture> texture_loader::load_texture_cubemap_from_file(const std::string &file_path)
     {
         const texture_data &data = parse_texture_cubemap_file_contents(file_path);
-        return std::make_shared<texture>(data);
+        return std::make_shared<texture>(utils::extract_file_name(file_path), data);
     }
 
     std::shared_ptr<texture> texture_loader::load_texture_from_data(const texture_data &raw_data)
     {
-        return std::make_shared<texture>(raw_data);
+        return std::make_shared<texture>("data_texture", raw_data);
     }
 
     texture_data texture_loader::parse_texture_file_contents(const std::string &file_path)

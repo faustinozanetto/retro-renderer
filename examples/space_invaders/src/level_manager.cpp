@@ -9,6 +9,8 @@ level_manager* level_manager::s_instance = nullptr;
 level_manager::level_manager()
 {
     s_instance = this;
+    m_textures_pack = std::make_shared<retro::assets::asset_pack>(retro::assets::asset_type::texture);
+    m_textures_pack->deserialize_pack("resources/packs/textures.pack");
     initialize_level_params();
     initialize_background_assets();
     initialize_background_model();
@@ -16,11 +18,11 @@ level_manager::level_manager()
     initialize_ammo_pickup_model();
     initialize_ammo_pickup_generation();
     initialize_audio();
-
-    m_textures_pack = std::make_shared<retro::assets::asset_pack>(retro::assets::asset_type::texture);
+/*
     m_textures_pack->save_asset(m_ammo_pickup_texture);
     m_textures_pack->save_asset(m_background_texture);
     m_textures_pack->serialize_pack("resources/packs/textures.pack");
+  */  
 }
 
 void level_manager::draw_background()
@@ -90,8 +92,7 @@ void level_manager::initialize_level_params()
 
 void level_manager::initialize_background_assets()
 {
-    m_background_texture = retro::renderer::texture_loader::load_texture_from_file(
-        "resources/textures/test_texture2.png");
+    m_background_texture = m_textures_pack->get_asset<retro::renderer::texture, retro::assets::asset_type::texture>("test_texture2.png");
 
     m_background_shader = retro::renderer::shader_loader::load_shader_from_file(
         "resources/shaders/background.rrs");
@@ -144,8 +145,7 @@ void level_manager::initialize_background_model()
 
 void level_manager::initialize_ammo_pickup_assets()
 {
-    m_ammo_pickup_texture = retro::renderer::texture_loader::load_texture_from_file(
-        "resources/textures/ammo_pickup.png");
+    m_ammo_pickup_texture = m_textures_pack->get_asset<retro::renderer::texture,retro::assets::asset_type::texture>("ammo_pickup.png");
 
     m_ammo_pickup_shader = retro::renderer::shader_loader::load_shader_from_file(
         "resources/shaders/ammo_pickup.rrs");

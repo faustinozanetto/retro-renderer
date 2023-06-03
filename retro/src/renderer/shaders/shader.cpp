@@ -37,10 +37,6 @@ namespace retro::renderer
         RT_ASSERT_MSG(false, "Invalid shader type!");
     }
 
-    shader::shader(const std::string& name) : asset(assets::asset_type::shader, name)
-    {
-    }
-
     shader::shader(const std::string& name,
                    const std::unordered_map<shader_type, std::string>& shader_contents) : asset(
         assets::asset_type::shader, name)
@@ -139,18 +135,18 @@ namespace retro::renderer
             uint32_t data_size = static_cast<uint32_t>(content.size());
             asset_pack_file.write(reinterpret_cast<const char*>(&data_size), sizeof(data_size));
             asset_pack_file.write(content.data(), data_size);
-        }  
+        }
     }
 
-    void shader::deserialize(std::ifstream& asset_pack_file)
+    std::shared_ptr<shader> shader::deserialize(const std::string& name, std::ifstream& asset_pack_file)
     {
+        std::unordered_map<shader_type, std::string> parsed_contents;
         // Read the shader content from the pack file
-        m_contents.clear(); // Clear existing shader contents, if any
+        size_t shader_types_count;
+        asset_pack_file.read(reinterpret_cast<char*>(&shader_types_count), sizeof(shader_types_count));
 
-        size_t numShaderTypes;
-        asset_pack_file.read(reinterpret_cast<char*>(&numShaderTypes), sizeof(numShaderTypes));
-
-        for (size_t i = 0; i < numShaderTypes; ++i) {
+        for (size_t i = 0; i < shader_types_count; ++i)
+        {
             // Deserialize shader type
             shader_type type;
             asset_pack_file.read(reinterpret_cast<char*>(&type), sizeof(type));
@@ -162,10 +158,10 @@ namespace retro::renderer
             asset_pack_file.read(&content[0], dataSize);
 
             // Store the shader content in the map
-            m_contents[type] = content;
+            parsed_contents[type] = content;
         }
 
-        compile_contents();
+        return std::make_shared<shader>(name, parsed_contents);
     }
 
     void shader::compile_contents()

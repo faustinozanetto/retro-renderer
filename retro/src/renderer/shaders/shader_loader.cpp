@@ -1,21 +1,22 @@
 #include "rtpch.h"
 #include "shader_loader.h"
 
+#include "utils/utils.h"
+
 #include <filesystem>
 
 namespace retro::renderer
 {
-    std::shared_ptr<shader> shader_loader::load_shader_from_file(const std::string& file_path)
+    std::shared_ptr<shader> shader_loader::load_shader_from_file(const std::string &file_path)
     {
         RT_TRACE("Retro Renderer | Started loading shader from file '{0}'", file_path);
-        const std::string& shader_source = read_shader_from_file(file_path);
-        const auto& contents = parse_shader_source(shader_source);
-        const std::filesystem::path path(file_path);
+        const std::string &shader_source = read_shader_from_file(file_path);
+        const auto &contents = parse_shader_source(shader_source);
 
-        return std::make_shared<shader>(path.filename().string(), contents);
+        return std::make_shared<shader>(utils::extract_file_name(file_path), contents);
     }
 
-    std::string shader_loader::read_shader_from_file(const std::string& file_path)
+    std::string shader_loader::read_shader_from_file(const std::string &file_path)
     {
         RT_TRACE("Retro Renderer | Started reading shader from file '{0}'", file_path);
         std::string shader_contents;
@@ -29,14 +30,14 @@ namespace retro::renderer
         shader_contents.resize(size);
         in.seekg(0, std::ios::beg);
         in.read(shader_contents.data(), size);
-        
+
         in.close();
         RT_TRACE("Retro Renderer | Shader read successfully.");
 
         return shader_contents;
     }
 
-    std::unordered_map<shader_type, std::string> shader_loader::parse_shader_source(const std::string& shader_source)
+    std::unordered_map<shader_type, std::string> shader_loader::parse_shader_source(const std::string &shader_source)
     {
         std::unordered_map<shader_type, std::string> shader_contents;
 

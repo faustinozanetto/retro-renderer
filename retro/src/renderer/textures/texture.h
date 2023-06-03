@@ -59,15 +59,16 @@ namespace retro::renderer
         int width;
         int height;
         int channels;
-        int mip_mamp_levels;
+        int mip_map_levels;
         texture_formats formats;
         texture_type type;
-        void* data;
+        void *data;
 
-        texture_data(int width, int height, int channels, texture_type type, void* data);
+        texture_data() = default;
 
-        texture_data(int width, int height, int channels, texture_formats formats, texture_type type, void* data) :
-            width(width), height(height), channels(channels), formats(formats), type(type), data(data)
+        texture_data(int width, int height, int channels, texture_type type, void *data);
+
+        texture_data(int width, int height, int channels, texture_formats formats, texture_type type, void *data) : width(width), height(height), channels(channels), formats(formats), type(type), data(data)
         {
         }
     };
@@ -108,7 +109,7 @@ namespace retro::renderer
     class texture : public assets::asset
     {
     public:
-        texture(const std::string& name, const texture_data& texture_data);
+        texture(const std::string &name, const texture_data &texture_data);
 
         /* Getters */
         uint32_t get_handle_id() const { return m_handle_id; }
@@ -117,8 +118,8 @@ namespace retro::renderer
         void set_wrapping(texture_wrapping_type wrapping_type, texture_wrapping wrapping);
 
         /* Asset */
-        void serialize(std::ofstream& asset_pack_file) override;
-        void deserialize(std::ifstream& asset_pack_file) override;
+        void serialize(std::ofstream &asset_pack_file) override;
+        static std::shared_ptr<texture> deserialize(const std::string& name, std::ifstream& asset_pack_file);
 
         /* Utilities */
         static std::string get_texture_filtering_to_string(texture_filtering filtering);

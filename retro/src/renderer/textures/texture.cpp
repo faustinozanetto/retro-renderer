@@ -21,12 +21,12 @@ namespace retro::renderer
         assets::asset_type::texture, name)
     {
         m_data = texture_data;
-        m_data.mip_mamp_levels = static_cast<int>(floor(log2((std::min)(m_data.width, m_data.height))));
+        m_data.mip_map_levels = static_cast<int>(floor(log2((std::min)(m_data.width, m_data.height))));
 
         RT_TRACE("  - Width: {0}px", m_data.width);
         RT_TRACE("  - Height: {0}px", m_data.height);
         RT_TRACE("  - Channels: {0}", m_data.channels);
-        RT_TRACE("  - Mipmap Levels: {0}", m_data.mip_mamp_levels);
+        RT_TRACE("  - Mipmap Levels: {0}", m_data.mip_map_levels);
         RT_TRACE("  - Format: '{0}'", get_texture_format_to_string(m_data.formats.format));
         RT_TRACE("  - Internal Format: '{0}'", get_texture_internal_format_to_string(m_data.formats.internal_format));
 
@@ -36,7 +36,8 @@ namespace retro::renderer
             glCreateTextures(GL_TEXTURE_2D, 1, &m_handle_id);
             glBindTexture(GL_TEXTURE_2D, m_handle_id);
             glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-            glTextureStorage2D(m_handle_id, m_data.mip_mamp_levels, get_texture_format_to_opengl(m_data.formats.format), m_data.width,
+            glTextureStorage2D(m_handle_id, m_data.mip_map_levels, get_texture_format_to_opengl(m_data.formats.format),
+                               m_data.width,
                                m_data.height);
 
             // Filtering
@@ -53,7 +54,8 @@ namespace retro::renderer
             glCreateTextures(GL_TEXTURE_2D, 1, &m_handle_id);
             glBindTexture(GL_TEXTURE_2D, m_handle_id);
             glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-            glTextureStorage2D(m_handle_id, m_data.mip_mamp_levels, get_texture_format_to_opengl(m_data.formats.format), m_data.width,
+            glTextureStorage2D(m_handle_id, m_data.mip_map_levels, get_texture_format_to_opengl(m_data.formats.format),
+                               m_data.width,
                                m_data.height);
 
             // Wrapping
@@ -79,7 +81,8 @@ namespace retro::renderer
             for (unsigned int i = 0; i < 6; ++i)
             {
                 glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, get_texture_format_to_opengl(m_data.formats.format),
-                             m_data.width, m_data.height, 0, get_texture_internal_format_to_opengl(m_data.formats.internal_format),
+                             m_data.width, m_data.height, 0,
+                             get_texture_internal_format_to_opengl(m_data.formats.internal_format),
                              GL_FLOAT, m_data.data);
             }
 
@@ -102,7 +105,6 @@ namespace retro::renderer
             glGenerateTextureMipmap(m_handle_id);
             glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
         }
-        stbi_image_free(m_data.data);
     }
 
     std::string texture::get_texture_filtering_to_string(texture_filtering filtering)
@@ -433,24 +435,48 @@ namespace retro::renderer
         // Serialize the texture's data size
         const size_t data_size = m_data.width * m_data.height * m_data.channels;
         asset_pack_file.write(reinterpret_cast<const char*>(&data_size), sizeof(data_size));
-        
+
         // Serialize the texture's metadata (width, height, channels, mipmap levels)
         asset_pack_file.write(reinterpret_cast<const char*>(&m_data.width), sizeof(m_data.width));
         asset_pack_file.write(reinterpret_cast<const char*>(&m_data.height), sizeof(m_data.height));
         asset_pack_file.write(reinterpret_cast<const char*>(&m_data.channels), sizeof(m_data.channels));
-        asset_pack_file.write(reinterpret_cast<const char*>(&m_data.mip_mamp_levels), sizeof(m_data.mip_mamp_levels));
-
-        // Serialize the texture's metadata (texture type)
-        asset_pack_file.write(reinterpret_cast<const char*>(&m_data.type), sizeof(m_data.type));
+        asset_pack_file.write(reinterpret_cast<const char*>(&m_data.mip_map_levels), sizeof(m_data.mip_map_levels));
 
         // Serialize the texture's metadata (texture formats)
         asset_pack_file.write(reinterpret_cast<const char*>(&m_data.formats), sizeof(m_data.formats));
+
+        // Serialize the texture's metadata (texture type)
+        asset_pack_file.write(reinterpret_cast<const char*>(&m_data.type), sizeof(m_data.type));
 
         // Serialize the texture's data
         asset_pack_file.write(static_cast<const char*>(m_data.data), data_size);
     }
 
-    void texture::deserialize(std::ifstream& asset_pack_file)
+    std::shared_ptr<texture> texture::deserialize(const std::string& name, std::ifstream& asset_pack_file)
     {
+        texture_data data;
+        // Deserialize the texture's data size
+        size_t data_size;
+        asset_pack_file.read(reinterpret_cast<char*>(&data_size), sizeof(data_size));
+
+        // Resize the data vector to hold the texture's data
+        data.data = new char[data_size];
+
+        // Deserialize the texture's metadata (width, height, channels, mip map levels)
+        asset_pack_file.read(reinterpret_cast<char*>(&data.width), sizeof(data.width));
+        asset_pack_file.read(reinterpret_cast<char*>(&data.height), sizeof(data.height));
+        asset_pack_file.read(reinterpret_cast<char*>(&data.channels), sizeof(data.channels));
+        asset_pack_file.read(reinterpret_cast<char*>(&data.mip_map_levels), sizeof(data.mip_map_levels));
+
+        // Deserialize the texture's metadata (formats)
+        asset_pack_file.read(reinterpret_cast<char*>(&data.formats), sizeof(data.formats));
+
+        // Deserialize the texture's metadata (type)
+        asset_pack_file.read(reinterpret_cast<char*>(&data.type), sizeof(data.type));
+
+        // Deserialize the texture's data
+        asset_pack_file.read(reinterpret_cast<char*>(data.data), data_size);
+
+        return std::make_shared<texture>(name, data);
     }
 }

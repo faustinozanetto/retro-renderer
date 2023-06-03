@@ -2,6 +2,7 @@
 #include "asset_pack.h"
 
 #include "renderer/shaders/shader.h"
+#include "renderer/textures/texture.h"
 
 namespace retro::assets
 {
@@ -40,7 +41,7 @@ namespace retro::assets
 
     void asset_pack::deserialize_pack(const std::string& file_path)
     {
-        std::unordered_map<uint64_t, std::shared_ptr<asset>> assets;
+        m_assets.clear();
 
         std::ifstream pack_file(file_path, std::ios::binary);
 
@@ -70,7 +71,7 @@ namespace retro::assets
             case asset_type::shader:
                 {
                     RT_TRACE("Read shader file!");
-                    asset = std::make_shared<renderer::shader>(name);
+                    asset = renderer::shader::deserialize(name, pack_file);
                     break;
                 }
 
@@ -83,17 +84,15 @@ namespace retro::assets
             case asset_type::texture:
                 {
                     RT_TRACE("Read texture file!");
+                    asset = renderer::texture::deserialize(name, pack_file);
                     break;
                 }
             }
 
             RT_ASSERT_MSG(asset, "Failed to deserialized asset: '{}'!", name);
 
-            // Deserialize the asset, including content
-            asset->deserialize(pack_file);
-
             // Store the asset in the map using its UUID as the key
-            assets[asset->get_uuid()] = std::move(asset);
+            m_assets[asset->get_uuid()] = std::move(asset);
         }
         RT_TRACE("Asset pack successfully deserialized!");
     }
