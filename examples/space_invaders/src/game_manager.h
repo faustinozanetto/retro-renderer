@@ -25,6 +25,8 @@ public:
     void check_game_end();
     void initialize_managers();
 
+    void initialize_assets();
+
     void initialize_audio();
     void initialize_camera();
     void initialize_fonts();
@@ -34,8 +36,11 @@ public:
     bool on_key_pressed(retro::events::key_pressed_event& key_pressed_event);
     bool on_window_resize(retro::events::window_resize_event& window_resize_event);
 
+    void save_assets();
+
     /* Getters */
     static game_manager& get() { return *s_instance; }
+    std::shared_ptr<retro::assets::asset_manager>& get_assets_manager() { return m_assets_manager; }
     std::shared_ptr<retro::camera::camera>& get_camera() { return m_camera; }
     std::shared_ptr<player_manager>& get_player_manager() { return m_player_manager;}
     std::shared_ptr<level_manager>& get_level_manager() { return m_level_manager;}
@@ -49,6 +54,8 @@ private:
     std::shared_ptr<player_manager> m_player_manager;
     std::shared_ptr<level_manager> m_level_manager;
     std::shared_ptr<enemies_manager> m_enemies_manager;
+
+    std::shared_ptr<retro::assets::asset_manager> m_assets_manager;
 
     std::shared_ptr<retro::assets::asset_pack> m_shaders_pack;
 

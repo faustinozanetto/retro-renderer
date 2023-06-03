@@ -18,12 +18,12 @@ namespace retro::assets
         m_assets.insert(std::make_pair(asset->get_uuid(), asset));
     }
 
-    void asset_pack::serialize_pack(const std::string& file_path)
+    void asset_pack::serialize_pack(const std::string& file_path) const
     {
         std::ofstream pack_file(file_path, std::ios::out | std::ios::binary | std::ios::trunc);
 
         // Write the number of assets in the pack
-        size_t num_assets = m_assets.size();
+        const size_t num_assets = m_assets.size();
         pack_file.write(reinterpret_cast<const char*>(&num_assets), sizeof(num_assets));
 
         for (const auto& asset : m_assets)

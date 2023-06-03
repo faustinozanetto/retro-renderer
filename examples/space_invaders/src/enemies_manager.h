@@ -6,6 +6,8 @@
 #include <random>
 #include <glm/glm.hpp>
 
+#define ASSETS_FROM_PACK 1
+
 struct enemy
 {
     glm::vec3 position;
@@ -43,6 +45,8 @@ public:
 
     void generate_enemies(int amount = 25);
 
+    void save_assets() const;
+    
     /* Getters */
     std::vector<enemy>& get_enemies() { return m_enemies; }
     int get_current_wave() const { return m_current_wave; }

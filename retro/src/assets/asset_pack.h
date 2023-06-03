@@ -36,7 +36,7 @@ namespace retro::assets
         /* Functions */
         void save_asset(const std::shared_ptr<asset>& asset);
 
-        void serialize_pack(const std::string& file_path);
+        void serialize_pack(const std::string& file_path) const;
         void deserialize_pack(const std::string& file_path);
 
         /* Utilities */

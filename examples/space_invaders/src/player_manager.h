@@ -5,6 +5,8 @@
 #include "retro.h"
 #include "utils.h"
 
+#define ASSETS_FROM_PACK 1
+
 struct player
 {
     glm::vec3 position;
@@ -50,6 +52,8 @@ public:
     void move_player_down();
     void player_shoot();
     void player_crash();
+
+    void save_assets() const;
     
     /* Getters */
     player& get_player() { return m_player; }

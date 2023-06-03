@@ -101,14 +101,22 @@ void player_manager::initialize_player_params()
 
 void player_manager::initialize_player_assets()
 {
+#ifdef ASSETS_FROM_PACK
+#if (ASSETS_FROM_PACK == 1)
+    m_player_texture = game_manager::get().get_assets_manager()->get_asset_pack(retro::assets::asset_type::texture)->get_asset<
+      retro::renderer::texture, retro::assets::asset_type::texture>("player.png");
+    m_player_shader = game_manager::get().get_assets_manager()->get_asset_pack(retro::assets::asset_type::shader)->get_asset<
+retro::renderer::shader, retro::assets::asset_type::shader>("player.rrs");
+    m_bullet_shader = game_manager::get().get_assets_manager()->get_asset_pack(retro::assets::asset_type::shader)->get_asset<
+retro::renderer::shader, retro::assets::asset_type::shader>("bullet.rrs");
+#else
     m_player_texture = retro::renderer::texture_loader::load_texture_from_file("resources/textures/player.png");
-
     m_player_shader = retro::renderer::shader_loader::load_shader_from_file(
         "resources/shaders/player.rrs");
-    
     m_bullet_shader = retro::renderer::shader_loader::load_shader_from_file(
         "resources/shaders/bullet.rrs");
-    
+#endif
+#endif
     m_shoot_sound = std::make_shared<retro::audio::sound>("resources/audio/player_shoot.ogg");
     m_crash_sound = std::make_shared<retro::audio::sound>("resources/audio/explosion.ogg");
 }
@@ -234,4 +242,14 @@ void player_manager::player_crash()
 {
     m_player_sound_emitter->set_sound(m_crash_sound);
     m_player_sound_emitter->play();
+}
+
+void player_manager::save_assets() const
+{
+    game_manager::get().get_assets_manager()->get_asset_pack(retro::assets::asset_type::texture)->save_asset(
+        m_player_texture);
+    game_manager::get().get_assets_manager()->get_asset_pack(retro::assets::asset_type::shader)->save_asset(
+        m_player_shader);
+    game_manager::get().get_assets_manager()->get_asset_pack(retro::assets::asset_type::shader)->save_asset(
+        m_bullet_shader);
 }

@@ -44,6 +44,7 @@
 // Assets Include
 #include "assets/asset.h"
 #include "assets/asset_pack.h"
+#include "assets/asset_manager.h"
 
 // Input Include
 #include "input/input.h"

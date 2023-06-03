@@ -6,6 +6,8 @@
 #include <random>
 #include <glm/glm.hpp>
 
+#define ASSETS_FROM_PACK 1
+
 struct ammo_pickup
 {
     glm::vec3 position;
@@ -37,6 +39,8 @@ public:
     void generate_ammo_pickups(int count = 5);
     void play_ammo_pickup_sound();
 
+    void save_assets() const;
+    
     /* Getters */
     static level_manager& get() { return *s_instance; }
     
@@ -50,8 +54,6 @@ private:
     glm::vec2 m_level_max;
     std::shared_ptr<retro::audio::sound_emitter> m_ammo_pickup_sound_emitter;
     std::shared_ptr<retro::audio::sound_emitter> m_ambient_sound_emitter;
-
-    std::shared_ptr<retro::assets::asset_pack> m_textures_pack;
 
     /* Assets */
     std::shared_ptr<retro::renderer::shader> m_background_shader;

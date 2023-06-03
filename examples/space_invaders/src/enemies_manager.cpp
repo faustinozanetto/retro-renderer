@@ -98,10 +98,19 @@ void enemies_manager::initialize_enemy_params()
 
 void enemies_manager::initialize_enemy_assets()
 {
+#ifdef ASSETS_FROM_PACK
+#if (ASSETS_FROM_PACK == 1)
+    m_enemy_texture = game_manager::get().get_assets_manager()->get_asset_pack(retro::assets::asset_type::texture)->get_asset<
+      retro::renderer::texture, retro::assets::asset_type::texture>("enemy.png");
+    m_enemy_shader = game_manager::get().get_assets_manager()->get_asset_pack(retro::assets::asset_type::shader)->get_asset<
+retro::renderer::shader, retro::assets::asset_type::shader>("enemy.rrs");
+#else
     m_enemy_texture = retro::renderer::texture_loader::load_texture_from_file("resources/textures/enemy.png");
-
     m_enemy_shader = retro::renderer::shader_loader::load_shader_from_file(
         "resources/shaders/enemy.rrs");
+#endif
+#endif
+
     m_enemy_explode_sound = std::make_shared<retro::audio::sound>("resources/audio/explosion.ogg");
 }
 
@@ -133,4 +142,12 @@ void enemies_manager::generate_enemies(int amount)
         enemy_created.collider = {enemy_created.position, enemy_created.size};
         m_enemies.push_back(enemy_created);
     }
+}
+
+void enemies_manager::save_assets() const
+{
+    game_manager::get().get_assets_manager()->get_asset_pack(retro::assets::asset_type::texture)->save_asset(
+     m_enemy_texture);
+    game_manager::get().get_assets_manager()->get_asset_pack(retro::assets::asset_type::shader)->save_asset(
+        m_enemy_shader);
 }
