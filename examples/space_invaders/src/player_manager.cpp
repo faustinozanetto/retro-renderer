@@ -20,8 +20,8 @@ void player_manager::draw_player()
     m_player_shader->set_mat4("u_projection", game_manager::get().get_camera()->get_projection_matrix());
 
     glm::mat4 model = glm::mat4(1.0f);
-    model = translate(model, glm::vec3(m_player.position, 0.0f));
-    model = scale(model, {m_player.collider.size, 1.0f});
+    model = translate(model, m_player.position);
+    model = scale(model, m_player.collider.size);
     m_player_shader->set_mat4("u_transform", model);
     m_player_vao->bind();
     retro::renderer::renderer::bind_texture(0, m_player_texture->get_handle_id());
@@ -38,7 +38,7 @@ void player_manager::draw_bullets()
     for (bullet& bullet : m_player_bullets)
     {
         glm::mat4 model = glm::mat4(1.0f);
-        model = translate(model, glm::vec3(bullet.position, 0.0f));
+        model = translate(model, bullet.position);
         model = scale(model, {1.0f, 0.15f, 1.0f});
         m_bullet_shader->set_mat4("u_transform", model);
         m_bullet_shader->set_vec_float3("u_color", {0.15f, 0.85f, 0.35f});
@@ -52,6 +52,7 @@ void player_manager::draw_bullets()
 void player_manager::update_player()
 {
     m_player.collider.position = m_player.position;
+    m_player_sound_emitter->set_location(m_player.position);
 }
 
 void player_manager::update_bullets()
@@ -87,32 +88,29 @@ void player_manager::lerp_player_position()
 void player_manager::initialize_player_params()
 {
     m_player_bullets = std::list<bullet>();
+    m_player_sound_emitter = std::make_shared<retro::audio::sound_emitter>();
 
     m_player.max_ammo = 10;
     m_player.ammo = m_player.max_ammo;
     m_player.move_speed = 6.5f;
-    m_player.position = glm::vec2(2.0f, 0.0f);
+    m_player.position = glm::vec3(2.0f, 0.0f, 0.0f);
     m_player.target_position = m_player.position;
-    m_player.speed = glm::vec2(5.0f);
-    m_player.collider = box_collider(m_player.position, {3.5f, 3.5f});
+    m_player.speed = glm::vec3(5.0f);
+    m_player.collider = box_collider(m_player.position, glm::vec3(3.5f));
 }
 
 void player_manager::initialize_player_assets()
 {
     m_player_texture = retro::renderer::texture_loader::load_texture_from_file("resources/textures/player.png");
 
-    {
-        const std::string& shader_contents = retro::renderer::shader_loader::read_shader_from_file(
-            "resources/shaders/player.rrs");
-        const auto& shader_sources = retro::renderer::shader_loader::parse_shader_source(shader_contents);
-        m_player_shader = std::make_shared<retro::renderer::shader>(shader_sources);
-    }
-    {
-        const std::string& shader_contents = retro::renderer::shader_loader::read_shader_from_file(
-            "resources/shaders/bullet.rrs");
-        const auto& shader_sources = retro::renderer::shader_loader::parse_shader_source(shader_contents);
-        m_bullet_shader = std::make_shared<retro::renderer::shader>(shader_sources);
-    }
+    m_player_shader = retro::renderer::shader_loader::load_shader_from_file(
+        "resources/shaders/player.rrs");
+    
+    m_bullet_shader = retro::renderer::shader_loader::load_shader_from_file(
+        "resources/shaders/bullet.rrs");
+    
+    m_shoot_sound = std::make_shared<retro::audio::sound>("resources/audio/player_shoot.ogg");
+    m_crash_sound = std::make_shared<retro::audio::sound>("resources/audio/explosion.ogg");
 }
 
 void player_manager::initialize_player_model()
@@ -220,11 +218,20 @@ void player_manager::player_shoot()
 {
     if (m_player.ammo == 0) return;
 
+    m_player_sound_emitter->set_sound(m_shoot_sound);
+    m_player_sound_emitter->play();
+
     bullet player_bullet;
-    player_bullet.speed = glm::vec2(80.0f);
+    player_bullet.speed = glm::vec3(80.0f);
     player_bullet.position = m_player.position;
     player_bullet.collider.position = m_player.position;
-    player_bullet.collider.size = glm::vec2(1.0f);
+    player_bullet.collider.size = glm::vec3(1.0f);
     m_player_bullets.push_back(player_bullet);
     m_player.ammo--;
+}
+
+void player_manager::player_crash()
+{
+    m_player_sound_emitter->set_sound(m_crash_sound);
+    m_player_sound_emitter->play();
 }

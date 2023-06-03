@@ -18,6 +18,6 @@ public:
     bool on_window_resize(retro::events::window_resize_event& window_resize_event) override;
     bool on_key_pressed(retro::events::key_pressed_event& key_pressed_event);
 private:
-    /*  Game*/
+    /* Game */
     std::shared_ptr<game_manager> m_game_manager;
 };

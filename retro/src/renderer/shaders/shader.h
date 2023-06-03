@@ -3,6 +3,8 @@
 #include <glm/glm.hpp>
 #include <unordered_map>
 
+#include "assets/asset.h"
+
 namespace retro::renderer
 {
     enum class shader_type
@@ -12,15 +14,17 @@ namespace retro::renderer
         geometry,
     };
 
-    class shader
+    class shader : public assets::asset
     {
     public:
-        shader(const std::unordered_map<shader_type, std::string> &shader_contents);
+        shader(const std::string &name);
+        shader(const std::string &name, const std::unordered_map<shader_type, std::string> &shader_contents);
 
         /* Getters */
         uint32_t get_handle_id() const { return m_handle_id; }
-        uint32_t get_uniform_location(const std::string &uniform_name);
+        int get_uniform_location(const std::string &uniform_name);
 
+        /* Functions */
         void bind();
         void un_bind();
 
@@ -35,14 +39,19 @@ namespace retro::renderer
         void set_mat3(const std::string &uniform_name, const glm::mat3 &value);
         void set_mat4(const std::string &uniform_name, const glm::mat4 &value);
 
+        /* Asset */
+        void serialize(std::ofstream &asset_pack_file) override;
+        void deserialize(std::ifstream &asset_pack_file) override;
+
         /* Utilities */
         static uint32_t get_shader_type_to_opengl(shader_type type);
         static std::string get_shader_type_to_string(shader_type type);
 
     private:
-        void compile_contents(const std::unordered_map<shader_type, std::string> &shader_contents);
+        void compile_contents();
 
         uint32_t m_handle_id;
-        std::unordered_map<std::string, uint32_t> m_uniforms;
+        std::unordered_map<std::string, int> m_uniforms;
+        std::unordered_map<shader_type, std::string> m_contents;
     };
 }

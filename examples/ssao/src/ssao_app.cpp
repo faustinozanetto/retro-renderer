@@ -326,7 +326,7 @@ void ssao_app::setup_ssao()
         ssao_noise.push_back(noise);
     }
 
-    retro::renderer::raw_texture_data ssao_noise_texture_data = { 4,4, 3, retro::renderer::texture_type::normal, ssao_noise.data() };
+    retro::renderer::texture_data ssao_noise_texture_data = { 4,4, 3, retro::renderer::texture_type::normal, ssao_noise.data() };
 
     m_ssao_noise_texture = retro::renderer::texture_loader::load_texture_from_data(ssao_noise_texture_data);
     m_ssao_noise_texture->set_filtering(retro::renderer::texture_filtering_type::filter_min, retro::renderer::texture_filtering::nearest);

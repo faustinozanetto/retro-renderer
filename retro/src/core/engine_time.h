@@ -18,5 +18,7 @@ namespace retro::core::time
     float get_frame_time();
     float get_fps();
 
+    float get_time();
+
     float get_time_scale();
 }

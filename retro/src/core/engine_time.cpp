@@ -78,6 +78,11 @@ namespace retro::core::time
         return 0.0f;
     }
 
+    float get_time()
+    {
+        return time;
+    }
+
     float get_time_scale()
     {
         return time_scale;

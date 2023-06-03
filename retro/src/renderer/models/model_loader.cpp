@@ -75,13 +75,19 @@ namespace retro::renderer
             glm::vec3 tangent(0.0f);
             glm::vec3 bi_tangent(0.0f);
             // tangent
-            tangent.x = assimp_mesh->mTangents[i].x;
-            tangent.y = assimp_mesh->mTangents[i].y;
-            tangent.z = assimp_mesh->mTangents[i].z;
+            if (assimp_mesh->mTangents)
+            {
+                tangent.x = assimp_mesh->mTangents[i].x;
+                tangent.y = assimp_mesh->mTangents[i].y;
+                tangent.z = assimp_mesh->mTangents[i].z;
+            }
             // bitangent
-            bi_tangent.x = assimp_mesh->mBitangents[i].x;
-            bi_tangent.y = assimp_mesh->mBitangents[i].y;
-            bi_tangent.z = assimp_mesh->mBitangents[i].z;
+            if (assimp_mesh->mBitangents)
+            {
+                bi_tangent.x = assimp_mesh->mBitangents[i].x;
+                bi_tangent.y = assimp_mesh->mBitangents[i].y;
+                bi_tangent.z = assimp_mesh->mBitangents[i].z;
+            }
             vertex.position = position;
             vertex.tex_coords = tex_coords;
             vertex.normals = normals;

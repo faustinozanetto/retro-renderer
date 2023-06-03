@@ -5,13 +5,26 @@ game_manager* game_manager::s_instance = nullptr;
 game_manager::game_manager()
 {
     s_instance = this;
-    m_game_state = game_state::playing;
+    m_game_state = game_state::starting;
     retro::renderer::renderer::set_vsync_enabled(false);
     initialize_camera();
     initialize_shaders();
     initialize_fonts();
     initialize_texts();
+    initialize_audio();
     initialize_managers();
+
+    m_shaders_pack = std::make_shared<retro::assets::asset_pack>(retro::assets::asset_type::shader);
+    m_shaders_pack->save_asset(m_font_shader);
+    m_shaders_pack->serialize_pack("resources/packs/shaders.pack");
+    
+    m_shaders_pack->deserialize_pack("resources/packs/shaders.pack");
+}
+
+void game_manager::start_game()
+{
+    m_game_state = game_state::playing;
+    m_level_manager->play_ambient_sound();
 }
 
 void game_manager::update_game()
@@ -22,6 +35,7 @@ void game_manager::update_game()
         m_player_manager->update_player();
         m_player_manager->update_bullets();
         m_enemies_manager->update_enemies();
+        m_enemies_manager->check_wave_finished();
         m_level_manager->update_ammo_pickups();
 
         handle_collisions();
@@ -61,6 +75,7 @@ void game_manager::handle_collisions()
         if (check_collider_collision(enemy.collider, m_player_manager->get_player().collider))
         {
             m_game_state = game_state::ending;
+            m_player_manager->player_crash();
             break;
         }
     }
@@ -70,6 +85,7 @@ void game_manager::handle_collisions()
     {
         if (check_collider_collision(m_player_manager->get_player().collider, it->collider))
         {
+            m_level_manager->play_ammo_pickup_sound();
             m_player_manager->refill_ammo();
             it = m_level_manager->get_ammo_pickups().erase(it);
             --it;
@@ -85,6 +101,7 @@ void game_manager::handle_collisions()
         {
             if (check_collider_collision(it_enemy->collider, it_bullet->collider))
             {
+                m_enemies_manager->play_enemy_explode_sound(*it_enemy);
                 // Handle bullet delete
                 it_bullet = m_player_manager->get_bullets().erase(it_bullet);
                 --it_bullet; // as it will be add again in for, so we go back one step
@@ -98,7 +115,7 @@ void game_manager::handle_collisions()
 
 void game_manager::check_game_end()
 {
-    if (m_enemies_manager->get_enemies().empty())
+    if (m_enemies_manager->get_current_wave() == m_enemies_manager->get_total_waves() - 1)
     {
         m_game_state = game_state::ending;
     }
@@ -109,6 +126,11 @@ void game_manager::initialize_managers()
     m_level_manager = std::make_shared<level_manager>();
     m_player_manager = std::make_shared<player_manager>();
     m_enemies_manager = std::make_shared<enemies_manager>();
+}
+
+void game_manager::initialize_audio()
+{
+    m_audio_context = std::make_shared<retro::audio::audio_context>();
 }
 
 void game_manager::initialize_camera()
@@ -125,10 +147,8 @@ void game_manager::initialize_fonts()
 
 void game_manager::initialize_shaders()
 {
-    const std::string& shader_contents = retro::renderer::shader_loader::read_shader_from_file(
+    m_font_shader = retro::renderer::shader_loader::load_shader_from_file(
         "resources/shaders/font.rrs");
-    const auto& shader_sources = retro::renderer::shader_loader::parse_shader_source(shader_contents);
-    m_font_shader = std::make_shared<retro::renderer::shader>(shader_sources);
 }
 
 void game_manager::initialize_texts()
@@ -149,21 +169,31 @@ void game_manager::initialize_texts()
 
 bool game_manager::on_key_pressed(retro::events::key_pressed_event& key_pressed_event)
 {
-    if (key_pressed_event.get_key_code() == retro::key::W)
+    if (m_game_state == game_state::starting)
     {
-        m_player_manager->move_player_up();
-        return true;
+        if (key_pressed_event.get_key_code() == retro::key::Enter)
+        {
+            start_game();
+        }
     }
+    if (m_game_state == game_state::playing)
+    {
+        if (key_pressed_event.get_key_code() == retro::key::W)
+        {
+            m_player_manager->move_player_up();
+            return true;
+        }
 
-    if (key_pressed_event.get_key_code() == retro::key::S)
-    {
-        m_player_manager->move_player_down();
-        return true;
-    }
-    if (key_pressed_event.get_key_code() == retro::key::Space)
-    {
-        m_player_manager->player_shoot();
-        return true;
+        if (key_pressed_event.get_key_code() == retro::key::S)
+        {
+            m_player_manager->move_player_down();
+            return true;
+        }
+        if (key_pressed_event.get_key_code() == retro::key::Space)
+        {
+            m_player_manager->player_shoot();
+            return true;
+        }
     }
     return false;
 }
@@ -179,25 +209,25 @@ bool game_manager::on_window_resize(retro::events::window_resize_event& window_r
 
 bool game_manager::check_collider_collision(const box_collider& collider1, const box_collider& collider2)
 {
-    // Calculate the minimum and maximum coordinates for each collider
-    float left1 = collider1.position.x;
-    float right1 = collider1.position.x + collider1.size.x;
-    float top1 = collider1.position.y;
-    float bottom1 = collider1.position.y + collider1.size.y;
+    // Calculate the half sizes of the boxes
+    glm::vec3 halfSize1 = collider1.size * 0.5f;
+    glm::vec3 halfSize2 = collider2.size * 0.5f;
 
-    float left2 = collider2.position.x;
-    float right2 = collider2.position.x + collider2.size.x;
-    float top2 = collider2.position.y;
-    float bottom2 = collider2.position.y + collider2.size.y;
+    // Calculate the centers of the boxes
+    glm::vec3 center1 = collider1.position + halfSize1;
+    glm::vec3 center2 = collider2.position + halfSize2;
 
-    // Check for overlap along the x-axis
-    if (right1 < left2 || left1 > right2)
-        return false;
+    // Calculate the distance between the centers of the boxes
+    glm::vec3 distance = glm::abs(center1 - center2);
 
-    // Check for overlap along the y-axis
-    if (bottom1 < top2 || top1 > bottom2)
-        return false;
+    // Calculate the combined half sizes of the boxes
+    glm::vec3 combinedHalfSize = halfSize1 + halfSize2;
 
-    // Colliders overlap in both the x and y axes
-    return true;
+    // Check for overlap along each axis
+    bool overlapX = distance.x < combinedHalfSize.x;
+    bool overlapY = distance.y < combinedHalfSize.y;
+    bool overlapZ = distance.z < combinedHalfSize.z;
+
+    // Return true if there is overlap along all axes
+    return overlapX && overlapY && overlapZ;
 }

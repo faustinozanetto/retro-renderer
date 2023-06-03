@@ -7,22 +7,22 @@ namespace retro::renderer
 {
     std::shared_ptr<texture> texture_loader::load_texture_from_file(const std::string &file_path)
     {
-        const raw_texture_data &raw_texture_data = parse_texture_file_contents(file_path);
-        return std::make_shared<texture>(raw_texture_data);
+        const texture_data &data = parse_texture_file_contents(file_path);
+        return std::make_shared<texture>(data);
     }
 
     std::shared_ptr<texture> texture_loader::load_texture_cubemap_from_file(const std::string &file_path)
     {
-        const raw_texture_data &raw_texture_data = parse_texture_cubemap_file_contents(file_path);
-        return std::make_shared<texture>(raw_texture_data);
+        const texture_data &data = parse_texture_cubemap_file_contents(file_path);
+        return std::make_shared<texture>(data);
     }
 
-    std::shared_ptr<texture> texture_loader::load_texture_from_data(const raw_texture_data &raw_data)
+    std::shared_ptr<texture> texture_loader::load_texture_from_data(const texture_data &raw_data)
     {
         return std::make_shared<texture>(raw_data);
     }
 
-    raw_texture_data texture_loader::parse_texture_file_contents(const std::string &file_path)
+    texture_data texture_loader::parse_texture_file_contents(const std::string &file_path)
     {
         RT_TRACE("Retro Renderer | Started parsing texture file.");
         RT_TRACE("  - File Path: '{0}'", file_path);
@@ -37,7 +37,7 @@ namespace retro::renderer
         return {width, height, channels, texture_type::normal, (uint8_t *)data};
     }
 
-    raw_texture_data texture_loader::parse_texture_cubemap_file_contents(const std::string &file_path)
+    texture_data texture_loader::parse_texture_cubemap_file_contents(const std::string &file_path)
     {
         RT_TRACE("Retro Renderer | Started parsing texture cubemap file.");
         RT_TRACE("  - File Path: '{0}'", file_path);

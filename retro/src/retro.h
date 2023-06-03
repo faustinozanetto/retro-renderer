@@ -36,6 +36,15 @@
 #include "renderer/text/font.h"
 #include "renderer/text/text.h"
 
+// Audio Include
+#include "audio/audio_context.h"
+#include "audio/sound.h"
+#include "audio/sound_emitter.h"
+
+// Assets Include
+#include "assets/asset.h"
+#include "assets/asset_pack.h"
+
 // Input Include
 #include "input/input.h"
 #include "input/key_codes.h"

@@ -16,6 +16,8 @@ class game_manager
 public:
     game_manager();
 
+    void start_game();
+    
     void update_game();
     void draw_game();
 
@@ -23,6 +25,7 @@ public:
     void check_game_end();
     void initialize_managers();
 
+    void initialize_audio();
     void initialize_camera();
     void initialize_fonts();
     void initialize_shaders();
@@ -47,9 +50,15 @@ private:
     std::shared_ptr<level_manager> m_level_manager;
     std::shared_ptr<enemies_manager> m_enemies_manager;
 
+    std::shared_ptr<retro::assets::asset_pack> m_shaders_pack;
+
+    /* Audio */
+    std::shared_ptr<retro::audio::audio_context> m_audio_context;
+
     /* Texts */
     std::shared_ptr<retro::renderer::text> m_fps_text;
     std::shared_ptr<retro::renderer::text> m_ammo_text;
+    std::shared_ptr<retro::renderer::text> m_wave_text;
     std::shared_ptr<retro::renderer::text> m_enemies_left_text;
     
     /* Fonts */

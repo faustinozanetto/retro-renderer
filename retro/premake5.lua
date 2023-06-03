@@ -28,6 +28,8 @@ project "retro"
         "%{include_dirs.imgui}",
         "%{include_dirs.assimp}",
         "%{include_dirs.freetype}",
+        "%{include_dirs.openal}",
+        "%{include_dirs.dr_libs}",
     }
 
     links
@@ -45,6 +47,7 @@ project "retro"
         links {
             "%{library_dirs.assimp_debug}",
             "%{library_dirs.freetype_debug}",
+            "%{library_dirs.openal_debug}",
         }
 
     filter "configurations:release"
@@ -55,5 +58,5 @@ project "retro"
         links {
             "%{library_dirs.assimp_release}",
             "%{library_dirs.freetype_release}",
+            "%{library_dirs.openal_release}",
         }
-

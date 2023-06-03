@@ -7,7 +7,7 @@
 
 namespace retro::renderer
 {
-    raw_texture_data::raw_texture_data(int width, int height, int channels, texture_type type, void *data)
+    texture_data::texture_data(int width, int height, int channels, texture_type type, void* data)
     {
         this->width = width;
         this->height = height;
@@ -17,29 +17,27 @@ namespace retro::renderer
         this->formats = texture::get_texture_formats_from_channel_count(channels);
     }
 
-    texture::texture(const raw_texture_data &raw_texture_data)
+    texture::texture(const std::string& name, const texture_data& texture_data) : asset(
+        assets::asset_type::texture, name)
     {
-        m_width = raw_texture_data.width;
-        m_height = raw_texture_data.height;
-        m_channels = raw_texture_data.channels;
-        m_type = raw_texture_data.type;
-        m_formats = raw_texture_data.formats;
-        m_mipmap_levels = floor(log2((std::min)(m_width, m_height)));
+        m_data = texture_data;
+        m_data.mip_mamp_levels = static_cast<int>(floor(log2((std::min)(m_data.width, m_data.height))));
 
-        RT_TRACE("  - Width: {0}px", m_width);
-        RT_TRACE("  - Height: {0}px", m_height);
-        RT_TRACE("  - Channels: {0}", m_channels);
-        RT_TRACE("  - Mipmap Levels: {0}", m_mipmap_levels);
-        RT_TRACE("  - Format: '{0}'", get_texture_format_to_string(m_formats.format));
-        RT_TRACE("  - Internal Format: '{0}'", get_texture_internal_format_to_string(m_formats.internal_format));
+        RT_TRACE("  - Width: {0}px", m_data.width);
+        RT_TRACE("  - Height: {0}px", m_data.height);
+        RT_TRACE("  - Channels: {0}", m_data.channels);
+        RT_TRACE("  - Mipmap Levels: {0}", m_data.mip_mamp_levels);
+        RT_TRACE("  - Format: '{0}'", get_texture_format_to_string(m_data.formats.format));
+        RT_TRACE("  - Internal Format: '{0}'", get_texture_internal_format_to_string(m_data.formats.internal_format));
 
-        if (m_type == texture_type::normal)
+        if (m_data.type == texture_type::normal)
         {
             // Create OpenGL texture
             glCreateTextures(GL_TEXTURE_2D, 1, &m_handle_id);
             glBindTexture(GL_TEXTURE_2D, m_handle_id);
             glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-            glTextureStorage2D(m_handle_id, m_mipmap_levels, get_texture_format_to_opengl(m_formats.format), m_width, m_height);
+            glTextureStorage2D(m_handle_id, m_data.mip_mamp_levels, get_texture_format_to_opengl(m_data.formats.format), m_data.width,
+                               m_data.height);
 
             // Filtering
             set_filtering(texture_filtering_type::filter_min, texture_filtering::linear);
@@ -49,13 +47,14 @@ namespace retro::renderer
             set_wrapping(texture_wrapping_type::wrap_s, texture_wrapping::repeat);
             set_wrapping(texture_wrapping_type::wrap_t, texture_wrapping::repeat);
         }
-        else if (m_type == texture_type::hdr)
+        else if (m_data.type == texture_type::hdr)
         {
             // Create OpenGL texture
             glCreateTextures(GL_TEXTURE_2D, 1, &m_handle_id);
             glBindTexture(GL_TEXTURE_2D, m_handle_id);
             glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-            glTextureStorage2D(m_handle_id, m_mipmap_levels, get_texture_format_to_opengl(m_formats.format), m_width, m_height);
+            glTextureStorage2D(m_handle_id, m_data.mip_mamp_levels, get_texture_format_to_opengl(m_data.formats.format), m_data.width,
+                               m_data.height);
 
             // Wrapping
             set_wrapping(texture_wrapping_type::wrap_s, texture_wrapping::clamp_to_edge);
@@ -65,11 +64,13 @@ namespace retro::renderer
             set_filtering(texture_filtering_type::filter_min, texture_filtering::linear);
             set_filtering(texture_filtering_type::filter_mag, texture_filtering::linear);
 
-            glTextureSubImage2D(m_handle_id, 0, 0, 0, m_width, m_height, get_texture_internal_format_to_opengl(m_formats.internal_format), GL_FLOAT, raw_texture_data.data);
+            glTextureSubImage2D(m_handle_id, 0, 0, 0, m_data.width, m_data.height,
+                                get_texture_internal_format_to_opengl(m_data.formats.internal_format), GL_FLOAT,
+                                m_data.data);
             glGenerateTextureMipmap(m_handle_id);
             glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
         }
-        else if (m_type == texture_type::cubemap)
+        else if (m_data.type == texture_type::cubemap)
         {
             // Create OpenGL texture
             glCreateTextures(GL_TEXTURE_CUBE_MAP, 1, &m_handle_id);
@@ -77,7 +78,9 @@ namespace retro::renderer
             // Create all 6 faces.
             for (unsigned int i = 0; i < 6; ++i)
             {
-                glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, get_texture_format_to_opengl(m_formats.format), m_width, m_height, 0, get_texture_internal_format_to_opengl(m_formats.internal_format), GL_FLOAT, raw_texture_data.data);
+                glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, get_texture_format_to_opengl(m_data.formats.format),
+                             m_data.width, m_data.height, 0, get_texture_internal_format_to_opengl(m_data.formats.internal_format),
+                             GL_FLOAT, m_data.data);
             }
 
             // Wrapping
@@ -91,13 +94,15 @@ namespace retro::renderer
         }
 
         // Allocating memory.
-        if (m_type == texture_type::normal)
+        if (m_data.type == texture_type::normal)
         {
-            glTextureSubImage2D(m_handle_id, 0, 0, 0, m_width, m_height, get_texture_internal_format_to_opengl(m_formats.internal_format), GL_UNSIGNED_BYTE, raw_texture_data.data);
+            glTextureSubImage2D(m_handle_id, 0, 0, 0, m_data.width, m_data.height,
+                                get_texture_internal_format_to_opengl(m_data.formats.internal_format), GL_UNSIGNED_BYTE,
+                                m_data.data);
             glGenerateTextureMipmap(m_handle_id);
             glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
         }
-        stbi_image_free(raw_texture_data.data);
+        stbi_image_free(m_data.data);
     }
 
     std::string texture::get_texture_filtering_to_string(texture_filtering filtering)
@@ -413,11 +418,39 @@ namespace retro::renderer
 
     void texture::set_filtering(texture_filtering_type filtering_type, texture_filtering filtering)
     {
-        glTextureParameteri(m_handle_id, get_texture_filtering_type_to_opengl(filtering_type), get_texture_filtering_to_opengl(filtering));
+        glTextureParameteri(m_handle_id, get_texture_filtering_type_to_opengl(filtering_type),
+                            get_texture_filtering_to_opengl(filtering));
     }
 
     void texture::set_wrapping(texture_wrapping_type wrapping_type, texture_wrapping wrapping)
     {
-        glTextureParameteri(m_handle_id, get_texture_wrapping_type_to_opengl(wrapping_type), get_texture_wrapping_to_opengl(wrapping));
+        glTextureParameteri(m_handle_id, get_texture_wrapping_type_to_opengl(wrapping_type),
+                            get_texture_wrapping_to_opengl(wrapping));
+    }
+
+    void texture::serialize(std::ofstream& asset_pack_file)
+    {
+        // Serialize the texture's data size
+        const size_t data_size = m_data.width * m_data.height * m_data.channels;
+        asset_pack_file.write(reinterpret_cast<const char*>(&data_size), sizeof(data_size));
+        
+        // Serialize the texture's metadata (width, height, channels, mipmap levels)
+        asset_pack_file.write(reinterpret_cast<const char*>(&m_data.width), sizeof(m_data.width));
+        asset_pack_file.write(reinterpret_cast<const char*>(&m_data.height), sizeof(m_data.height));
+        asset_pack_file.write(reinterpret_cast<const char*>(&m_data.channels), sizeof(m_data.channels));
+        asset_pack_file.write(reinterpret_cast<const char*>(&m_data.mip_mamp_levels), sizeof(m_data.mip_mamp_levels));
+
+        // Serialize the texture's metadata (texture type)
+        asset_pack_file.write(reinterpret_cast<const char*>(&m_data.type), sizeof(m_data.type));
+
+        // Serialize the texture's metadata (texture formats)
+        asset_pack_file.write(reinterpret_cast<const char*>(&m_data.formats), sizeof(m_data.formats));
+
+        // Serialize the texture's data
+        asset_pack_file.write(static_cast<const char*>(m_data.data), data_size);
+    }
+
+    void texture::deserialize(std::ifstream& asset_pack_file)
+    {
     }
 }

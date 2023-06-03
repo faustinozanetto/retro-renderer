@@ -581,7 +581,7 @@ void pbr_ibl_app::setup_environment_cubemap()
 {
     // pbr: setup cubemap to render to and attach to framebuffer
     // ---------------------------------------------------------
-    retro::renderer::raw_texture_data texture_data = {m_environment_map_size, m_environment_map_size, 3, retro::renderer::texture_type::cubemap, nullptr};
+    retro::renderer::texture_data texture_data = {m_environment_map_size, m_environment_map_size, 3, retro::renderer::texture_type::cubemap, nullptr};
     m_environment_cubemap_texture = std::make_shared<retro::renderer::texture>(texture_data);
 }
 
@@ -659,7 +659,7 @@ void pbr_ibl_app::setup_environment_irradiance_map()
 {
     // pbr: create an irradiance cubemap, and re-scale capture FBO to irradiance scale.
     // --------------------------------------------------------------------------------
-    retro::renderer::raw_texture_data texture_data = {m_irradiance_map_size, m_irradiance_map_size, 3, retro::renderer::texture_type::cubemap, nullptr};
+    retro::renderer::texture_data texture_data = {m_irradiance_map_size, m_irradiance_map_size, 3, retro::renderer::texture_type::cubemap, nullptr};
     m_environment_irradiance_texture = std::make_shared<retro::renderer::texture>(texture_data);
 
     m_environment_capture_fbo->bind(false);
@@ -687,7 +687,7 @@ void pbr_ibl_app::setup_environment_prefilter_map()
 {
     // pbr: create a pre-filter cubemap, and re-scale capture FBO to pre-filter scale.
     // --------------------------------------------------------------------------------
-    retro::renderer::raw_texture_data texture_data = {m_prefilter_map_size, m_prefilter_map_size, 3, retro::renderer::texture_type::cubemap, nullptr};
+    retro::renderer::texture_data texture_data = {m_prefilter_map_size, m_prefilter_map_size, 3, retro::renderer::texture_type::cubemap, nullptr};
     m_environment_prefilter_texture = std::make_shared<retro::renderer::texture>(texture_data);
 
     glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
@@ -728,7 +728,7 @@ void pbr_ibl_app::setup_environment_brdf_map()
     // pbr: generate a 2D LUT from the BRDF equations used.
     // ----------------------------------------------------
     /*
-    retro::renderer::raw_texture_data texture_data = {m_brdf_map_size, m_brdf_map_size, 2, {retro::renderer::texture_format::rg16f, retro::renderer::texture_internal_format::rg}, retro::renderer::texture_type::normal, nullptr};
+    retro::renderer::texture_data texture_data = {m_brdf_map_size, m_brdf_map_size, 2, {retro::renderer::texture_format::rg16f, retro::renderer::texture_internal_format::rg}, retro::renderer::texture_type::normal, nullptr};
     m_environment_brdf_texture = std::make_shared<retro::renderer::texture>(texture_data);
     */
     glGenTextures(1, &m_environment_brdf_texture);
