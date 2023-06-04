@@ -30,43 +30,90 @@ namespace retro::audio
         return std::make_shared<sound>(file_path, data);
     }
 
-    sound_data sound_loader::parse_ogg_sound(const std::string& file_path)
+    std::shared_ptr<sound> sound_loader::load_ogg_sound_from_memory(const char* data, size_t size)
     {
-        std::ifstream file(file_path, std::ios::binary | std::ios::ate);
-        RT_ASSERT_MSG(file, "An error occurred while reading vorbis file!");
-
-        std::streamsize file_size = file.tellg();
-        file.seekg(0, std::ios::beg);
-
-        std::vector<char> buffer(file_size);
-        if (!file.read(buffer.data(), file_size))
-        {
-            // Error handling
-            // ...
-        }
-
         int error = 0;
-        int num_channels = 0;
-        int sample_rate = 0;
-        short* samples = nullptr;
-        int num_samples = stb_vorbis_decode_memory(reinterpret_cast<const unsigned char*>(buffer.data()),
-                                                   static_cast<int>(buffer.size()), &num_channels, &sample_rate,
-                                                   &samples);
+        int channels;
+        int sample_rate;
+        short* samples;
+        int sample_count = stb_vorbis_decode_memory(reinterpret_cast<const unsigned char*>(data), size, &channels,
+                                                    &sample_rate, &samples);
 
         RT_ASSERT_MSG(error == VORBIS__no_error, "An error occurred while reading vorbis file!");
-        RT_ASSERT_MSG(num_samples > 0, "An error occurred while reading vorbis file!");
+        RT_ASSERT_MSG(sample_count > 0, "An error occurred while reading vorbis file!");
 
-        sound_data sound;
-        sound.frequency = static_cast<float>(sample_rate);
-        sound.length = static_cast<float>(num_samples) / static_cast<float>(sample_rate);
-        sound.bit_rate = 16; // Assuming 16-bit samples
-        sound.channels = num_channels;
-        sound.size = num_samples * num_channels * sizeof(short);
+        sound_data sound_data;
+        sound_data.frequency = static_cast<float>(sample_rate);
+        sound_data.length = static_cast<float>(sample_count) / sample_rate;
+        sound_data.bit_rate = 16; // Assuming 16-bit audio
+        sound_data.channels = static_cast<uint32_t>(channels);
+        sound_data.size = sample_count * channels * sizeof(short);
+        sound_data.data = samples;
 
-        sound.data = new unsigned char[sound.size];
-        std::memcpy(sound.data, samples, sound.size);
+        return std::make_shared<sound>("from_memory", sound_data);
+    }
 
-        return sound;
+    std::shared_ptr<sound> sound_loader::load_wav_sound_from_memory(const char* data, size_t size)
+    {
+        // Use dr_wav library to load the WAV file
+        drwav wav;
+        bool init_result = drwav_init_memory(&wav, data, size, nullptr);
+        RT_ASSERT_MSG(init_result, "Could not open sound file: {0}", m_file_path.c_str());
+
+        // Create sound metadata
+        sound_data sound_data;
+        sound_data.frequency = static_cast<float>(wav.sampleRate);
+        sound_data.length = static_cast<float>(wav.totalPCMFrameCount) / wav.sampleRate;
+        sound_data.bit_rate = wav.bitsPerSample;
+        sound_data.channels = wav.channels;
+        sound_data.size = static_cast<int>(wav.totalPCMFrameCount * wav.channels * (wav.bitsPerSample / 8));
+        sound_data.data = new unsigned char[sound_data.size];
+
+        // Read into data buffer
+        drwav_read_pcm_frames(&wav, wav.totalPCMFrameCount, sound_data.data);
+
+        // Clean up the WAV file
+        drwav_uninit(&wav);
+
+        return std::make_shared<sound>("from_memory", sound_data);
+    }
+
+    sound_data sound_loader::parse_ogg_sound(const std::string& file_path)
+    {
+        FILE* file_handle = fopen(file_path.c_str(), "rb");
+        if (!file_handle)
+        {
+            RT_ASSERT_MSG(false, "Could not open sound file: {0}", m_file_path.c_str());
+        }
+
+        int error_code;
+        stb_vorbis* stream_handle =
+            stb_vorbis_open_filename(file_path.c_str(), &error_code, nullptr);
+        if (!stream_handle)
+        {
+            RT_ASSERT_MSG(false, "Could not read sound file: {0}", m_file_path.c_str());
+        }
+
+        sound_data sound_data;
+        const stb_vorbis_info sound_information = stb_vorbis_get_info(stream_handle);
+        sound_data.channels = sound_information.channels;
+        sound_data.bit_rate = 16;
+        sound_data.frequency = sound_information.sample_rate;
+        const uint32_t size = stb_vorbis_stream_length_in_samples(stream_handle) *
+            sound_data.channels * sizeof(int16_t);
+        sound_data.size = size;
+        sound_data.data = new unsigned char[sound_data.size];
+
+        stb_vorbis_get_samples_short_interleaved(
+            stream_handle, sound_data.channels,
+            reinterpret_cast<short*>(sound_data.data), sound_data.size);
+        sound_data.length = stb_vorbis_stream_length_in_seconds(stream_handle) * 1000.0f;
+
+        // Cleanup
+        stb_vorbis_close(stream_handle);
+        fclose(file_handle);
+
+        return sound_data;
     }
 
     sound_data sound_loader::parse_wav_sound(const std::string& file_path)

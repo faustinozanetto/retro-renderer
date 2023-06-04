@@ -33,7 +33,7 @@ namespace retro::renderer
         RT_ASSERT_MSG(channels > 0, "Invalid texture channels count!");
 
         texture_data texture_data = {width, height, channels, texture_type::normal, loaded_data};
-        return std::make_shared<texture>("", texture_data);
+        return std::make_shared<texture>("from_memory", texture_data);
     }
 
     texture_data texture_loader::parse_texture_file_contents(const std::string& file_path)

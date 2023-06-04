@@ -3,9 +3,13 @@
 
 #include <AL/al.h>
 
+#include "sound_loader.h"
+
 namespace retro::audio
 {
-    sound::sound(const std::string& file_name, const sound_data& sound_data) : asset({assets::asset_type::sound, file_name})
+    sound::sound(const std::string& file_name, const sound_data& sound_data) : asset({
+        assets::asset_type::sound, file_name
+    })
     {
         m_data = sound_data;
         RT_TRACE("Retro Renderer | Started loading sound from file.");
@@ -31,40 +35,52 @@ namespace retro::audio
 
     void sound::serialize(std::ofstream& asset_pack_file)
     {
-        // Serialize the sounds's data size
-        const size_t data_size = m_data.size;
-        asset_pack_file.write(reinterpret_cast<const char*>(&data_size), sizeof(data_size));
+        // Reaad sound file
+        std::ifstream sound_file(m_metadata.file_name, std::ios::binary | std::ios::ate);
+        if (!sound_file.is_open())
+        {
+            std::cerr << "Failed to open file: " << m_metadata.file_name << std::endl;
+            return;
+        }
 
-        // Serialize the sound's metadata (frequency, length, bit_rate, channels, size)
-        asset_pack_file.write(reinterpret_cast<const char*>(&m_data.frequency), sizeof(m_data.frequency));
-        asset_pack_file.write(reinterpret_cast<const char*>(&m_data.length), sizeof(m_data.length));
-        asset_pack_file.write(reinterpret_cast<const char*>(&m_data.bit_rate), sizeof(m_data.bit_rate));
-        asset_pack_file.write(reinterpret_cast<const char*>(&m_data.channels), sizeof(m_data.channels));
+        std::streamsize size = sound_file.tellg();
+        sound_file.seekg(0, std::ios::beg);
 
-        // Serialize the texture's data
-        asset_pack_file.write(static_cast<const char*>(m_data.data), data_size);
+        // Read the file data into a temporary buffer
+        std::vector<char> buffer(size);
+        if (!sound_file.read(buffer.data(), size))
+        {
+            std::cerr << "Failed to read file: " << m_metadata.file_name << std::endl;
+            return;
+        }
+
+        // Write the texture file size to the asset pack file
+        asset_pack_file.write(reinterpret_cast<const char*>(&size), sizeof(std::streamsize));
+
+        // Write the texture file data to the asset pack file
+        asset_pack_file.write(buffer.data(), size);
     }
 
-    std::shared_ptr<sound> sound::deserialize(const assets::asset_metadata &metadata, std::ifstream& asset_pack_file)
+    std::shared_ptr<sound> sound::deserialize(const assets::asset_metadata& metadata, std::ifstream& asset_pack_file)
     {
-        sound_data data;
-        // Deserialize the sound data size
+        // Read the sound file size from the asset pack file
         size_t data_size;
         asset_pack_file.read(reinterpret_cast<char*>(&data_size), sizeof(data_size));
 
         // Allocate memory for the sound data
-        data.data = new char[data_size];
-        
-        // Deserialize the sound's metadata (frequency, length, bit_rate, channels)
-        asset_pack_file.read(reinterpret_cast<char*>(&data.frequency), sizeof(data.frequency));
-        asset_pack_file.read(reinterpret_cast<char*>(&data.length), sizeof(data.length));
-        asset_pack_file.read(reinterpret_cast<char*>(&data.bit_rate), sizeof(data.bit_rate));
-        asset_pack_file.read(reinterpret_cast<char*>(&data.channels), sizeof(data.channels));
-        
-        asset_pack_file.read(reinterpret_cast<char*>(data.data), data_size);
-        
-        data.size = data_size;
+        std::vector<char> data(data_size);
 
-        return std::make_shared<sound>(metadata.file_name, data);
+        // Deserialize the sound's data
+        asset_pack_file.read(data.data(), data_size);
+
+        std::shared_ptr<sound> sound;
+        const std::string& file_extension = utils::extract_file_extansion(metadata.file_name);
+        if (file_extension == ".ogg")
+            sound = sound_loader::load_ogg_sound_from_memory(data.data(), data_size);
+        else if (file_extension == ".wav")
+            sound = sound_loader::load_wav_sound_from_memory(data.data(), data_size);
+
+        sound->set_metadata(metadata);
+        return sound;
     }
 }

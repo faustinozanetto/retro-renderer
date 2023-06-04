@@ -7,6 +7,7 @@ game_manager::game_manager()
     s_instance = this;
     m_game_state = game_state::playing;
     retro::renderer::renderer::set_vsync_enabled(false);
+    initialize_audio();
     initialize_assets();
 #ifdef ASSETS_FROM_PACK
 #if (ASSETS_FROM_PACK == 1)
@@ -15,12 +16,11 @@ game_manager::game_manager()
 #endif
 #endif
 
+    
     initialize_camera();
     initialize_shaders();
     initialize_fonts();
-    initialize_texts();
-    initialize_audio();
-    initialize_managers();
+    initialize_texts();initialize_managers();
 }
 
 void game_manager::start_game()
