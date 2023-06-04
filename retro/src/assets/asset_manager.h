@@ -11,6 +11,7 @@ namespace retro::assets
         asset_manager();
 
         /* Getters */
+        const std::map<asset_type, std::shared_ptr<asset_pack>>& get_asset_packs() const { return m_asset_packs; }
         const std::shared_ptr<asset_pack>& get_asset_pack(asset_type type) { return m_asset_packs[type]; }
 
         /* Functions */

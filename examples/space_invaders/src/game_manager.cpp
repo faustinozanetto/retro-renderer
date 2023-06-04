@@ -1,5 +1,7 @@
 ﻿#include "game_manager.h"
 
+#include "imgui.h"
+
 game_manager* game_manager::s_instance = nullptr;
 
 game_manager::game_manager()
@@ -16,11 +18,12 @@ game_manager::game_manager()
 #endif
 #endif
 
-    
+
     initialize_camera();
     initialize_shaders();
     initialize_fonts();
-    initialize_texts();initialize_managers();
+    initialize_texts();
+    initialize_managers();
 }
 
 void game_manager::start_game()
@@ -45,6 +48,10 @@ void game_manager::update_game()
         check_game_end();
 
         draw_game();
+
+        retro::ui::interface::begin_frame();
+        debug_asset_packs();
+        retro::ui::interface::end_frame();
     }
 }
 
@@ -67,6 +74,51 @@ void game_manager::draw_game()
     m_fps_text->set_content(std::format("FPS: {}", retro::core::time::get_fps()));
     retro::renderer::renderer::submit_text(m_font_shader, m_font, m_fps_text);
     m_font_shader->un_bind();
+}
+
+void game_manager::debug_asset_packs()
+{
+    ImGui::Begin("Asset Packs");
+    // Display asset packs as tree nodes
+    for (const auto& pair : m_assets_manager->get_asset_packs())
+    {
+        retro::assets::asset_type type = pair.first;
+        const std::shared_ptr<retro::assets::asset_pack>& pack = pair.second;
+
+        bool packNodeOpen = ImGui::TreeNodeEx(reinterpret_cast<void*>(static_cast<intptr_t>(type)),
+            ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_Framed, "Asset Pack - Type: %d", type);
+
+        if (packNodeOpen)
+        {
+            // Display pack information
+            ImGui::Text("Num Assets: %zu", pack->get_assets().size());
+
+            // Display assets within the pack
+            ImGui::Indent();
+            for (const auto& asset : pack->get_assets())
+            {
+                const retro::assets::asset_metadata& metadata = asset.second->get_metadata();
+
+                bool assetNodeOpen = ImGui::TreeNodeEx(reinterpret_cast<void*>(static_cast<intptr_t>(asset.first)),
+                    ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_Framed, "Asset Name: %s", metadata.name.c_str());
+
+                if (assetNodeOpen)
+                {
+                    // Display asset metadata
+                    ImGui::Text("File Path: %s", metadata.file_name.c_str());
+                    ImGui::Text("Name: %s", metadata.name.c_str());
+                    ImGui::Text("Type: %s", retro::assets::asset::get_asset_type_to_string(type).c_str());
+                    ImGui::Text("UUID: %llu", metadata.uuid);
+
+                    ImGui::TreePop();
+                }
+            }
+            ImGui::Unindent();
+
+            ImGui::TreePop();
+        }
+    }
+    ImGui::End();
 }
 
 void game_manager::handle_collisions()

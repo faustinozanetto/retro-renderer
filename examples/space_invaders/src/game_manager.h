@@ -21,6 +21,8 @@ public:
     void update_game();
     void draw_game();
 
+    void debug_asset_packs();
+
     void handle_collisions();
     void check_game_end();
     void initialize_managers();
