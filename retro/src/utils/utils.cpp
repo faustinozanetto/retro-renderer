@@ -12,4 +12,13 @@ namespace retro
         }
         return path;
     }
+
+    std::string utils::extract_file_extansion(const std::string& path)
+    {
+        const size_t dot_index = path.find_last_of('.');
+        if (dot_index != std::string::npos)
+            return path.substr(dot_index);
+
+        return "";
+    }
 }

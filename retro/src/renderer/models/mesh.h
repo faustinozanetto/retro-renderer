@@ -20,10 +20,12 @@ namespace retro::renderer
     class mesh
     {
     public:
-        mesh(const std::vector<mesh_vertex> &vertices, const std::vector<mesh_index> &indices);
+        mesh(const std::vector<mesh_vertex>& vertices, const std::vector<mesh_index>& indices);
 
         /* Getters */
-        const std::shared_ptr<vertex_array_object> &get_vao() const { return m_vao; }
+        const std::shared_ptr<vertex_array_object>& get_vao() const { return m_vao; }
+        const std::vector<mesh_vertex>& get_vertices() const { return m_vertices; }
+        const std::vector<mesh_index>& get_indices() const { return m_indices; }
 
     private:
         void construct_buffers();

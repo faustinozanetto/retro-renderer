@@ -5,6 +5,8 @@
 #include <GLFW/glfw3.h>
 #include <stb_image.h>
 
+#include "texture_loader.h"
+
 namespace retro::renderer
 {
     texture_data::texture_data(int width, int height, int channels, texture_type type, void* data)
@@ -17,8 +19,8 @@ namespace retro::renderer
         this->formats = texture::get_texture_formats_from_channel_count(channels);
     }
 
-    texture::texture(const std::string& name, const texture_data& texture_data) : asset(
-        assets::asset_type::texture, name)
+    texture::texture(const std::string& file_name, const texture_data& texture_data) : asset(
+        {assets::asset_type::texture, file_name})
     {
         m_data = texture_data;
         m_data.mip_map_levels = static_cast<int>(floor(log2((std::min)(m_data.width, m_data.height))));
@@ -432,6 +434,7 @@ namespace retro::renderer
 
     void texture::serialize(std::ofstream& asset_pack_file)
     {
+        /*
         // Serialize the texture's data size
         const size_t data_size = m_data.width * m_data.height * m_data.channels;
         asset_pack_file.write(reinterpret_cast<const char*>(&data_size), sizeof(data_size));
@@ -450,10 +453,49 @@ namespace retro::renderer
 
         // Serialize the texture's data
         asset_pack_file.write(static_cast<const char*>(m_data.data), data_size);
+        */
+        std::ifstream texture_file(m_metadata.file_name, std::ios::binary | std::ios::ate);
+        if (!texture_file.is_open())
+        {
+            std::cerr << "Failed to open file: " << m_metadata.file_name << std::endl;
+            return;
+        }
+
+        std::streamsize size = texture_file.tellg();
+        texture_file.seekg(0, std::ios::beg);
+
+        // Read the file data into a temporary buffer
+        std::vector<char> buffer(size);
+        if (!texture_file.read(buffer.data(), size))
+        {
+            std::cerr << "Failed to read file: " << m_metadata.file_name << std::endl;
+            return;
+        }
+
+        // Write the texture file size to the asset pack file
+        asset_pack_file.write(reinterpret_cast<const char*>(&size), sizeof(std::streamsize));
+
+        // Write the texture file data to the asset pack file
+        asset_pack_file.write(buffer.data(), size);
     }
 
-    std::shared_ptr<texture> texture::deserialize(const std::string& name, std::ifstream& asset_pack_file)
+    std::shared_ptr<texture> texture::deserialize(const assets::asset_metadata& metadata,
+                                                  std::ifstream& asset_pack_file)
     {
+        // Read the texture file size from the asset pack file
+        size_t data_size;
+        asset_pack_file.read(reinterpret_cast<char*>(&data_size), sizeof(data_size));
+
+        // Allocate memory for the texture data
+        std::vector<char> data(data_size);
+
+        // Deserialize the texture's data
+        asset_pack_file.read(data.data(), data_size);
+
+        const std::shared_ptr<texture>& texture = texture_loader::load_texture_from_memory(data.data(), data_size);
+        texture->set_metadata(metadata);
+        return texture;
+        /*
         texture_data data;
         // Deserialize the texture's data size
         size_t data_size;
@@ -478,5 +520,6 @@ namespace retro::renderer
         asset_pack_file.read(reinterpret_cast<char*>(data.data), data_size);
 
         return std::make_shared<texture>(name, data);
+        */
     }
 }

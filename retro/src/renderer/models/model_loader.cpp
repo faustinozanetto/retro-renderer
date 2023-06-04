@@ -4,6 +4,8 @@
 #include <assimp/postprocess.h>
 #include <assimp/Importer.hpp>
 
+#include "utils/utils.h"
+
 namespace retro::renderer
 {
     std::shared_ptr<model> model_loader::load_model_from_file(const std::string &file_path)
@@ -24,7 +26,7 @@ namespace retro::renderer
         std::vector<std::shared_ptr<mesh>> model_meshes;
         parse_assimp_node(scene->mRootNode, scene, model_meshes);
         RT_TRACE("Retro Renderer | Model loaded successfully.");
-        return std::make_shared<model>(model_meshes);
+        return std::make_shared<model>(file_path, model_meshes);
     }
 
     void model_loader::parse_assimp_node(aiNode *assimp_node, const aiScene *assimp_scene, std::vector<std::shared_ptr<mesh>> &model_meshes)

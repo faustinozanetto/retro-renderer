@@ -40,6 +40,7 @@
 #include "audio/audio_context.h"
 #include "audio/sound.h"
 #include "audio/sound_emitter.h"
+#include "audio/sound_emitter.h"
 
 // Assets Include
 #include "assets/asset.h"

@@ -162,6 +162,14 @@ namespace retro::renderer
         }
     }
 
+    void renderer::submit_model_instanced(const std::shared_ptr<model>& model, int instance_count)
+    {
+        for (const auto &mesh : model->get_meshes())
+        {
+            submit_vao_instanced(mesh->get_vao(), mesh->get_vao()->get_index_buffer()->get_count(), instance_count);
+        }
+    }
+
     void renderer::set_text_projection()
     {
         s_data.text_projection = glm::ortho(0.0f, static_cast<float>(s_data.window->get_width()), 0.0f,

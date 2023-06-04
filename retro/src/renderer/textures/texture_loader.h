@@ -10,6 +10,7 @@ namespace retro::renderer
         static std::shared_ptr<texture> load_texture_from_file(const std::string &file_path);
         static std::shared_ptr<texture> load_texture_cubemap_from_file(const std::string &file_path);
         static std::shared_ptr<texture> load_texture_from_data(const texture_data &raw_data);
+        static std::shared_ptr<texture> load_texture_from_memory(const char* data, int size);
 
     private:
         static texture_data parse_texture_file_contents(const std::string &file_path);

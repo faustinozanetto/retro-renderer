@@ -13,7 +13,7 @@ namespace retro::renderer
         const std::string &shader_source = read_shader_from_file(file_path);
         const auto &contents = parse_shader_source(shader_source);
 
-        return std::make_shared<shader>(utils::extract_file_name(file_path), contents);
+        return std::make_shared<shader>(file_path, contents);
     }
 
     std::string shader_loader::read_shader_from_file(const std::string &file_path)

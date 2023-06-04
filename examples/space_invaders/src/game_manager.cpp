@@ -5,10 +5,16 @@ game_manager* game_manager::s_instance = nullptr;
 game_manager::game_manager()
 {
     s_instance = this;
-    m_game_state = game_state::starting;
+    m_game_state = game_state::playing;
     retro::renderer::renderer::set_vsync_enabled(false);
     initialize_assets();
+#ifdef ASSETS_FROM_PACK
+#if (ASSETS_FROM_PACK == 1)
     m_assets_manager->deserialize_packs();
+#else
+#endif
+#endif
+
     initialize_camera();
     initialize_shaders();
     initialize_fonts();
@@ -182,6 +188,7 @@ bool game_manager::on_key_pressed(retro::events::key_pressed_event& key_pressed_
         if (key_pressed_event.get_key_code() == retro::key::Enter)
         {
             start_game();
+            return true;
         }
     }
     if (m_game_state == game_state::playing)
@@ -227,7 +234,6 @@ void game_manager::save_assets()
     m_player_manager->save_assets();
     m_level_manager->save_assets();
     m_enemies_manager->save_assets();
-
     m_assets_manager->serialize_packs();
 }
 

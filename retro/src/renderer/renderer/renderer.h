@@ -47,6 +47,7 @@ namespace retro::renderer
         static void submit_vao_instanced(const std::shared_ptr<vertex_array_object> &vao, int count, int instance_count);
 
         static void submit_model(const std::shared_ptr<model> &model);
+        static void submit_model_instanced(const std::shared_ptr<model> &model, int instance_count);
         
         static void set_text_projection();
     };

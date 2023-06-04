@@ -1,31 +1,33 @@
 ﻿#pragma once
+#include "assets/asset.h"
 
 namespace retro::audio
 {
     struct sound_data
     {
-        unsigned char* data;
         float frequency;
         float length;
         uint32_t bit_rate;
-        int size;
         uint32_t channels;
+        int size;
+        void* data;
     };
-    class sound
+
+    class sound : public assets::asset
     {
     public:
-        sound(const std::string& file_path);
+        sound(const std::string& file_name, const sound_data& sound_data);
         ~sound();
 
-        uint32_t get_sound_buffer() const { return m_sound_buffer; };
+        /* Getters */
+        uint32_t get_sound_buffer() const { return m_sound_buffer; }
+
+        /* Asset */
+        void serialize(std::ofstream& asset_pack_file) override;
+        static std::shared_ptr<sound> deserialize(const assets::asset_metadata &metadata, std::ifstream& asset_pack_file);
 
     private:
-        sound_data load_sound_from_file() const;
-        std::string get_file_extension(const std::string& file_path) const;
-        
-        std::string m_file_path;
-
-        sound_data m_sound_data;
+        sound_data m_data;
         uint32_t m_sound_buffer;
     };
 }

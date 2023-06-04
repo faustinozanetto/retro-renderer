@@ -6,8 +6,6 @@
 #include <random>
 #include <glm/glm.hpp>
 
-#define ASSETS_FROM_PACK 1
-
 struct ammo_pickup
 {
     glm::vec3 position;
@@ -33,7 +31,6 @@ public:
     void initialize_background_assets();
     void initialize_background_model();
     void initialize_ammo_pickup_assets();
-    void initialize_ammo_pickup_model();
     void initialize_ammo_pickup_generation();
 
     void generate_ammo_pickups(int count = 5);

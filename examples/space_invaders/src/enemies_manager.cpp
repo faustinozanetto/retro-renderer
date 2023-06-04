@@ -3,13 +3,13 @@
 #include <glm/ext/matrix_transform.hpp>
 
 #include "game_manager.h"
+#include "audio/sound_loader.h"
 #include "logging/logger.h"
 
 enemies_manager::enemies_manager()
 {
     initialize_enemy_params();
     initialize_enemy_assets();
-    initialize_enemy_model();
     initialize_enemy_generation();
 
     initialize_enemy_waves();
@@ -21,6 +21,7 @@ void enemies_manager::draw_enemies()
     m_enemy_shader->bind();
     m_enemy_shader->set_mat4("u_view", game_manager::get().get_camera()->get_view_matrix());
     m_enemy_shader->set_mat4("u_projection", game_manager::get().get_camera()->get_projection_matrix());
+
     for (enemy& enemy : m_enemies)
     {
         glm::mat4 enemy_model = glm::mat4(1.0f);
@@ -100,23 +101,26 @@ void enemies_manager::initialize_enemy_assets()
 {
 #ifdef ASSETS_FROM_PACK
 #if (ASSETS_FROM_PACK == 1)
-    m_enemy_texture = game_manager::get().get_assets_manager()->get_asset_pack(retro::assets::asset_type::texture)->get_asset<
-      retro::renderer::texture, retro::assets::asset_type::texture>("enemy.png");
-    m_enemy_shader = game_manager::get().get_assets_manager()->get_asset_pack(retro::assets::asset_type::shader)->get_asset<
-retro::renderer::shader, retro::assets::asset_type::shader>("enemy.rrs");
+    m_enemy_texture = game_manager::get().get_assets_manager()->get_asset_pack(retro::assets::asset_type::texture)->
+                                          get_asset<retro::renderer::texture, retro::assets::asset_type::texture>(
+                                              "enemy.jpg");
+    m_enemy_shader = game_manager::get().get_assets_manager()->get_asset_pack(retro::assets::asset_type::shader)->
+                                         get_asset<retro::renderer::shader, retro::assets::asset_type::shader>(
+                                             "enemy.rrs");
+    m_enemy_model = game_manager::get().get_assets_manager()->get_asset_pack(retro::assets::asset_type::model)->
+                                        get_asset<retro::renderer::model,
+                                                  retro::assets::asset_type::model>("enemy.obj");
+    m_enemy_explode_sound = game_manager::get().get_assets_manager()->get_asset_pack(retro::assets::asset_type::sound)->
+                                                get_asset<retro::audio::sound,
+                                                          retro::assets::asset_type::sound>("explosion.ogg");
 #else
-    m_enemy_texture = retro::renderer::texture_loader::load_texture_from_file("resources/textures/enemy.png");
+    m_enemy_texture = retro::renderer::texture_loader::load_texture_from_file("resources/textures/enemy.jpg");
     m_enemy_shader = retro::renderer::shader_loader::load_shader_from_file(
         "resources/shaders/enemy.rrs");
-#endif
-#endif
-
-    m_enemy_explode_sound = std::make_shared<retro::audio::sound>("resources/audio/explosion.ogg");
-}
-
-void enemies_manager::initialize_enemy_model()
-{
     m_enemy_model = retro::renderer::model_loader::load_model_from_file("resources/models/enemy.obj");
+    m_enemy_explode_sound = retro::audio::sound_loader::load_sound_from_file("resources/audio/explosion.ogg");
+#endif
+#endif
 }
 
 void enemies_manager::initialize_enemy_generation()
@@ -147,7 +151,11 @@ void enemies_manager::generate_enemies(int amount)
 void enemies_manager::save_assets() const
 {
     game_manager::get().get_assets_manager()->get_asset_pack(retro::assets::asset_type::texture)->save_asset(
-     m_enemy_texture);
+        m_enemy_texture);
+    game_manager::get().get_assets_manager()->get_asset_pack(retro::assets::asset_type::model)->save_asset(
+        m_enemy_model);
     game_manager::get().get_assets_manager()->get_asset_pack(retro::assets::asset_type::shader)->save_asset(
         m_enemy_shader);
+    game_manager::get().get_assets_manager()->get_asset_pack(retro::assets::asset_type::sound)->save_asset(
+    m_enemy_explode_sound);
 }

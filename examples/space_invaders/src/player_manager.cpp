@@ -3,6 +3,7 @@
 #include <glm/ext/matrix_transform.hpp>
 
 #include "game_manager.h"
+#include "audio/sound_loader.h"
 
 #define LERP(a, b, t) a * (1.0 - t) + (b * t)
 
@@ -23,10 +24,8 @@ void player_manager::draw_player()
     model = translate(model, m_player.position);
     model = scale(model, m_player.collider.size);
     m_player_shader->set_mat4("u_transform", model);
-    m_player_vao->bind();
     retro::renderer::renderer::bind_texture(0, m_player_texture->get_handle_id());
-    retro::renderer::renderer::submit_elements(GL_TRIANGLES, 6);
-    m_player_vao->un_bind();
+    retro::renderer::renderer::submit_model(m_player_model);
     m_player_shader->un_bind();
 }
 
@@ -109,62 +108,28 @@ void player_manager::initialize_player_assets()
 retro::renderer::shader, retro::assets::asset_type::shader>("player.rrs");
     m_bullet_shader = game_manager::get().get_assets_manager()->get_asset_pack(retro::assets::asset_type::shader)->get_asset<
 retro::renderer::shader, retro::assets::asset_type::shader>("bullet.rrs");
+    m_player_model = game_manager::get().get_assets_manager()->get_asset_pack(retro::assets::asset_type::model)->get_asset<
+retro::renderer::model, retro::assets::asset_type::model>("player.obj");
+    m_shoot_sound = game_manager::get().get_assets_manager()->get_asset_pack(retro::assets::asset_type::sound)->get_asset<
+retro::audio::sound, retro::assets::asset_type::sound>("player_shoot.wav");
+    m_crash_sound = game_manager::get().get_assets_manager()->get_asset_pack(retro::assets::asset_type::sound)->get_asset<
+retro::audio::sound, retro::assets::asset_type::sound>("explosion.ogg");
 #else
     m_player_texture = retro::renderer::texture_loader::load_texture_from_file("resources/textures/player.png");
     m_player_shader = retro::renderer::shader_loader::load_shader_from_file(
         "resources/shaders/player.rrs");
     m_bullet_shader = retro::renderer::shader_loader::load_shader_from_file(
         "resources/shaders/bullet.rrs");
+    m_player_model = retro::renderer::model_loader::load_model_from_file(
+        "resources/models/player.obj");
+    m_shoot_sound = retro::audio::sound_loader::load_sound_from_file("resources/audio/player_shoot.wav");
+    m_crash_sound = retro::audio::sound_loader::load_sound_from_file("resources/audio/explosion.ogg");
 #endif
 #endif
-    m_shoot_sound = std::make_shared<retro::audio::sound>("resources/audio/player_shoot.ogg");
-    m_crash_sound = std::make_shared<retro::audio::sound>("resources/audio/explosion.ogg");
 }
 
 void player_manager::initialize_player_model()
 {
-    {
-        m_player_vao = std::make_shared<retro::renderer::vertex_array_object>();
-        m_player_vao->bind();
-
-        const std::vector<float> vertices = {
-            // Positions      // Texture coordinates
-            -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, // Bottom-left
-            0.5f, -0.5f, 0.0f, 1.0f, 0.0f, // Bottom-right
-            0.5f, 0.5f, 0.0f, 1.0f, 1.0f, // Top-right
-            -0.5f, 0.5f, 0.0f, 0.0f, 1.0f // Top-left
-        };
-
-        const std::vector<uint32_t> indices = {
-            0, 1, 2, // First triangle
-            2, 3, 0 // Second triangle
-        };
-
-        const auto ebo = std::make_shared<
-            retro::renderer::vertex_buffer_object>(retro::renderer::vertex_buffer_object_target::elements);
-        ebo->set_data(retro::renderer::vertex_buffer_object_usage::static_draw, indices.size() * sizeof(&indices[0]),
-                      indices.data());
-
-        const auto vbo = std::make_shared<
-            retro::renderer::vertex_buffer_object>(retro::renderer::vertex_buffer_object_target::arrays);
-        vbo->set_data(retro::renderer::vertex_buffer_object_usage::static_draw, vertices.size() * sizeof(&vertices[0]),
-                      vertices.data());
-
-        std::initializer_list<retro::renderer::vertex_buffer_layout_entry>
-            layout_elements = {
-                {"a_pos", retro::renderer::vertex_buffer_entry_type::vec_float3, false},
-                {"a_tex_coord", retro::renderer::vertex_buffer_entry_type::vec_float2, false}
-            };
-
-        const auto vbo_layout_descriptor = std::make_shared<
-            retro::renderer::vertex_buffer_layout_descriptor>(layout_elements);
-        vbo->set_layout_descriptor(vbo_layout_descriptor);
-
-        m_player_vao->add_vertex_buffer(vbo);
-        m_player_vao->set_index_buffer(ebo);
-        m_player_vao->un_bind();
-    }
-
     {
         m_bullet_vao = std::make_shared<retro::renderer::vertex_array_object>();
         m_bullet_vao->bind();
@@ -248,8 +213,14 @@ void player_manager::save_assets() const
 {
     game_manager::get().get_assets_manager()->get_asset_pack(retro::assets::asset_type::texture)->save_asset(
         m_player_texture);
+    game_manager::get().get_assets_manager()->get_asset_pack(retro::assets::asset_type::model)->save_asset(
+        m_player_model);
     game_manager::get().get_assets_manager()->get_asset_pack(retro::assets::asset_type::shader)->save_asset(
         m_player_shader);
     game_manager::get().get_assets_manager()->get_asset_pack(retro::assets::asset_type::shader)->save_asset(
         m_bullet_shader);
+    game_manager::get().get_assets_manager()->get_asset_pack(retro::assets::asset_type::sound)->save_asset(
+        m_crash_sound);
+    game_manager::get().get_assets_manager()->get_asset_pack(retro::assets::asset_type::sound)->save_asset(
+        m_shoot_sound);
 }

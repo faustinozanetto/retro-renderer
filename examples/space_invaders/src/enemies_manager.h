@@ -6,8 +6,6 @@
 #include <random>
 #include <glm/glm.hpp>
 
-#define ASSETS_FROM_PACK 1
-
 struct enemy
 {
     glm::vec3 position;
@@ -40,9 +38,8 @@ public:
 
     void initialize_enemy_params();
     void initialize_enemy_assets();
-    void initialize_enemy_model();
     void initialize_enemy_generation();
-
+    
     void generate_enemies(int amount = 25);
 
     void save_assets() const;

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "utils/utils.h"
 #include "utils/uuid.h"
 
 namespace retro::assets
@@ -8,27 +9,43 @@ namespace retro::assets
     {
         shader = 0,
         texture,
-        model
+        model,
+        sound
+    };
+
+    struct asset_metadata
+    {
+        asset_type type;
+        std::string name;
+        std::string file_name;
+        uuid uuid;
+
+        asset_metadata() = default;
+
+        asset_metadata(asset_type type, const std::string& file_name) : type(type),
+                                                                        name(utils::extract_file_name(file_name)),
+                                                                        file_name(file_name)
+
+
+        {
+        }
     };
 
     class asset
     {
     public:
-        asset(asset_type type, const std::string &name) : m_type(type), m_name(name), m_uuid(uuid())
+        asset(asset_metadata metadata) : m_metadata(std::move(metadata))
         {
         }
 
         /* Getters */
-        const asset_type& get_type() const { return m_type; }
-        const uuid& get_uuid() const { return m_uuid; }
-        const std::string &get_name() const { return m_name; }
+        const asset_metadata& get_metadata() const { return m_metadata; }
 
         /* Functions */
-        virtual void serialize(std::ofstream &asset_pack_file) = 0;
+        virtual void serialize(std::ofstream& asset_pack_file) = 0;
+        void set_metadata(const asset_metadata& metadata) { m_metadata = metadata; }
 
     protected:
-        asset_type m_type;
-        uuid m_uuid;
-        std::string m_name;
+        asset_metadata m_metadata;
     };
 }

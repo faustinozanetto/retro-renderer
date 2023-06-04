@@ -1,6 +1,8 @@
 #include "rtpch.h"
 #include "asset_pack.h"
 
+#include "audio/sound.h"
+#include "renderer/models/model.h"
 #include "renderer/shaders/shader.h"
 #include "renderer/textures/texture.h"
 
@@ -13,78 +15,80 @@ namespace retro::assets
 
     void asset_pack::save_asset(const std::shared_ptr<asset>& asset)
     {
-        RT_ASSERT_MSG(m_type == asset->get_type(), "Asset type does not match asset pack type!");
+        RT_ASSERT_MSG(m_type == asset->get_metadata().type, "Asset type does not match asset pack type!");
 
-        m_assets.insert(std::make_pair(asset->get_uuid(), asset));
+        m_assets.insert(std::make_pair(asset->get_metadata().uuid, asset));
     }
 
-    void asset_pack::serialize_pack(const std::string& file_path) const
+    void asset_pack::serialize_pack(const std::string& file_path)
     {
-        std::ofstream pack_file(file_path, std::ios::out | std::ios::binary | std::ios::trunc);
+        std::ofstream asset_pack_file(file_path, std::ios::out | std::ios::binary | std::ios::trunc);
 
         // Write the number of assets in the pack
         const size_t num_assets = m_assets.size();
-        pack_file.write(reinterpret_cast<const char*>(&num_assets), sizeof(num_assets));
+        asset_pack_file.write(reinterpret_cast<const char*>(&num_assets), sizeof(num_assets));
 
         for (const auto& asset : m_assets)
         {
-            // Write the metadata attributes to the pack file
-            pack_file.write(reinterpret_cast<const char*>(&asset.second->get_type()), sizeof(asset.second->get_type()));
-            pack_file.write(reinterpret_cast<const char*>(&asset.first), sizeof(asset.first));
-            write_string(asset.second->get_name(), pack_file);
-
-            asset.second->serialize(pack_file);
+            // Serialize the asset's metadata
+            const asset_metadata& metadata = asset.second->get_metadata();
+            serialize_asset_metadata(metadata, asset_pack_file);
+            // Perform custom asset serialization
+            asset.second->serialize(asset_pack_file);
         }
 
-        pack_file.close();
+        asset_pack_file.close();
     }
 
     void asset_pack::deserialize_pack(const std::string& file_path)
     {
         m_assets.clear();
 
-        std::ifstream pack_file(file_path, std::ios::binary);
+        std::ifstream asset_pack_file(file_path, std::ios::binary);
 
-        // Read the number of assets in the pack
-        size_t numAssets;
-        pack_file.read(reinterpret_cast<char*>(&numAssets), sizeof(numAssets));
+        // Deserialize the number of assets in the pack
+        size_t num_assets;
+        asset_pack_file.read(reinterpret_cast<char*>(&num_assets), sizeof(num_assets));
 
-        for (size_t i = 0; i < numAssets; ++i)
+        for (size_t i = 0; i < num_assets; ++i)
         {
             // Check if we have reached the end of the file
-            if (!pack_file) break;
+            if (!asset_pack_file) break;
+
+            // Deserialize the asset's metadata
+            asset_metadata metadata = deserialize_asset_metadata(asset_pack_file);
+
+            RT_TRACE("Deserialized: {} {} {} {}", metadata.uuid, metadata.name, metadata.file_name, (int)metadata.type);
 
             std::shared_ptr<asset> asset;
 
-            // Read the metadata attributes from the pack file
-            asset_type type;
-            pack_file.read(reinterpret_cast<char*>(&type), sizeof(type));
-            uuid uuid;
-            pack_file.read(reinterpret_cast<char*>(&uuid), sizeof(uuid));
-            std::string name = read_string(pack_file);
-
-            RT_TRACE("Deserialized: {} {} {}", (int)type, uuid, name);
-
             // Create the appropriate asset instance based on the type
-            switch (type)
+            switch (metadata.type)
             {
             case asset_type::shader:
                 {
                     RT_TRACE("Read shader file!");
-                    asset = renderer::shader::deserialize(name, pack_file);
+                    asset = renderer::shader::deserialize(metadata, asset_pack_file);
                     break;
                 }
 
             case asset_type::model:
                 {
                     RT_TRACE("Read model file!");
+                    asset = renderer::model::deserialize(metadata, asset_pack_file);
                     break;
                 }
 
             case asset_type::texture:
                 {
                     RT_TRACE("Read texture file!");
-                    asset = renderer::texture::deserialize(name, pack_file);
+                    asset = renderer::texture::deserialize(metadata, asset_pack_file);
+                    break;
+                }
+            case asset_type::sound:
+                {
+                    RT_TRACE("Read audio file!");
+                    asset = audio::sound::deserialize(metadata, asset_pack_file);
                     break;
                 }
             }
@@ -92,7 +96,7 @@ namespace retro::assets
             RT_ASSERT_MSG(asset, "Failed to deserialized asset: '{}'!", name);
 
             // Store the asset in the map using its UUID as the key
-            m_assets[asset->get_uuid()] = std::move(asset);
+            m_assets[asset->get_metadata().uuid] = std::move(asset);
         }
         RT_TRACE("Asset pack successfully deserialized!");
     }
@@ -111,5 +115,49 @@ namespace retro::assets
         std::string str(size, '\0');
         asset_pack.read(&str[0], size);
         return str;
+    }
+
+    void asset_pack::serialize_asset_metadata(const asset_metadata& asset_metadata, std::ofstream& asset_pack_file)
+    {
+        // Serialize the asset's type
+        asset_pack_file.write(reinterpret_cast<const char*>(&asset_metadata.type), sizeof(asset_metadata.type));
+
+        // Serialize the asset's name
+        size_t name_length = asset_metadata.name.size();
+        asset_pack_file.write(reinterpret_cast<const char*>(&name_length), sizeof(name_length));
+        asset_pack_file.write(asset_metadata.name.c_str(), name_length);
+
+        // Serialize the asset's file name
+        size_t file_name_length = asset_metadata.file_name.size();
+        asset_pack_file.write(reinterpret_cast<const char*>(&file_name_length), sizeof(file_name_length));
+        asset_pack_file.write(asset_metadata.file_name.c_str(), file_name_length);
+
+        // Serialize the asset's UUID
+        asset_pack_file.write(reinterpret_cast<const char*>(&asset_metadata.uuid), sizeof(asset_metadata.uuid));
+    }
+
+    asset_metadata asset_pack::deserialize_asset_metadata(std::ifstream& asset_pack_file)
+    {
+        asset_metadata metadata;
+
+        // Deserialize the asset's type
+        asset_pack_file.read(reinterpret_cast<char*>(&metadata.type), sizeof(metadata.type));
+
+        // Deserialize the asset's name
+        size_t name_length;
+        asset_pack_file.read(reinterpret_cast<char*>(&name_length), sizeof(name_length));
+        metadata.name.resize(name_length);
+        asset_pack_file.read(&metadata.name[0], name_length);
+
+        // Deserialize the asset's file name
+        size_t file_name_length;
+        asset_pack_file.read(reinterpret_cast<char*>(&file_name_length), sizeof(file_name_length));
+        metadata.file_name.resize(file_name_length);
+        asset_pack_file.read(&metadata.file_name[0], file_name_length);
+
+        // Deserialize the asset's UUID
+        asset_pack_file.read(reinterpret_cast<char*>(&metadata.uuid), sizeof(metadata.uuid));
+
+        return metadata;
     }
 }

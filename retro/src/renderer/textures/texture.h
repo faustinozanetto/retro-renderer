@@ -109,7 +109,7 @@ namespace retro::renderer
     class texture : public assets::asset
     {
     public:
-        texture(const std::string &name, const texture_data &texture_data);
+        texture(const std::string &file_name, const texture_data &texture_data);
 
         /* Getters */
         uint32_t get_handle_id() const { return m_handle_id; }
@@ -119,7 +119,7 @@ namespace retro::renderer
 
         /* Asset */
         void serialize(std::ofstream &asset_pack_file) override;
-        static std::shared_ptr<texture> deserialize(const std::string& name, std::ifstream& asset_pack_file);
+        static std::shared_ptr<texture> deserialize(const assets::asset_metadata &metadata, std::ifstream& asset_pack_file);
 
         /* Utilities */
         static std::string get_texture_filtering_to_string(texture_filtering filtering);

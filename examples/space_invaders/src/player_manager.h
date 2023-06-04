@@ -5,8 +5,6 @@
 #include "retro.h"
 #include "utils.h"
 
-#define ASSETS_FROM_PACK 1
-
 struct player
 {
     glm::vec3 position;
@@ -66,7 +64,7 @@ private:
 
     /* Assets */
     std::shared_ptr<retro::renderer::texture> m_player_texture;
-    std::shared_ptr<retro::renderer::vertex_array_object> m_player_vao;
+    std::shared_ptr<retro::renderer::model> m_player_model;
     std::shared_ptr<retro::renderer::vertex_array_object> m_bullet_vao;
     std::shared_ptr<retro::renderer::shader> m_player_shader;
     std::shared_ptr<retro::renderer::shader> m_bullet_shader;

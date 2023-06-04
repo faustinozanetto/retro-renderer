@@ -37,9 +37,9 @@ namespace retro::renderer
         RT_ASSERT_MSG(false, "Invalid shader type!");
     }
 
-    shader::shader(const std::string& name,
+    shader::shader(const std::string& file_name,
                    const std::unordered_map<shader_type, std::string>& shader_contents) : asset(
-        assets::asset_type::shader, name)
+        {assets::asset_type::shader, file_name})
     {
         RT_TRACE("Retro Renderer | Started creating shader.");
         m_contents = shader_contents;
@@ -138,7 +138,7 @@ namespace retro::renderer
         }
     }
 
-    std::shared_ptr<shader> shader::deserialize(const std::string& name, std::ifstream& asset_pack_file)
+    std::shared_ptr<shader> shader::deserialize(const assets::asset_metadata& metadata, std::ifstream& asset_pack_file)
     {
         std::unordered_map<shader_type, std::string> parsed_contents;
         // Read the shader content from the pack file
@@ -161,7 +161,7 @@ namespace retro::renderer
             parsed_contents[type] = content;
         }
 
-        return std::make_shared<shader>(name, parsed_contents);
+        return std::make_shared<shader>(metadata.file_name, parsed_contents);
     }
 
     void shader::compile_contents()
