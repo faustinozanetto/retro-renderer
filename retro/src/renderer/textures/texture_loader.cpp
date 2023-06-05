@@ -7,23 +7,40 @@ namespace retro::renderer
 {
     std::shared_ptr<texture> texture_loader::load_texture_from_file(const std::string& file_path)
     {
+        RT_SEPARATOR();
+        RT_TRACE("Retro Renderer | Started loading texture from file.");
         const texture_data& data = parse_texture_file_contents(file_path);
-        return std::make_shared<texture>(file_path, data);
+        const std::shared_ptr<texture>& created_texture = std::make_shared<texture>(file_path, data);
+        RT_TRACE("Retro Renderer | Texture loaded from file successfully!");
+        RT_SEPARATOR();
+        return created_texture;
     }
 
     std::shared_ptr<texture> texture_loader::load_texture_cubemap_from_file(const std::string& file_path)
     {
+        RT_SEPARATOR();
+        RT_TRACE("Retro Renderer | Started loading texture cubemap from file.");
         const texture_data& data = parse_texture_cubemap_file_contents(file_path);
-        return std::make_shared<texture>(file_path, data);
+        const std::shared_ptr<texture>& created_texture = std::make_shared<texture>(file_path, data);
+        RT_TRACE("Retro Renderer | Texture cubemap loaded from file successfully!");
+        RT_SEPARATOR();
+        return created_texture;
     }
 
     std::shared_ptr<texture> texture_loader::load_texture_from_data(const texture_data& raw_data)
     {
-        return std::make_shared<texture>("data_texture", raw_data);
+        RT_SEPARATOR();
+        RT_TRACE("Retro Renderer | Started loading texture from data.");
+        const std::shared_ptr<texture>& created_texture = std::make_shared<texture>("from_data", raw_data);
+        RT_TRACE("Retro Renderer | Texture loaded from data successfully!");
+        RT_SEPARATOR();
+        return created_texture;
     }
 
     std::shared_ptr<texture> texture_loader::load_texture_from_memory(const char* data, int size)
     {
+        RT_SEPARATOR();
+        RT_TRACE("Retro Renderer | Started loading texture from memory.");
         int width, height, channels;
         stbi_set_flip_vertically_on_load(1);
         unsigned char* loaded_data = stbi_load_from_memory(reinterpret_cast<const stbi_uc*>(data), size, &width,
@@ -33,7 +50,10 @@ namespace retro::renderer
         RT_ASSERT_MSG(channels > 0, "Invalid texture channels count!");
 
         texture_data texture_data = {width, height, channels, texture_type::normal, loaded_data};
-        return std::make_shared<texture>("from_memory", texture_data);
+        const std::shared_ptr<texture>& created_texture = std::make_shared<texture>("from_memory", texture_data);
+        RT_TRACE("Retro Renderer | Texture loaded from memory successfully!");
+        RT_SEPARATOR();
+        return created_texture;
     }
 
     texture_data texture_loader::parse_texture_file_contents(const std::string& file_path)

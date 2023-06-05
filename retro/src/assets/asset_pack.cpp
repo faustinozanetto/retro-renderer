@@ -23,6 +23,9 @@ namespace retro::assets
 
     void asset_pack::serialize_pack(const std::string& file_path)
     {
+        RT_SEPARATOR();
+        RT_TRACE("Retro Renderer | Started serializing asset pack.");
+        RT_TRACE("  - File Path: '{}'", file_path);
         std::ofstream asset_pack_file(file_path, std::ios::out | std::ios::binary | std::ios::trunc);
 
         // Write the number of assets in the pack
@@ -39,10 +42,15 @@ namespace retro::assets
         }
 
         asset_pack_file.close();
+        RT_TRACE("Retro Renderer | Asset pack serialized successfully!");
+        RT_SEPARATOR();
     }
 
     void asset_pack::deserialize_pack(const std::string& file_path)
     {
+        RT_SEPARATOR();
+        RT_TRACE("Retro Renderer | Started deserializing asset pack.");
+        RT_TRACE("  - File Path: '{}'", file_path);
         m_assets.clear();
 
         std::ifstream asset_pack_file(file_path, std::ios::binary);
@@ -59,7 +67,7 @@ namespace retro::assets
             // Deserialize the asset's metadata
             asset_metadata metadata = deserialize_asset_metadata(asset_pack_file);
 
-            RT_TRACE("Deserialized: {} {} {} {}", metadata.uuid, metadata.name, metadata.file_name, (int)metadata.type);
+            RT_TRACE("Retro Renderer | Asset Deserialized: {} {} {} {}", metadata.uuid, metadata.name, metadata.file_name, (int)metadata.type);
 
             std::shared_ptr<asset> asset;
 
@@ -100,7 +108,8 @@ namespace retro::assets
             // Store the asset in the map using its UUID as the key
             m_assets[asset->get_metadata().uuid] = std::move(asset);
         }
-        RT_TRACE("Asset pack successfully deserialized!");
+        RT_TRACE("Retro Renderer | Asset pack successfully deserialized!");
+        RT_SEPARATOR();
     }
 
     void asset_pack::write_string(const std::string& string, std::ofstream& asset_pack)

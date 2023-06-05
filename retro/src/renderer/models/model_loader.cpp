@@ -10,6 +10,7 @@ namespace retro::renderer
 {
     std::shared_ptr<model> model_loader::load_model_from_file(const std::string &file_path)
     {
+        RT_SEPARATOR();
         RT_TRACE("Retro Renderer | Started loading model from file.");
         RT_TRACE("  - File Path: '{0}'", file_path);
 
@@ -21,12 +22,23 @@ namespace retro::renderer
             RT_ASSERT_MSG(false, "An error ocurred while loading model from file.");
         }
 
-        RT_TRACE("  - Mesh Count: {0}", scene->mNumMeshes);
         // Recursively parse all the assimp nodes and store the parsed mesh into the meshes vector.
         std::vector<std::shared_ptr<mesh>> model_meshes;
         parse_assimp_node(scene->mRootNode, scene, model_meshes);
-        RT_TRACE("Retro Renderer | Model loaded successfully.");
-        return std::make_shared<model>(file_path, model_meshes);
+        const std::shared_ptr<model>& created_model = std::make_shared<model>(file_path, model_meshes);
+        RT_TRACE("Retro Renderer | Model loaded from file successfully!");
+        RT_SEPARATOR();
+        return created_model;
+    }
+
+    std::shared_ptr<model> model_loader::load_model_from_meshes(const std::vector<std::shared_ptr<mesh>>& meshes)
+    {
+        RT_SEPARATOR();
+        RT_TRACE("Retro Renderer | Started loading model from meshes.");
+        const std::shared_ptr<model>& created_model = std::make_shared<model>("from_meshes", meshes);
+        RT_TRACE("Retro Renderer | Model loaded from meshes successfully!");
+        RT_SEPARATOR();
+        return created_model;
     }
 
     void model_loader::parse_assimp_node(aiNode *assimp_node, const aiScene *assimp_scene, std::vector<std::shared_ptr<mesh>> &model_meshes)

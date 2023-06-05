@@ -11,6 +11,19 @@ namespace retro::renderer
         {assets::asset_type::font, file_name})
     {
         m_data = font_data;
+
+        RT_TRACE("Font Information:");
+        RT_TRACE("  - Family Name: '{}'", m_data.font_face->family_name);
+        RT_TRACE("  - Style Name: '{}'", m_data.font_face->style_name);
+        RT_TRACE("  - Number of Glyphs: '{}'", m_data.font_face->num_glyphs);
+        RT_TRACE("  - Units Per EM: '{}'", m_data.font_face->units_per_EM);
+        RT_TRACE("  - Ascender: '{}'", m_data.font_face->ascender);
+        RT_TRACE("  - Descender: '{}'", m_data.font_face->descender);
+        RT_TRACE("  - Height: '{}'", m_data.font_face->height);
+        RT_TRACE("  - Max Advance Width: '{}'", m_data.font_face->max_advance_width);
+        RT_TRACE("  - Max Advance Height: '{}'", m_data.font_face->max_advance_height);
+        RT_TRACE("  - Glyphs: '{}'", m_data.font_face->num_glyphs);
+        
         setup_buffers();
         construct_atlas();
     }

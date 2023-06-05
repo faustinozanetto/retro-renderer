@@ -9,11 +9,26 @@ namespace retro::renderer
 {
     std::shared_ptr<shader> shader_loader::load_shader_from_file(const std::string &file_path)
     {
+        RT_SEPARATOR();
         RT_TRACE("Retro Renderer | Started loading shader from file '{0}'", file_path);
         const std::string &shader_source = read_shader_from_file(file_path);
         const auto &contents = parse_shader_source(shader_source);
 
-        return std::make_shared<shader>(file_path, contents);
+        const std::shared_ptr<shader>& created_shader = std::make_shared<shader>(file_path, contents);
+        RT_TRACE("Retro Renderer | Shader loaded from file successfully!");
+        RT_SEPARATOR();
+        return created_shader;
+    }
+
+    std::shared_ptr<shader> shader_loader::load_shader_from_contents(
+        const std::unordered_map<shader_type, std::string>& contents)
+    {
+        RT_SEPARATOR();
+        RT_TRACE("Retro Renderer | Started loading shader from contents");
+        const std::shared_ptr<shader>& created_shader = std::make_shared<shader>("from_contents", contents);
+        RT_TRACE("Retro Renderer | Shader loaded from contents successfully!");
+        RT_SEPARATOR();
+        return created_shader;
     }
 
     std::string shader_loader::read_shader_from_file(const std::string &file_path)

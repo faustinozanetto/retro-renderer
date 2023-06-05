@@ -12,8 +12,8 @@ namespace retro::audio
     })
     {
         m_data = sound_data;
-        RT_TRACE("Retro Renderer | Started loading sound from file.");
-        RT_TRACE("    - Name: {0}", file_name.c_str());
+        RT_TRACE("Sound Information:");
+        RT_TRACE("    - File Name: {0}", file_name.c_str());
         RT_TRACE("    - Frequency: {0}", m_data.frequency);
         RT_TRACE("    - Lenght: {0}", m_data.length);
         RT_TRACE("    - Bit Rate: {0}", m_data.bit_rate);

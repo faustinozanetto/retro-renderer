@@ -15,6 +15,8 @@ namespace retro::audio
 {
     std::shared_ptr<sound> sound_loader::load_sound_from_file(const std::string& file_path)
     {
+        RT_SEPARATOR();
+        RT_TRACE("Retro Renderer | Started loading sound from file.");
         sound_data data;
         const std::string& file_extension = utils::extract_file_extansion(file_path);
 
@@ -27,11 +29,16 @@ namespace retro::audio
             data = parse_wav_sound(file_path);
         }
 
-        return std::make_shared<sound>(file_path, data);
+        const std::shared_ptr<sound>& created_sound = std::make_shared<sound>(file_path, data);
+        RT_TRACE("Retro Renderer | Sound loaded from file successfully!");
+        RT_SEPARATOR();
+        return created_sound;
     }
 
     std::shared_ptr<sound> sound_loader::load_ogg_sound_from_memory(const char* data, size_t size)
     {
+        RT_SEPARATOR();
+        RT_TRACE("Retro Renderer | Started loading ogg sound from memory.");
         int error = 0;
         int channels;
         int sample_rate;
@@ -50,11 +57,16 @@ namespace retro::audio
         sound_data.size = sample_count * channels * sizeof(short);
         sound_data.data = samples;
 
-        return std::make_shared<sound>("from_memory", sound_data);
+        const std::shared_ptr<sound>& created_sound = std::make_shared<sound>("from_memory", sound_data);
+        RT_TRACE("Retro Renderer | Sound loaded from memory successfully!");
+        RT_SEPARATOR();
+        return created_sound;
     }
 
     std::shared_ptr<sound> sound_loader::load_wav_sound_from_memory(const char* data, size_t size)
     {
+        RT_SEPARATOR();
+        RT_TRACE("Retro Renderer | Started loading wav sound from memory.");
         // Use dr_wav library to load the WAV file
         drwav wav;
         bool init_result = drwav_init_memory(&wav, data, size, nullptr);
@@ -75,7 +87,10 @@ namespace retro::audio
         // Clean up the WAV file
         drwav_uninit(&wav);
 
-        return std::make_shared<sound>("from_memory", sound_data);
+        const std::shared_ptr<sound>& created_sound = std::make_shared<sound>("from_memory", sound_data);
+        RT_TRACE("Retro Renderer | Sound loaded from memory successfully!");
+        RT_SEPARATOR();
+        return created_sound;
     }
 
     sound_data sound_loader::parse_ogg_sound(const std::string& file_path)

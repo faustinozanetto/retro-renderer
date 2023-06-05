@@ -5,6 +5,7 @@
 #include <GLFW/glfw3.h>
 #include <glm/gtc/type_ptr.hpp>
 
+#include "shader_loader.h"
 #include "assets/asset_pack.h"
 
 namespace retro::renderer
@@ -41,10 +42,8 @@ namespace retro::renderer
                    const std::unordered_map<shader_type, std::string>& shader_contents) : asset(
         {assets::asset_type::shader, file_name})
     {
-        RT_TRACE("Retro Renderer | Started creating shader.");
         m_contents = shader_contents;
         compile_contents();
-        RT_TRACE("Retro Renderer | Shader created successfully.");
     }
 
     int shader::get_uniform_location(const std::string& uniform_name)
@@ -161,7 +160,9 @@ namespace retro::renderer
             parsed_contents[type] = content;
         }
 
-        return std::make_shared<shader>(metadata.file_name, parsed_contents);
+        const std::shared_ptr<shader>& shader = shader_loader::load_shader_from_contents(parsed_contents);
+        shader->set_metadata(metadata);
+        return shader;
     }
 
     void shader::compile_contents()

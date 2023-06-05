@@ -25,6 +25,7 @@ namespace retro::renderer
         m_data = texture_data;
         m_data.mip_map_levels = static_cast<int>(floor(log2((std::min)(m_data.width, m_data.height))));
 
+        RT_TRACE("Texture Information:");
         RT_TRACE("  - Width: {0}px", m_data.width);
         RT_TRACE("  - Height: {0}px", m_data.height);
         RT_TRACE("  - Channels: {0}", m_data.channels);

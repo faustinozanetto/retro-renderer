@@ -1,6 +1,8 @@
 #include "rtpch.h"
 #include "model.h"
 
+#include "model_loader.h"
+
 namespace retro::renderer
 {
     model::model(const std::string& file_name, const std::vector<std::shared_ptr<mesh>>& meshes) : asset({
@@ -8,6 +10,8 @@ namespace retro::renderer
     })
     {
         m_meshes = meshes;
+        RT_TRACE("Model Information:");
+        RT_TRACE("  - Mesh Count: {}", m_meshes.size());
     }
 
     void model::serialize(std::ofstream& asset_pack_file)
@@ -68,6 +72,8 @@ namespace retro::renderer
         }
 
         // Create a new model instance
-        return std::make_shared<model>(metadata.file_name, meshes);
+        const std::shared_ptr<model>& model = model_loader::load_model_from_meshes(meshes);
+        model->set_metadata(metadata);
+        return model;
     }
 }
