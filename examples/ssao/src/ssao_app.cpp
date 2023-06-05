@@ -105,7 +105,7 @@ void ssao_app::on_update()
     retro::renderer::renderer::submit_elements(GL_TRIANGLES, 6);
     m_lighting_shader->un_bind();
 
-    retro::ui::interface::begin_frame();
+    retro::ui::engine_ui::begin_frame();
     ImGui::Begin("SSAO");
     ImGui::Image((void*)(intptr_t)m_ssao_color_fbo->get_attachment_id(0), {256, 256}, ImVec2(0, 1), ImVec2(1, 0));
     ImGui::Image((void*)(intptr_t)m_ssao_blur_fbo->get_attachment_id(0), {256, 256}, ImVec2(0, 1), ImVec2(1, 0));
@@ -140,7 +140,7 @@ void ssao_app::on_update()
     }
 
     ImGui::End();
-    retro::ui::interface::end_frame();
+    retro::ui::engine_ui::end_frame();
 }
 
 void ssao_app::load_shaders()

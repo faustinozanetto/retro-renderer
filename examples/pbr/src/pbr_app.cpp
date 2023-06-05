@@ -77,7 +77,7 @@ void pbr_app::on_update()
     retro::renderer::renderer::submit_elements(GL_TRIANGLES, 6);
     m_lighting_shader->un_bind();
 
-    retro::ui::interface::begin_frame();
+    retro::ui::engine_ui::begin_frame();
 
     ImGui::Begin("Object");
     glm::vec3 obj_pos = m_object_pos;
@@ -112,7 +112,7 @@ void pbr_app::on_update()
     }
 
     ImGui::End();
-    retro::ui::interface::end_frame();
+    retro::ui::engine_ui::end_frame();
 }
 
 void pbr_app::load_shaders()

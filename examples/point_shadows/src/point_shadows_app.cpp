@@ -85,7 +85,7 @@ void point_shadows_app::on_update()
     // m_point_light->get_position().z = static_cast<float>(sin(glfwGetTime() * 0.5) * 3.0);
     // m_point_light->get_position().x = static_cast<float>(cos(glfwGetTime() * 0.5) * 3.0);
 
-    retro::ui::interface::begin_frame();
+    retro::ui::engine_ui::begin_frame();
     ImGui::Begin("Object");
     glm::vec3 obj_pos = m_object_pos;
     if (ImGui::SliderFloat3("Position", glm::value_ptr(obj_pos), -10.0f, 10.0f))
@@ -121,7 +121,7 @@ void point_shadows_app::on_update()
         m_camera->set_position(cam_pos);
     }
     ImGui::End();
-    retro::ui::interface::end_frame();
+    retro::ui::engine_ui::end_frame();
 }
 
 void point_shadows_app::load_shaders()

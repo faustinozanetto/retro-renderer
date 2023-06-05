@@ -50,7 +50,7 @@ void parallax_mapping_app::on_update()
     retro::renderer::renderer::submit_model(m_model);
     m_shader->un_bind();
 
-    retro::ui::interface::begin_frame();
+    retro::ui::engine_ui::begin_frame();
     ImGui::Begin("Light");
     glm::vec3 position = m_point_light->get_position();
     if (ImGui::SliderFloat3("Position", glm::value_ptr(position), -10.0f, 10.0f))
@@ -76,7 +76,7 @@ void parallax_mapping_app::on_update()
         m_object_rot = obj_rot;
     }
     ImGui::End();
-    retro::ui::interface::end_frame();
+    retro::ui::engine_ui::end_frame();
 }
 
 void parallax_mapping_app::load_shaders()

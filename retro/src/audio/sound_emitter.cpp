@@ -22,6 +22,7 @@ namespace retro::audio
     void sound_emitter::play()
     {
         alSourcePlay(m_source);
+        m_paused = false;
     }
 
     void sound_emitter::pause()

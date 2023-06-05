@@ -58,7 +58,7 @@ void simple_lighting_app::on_update()
 
     // m_light_pos.x = glm::sin((float)glfwGetTime()) * 8.5f;
 
-    retro::ui::interface::begin_frame();
+    retro::ui::engine_ui::begin_frame();
     ImGui::Begin("Light");
     if (ImGui::BeginCombo("Type", std::to_string(static_cast<int>(m_selected_light)).c_str()))
     {
@@ -103,7 +103,7 @@ void simple_lighting_app::on_update()
         }
     }
     ImGui::End();
-    retro::ui::interface::end_frame();
+    retro::ui::engine_ui::end_frame();
 }
 
 void simple_lighting_app::load_shaders()

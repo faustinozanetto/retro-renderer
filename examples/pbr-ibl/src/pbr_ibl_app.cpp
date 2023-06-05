@@ -148,7 +148,7 @@ void pbr_ibl_app::on_update()
     m_quad_vao->un_bind();
     m_screen_shader->un_bind();
 
-    retro::ui::interface::begin_frame();
+    retro::ui::engine_ui::begin_frame();
 
     ImGui::Begin("Environment");
     bool use_irradiance = m_use_irradiance;
@@ -211,7 +211,7 @@ void pbr_ibl_app::on_update()
         m_point_light->set_specular(specular);
     }
     ImGui::End();
-    retro::ui::interface::end_frame();
+    retro::ui::engine_ui::end_frame();
 }
 
 void pbr_ibl_app::load_shaders()

@@ -43,7 +43,7 @@ void simple_instancing_app::on_update()
     retro::renderer::renderer::submit_vao_instanced(m_cube_vao, 36, m_instances_count);
     m_instancing_shader->un_bind();
 
-    retro::ui::interface::begin_frame();
+    retro::ui::engine_ui::begin_frame();
 
     glm::vec3 cam_pos = m_camera->get_position();
     ImGui::Begin("Camera");
@@ -65,7 +65,7 @@ void simple_instancing_app::on_update()
                 io.MetricsRenderWindows, io.MetricsActiveAllocations);
     ImGui::End();
 
-    retro::ui::interface::end_frame();
+    retro::ui::engine_ui::end_frame();
 }
 
 void simple_instancing_app::load_shaders()

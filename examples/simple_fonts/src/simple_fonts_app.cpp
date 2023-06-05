@@ -45,11 +45,11 @@ simple_fonts_app::~simple_fonts_app()
 
 void simple_fonts_app::on_update()
 {
-    retro::ui::interface::begin_frame();
+    retro::ui::engine_ui::begin_frame();
     ImGuiIO &io = ImGui::GetIO();
     float framerate = io.Framerate;
     m_test_text->set_content(std::format("FPS: {}", framerate));
-    retro::ui::interface::end_frame();
+    retro::ui::engine_ui::end_frame();
 
     m_test_text->set_posiiton({glm::sin(glfwGetTime()) * 300.0f + 250.0f, glm::cos(glfwGetTime()) * 300.0f + 250.0f});
 
