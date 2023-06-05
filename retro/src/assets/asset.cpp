@@ -16,6 +16,7 @@ namespace retro::assets
         case asset_type::texture: return "texture";
         case asset_type::model: return "model";
         case asset_type::sound: return "sound";
+        case asset_type::font: return "font";
         }
         RT_ASSERT_MSG(false, "Invalid asset type!");
     }

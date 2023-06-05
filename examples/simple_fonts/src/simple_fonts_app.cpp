@@ -69,7 +69,7 @@ void simple_fonts_app::load_shaders()
 
 void simple_fonts_app::load_font()
 {
-    m_font = std::make_shared<retro::renderer::font>("resources/fonts/arial.ttf");
+    m_font = retro::renderer::font_loader::load_font_from_file("resources/fonts/arial.ttf");
 }
 
 void simple_fonts_app::setup_triangle()

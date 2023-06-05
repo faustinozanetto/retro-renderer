@@ -1,39 +1,66 @@
 ﻿#include "rtpch.h"
-
 #include "font.h"
 
-#include "text.h"
+#include "renderer/text/text.h"
+#include "renderer/text/font_loader.h"
 #include "renderer/textures/texture.h"
 
 namespace retro::renderer
 {
-    font::font(const std::string& file_path, int glyph_size)
+    font::font(const std::string& file_name, const font_data& font_data) : asset(
+        {assets::asset_type::font, file_name})
     {
-        m_glyph_size = glyph_size;
-        FT_Library font_library;
-        if (FT_Init_FreeType(&font_library))
-        {
-            RT_ASSERT_MSG(false, "Retro Renderer | Could not initalize font library!");
-        }
-
-        if (FT_New_Face(font_library, file_path.c_str(), 0, &m_font_face))
-        {
-            RT_ASSERT_MSG(false, "Retro Renderer | Could not initalize font file!");
-        }
-
-        FT_Set_Pixel_Sizes(m_font_face, 0, glyph_size);
-
-        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-
+        m_data = font_data;
         setup_buffers();
         construct_atlas();
-
-        FT_Done_Face(m_font_face);
-        FT_Done_FreeType(font_library);
     }
 
     font::~font()
     {
+    }
+
+    void font::serialize(std::ofstream& asset_pack_file)
+    {
+        std::ifstream font_file(m_metadata.file_name, std::ios::binary | std::ios::ate);
+        if (!font_file.is_open())
+        {
+            std::cerr << "Failed to open file: " << m_metadata.file_name << std::endl;
+            return;
+        }
+
+        std::streamsize size = font_file.tellg();
+        font_file.seekg(0, std::ios::beg);
+
+        // Read the file data into a temporary buffer
+        std::vector<char> buffer(size);
+        if (!font_file.read(buffer.data(), size))
+        {
+            std::cerr << "Failed to read file: " << m_metadata.file_name << std::endl;
+            return;
+        }
+
+        // Write the font file size to the asset pack file
+        asset_pack_file.write(reinterpret_cast<const char*>(&size), sizeof(std::streamsize));
+
+        // Write the font file data to the asset pack file
+        asset_pack_file.write(buffer.data(), size);
+    }
+
+    std::shared_ptr<font> font::deserialize(const assets::asset_metadata& metadata, std::ifstream& asset_pack_file)
+    {
+        // Read the font file size from the asset pack file
+        size_t data_size;
+        asset_pack_file.read(reinterpret_cast<char*>(&data_size), sizeof(data_size));
+
+        // Allocate memory for the font data
+        std::vector<char> data(data_size);
+
+        // Deserialize the font's data
+        asset_pack_file.read(data.data(), data_size);
+
+        const std::shared_ptr<font>& font = font_loader::load_font_from_memory(data.data(), data_size);
+        font->set_metadata(metadata);
+        return font;
     }
 
     void font::setup_buffers()
@@ -56,11 +83,12 @@ namespace retro::renderer
         m_font_vao->add_vertex_buffer(vbo);
     }
 
-
     void font::construct_atlas()
     {
-        const int atlas_width = MAX_FONT_GLYPHS * m_glyph_size;
-        const int atlas_height = m_glyph_size;
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+        const int atlas_width = MAX_FONT_GLYPHS * m_data.glyph_size;
+        const int atlas_height = m_data.glyph_size;
 
         // Create the empty atlas image
         const auto atlas_data = new unsigned char[atlas_width * atlas_height]; // RED format
@@ -71,10 +99,10 @@ namespace retro::renderer
         // Iterate over the glyphs
         for (unsigned char c = 0; c < MAX_FONT_GLYPHS; c++)
         {
-            FT_Load_Char(m_font_face, c, FT_LOAD_RENDER);
+            FT_Load_Char(m_data.font_face, c, FT_LOAD_RENDER);
 
             // Retrieve the glyph bitmap
-            const FT_GlyphSlot glyph = m_font_face->glyph;
+            const FT_GlyphSlot glyph = m_data.font_face->glyph;
             const FT_Bitmap bitmap = glyph->bitmap;
 
             // Calculate the glyph position and size within the atlas
@@ -104,16 +132,16 @@ namespace retro::renderer
 
             // Store glyph information
             glyph_data glyph_data = {
-                glm::ivec2(m_font_face->glyph->bitmap.width, m_font_face->glyph->bitmap.rows),
-                glm::ivec2(m_font_face->glyph->bitmap_left, m_font_face->glyph->bitmap_top),
+                glm::ivec2(m_data.font_face->glyph->bitmap.width, m_data.font_face->glyph->bitmap.rows),
+                glm::ivec2(m_data.font_face->glyph->bitmap_left, m_data.font_face->glyph->bitmap_top),
                 u1, v1, u2, v2,
-                static_cast<unsigned int>(m_font_face->glyph->advance.x)
+                static_cast<unsigned int>(m_data.font_face->glyph->advance.x)
             };
 
             m_glyphs_data.insert(std::make_pair(c, glyph_data));
 
             // Update the atlas X position for the next glyph
-            atlas_x += m_glyph_size;
+            atlas_x += m_data.glyph_size;
         }
 
         // Generate texture atlas

@@ -4,6 +4,7 @@
 #include "audio/sound.h"
 #include "renderer/models/model.h"
 #include "renderer/shaders/shader.h"
+#include "renderer/text/font.h"
 #include "renderer/textures/texture.h"
 
 namespace retro::assets
@@ -67,28 +68,29 @@ namespace retro::assets
             {
             case asset_type::shader:
                 {
-                    RT_TRACE("Read shader file!");
                     asset = renderer::shader::deserialize(metadata, asset_pack_file);
                     break;
                 }
 
             case asset_type::model:
                 {
-                    RT_TRACE("Read model file!");
                     asset = renderer::model::deserialize(metadata, asset_pack_file);
                     break;
                 }
 
             case asset_type::texture:
                 {
-                    RT_TRACE("Read texture file!");
                     asset = renderer::texture::deserialize(metadata, asset_pack_file);
                     break;
                 }
             case asset_type::sound:
                 {
-                    RT_TRACE("Read audio file!");
                     asset = audio::sound::deserialize(metadata, asset_pack_file);
+                    break;
+                }
+            case asset_type::font:
+                {
+                    asset = renderer::font::deserialize(metadata, asset_pack_file);
                     break;
                 }
             }

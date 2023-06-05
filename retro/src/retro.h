@@ -34,6 +34,7 @@
 #include "renderer/lighting/spot_light.h"
 
 #include "renderer/text/font.h"
+#include "renderer/text/font_loader.h"
 #include "renderer/text/text.h"
 
 // Audio Include

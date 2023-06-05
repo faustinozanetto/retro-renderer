@@ -17,7 +17,6 @@ game_manager::game_manager()
 #endif
 #endif
 
-
     initialize_camera();
     initialize_shaders();
     initialize_fonts();
@@ -195,7 +194,14 @@ void game_manager::initialize_camera()
 
 void game_manager::initialize_fonts()
 {
-    m_font = std::make_shared<retro::renderer::font>("resources/fonts/arial.ttf");
+#ifdef ASSETS_FROM_PACK
+#if (ASSETS_FROM_PACK == 1)
+    m_font = m_assets_manager->get_asset_pack(retro::assets::asset_type::font)->get_asset<
+        retro::renderer::font, retro::assets::asset_type::font>("arial.ttf");
+#else
+    m_font = retro::renderer::font_loader::load_font_from_file("resources/fonts/arial.ttf");
+#endif
+#endif
 }
 
 void game_manager::initialize_shaders()
@@ -277,6 +283,9 @@ void game_manager::save_assets()
 {
     m_assets_manager->get_asset_pack(retro::assets::asset_type::shader)->save_asset(
         m_font_shader);
+    m_assets_manager->get_asset_pack(retro::assets::asset_type::font)->save_asset(
+    m_font);
+    
     m_player_manager->save_assets();
     m_level_manager->save_assets();
     m_enemies_manager->save_assets();
