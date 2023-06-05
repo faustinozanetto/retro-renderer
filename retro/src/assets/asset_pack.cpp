@@ -9,9 +9,10 @@
 
 namespace retro::assets
 {
-    asset_pack::asset_pack(asset_type type)
+    asset_pack::asset_pack(asset_type type, const std::string& file_path)
     {
         m_type = type;
+        m_file_path = file_path;
     }
 
     void asset_pack::save_asset(const std::shared_ptr<asset>& asset)
@@ -21,12 +22,12 @@ namespace retro::assets
         m_assets.insert(std::make_pair(asset->get_metadata().uuid, asset));
     }
 
-    void asset_pack::serialize_pack(const std::string& file_path)
+    void asset_pack::serialize_pack()
     {
         RT_SEPARATOR();
         RT_TRACE("Retro Renderer | Started serializing asset pack.");
-        RT_TRACE("  - File Path: '{}'", file_path);
-        std::ofstream asset_pack_file(file_path, std::ios::out | std::ios::binary | std::ios::trunc);
+        RT_TRACE("  - File Path: '{}'", m_file_path);
+        std::ofstream asset_pack_file(m_file_path, std::ios::out | std::ios::binary | std::ios::trunc);
 
         // Write the number of assets in the pack
         const size_t num_assets = m_assets.size();
@@ -46,14 +47,14 @@ namespace retro::assets
         RT_SEPARATOR();
     }
 
-    void asset_pack::deserialize_pack(const std::string& file_path)
+    void asset_pack::deserialize_pack()
     {
         RT_SEPARATOR();
         RT_TRACE("Retro Renderer | Started deserializing asset pack.");
-        RT_TRACE("  - File Path: '{}'", file_path);
+        RT_TRACE("  - File Path: '{}'", m_file_path);
         m_assets.clear();
 
-        std::ifstream asset_pack_file(file_path, std::ios::binary);
+        std::ifstream asset_pack_file(m_file_path, std::ios::binary);
 
         // Deserialize the number of assets in the pack
         size_t num_assets;
@@ -67,7 +68,8 @@ namespace retro::assets
             // Deserialize the asset's metadata
             asset_metadata metadata = deserialize_asset_metadata(asset_pack_file);
 
-            RT_TRACE("Retro Renderer | Asset Deserialized: {} {} {} {}", metadata.uuid, metadata.name, metadata.file_name, (int)metadata.type);
+            RT_TRACE("Retro Renderer | Asset Deserialized: {} {} {} {}", metadata.uuid, metadata.file_path,
+                     metadata.file_name, (int)metadata.type);
 
             std::shared_ptr<asset> asset;
 
@@ -133,15 +135,15 @@ namespace retro::assets
         // Serialize the asset's type
         asset_pack_file.write(reinterpret_cast<const char*>(&asset_metadata.type), sizeof(asset_metadata.type));
 
-        // Serialize the asset's name
-        size_t name_length = asset_metadata.name.size();
-        asset_pack_file.write(reinterpret_cast<const char*>(&name_length), sizeof(name_length));
-        asset_pack_file.write(asset_metadata.name.c_str(), name_length);
-
         // Serialize the asset's file name
-        size_t file_name_length = asset_metadata.file_name.size();
+        const size_t file_name_length = asset_metadata.file_name.size();
         asset_pack_file.write(reinterpret_cast<const char*>(&file_name_length), sizeof(file_name_length));
         asset_pack_file.write(asset_metadata.file_name.c_str(), file_name_length);
+
+        // Serialize the asset's file path
+        const size_t file_path_length = asset_metadata.file_path.size();
+        asset_pack_file.write(reinterpret_cast<const char*>(&file_path_length), sizeof(file_path_length));
+        asset_pack_file.write(asset_metadata.file_path.c_str(), file_path_length);
 
         // Serialize the asset's UUID
         asset_pack_file.write(reinterpret_cast<const char*>(&asset_metadata.uuid), sizeof(asset_metadata.uuid));
@@ -154,17 +156,17 @@ namespace retro::assets
         // Deserialize the asset's type
         asset_pack_file.read(reinterpret_cast<char*>(&metadata.type), sizeof(metadata.type));
 
-        // Deserialize the asset's name
-        size_t name_length;
-        asset_pack_file.read(reinterpret_cast<char*>(&name_length), sizeof(name_length));
-        metadata.name.resize(name_length);
-        asset_pack_file.read(&metadata.name[0], name_length);
-
         // Deserialize the asset's file name
         size_t file_name_length;
         asset_pack_file.read(reinterpret_cast<char*>(&file_name_length), sizeof(file_name_length));
         metadata.file_name.resize(file_name_length);
         asset_pack_file.read(&metadata.file_name[0], file_name_length);
+
+        // Deserialize the asset's file path
+        size_t file_path_length;
+        asset_pack_file.read(reinterpret_cast<char*>(&file_path_length), sizeof(file_path_length));
+        metadata.file_path.resize(file_path_length);
+        asset_pack_file.read(&metadata.file_path[0], file_path_length);
 
         // Deserialize the asset's UUID
         asset_pack_file.read(reinterpret_cast<char*>(&metadata.uuid), sizeof(metadata.uuid));

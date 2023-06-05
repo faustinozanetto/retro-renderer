@@ -21,15 +21,15 @@ namespace retro::assets
     struct asset_metadata
     {
         asset_type type;
-        std::string name;
         std::string file_name;
+        std::string file_path;
         uuid uuid;
 
         asset_metadata() = default;
 
-        asset_metadata(asset_type type, const std::string& file_name) : type(type),
-                                                                        name(utils::extract_file_name(file_name)),
-                                                                        file_name(file_name)
+        asset_metadata(asset_type type, const std::string& file_path) : type(type),
+                                                                        file_name(utils::extract_file_name(file_path)),
+                                                                        file_path(file_path)
 
         {
         }

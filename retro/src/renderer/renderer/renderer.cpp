@@ -7,6 +7,8 @@
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/ext/matrix_clip_space.hpp>
 
+#include "renderer/shaders/shader_file_watcher.h"
+
 namespace retro::renderer
 {
     static renderer_data s_data;
@@ -17,7 +19,10 @@ namespace retro::renderer
         core::application &application = core::application::get();
         s_data.window = application.get_window();
         set_text_projection();
+        /* Renderer context */
         renderer_context::initialize(application.get_window());
+        /* Shader file watcher */
+        shader_file_watcher::initialize();
         RT_TRACE("Retro Renderer | Renderer initialization completed.");
     }
 

@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-namespace retro::utils
+namespace retro
 {
     template <class T>
     class singleton

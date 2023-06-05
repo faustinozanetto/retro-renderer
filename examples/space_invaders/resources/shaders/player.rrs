@@ -27,6 +27,6 @@ layout (binding = 0) uniform sampler2D u_texture;
 void main()
 {
     vec4 color = texture(u_texture, o_tex_coord);
-    if (color.a < 0.1) discard;
+    if (color.a < 0.11) discard;
     frag_color = color;
 }

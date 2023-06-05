@@ -56,14 +56,17 @@ void player_manager::update_player()
 
 void player_manager::update_bullets()
 {
-    for (auto it = m_player_bullets.begin(); it != m_player_bullets.end(); ++it)
+    for (auto it = m_player_bullets.begin(); it != m_player_bullets.end();)
     {
         it->position.x += it->speed.x * retro::core::time::get_delta_time();
         it->collider.position = it->position;
         if (it->position.x > game_manager::get().get_level_manager()->get_level_max().x)
         {
             it = m_player_bullets.erase(it);
-            --it; // as it will be add again in for, so we go back one step
+        }
+        else
+        {
+            ++it;
         }
     }
 }
@@ -102,17 +105,17 @@ void player_manager::initialize_player_assets()
 {
 #ifdef ASSETS_FROM_PACK
 #if (ASSETS_FROM_PACK == 1)
-    m_player_texture = game_manager::get().get_assets_manager()->get_asset_pack(retro::assets::asset_type::texture)->get_asset<
+    m_player_texture = retro::assets::asset_manager::get().get_asset_pack(retro::assets::asset_type::texture)->get_asset<
       retro::renderer::texture, retro::assets::asset_type::texture>("player.png");
-    m_player_shader = game_manager::get().get_assets_manager()->get_asset_pack(retro::assets::asset_type::shader)->get_asset<
+    m_player_shader = retro::assets::asset_manager::get().get_asset_pack(retro::assets::asset_type::shader)->get_asset<
 retro::renderer::shader, retro::assets::asset_type::shader>("player.rrs");
-    m_bullet_shader = game_manager::get().get_assets_manager()->get_asset_pack(retro::assets::asset_type::shader)->get_asset<
+    m_bullet_shader = retro::assets::asset_manager::get().get_asset_pack(retro::assets::asset_type::shader)->get_asset<
 retro::renderer::shader, retro::assets::asset_type::shader>("bullet.rrs");
-    m_player_model = game_manager::get().get_assets_manager()->get_asset_pack(retro::assets::asset_type::model)->get_asset<
+    m_player_model = retro::assets::asset_manager::get().get_asset_pack(retro::assets::asset_type::model)->get_asset<
 retro::renderer::model, retro::assets::asset_type::model>("player.obj");
-    m_shoot_sound = game_manager::get().get_assets_manager()->get_asset_pack(retro::assets::asset_type::sound)->get_asset<
+    m_shoot_sound = retro::assets::asset_manager::get().get_asset_pack(retro::assets::asset_type::sound)->get_asset<
 retro::audio::sound, retro::assets::asset_type::sound>("player_shoot.wav");
-    m_crash_sound = game_manager::get().get_assets_manager()->get_asset_pack(retro::assets::asset_type::sound)->get_asset<
+    m_crash_sound = retro::assets::asset_manager::get().get_asset_pack(retro::assets::asset_type::sound)->get_asset<
 retro::audio::sound, retro::assets::asset_type::sound>("explosion.ogg");
 #else
     m_player_texture = retro::renderer::texture_loader::load_texture_from_file("resources/textures/player.png");
@@ -211,16 +214,16 @@ void player_manager::player_crash()
 
 void player_manager::save_assets() const
 {
-    game_manager::get().get_assets_manager()->get_asset_pack(retro::assets::asset_type::texture)->save_asset(
+    retro::assets::asset_manager::get().get_asset_pack(retro::assets::asset_type::texture)->save_asset(
         m_player_texture);
-    game_manager::get().get_assets_manager()->get_asset_pack(retro::assets::asset_type::model)->save_asset(
+    retro::assets::asset_manager::get().get_asset_pack(retro::assets::asset_type::model)->save_asset(
         m_player_model);
-    game_manager::get().get_assets_manager()->get_asset_pack(retro::assets::asset_type::shader)->save_asset(
+    retro::assets::asset_manager::get().get_asset_pack(retro::assets::asset_type::shader)->save_asset(
         m_player_shader);
-    game_manager::get().get_assets_manager()->get_asset_pack(retro::assets::asset_type::shader)->save_asset(
+    retro::assets::asset_manager::get().get_asset_pack(retro::assets::asset_type::shader)->save_asset(
         m_bullet_shader);
-    game_manager::get().get_assets_manager()->get_asset_pack(retro::assets::asset_type::sound)->save_asset(
+    retro::assets::asset_manager::get().get_asset_pack(retro::assets::asset_type::sound)->save_asset(
         m_crash_sound);
-    game_manager::get().get_assets_manager()->get_asset_pack(retro::assets::asset_type::sound)->save_asset(
+    retro::assets::asset_manager::get().get_asset_pack(retro::assets::asset_type::sound)->save_asset(
         m_shoot_sound);
 }

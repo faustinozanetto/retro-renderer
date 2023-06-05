@@ -66,6 +66,19 @@ namespace retro::renderer
         glUseProgram(0);
     }
 
+    void shader::recompile()
+    {
+        RT_SEPARATOR();
+        RT_TRACE("Retro Renderer | Started recompiling shader '{}'", m_metadata.file_name);
+        m_contents.clear();
+        const std::string& shader_source = shader_loader::read_shader_from_file(m_metadata.file_path);
+        const auto& contents = shader_loader::parse_shader_source(shader_source);
+        m_contents = contents;
+        compile_contents();
+        RT_TRACE("Retro Renderer | Shader recompiled successfully!!");
+        RT_SEPARATOR();
+    }
+
     void shader::set_int(const std::string& uniform_name, int value)
     {
         glUniform1i(get_uniform_location(uniform_name), value);
@@ -193,10 +206,10 @@ namespace retro::renderer
                 // Print error log.
                 std::string error_message = std::string(
                     infoLog.begin(), infoLog.end());
-                RT_ASSERT_MSG(false, "An error ocurred while compiling shader '{0}'", error_message)
+                RT_ASSERT_MSG(false, "An error ocurred while compiling shader '{}'", error_message)
             }
 
-            RT_TRACE("  - Shader '{0}' compiled successfully.", get_shader_type_to_string(shader.first));
+            RT_TRACE("  - Shader '{}' compiled successfully.", get_shader_type_to_string(shader.first));
             // Attach
             glAttachShader(shader_program, shader_id);
             shader_ids.push_back(shader_id);
@@ -226,7 +239,7 @@ namespace retro::renderer
             // Print error log.
             std::string error_message = std::string(
                 infoLog.begin(), infoLog.end());
-            RT_ASSERT_MSG(false, "An error ocurred while linking shader '{0}'", error_message)
+            RT_ASSERT_MSG(false, "An error ocurred while linking shader '{}'", error_message)
         }
 
         RT_TRACE("  - Shader compiled successfully.");

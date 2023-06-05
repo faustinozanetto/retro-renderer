@@ -5,6 +5,8 @@
 
 #include <filesystem>
 
+#include "shader_file_watcher.h"
+
 namespace retro::renderer
 {
     std::shared_ptr<shader> shader_loader::load_shader_from_file(const std::string &file_path)
@@ -15,6 +17,7 @@ namespace retro::renderer
         const auto &contents = parse_shader_source(shader_source);
 
         const std::shared_ptr<shader>& created_shader = std::make_shared<shader>(file_path, contents);
+        shader_file_watcher::get().create_shader_file_watcher(created_shader);
         RT_TRACE("Retro Renderer | Shader loaded from file successfully!");
         RT_SEPARATOR();
         return created_shader;

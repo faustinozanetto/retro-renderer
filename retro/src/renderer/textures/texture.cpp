@@ -435,41 +435,18 @@ namespace retro::renderer
 
     void texture::serialize(std::ofstream& asset_pack_file)
     {
-        /*
-        // Serialize the texture's data size
-        const size_t data_size = m_data.width * m_data.height * m_data.channels;
-        asset_pack_file.write(reinterpret_cast<const char*>(&data_size), sizeof(data_size));
+        // Read texture file.
+        std::ifstream texture_file(m_metadata.file_path, std::ios::binary | std::ios::ate);
+        RT_ASSERT_MSG(texture_file.is_open(), "Failed to open sound file while serializing asset!");
 
-        // Serialize the texture's metadata (width, height, channels, mipmap levels)
-        asset_pack_file.write(reinterpret_cast<const char*>(&m_data.width), sizeof(m_data.width));
-        asset_pack_file.write(reinterpret_cast<const char*>(&m_data.height), sizeof(m_data.height));
-        asset_pack_file.write(reinterpret_cast<const char*>(&m_data.channels), sizeof(m_data.channels));
-        asset_pack_file.write(reinterpret_cast<const char*>(&m_data.mip_map_levels), sizeof(m_data.mip_map_levels));
-
-        // Serialize the texture's metadata (texture formats)
-        asset_pack_file.write(reinterpret_cast<const char*>(&m_data.formats), sizeof(m_data.formats));
-
-        // Serialize the texture's metadata (texture type)
-        asset_pack_file.write(reinterpret_cast<const char*>(&m_data.type), sizeof(m_data.type));
-
-        // Serialize the texture's data
-        asset_pack_file.write(static_cast<const char*>(m_data.data), data_size);
-        */
-        std::ifstream texture_file(m_metadata.file_name, std::ios::binary | std::ios::ate);
-        if (!texture_file.is_open())
-        {
-            std::cerr << "Failed to open file: " << m_metadata.file_name << std::endl;
-            return;
-        }
-
-        std::streamsize size = texture_file.tellg();
+        const std::streamsize size = texture_file.tellg();
         texture_file.seekg(0, std::ios::beg);
 
         // Read the file data into a temporary buffer
         std::vector<char> buffer(size);
         if (!texture_file.read(buffer.data(), size))
         {
-            std::cerr << "Failed to read file: " << m_metadata.file_name << std::endl;
+            std::cerr << "Failed to read file: " << m_metadata.file_path << std::endl;
             return;
         }
 

@@ -7,28 +7,28 @@ game_manager* game_manager::s_instance = nullptr;
 game_manager::game_manager()
 {
     s_instance = this;
+    m_disable_player_collision = true;
     retro::renderer::renderer::set_vsync_enabled(false);
-    initialize_assets();
 #ifdef ASSETS_FROM_PACK
 #if (ASSETS_FROM_PACK == 1)
-    m_assets_manager->deserialize_packs();
+    retro::assets::asset_manager::get().deserialize_packs();
 #else
 #endif
 #endif
-
     initialize_camera();
     initialize_shaders();
     initialize_fonts();
     initialize_texts();
     initialize_managers();
+    initialize_game_waves();
     start_game();
-
 }
 
 void game_manager::start_game()
 {
     m_game_state = game_state::playing;
     m_level_manager->play_ambient_sound();
+    start_game_wave();
 }
 
 void game_manager::update_game()
@@ -39,8 +39,8 @@ void game_manager::update_game()
         m_player_manager->update_player();
         m_player_manager->update_bullets();
         m_enemies_manager->update_enemies();
-        m_enemies_manager->check_wave_finished();
         m_level_manager->update_ammo_pickups();
+        check_wave_finished();
 
         handle_collisions();
 
@@ -48,9 +48,9 @@ void game_manager::update_game()
 
         draw_game();
 
-        retro::ui::interface::begin_frame();
+        retro::ui::engine_ui::begin_frame();
         debug_asset_packs();
-        retro::ui::interface::end_frame();
+        retro::ui::engine_ui::end_frame();
     }
 }
 
@@ -79,13 +79,15 @@ void game_manager::debug_asset_packs()
 {
     ImGui::Begin("Asset Packs");
     // Display asset packs as tree nodes
-    for (const auto& pair : m_assets_manager->get_asset_packs())
+    for (const auto& pair : retro::assets::asset_manager::get().get_asset_packs())
     {
         retro::assets::asset_type type = pair.first;
         const std::shared_ptr<retro::assets::asset_pack>& pack = pair.second;
 
         bool packNodeOpen = ImGui::TreeNodeEx(reinterpret_cast<void*>(static_cast<intptr_t>(type)),
-            ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_Framed, "Asset Pack - Type: %s", retro::assets::asset::get_asset_type_to_string(type));
+                                              ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_Framed,
+                                              "Asset Pack - Type: %s",
+                                              retro::assets::asset::get_asset_type_to_string(type).c_str());
 
         if (packNodeOpen)
         {
@@ -99,13 +101,14 @@ void game_manager::debug_asset_packs()
                 const retro::assets::asset_metadata& metadata = asset.second->get_metadata();
 
                 bool assetNodeOpen = ImGui::TreeNodeEx(reinterpret_cast<void*>(static_cast<intptr_t>(asset.first)),
-                    ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_Framed, "Asset Name: %s", metadata.name.c_str());
+                                                       ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_Framed,
+                                                       "Asset Name: %s", metadata.file_name.c_str());
 
                 if (assetNodeOpen)
                 {
                     // Display asset metadata
-                    ImGui::Text("File Path: %s", metadata.file_name.c_str());
-                    ImGui::Text("Name: %s", metadata.name.c_str());
+                    ImGui::Text("File Path: %s", metadata.file_path.c_str());
+                    ImGui::Text("File Name: %s", metadata.file_name.c_str());
                     ImGui::Text("Type: %s", retro::assets::asset::get_asset_type_to_string(type).c_str());
                     ImGui::Text("UUID: %llu", metadata.uuid);
 
@@ -123,52 +126,66 @@ void game_manager::debug_asset_packs()
 void game_manager::handle_collisions()
 {
     // 1. Check enemy-player collisions
-    for (const enemy& enemy : m_enemies_manager->get_enemies())
+    if (!m_disable_player_collision)
     {
-        if (check_collider_collision(enemy.collider, m_player_manager->get_player().collider))
+        for (const enemy& enemy : m_enemies_manager->get_enemies())
         {
-            m_game_state = game_state::ending;
-            m_player_manager->player_crash();
-            break;
+            if (check_collider_collision(enemy.collider, m_player_manager->get_player().collider))
+            {
+                m_game_state = game_state::ending;
+                m_player_manager->player_crash();
+                break;
+            }
         }
     }
 
     // 2. Check player-ammo pickup
-    for (auto it = m_level_manager->get_ammo_pickups().begin(); it != m_level_manager->get_ammo_pickups().end(); ++it)
+    for (auto it_ammo_pickup = m_level_manager->get_ammo_pickups().begin(); it_ammo_pickup != m_level_manager->
+         get_ammo_pickups().end();)
     {
-        if (check_collider_collision(m_player_manager->get_player().collider, it->collider))
+        if (check_collider_collision(m_player_manager->get_player().collider, it_ammo_pickup->collider))
         {
             m_level_manager->play_ammo_pickup_sound();
             m_player_manager->refill_ammo();
-            it = m_level_manager->get_ammo_pickups().erase(it);
-            --it;
+            it_ammo_pickup = m_level_manager->get_ammo_pickups().erase(it_ammo_pickup);
+        }
+        else
+        {
+            ++it_ammo_pickup;
         }
     }
 
     // 3. Check bullet-enemies
-    for (auto it_bullet = m_player_manager->get_bullets().begin(); it_bullet != m_player_manager->get_bullets().end();
-         ++it_bullet)
+    for (auto it_bullet = m_player_manager->get_bullets().begin(); it_bullet != m_player_manager->get_bullets().end();)
     {
+        bool bullet_deleted = false;
+
         for (auto it_enemy = m_enemies_manager->get_enemies().begin(); it_enemy != m_enemies_manager->get_enemies().
-             end(); ++it_enemy)
+             end();)
         {
             if (check_collider_collision(it_enemy->collider, it_bullet->collider))
             {
                 m_enemies_manager->play_enemy_explode_sound(*it_enemy);
-                // Handle bullet delete
-                it_bullet = m_player_manager->get_bullets().erase(it_bullet);
-                --it_bullet; // as it will be add again in for, so we go back one step
-                // Handle enemy delete
+
+                // Erase the enemy
                 it_enemy = m_enemies_manager->get_enemies().erase(it_enemy);
-                --it_enemy;
+
+                // Set bulletDeleted flag to indicate the bullet has been deleted
+                bullet_deleted = true;
+                break;
             }
+            ++it_enemy;
         }
+        if (bullet_deleted)
+            it_bullet = m_player_manager->get_bullets().erase(it_bullet);
+        else
+            ++it_bullet;
     }
 }
 
 void game_manager::check_game_end()
 {
-    if (m_enemies_manager->get_current_wave() == m_enemies_manager->get_total_waves() - 1)
+    if (m_current_wave == m_waves.size() - 1)
     {
         m_game_state = game_state::ending;
     }
@@ -179,11 +196,6 @@ void game_manager::initialize_managers()
     m_level_manager = std::make_shared<level_manager>();
     m_player_manager = std::make_shared<player_manager>();
     m_enemies_manager = std::make_shared<enemies_manager>();
-}
-
-void game_manager::initialize_assets()
-{
-    m_assets_manager = std::make_shared<retro::assets::asset_manager>();
 }
 
 void game_manager::initialize_camera()
@@ -197,7 +209,7 @@ void game_manager::initialize_fonts()
 {
 #ifdef ASSETS_FROM_PACK
 #if (ASSETS_FROM_PACK == 1)
-    m_font = m_assets_manager->get_asset_pack(retro::assets::asset_type::font)->get_asset<
+    m_font = retro::assets::asset_manager::get().get_asset_pack(retro::assets::asset_type::font)->get_asset<
         retro::renderer::font, retro::assets::asset_type::font>("arial.ttf");
 #else
     m_font = retro::renderer::font_loader::load_font_from_file("resources/fonts/arial.ttf");
@@ -209,7 +221,7 @@ void game_manager::initialize_shaders()
 {
 #ifdef ASSETS_FROM_PACK
 #if (ASSETS_FROM_PACK == 1)
-    m_font_shader = m_assets_manager->get_asset_pack(retro::assets::asset_type::shader)->get_asset<
+    m_font_shader = retro::assets::asset_manager::get().get_asset_pack(retro::assets::asset_type::shader)->get_asset<
         retro::renderer::shader, retro::assets::asset_type::shader>("font.rrs");
 #else
     m_font_shader = retro::renderer::shader_loader::load_shader_from_file(
@@ -232,6 +244,41 @@ void game_manager::initialize_texts()
                                                               retro::renderer::renderer::get_viewport_size().y -
                                                               25.0f),
                                                           glm::vec2(0.5f, 0.5f));
+}
+
+void game_manager::check_wave_finished()
+{
+    if (m_enemies_manager->get_enemies().empty())
+    {
+        move_to_next_wave();
+    }
+}
+
+void game_manager::initialize_game_waves()
+{
+    m_current_wave = 0;
+    m_total_waves = 5;
+    for (int i = 1; i <= m_total_waves; i++)
+    {
+        game_wave wave = {i * 5, i + 2};
+        m_waves.push_back(wave);
+    }
+}
+
+void game_manager::start_game_wave() const
+{
+    m_enemies_manager->generate_enemies(m_waves[m_current_wave].enemy_count);
+    m_level_manager->clear_ammo_pickups();
+    m_level_manager->generate_ammo_pickups(m_waves[m_current_wave].ammo_pickup_count);
+}
+
+void game_manager::move_to_next_wave()
+{
+    if (m_current_wave < m_total_waves)
+    {
+        m_current_wave++;
+        start_game_wave();
+    }
 }
 
 bool game_manager::on_key_pressed(retro::events::key_pressed_event& key_pressed_event)
@@ -282,15 +329,15 @@ bool game_manager::on_window_resize(retro::events::window_resize_event& window_r
 
 void game_manager::save_assets()
 {
-    m_assets_manager->get_asset_pack(retro::assets::asset_type::shader)->save_asset(
+    retro::assets::asset_manager::get().get_asset_pack(retro::assets::asset_type::shader)->save_asset(
         m_font_shader);
-    m_assets_manager->get_asset_pack(retro::assets::asset_type::font)->save_asset(
-    m_font);
-    
+    retro::assets::asset_manager::get().get_asset_pack(retro::assets::asset_type::font)->save_asset(
+        m_font);
+
     m_player_manager->save_assets();
     m_level_manager->save_assets();
     m_enemies_manager->save_assets();
-    m_assets_manager->serialize_packs();
+    retro::assets::asset_manager::get().serialize_packs();
 }
 
 bool game_manager::check_collider_collision(const box_collider& collider1, const box_collider& collider2)

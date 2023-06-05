@@ -27,6 +27,8 @@ namespace retro::renderer
         void bind();
         void un_bind();
 
+        void recompile();
+
         void set_int(const std::string &uniform_name, int value);
         void set_vec_int2(const std::string &uniform_name, const glm::ivec2 &value);
         void set_vec_int3(const std::string &uniform_name, const glm::ivec3 &value);

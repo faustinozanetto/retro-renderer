@@ -18,7 +18,7 @@ namespace retro::audio
         RT_SEPARATOR();
         RT_TRACE("Retro Renderer | Started loading sound from file.");
         sound_data data;
-        const std::string& file_extension = utils::extract_file_extansion(file_path);
+        const std::string& file_extension = utils::extract_file_extension(file_path);
 
         if (file_extension == ".ogg")
         {

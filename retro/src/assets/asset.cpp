@@ -1,11 +1,14 @@
 ﻿#include "rtpch.h"
 #include "asset.h"
 
+#include "asset_manager.h"
+
 namespace retro::assets
 {
     asset::asset(asset_metadata metadata)
     {
         m_metadata = std::move(metadata);
+        asset_manager::get().register_asset(this);
     }
 
     std::string asset::get_asset_type_to_string(asset_type asset_type)

@@ -10,8 +10,10 @@
 // Renderer Includes
 #include "renderer/window/window.h"
 #include "renderer/renderer/renderer.h"
+
 #include "renderer/shaders/shader.h"
 #include "renderer/shaders/shader_loader.h"
+#include "renderer/shaders/shader_file_watcher.h"
 
 #include "renderer/buffers/vertex_array_object.h"
 #include "renderer/buffers/vertex_buffer_object.h"
@@ -59,4 +61,4 @@
 #include "events/event_dispatcher.h"
 
 // Interface Includes
-#include "interfaces/interface.h"
+#include "interfaces/engine_ui.h"

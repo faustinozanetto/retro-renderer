@@ -33,6 +33,7 @@ public:
     void initialize_ammo_pickup_assets();
     void initialize_ammo_pickup_generation();
 
+    void clear_ammo_pickups();
     void generate_ammo_pickups(int count = 5);
     void play_ammo_pickup_sound();
 

@@ -34,14 +34,11 @@ namespace retro::renderer
 
     void font::serialize(std::ofstream &asset_pack_file)
     {
-        std::ifstream font_file(m_metadata.file_name, std::ios::binary | std::ios::ate);
-        if (!font_file.is_open())
-        {
-            std::cerr << "Failed to open file: " << m_metadata.file_name << std::endl;
-            return;
-        }
+        // Read font file.
+        std::ifstream font_file(m_metadata.file_path, std::ios::binary | std::ios::ate);
+        RT_ASSERT_MSG(font_file.is_open(), "Failed to open sound file while serializing asset!");
 
-        std::streamsize size = font_file.tellg();
+        const std::streamsize size = font_file.tellg();
         font_file.seekg(0, std::ios::beg);
 
         // Read the file data into a temporary buffer

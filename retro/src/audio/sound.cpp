@@ -36,14 +36,10 @@ namespace retro::audio
     void sound::serialize(std::ofstream& asset_pack_file)
     {
         // Reaad sound file
-        std::ifstream sound_file(m_metadata.file_name, std::ios::binary | std::ios::ate);
-        if (!sound_file.is_open())
-        {
-            std::cerr << "Failed to open file: " << m_metadata.file_name << std::endl;
-            return;
-        }
+        std::ifstream sound_file(m_metadata.file_path, std::ios::binary | std::ios::ate);
+        RT_ASSERT_MSG(sound_file.is_open(), "Failed to open sound file while serializing asset!");
 
-        std::streamsize size = sound_file.tellg();
+        const std::streamsize size = sound_file.tellg();
         sound_file.seekg(0, std::ios::beg);
 
         // Read the file data into a temporary buffer
@@ -74,7 +70,7 @@ namespace retro::audio
         asset_pack_file.read(data.data(), data_size);
 
         std::shared_ptr<sound> sound;
-        const std::string& file_extension = utils::extract_file_extansion(metadata.file_name);
+        const std::string& file_extension = utils::extract_file_extension(metadata.file_name);
         if (file_extension == ".ogg")
             sound = sound_loader::load_ogg_sound_from_memory(data.data(), data_size);
         else if (file_extension == ".wav")

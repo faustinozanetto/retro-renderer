@@ -50,6 +50,7 @@ namespace retro::audio
 
     void sound_emitter::set_sound(const std::shared_ptr<sound>& sound)
     {
+        stop();
         m_sound = sound;
         alSourcei(m_source, AL_BUFFER, m_sound->get_sound_buffer());
         alSourcef(m_source, AL_MAX_DISTANCE, m_range);

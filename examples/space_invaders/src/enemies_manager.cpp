@@ -11,9 +11,6 @@ enemies_manager::enemies_manager()
     initialize_enemy_params();
     initialize_enemy_assets();
     initialize_enemy_generation();
-
-    initialize_enemy_waves();
-    start_enemy_wave();
 }
 
 void enemies_manager::draw_enemies()
@@ -49,46 +46,11 @@ void enemies_manager::update_enemies()
     }
 }
 
-void enemies_manager::check_wave_finished()
-{
-    if (m_enemies.empty())
-    {
-        move_to_next_wave();
-    }
-}
-
 void enemies_manager::play_enemy_explode_sound(enemy& enemy)
 {
     m_enemy_sound_emitter->set_location(enemy.position);
     m_enemy_sound_emitter->set_sound(m_enemy_explode_sound);
     m_enemy_sound_emitter->play();
-}
-
-void enemies_manager::initialize_enemy_waves()
-{
-    m_current_wave = 0;
-    m_total_waves = 5;
-    for (int i = 1; i <= m_total_waves; i++)
-    {
-        enemies_wave wave = {i * 5};
-        m_waves.push_back(wave);
-    }
-}
-
-void enemies_manager::start_enemy_wave()
-{
-    RT_TRACE("Starting enemy wave #{} with enemey count {}", m_current_wave, m_waves[m_current_wave].enemy_count);
-    generate_enemies(m_waves[m_current_wave].enemy_count);
-    game_manager::get().get_level_manager()->generate_ammo_pickups(5);
-}
-
-void enemies_manager::move_to_next_wave()
-{
-    if (m_current_wave < m_total_waves)
-    {
-        m_current_wave++;
-        start_enemy_wave();
-    }
 }
 
 void enemies_manager::initialize_enemy_params()
@@ -101,16 +63,16 @@ void enemies_manager::initialize_enemy_assets()
 {
 #ifdef ASSETS_FROM_PACK
 #if (ASSETS_FROM_PACK == 1)
-    m_enemy_texture = game_manager::get().get_assets_manager()->get_asset_pack(retro::assets::asset_type::texture)->
+    m_enemy_texture = retro::assets::asset_manager::get().get_asset_pack(retro::assets::asset_type::texture)->
                                           get_asset<retro::renderer::texture, retro::assets::asset_type::texture>(
                                               "enemy.jpg");
-    m_enemy_shader = game_manager::get().get_assets_manager()->get_asset_pack(retro::assets::asset_type::shader)->
+    m_enemy_shader = retro::assets::asset_manager::get().get_asset_pack(retro::assets::asset_type::shader)->
                                          get_asset<retro::renderer::shader, retro::assets::asset_type::shader>(
                                              "enemy.rrs");
-    m_enemy_model = game_manager::get().get_assets_manager()->get_asset_pack(retro::assets::asset_type::model)->
+    m_enemy_model = retro::assets::asset_manager::get().get_asset_pack(retro::assets::asset_type::model)->
                                         get_asset<retro::renderer::model,
                                                   retro::assets::asset_type::model>("enemy.obj");
-    m_enemy_explode_sound = game_manager::get().get_assets_manager()->get_asset_pack(retro::assets::asset_type::sound)->
+    m_enemy_explode_sound = retro::assets::asset_manager::get().get_asset_pack(retro::assets::asset_type::sound)->
                                                 get_asset<retro::audio::sound,
                                                           retro::assets::asset_type::sound>("explosion.ogg");
 #else
@@ -150,12 +112,12 @@ void enemies_manager::generate_enemies(int amount)
 
 void enemies_manager::save_assets() const
 {
-    game_manager::get().get_assets_manager()->get_asset_pack(retro::assets::asset_type::texture)->save_asset(
+    retro::assets::asset_manager::get().get_asset_pack(retro::assets::asset_type::texture)->save_asset(
         m_enemy_texture);
-    game_manager::get().get_assets_manager()->get_asset_pack(retro::assets::asset_type::model)->save_asset(
+    retro::assets::asset_manager::get().get_asset_pack(retro::assets::asset_type::model)->save_asset(
         m_enemy_model);
-    game_manager::get().get_assets_manager()->get_asset_pack(retro::assets::asset_type::shader)->save_asset(
+    retro::assets::asset_manager::get().get_asset_pack(retro::assets::asset_type::shader)->save_asset(
         m_enemy_shader);
-    game_manager::get().get_assets_manager()->get_asset_pack(retro::assets::asset_type::sound)->save_asset(
+    retro::assets::asset_manager::get().get_asset_pack(retro::assets::asset_type::sound)->save_asset(
     m_enemy_explode_sound);
 }
