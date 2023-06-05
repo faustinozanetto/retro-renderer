@@ -10,6 +10,8 @@
 
 #include <imgui.h>
 
+#include <core/entry_point.h>
+
 point_shadows_app::point_shadows_app() : application("./")
 {
     load_shaders();
@@ -28,14 +30,28 @@ point_shadows_app::~point_shadows_app()
 void point_shadows_app::on_update()
 {
     // 0. create depth cubemap transformation matrices
-    glm::mat4 shadow_projection = glm::perspective(glm::radians(90.0f), (float)m_shadow_map_size / (float)m_shadow_map_size, m_near_plane, m_far_plane);
+    glm::mat4 shadow_projection = glm::perspective(glm::radians(90.0f),
+                                                   (float)m_shadow_map_size / (float)m_shadow_map_size, m_near_plane,
+                                                   m_far_plane);
     std::vector<glm::mat4> shadow_transforms;
-    shadow_transforms.push_back(shadow_projection * glm::lookAt(m_point_light->get_position(), m_point_light->get_position() + glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
-    shadow_transforms.push_back(shadow_projection * glm::lookAt(m_point_light->get_position(), m_point_light->get_position() + glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
-    shadow_transforms.push_back(shadow_projection * glm::lookAt(m_point_light->get_position(), m_point_light->get_position() + glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)));
-    shadow_transforms.push_back(shadow_projection * glm::lookAt(m_point_light->get_position(), m_point_light->get_position() + glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)));
-    shadow_transforms.push_back(shadow_projection * glm::lookAt(m_point_light->get_position(), m_point_light->get_position() + glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
-    shadow_transforms.push_back(shadow_projection * glm::lookAt(m_point_light->get_position(), m_point_light->get_position() + glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
+    shadow_transforms.push_back(shadow_projection * glm::lookAt(m_point_light->get_position(),
+                                                                m_point_light->get_position() + glm::vec3(
+                                                                    1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
+    shadow_transforms.push_back(shadow_projection * glm::lookAt(m_point_light->get_position(),
+                                                                m_point_light->get_position() + glm::vec3(
+                                                                    -1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
+    shadow_transforms.push_back(shadow_projection * glm::lookAt(m_point_light->get_position(),
+                                                                m_point_light->get_position() + glm::vec3(
+                                                                    0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)));
+    shadow_transforms.push_back(shadow_projection * glm::lookAt(m_point_light->get_position(),
+                                                                m_point_light->get_position() + glm::vec3(
+                                                                    0.0f, -1.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)));
+    shadow_transforms.push_back(shadow_projection * glm::lookAt(m_point_light->get_position(),
+                                                                m_point_light->get_position() + glm::vec3(
+                                                                    0.0f, 0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
+    shadow_transforms.push_back(shadow_projection * glm::lookAt(m_point_light->get_position(),
+                                                                m_point_light->get_position() + glm::vec3(
+                                                                    0.0f, 0.0f, -1.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
 
     // 1. render scene to the shadow cubemap
     retro::renderer::renderer::set_viewport_size({m_shadow_map_size, m_shadow_map_size});
@@ -66,8 +82,8 @@ void point_shadows_app::on_update()
     render_elements(m_shader);
     m_shader->un_bind();
 
-   // m_point_light->get_position().z = static_cast<float>(sin(glfwGetTime() * 0.5) * 3.0);
-   // m_point_light->get_position().x = static_cast<float>(cos(glfwGetTime() * 0.5) * 3.0);
+    // m_point_light->get_position().z = static_cast<float>(sin(glfwGetTime() * 0.5) * 3.0);
+    // m_point_light->get_position().x = static_cast<float>(cos(glfwGetTime() * 0.5) * 3.0);
 
     retro::ui::interface::begin_frame();
     ImGui::Begin("Object");
@@ -110,19 +126,11 @@ void point_shadows_app::on_update()
 
 void point_shadows_app::load_shaders()
 {
-    {
-        const std::string &shader_contents = retro::renderer::shader_loader::read_shader_from_file(
-            "resources/shaders/lighting.rrs");
-        const auto &shader_sources = retro::renderer::shader_loader::parse_shader_source(shader_contents);
-        m_shader = std::make_shared<retro::renderer::shader>(shader_sources);
-    }
+    m_shader = retro::renderer::shader_loader::load_shader_from_file(
+        "resources/shaders/lighting.rrs");
 
-    {
-        const std::string &shader_contents = retro::renderer::shader_loader::read_shader_from_file(
-            "resources/shaders/point-shadows.rrs");
-        const auto &shader_sources = retro::renderer::shader_loader::parse_shader_source(shader_contents);
-        m_shadow_shader = std::make_shared<retro::renderer::shader>(shader_sources);
-    }
+    m_shadow_shader = retro::renderer::shader_loader::load_shader_from_file(
+        "resources/shaders/point-shadows.rrs");
 }
 
 void point_shadows_app::load_texture()
@@ -139,7 +147,8 @@ void point_shadows_app::setup_model()
 
 void point_shadows_app::setup_light()
 {
-    m_point_light = std::make_shared<retro::renderer::point_light>(glm::vec3(0.0f, 0.0f, 5.0f), glm::vec3(0.85f), glm::vec3(1.0f));
+    m_point_light = std::make_shared<retro::renderer::point_light>(glm::vec3(0.0f, 0.0f, 5.0f), glm::vec3(0.85f),
+                                                                   glm::vec3(1.0f));
 }
 
 void point_shadows_app::setup_light_cube()
@@ -147,41 +156,41 @@ void point_shadows_app::setup_light_cube()
     std::vector<float>
         vertices = {
             -1.0f, -1.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, // bottom-left
-            1.0f, 1.0f, -1.0f, 1.0f, 1.0f, 0.0f, 0.0f, -1.0f,   // top-right
-            1.0f, -1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, -1.0f,  // bottom-right
-            1.0f, 1.0f, -1.0f, 1.0f, 1.0f, 0.0f, 0.0f, -1.0f,   // top-right
+            1.0f, 1.0f, -1.0f, 1.0f, 1.0f, 0.0f, 0.0f, -1.0f, // top-right
+            1.0f, -1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, -1.0f, // bottom-right
+            1.0f, 1.0f, -1.0f, 1.0f, 1.0f, 0.0f, 0.0f, -1.0f, // top-right
             -1.0f, -1.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, // bottom-left
-            -1.0f, 1.0f, -1.0f, 0.0f, 1.0f, 0.0f, 0.0f, -1.0f,  // top-left
-            -1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f,   // bottom-left
-            1.0f, -1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f,    // bottom-right
-            1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f,     // top-right
-            1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f,     // top-right
-            -1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,    // top-left
-            -1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f,   // bottom-left
-            -1.0f, 1.0f, 1.0f, 1.0f, 0.0f, -1.0f, 0.0f, 0.0f,   // top-right
-            -1.0f, 1.0f, -1.0f, 1.0f, 1.0f, -1.0f, 0.0f, 0.0f,  // top-left
+            -1.0f, 1.0f, -1.0f, 0.0f, 1.0f, 0.0f, 0.0f, -1.0f, // top-left
+            -1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, // bottom-left
+            1.0f, -1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, // bottom-right
+            1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, // top-right
+            1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, // top-right
+            -1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, // top-left
+            -1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, // bottom-left
+            -1.0f, 1.0f, 1.0f, 1.0f, 0.0f, -1.0f, 0.0f, 0.0f, // top-right
+            -1.0f, 1.0f, -1.0f, 1.0f, 1.0f, -1.0f, 0.0f, 0.0f, // top-left
             -1.0f, -1.0f, -1.0f, 0.0f, 1.0f, -1.0f, 0.0f, 0.0f, // bottom-left
             -1.0f, -1.0f, -1.0f, 0.0f, 1.0f, -1.0f, 0.0f, 0.0f, // bottom-left
-            -1.0f, -1.0f, 1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f,  // bottom-right
-            -1.0f, 1.0f, 1.0f, 1.0f, 0.0f, -1.0f, 0.0f, 0.0f,   // top-right
-            1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f,     // top-left
-            1.0f, -1.0f, -1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f,   // bottom-right
-            1.0f, 1.0f, -1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f,    // top-right
-            1.0f, -1.0f, -1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f,   // bottom-right
-            1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f,     // top-left
-            1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,    // bottom-left
+            -1.0f, -1.0f, 1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, // bottom-right
+            -1.0f, 1.0f, 1.0f, 1.0f, 0.0f, -1.0f, 0.0f, 0.0f, // top-right
+            1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, // top-left
+            1.0f, -1.0f, -1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, // bottom-right
+            1.0f, 1.0f, -1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, // top-right
+            1.0f, -1.0f, -1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, // bottom-right
+            1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, // top-left
+            1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, // bottom-left
             -1.0f, -1.0f, -1.0f, 0.0f, 1.0f, 0.0f, -1.0f, 0.0f, // top-right
-            1.0f, -1.0f, -1.0f, 1.0f, 1.0f, 0.0f, -1.0f, 0.0f,  // top-left
-            1.0f, -1.0f, 1.0f, 1.0f, 0.0f, 0.0f, -1.0f, 0.0f,   // bottom-left
-            1.0f, -1.0f, 1.0f, 1.0f, 0.0f, 0.0f, -1.0f, 0.0f,   // bottom-left
-            -1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f,  // bottom-right
+            1.0f, -1.0f, -1.0f, 1.0f, 1.0f, 0.0f, -1.0f, 0.0f, // top-left
+            1.0f, -1.0f, 1.0f, 1.0f, 0.0f, 0.0f, -1.0f, 0.0f, // bottom-left
+            1.0f, -1.0f, 1.0f, 1.0f, 0.0f, 0.0f, -1.0f, 0.0f, // bottom-left
+            -1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, // bottom-right
             -1.0f, -1.0f, -1.0f, 0.0f, 1.0f, 0.0f, -1.0f, 0.0f, // top-right
-            -1.0f, 1.0f, -1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f,   // top-left
-            1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f,     // bottom-right
-            1.0f, 1.0f, -1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f,    // top-right
-            1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f,     // bottom-right
-            -1.0f, 1.0f, -1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f,   // top-left
-            -1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f,    // bottom-left
+            -1.0f, 1.0f, -1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, // top-left
+            1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, // bottom-right
+            1.0f, 1.0f, -1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, // top-right
+            1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, // bottom-right
+            -1.0f, 1.0f, -1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, // top-left
+            -1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, // bottom-left
         };
     size_t size = vertices.size() * sizeof(&vertices[0]);
 
@@ -195,7 +204,8 @@ void point_shadows_app::setup_light_cube()
         layout_elements = {
             {"a_pos", retro::renderer::vertex_buffer_entry_type::vec_float3, false},
             {"a_tex_coord", retro::renderer::vertex_buffer_entry_type::vec_float2, false},
-            {"a_normal", retro::renderer::vertex_buffer_entry_type::vec_float3, false}};
+            {"a_normal", retro::renderer::vertex_buffer_entry_type::vec_float3, false}
+        };
 
     std::shared_ptr<retro::renderer::vertex_buffer_layout_descriptor> cube_vbo_layout_descriptor = std::make_shared<
         retro::renderer::vertex_buffer_layout_descriptor>(layout_elements);
@@ -222,7 +232,8 @@ void point_shadows_app::setup_shadow_map_frame_buffer()
 
     for (unsigned int i = 0; i < 6; ++i)
     {
-        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_DEPTH_COMPONENT, m_shadow_map_size, m_shadow_map_size, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_DEPTH_COMPONENT, m_shadow_map_size, m_shadow_map_size, 0,
+                     GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
     }
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -243,7 +254,7 @@ void point_shadows_app::setup_shadow_map_frame_buffer()
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void point_shadows_app::render_elements(const std::shared_ptr<retro::renderer::shader> &shader)
+void point_shadows_app::render_elements(const std::shared_ptr<retro::renderer::shader>& shader)
 {
     // Render outside box
     {
@@ -307,7 +318,16 @@ void point_shadows_app::render_elements(const std::shared_ptr<retro::renderer::s
     }
 }
 
-retro::core::application *retro::core::create_application()
+void point_shadows_app::on_handle_event(retro::events::base_event& event)
+{
+}
+
+bool point_shadows_app::on_window_resize(retro::events::window_resize_event& resize_event)
+{
+    return application::on_window_resize(resize_event);
+}
+
+retro::core::application* retro::core::create_application()
 {
     return new point_shadows_app();
 }

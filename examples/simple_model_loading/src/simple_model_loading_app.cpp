@@ -1,6 +1,7 @@
 ﻿#include "simple_model_loading_app.h"
 
 #include <glm/ext/matrix_transform.hpp>
+#include <core/entry_point.h>
 
 simple_model_loading_app::simple_model_loading_app() : application("./")
 {
@@ -29,10 +30,8 @@ void simple_model_loading_app::on_update()
 
 void simple_model_loading_app::load_shaders()
 {
-    const std::string &shader_contents = retro::renderer::shader_loader::read_shader_from_file(
+    m_shader = retro::renderer::shader_loader::load_shader_from_file(
         "../resources/shaders/model-textured.rrs");
-    const auto &shader_sources = retro::renderer::shader_loader::parse_shader_source(shader_contents);
-    m_shader = std::make_shared<retro::renderer::shader>(shader_sources);
 }
 
 void simple_model_loading_app::load_texture()
@@ -51,7 +50,16 @@ void simple_model_loading_app::setup_camera()
     m_camera->set_position({0.0f, 0.5f, 12.0f});
 }
 
-retro::core::application *retro::core::create_application()
+void simple_model_loading_app::on_handle_event(retro::events::base_event& event)
+{
+}
+
+bool simple_model_loading_app::on_window_resize(retro::events::window_resize_event& resize_event)
+{
+    return application::on_window_resize(resize_event);
+}
+
+retro::core::application* retro::core::create_application()
 {
     return new simple_model_loading_app();
 }

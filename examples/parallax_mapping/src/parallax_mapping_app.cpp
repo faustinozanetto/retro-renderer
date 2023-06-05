@@ -9,6 +9,9 @@
 
 #include <imgui.h>
 
+
+#include <core/entry_point.h>
+
 parallax_mapping_app::parallax_mapping_app() : application("./")
 {
     load_shaders();
@@ -26,7 +29,6 @@ parallax_mapping_app::~parallax_mapping_app()
 
 void parallax_mapping_app::on_update()
 {
-
     m_shader->bind();
     glm::mat4 model = glm::mat4(1.0f);
     model = glm::translate(model, m_object_pos);
@@ -79,17 +81,18 @@ void parallax_mapping_app::on_update()
 
 void parallax_mapping_app::load_shaders()
 {
-    const std::string &shader_contents = retro::renderer::shader_loader::read_shader_from_file(
+    m_shader = retro::renderer::shader_loader::load_shader_from_file(
         "resources/shaders/parallax-mapping.rrs");
-    const auto &shader_sources = retro::renderer::shader_loader::parse_shader_source(shader_contents);
-    m_shader = std::make_shared<retro::renderer::shader>(shader_sources);
 }
 
 void parallax_mapping_app::load_texture()
 {
-    m_albedo_texture = retro::renderer::texture_loader::load_texture_from_file("../resources/textures/brick-wall/beaten-down-brick_albedo.png");
-    m_normal_texture = retro::renderer::texture_loader::load_texture_from_file("../resources/textures/brick-wall/beaten-down-brick_normal-ogl.png");
-    m_height_texture = retro::renderer::texture_loader::load_texture_from_file("../resources/textures/brick-wall/beaten-down-brick_height.png");
+    m_albedo_texture = retro::renderer::texture_loader::load_texture_from_file(
+        "../resources/textures/brick-wall/beaten-down-brick_albedo.png");
+    m_normal_texture = retro::renderer::texture_loader::load_texture_from_file(
+        "../resources/textures/brick-wall/beaten-down-brick_normal-ogl.png");
+    m_height_texture = retro::renderer::texture_loader::load_texture_from_file(
+        "../resources/textures/brick-wall/beaten-down-brick_height.png");
 }
 
 void parallax_mapping_app::setup_model()
@@ -101,7 +104,8 @@ void parallax_mapping_app::setup_model()
 
 void parallax_mapping_app::setup_light()
 {
-    m_point_light = std::make_shared<retro::renderer::point_light>(glm::vec3(0.0f, 0.0f, 5.0f), glm::vec3(0.85f), glm::vec3(1.0f));
+    m_point_light = std::make_shared<retro::renderer::point_light>(glm::vec3(0.0f, 0.0f, 5.0f), glm::vec3(0.85f),
+                                                                   glm::vec3(1.0f));
 }
 
 void parallax_mapping_app::setup_camera()
@@ -110,7 +114,16 @@ void parallax_mapping_app::setup_camera()
     m_camera->set_position({0.0f, 0.5f, 12.0f});
 }
 
-retro::core::application *retro::core::create_application()
+void parallax_mapping_app::on_handle_event(retro::events::base_event& event)
+{
+}
+
+bool parallax_mapping_app::on_window_resize(retro::events::window_resize_event& resize_event)
+{
+    return application::on_window_resize(resize_event);
+}
+
+retro::core::application* retro::core::create_application()
 {
     return new parallax_mapping_app();
 }

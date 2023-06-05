@@ -5,6 +5,7 @@
 #include <random>
 #include <imgui.h>
 #include <glm/gtc/type_ptr.hpp>
+#include <core/entry_point.h>
 
 float lerp(float a, float b, float f)
 {
@@ -60,7 +61,8 @@ void ssao_app::on_update()
     m_ssao_shader->set_int("u_kernel_size", m_ssao_kernel.size());
     m_ssao_shader->set_float("u_ssao_radius", m_ssao_radius);
     m_ssao_shader->set_float("u_ssao_bias", m_ssao_bias);
-    glm::vec2 noise_scale = glm::vec2(retro::renderer::renderer::get_viewport_size().x / m_ssao_noise_size, retro::renderer::renderer::get_viewport_size().y / m_ssao_noise_size);
+    glm::vec2 noise_scale = glm::vec2(retro::renderer::renderer::get_viewport_size().x / m_ssao_noise_size,
+                                      retro::renderer::renderer::get_viewport_size().y / m_ssao_noise_size);
     m_ssao_shader->set_vec_float2("u_noise_size", noise_scale);
     m_ssao_shader->set_mat4("u_view", m_camera->get_view_matrix());
     m_ssao_shader->set_mat4("u_projection", m_camera->get_projection_matrix());
@@ -68,8 +70,8 @@ void ssao_app::on_update()
     {
         m_ssao_shader->set_vec_float3("u_samples[" + std::to_string(i) + "]", m_ssao_kernel[i]);
     }
-    retro::renderer::renderer::bind_texture(0, m_geometry_fbo->get_attachment_id(0));  // Position
-    retro::renderer::renderer::bind_texture(1, m_geometry_fbo->get_attachment_id(2));  // Normal
+    retro::renderer::renderer::bind_texture(0, m_geometry_fbo->get_attachment_id(0)); // Position
+    retro::renderer::renderer::bind_texture(1, m_geometry_fbo->get_attachment_id(2)); // Normal
     retro::renderer::renderer::bind_texture(2, m_ssao_noise_texture->get_handle_id()); // SSAO Noise
     m_quad_vao->bind();
     retro::renderer::renderer::submit_elements(GL_TRIANGLES, 6);
@@ -89,9 +91,9 @@ void ssao_app::on_update()
     // 4. Render lighting result
     retro::renderer::renderer::clear_screen();
     m_lighting_shader->bind();
-    retro::renderer::renderer::bind_texture(0, m_geometry_fbo->get_attachment_id(0));  // Position
-    retro::renderer::renderer::bind_texture(1, m_geometry_fbo->get_attachment_id(1));  // Albedo
-    retro::renderer::renderer::bind_texture(2, m_geometry_fbo->get_attachment_id(2));  // Normal
+    retro::renderer::renderer::bind_texture(0, m_geometry_fbo->get_attachment_id(0)); // Position
+    retro::renderer::renderer::bind_texture(1, m_geometry_fbo->get_attachment_id(1)); // Albedo
+    retro::renderer::renderer::bind_texture(2, m_geometry_fbo->get_attachment_id(2)); // Normal
     retro::renderer::renderer::bind_texture(3, m_ssao_blur_fbo->get_attachment_id(0)); // SSAO
     m_lighting_shader->set_vec_float3("p_light.position", m_light_pos);
     m_lighting_shader->set_vec_float3("p_light.color", m_light_color);
@@ -105,9 +107,9 @@ void ssao_app::on_update()
 
     retro::ui::interface::begin_frame();
     ImGui::Begin("SSAO");
-    ImGui::Image((void *)(intptr_t)m_ssao_color_fbo->get_attachment_id(0), {256, 256}, ImVec2(0, 1), ImVec2(1, 0));
-    ImGui::Image((void *)(intptr_t)m_ssao_blur_fbo->get_attachment_id(0), {256, 256}, ImVec2(0, 1), ImVec2(1, 0));
-    ImGui::Image((void *)(intptr_t)m_ssao_noise_texture->get_handle_id(), {256, 256}, ImVec2(0, 1), ImVec2(1, 0));
+    ImGui::Image((void*)(intptr_t)m_ssao_color_fbo->get_attachment_id(0), {256, 256}, ImVec2(0, 1), ImVec2(1, 0));
+    ImGui::Image((void*)(intptr_t)m_ssao_blur_fbo->get_attachment_id(0), {256, 256}, ImVec2(0, 1), ImVec2(1, 0));
+    ImGui::Image((void*)(intptr_t)m_ssao_noise_texture->get_handle_id(), {256, 256}, ImVec2(0, 1), ImVec2(1, 0));
     bool use_ssao = m_use_ssao;
     if (ImGui::Checkbox("Use", &use_ssao))
     {
@@ -143,30 +145,17 @@ void ssao_app::on_update()
 
 void ssao_app::load_shaders()
 {
-    {
-        const std::string &shader_contents = retro::renderer::shader_loader::read_shader_from_file(
-            "resources/shaders/ssao.rrs");
-        const auto &shader_sources = retro::renderer::shader_loader::parse_shader_source(shader_contents);
-        m_ssao_shader = std::make_shared<retro::renderer::shader>(shader_sources);
-    }
-    {
-        const std::string &shader_contents = retro::renderer::shader_loader::read_shader_from_file(
-            "resources/shaders/geometry.rrs");
-        const auto &shader_sources = retro::renderer::shader_loader::parse_shader_source(shader_contents);
-        m_geometry_shader = std::make_shared<retro::renderer::shader>(shader_sources);
-    }
-    {
-        const std::string &shader_contents = retro::renderer::shader_loader::read_shader_from_file(
-            "resources/shaders/lighting.rrs");
-        const auto &shader_sources = retro::renderer::shader_loader::parse_shader_source(shader_contents);
-        m_lighting_shader = std::make_shared<retro::renderer::shader>(shader_sources);
-    }
-    {
-        const std::string &shader_contents = retro::renderer::shader_loader::read_shader_from_file(
-            "resources/shaders/ssao-blur.rrs");
-        const auto &shader_sources = retro::renderer::shader_loader::parse_shader_source(shader_contents);
-        m_ssao_blur_shader = std::make_shared<retro::renderer::shader>(shader_sources);
-    }
+    m_ssao_shader = retro::renderer::shader_loader::load_shader_from_file(
+        "resources/shaders/ssao.rrs");
+
+    m_geometry_shader = retro::renderer::shader_loader::load_shader_from_file(
+        "resources/shaders/geometry.rrs");
+
+    m_lighting_shader = retro::renderer::shader_loader::load_shader_from_file(
+        "resources/shaders/lighting.rrs");
+
+    m_ssao_blur_shader = retro::renderer::shader_loader::load_shader_from_file(
+        "resources/shaders/ssao-blur.rrs");
 }
 
 void ssao_app::load_texture()
@@ -212,14 +201,16 @@ void ssao_app::setup_fbo()
                 retro::renderer::texture_internal_format::rgba,
                 retro::renderer::texture_filtering::linear,
                 retro::renderer::texture_wrapping::clamp_to_edge,
-            }};
+            }
+        };
         retro::renderer::frame_buffer_attachment depth_attachment = {
             retro::renderer::texture_format::depth_component32f,
             retro::renderer::texture_internal_format::rgba,
             retro::renderer::texture_filtering::linear,
             retro::renderer::texture_wrapping::clamp_to_edge,
         };
-        m_geometry_fbo = std::make_shared<retro::renderer::frame_buffer>(attachments, viewport_size.x, viewport_size.y, depth_attachment);
+        m_geometry_fbo = std::make_shared<retro::renderer::frame_buffer>(
+            attachments, viewport_size.x, viewport_size.y, depth_attachment);
     }
 
     // 2. Setup ssao color buffer
@@ -231,8 +222,10 @@ void ssao_app::setup_fbo()
                 retro::renderer::texture_internal_format::red,
                 retro::renderer::texture_filtering::nearest,
                 retro::renderer::texture_wrapping::none,
-            }};
-        m_ssao_color_fbo = std::make_shared<retro::renderer::frame_buffer>(attachments, viewport_size.x, viewport_size.y);
+            }
+        };
+        m_ssao_color_fbo = std::make_shared<retro::renderer::frame_buffer>(
+            attachments, viewport_size.x, viewport_size.y);
     }
     // 3 Setup ssao blur buffer
     {
@@ -243,18 +236,20 @@ void ssao_app::setup_fbo()
                 retro::renderer::texture_internal_format::red,
                 retro::renderer::texture_filtering::nearest,
                 retro::renderer::texture_wrapping::none,
-            }};
-        m_ssao_blur_fbo = std::make_shared<retro::renderer::frame_buffer>(attachments, viewport_size.x, viewport_size.y);
+            }
+        };
+        m_ssao_blur_fbo = std::make_shared<
+            retro::renderer::frame_buffer>(attachments, viewport_size.x, viewport_size.y);
     }
 }
 
 void ssao_app::setup_screen_quad()
 {
     const std::vector<float> quad_vertices = {
-        1.0f, 1.0f, 0.0f, 1.0f, 1.0f,   // top right
-        1.0f, -1.0f, 0.0f, 1.0f, 0.0f,  // bottom right
+        1.0f, 1.0f, 0.0f, 1.0f, 1.0f, // top right
+        1.0f, -1.0f, 0.0f, 1.0f, 0.0f, // bottom right
         -1.0f, -1.0f, 0.0f, 0.0f, 0.0f, // bottom left
-        -1.0f, 1.0f, 0.0f, 0.0f, 1.0f   // top left
+        -1.0f, 1.0f, 0.0f, 0.0f, 1.0f // top left
     };
 
     const std::vector<uint32_t> indices = {
@@ -274,7 +269,8 @@ void ssao_app::setup_screen_quad()
 
     m_quad_vao->bind();
     vertices_vbo->bind();
-    vertices_vbo->set_data(retro::renderer::vertex_buffer_object_usage::static_draw, vertex_buffer_size, quad_vertices.data());
+    vertices_vbo->set_data(retro::renderer::vertex_buffer_object_usage::static_draw, vertex_buffer_size,
+                           quad_vertices.data());
 
     index_buffer->bind();
     index_buffer->set_data(retro::renderer::vertex_buffer_object_usage::static_draw, index_buffer_size, indices.data());
@@ -286,7 +282,8 @@ void ssao_app::setup_screen_quad()
         };
 
     std::shared_ptr<retro::renderer::vertex_buffer_layout_descriptor>
-        vertices_vbo_layout_descriptor = std::make_shared<retro::renderer::vertex_buffer_layout_descriptor>(layout_elements);
+        vertices_vbo_layout_descriptor = std::make_shared<retro::renderer::vertex_buffer_layout_descriptor>(
+            layout_elements);
     vertices_vbo->set_layout_descriptor(vertices_vbo_layout_descriptor);
 
     m_quad_vao->add_vertex_buffer(vertices_vbo);
@@ -305,7 +302,8 @@ void ssao_app::setup_ssao()
 
     for (int i = 0; i < 64; i++)
     {
-        glm::vec3 sample(random_floats(generator) * 2.0 - 1.0, random_floats(generator) * 2.0 - 1.0, random_floats(generator));
+        glm::vec3 sample(random_floats(generator) * 2.0 - 1.0, random_floats(generator) * 2.0 - 1.0,
+                         random_floats(generator));
 
         sample = glm::normalize(sample);
         sample *= random_floats(generator);
@@ -326,13 +324,19 @@ void ssao_app::setup_ssao()
         ssao_noise.push_back(noise);
     }
 
-    retro::renderer::texture_data ssao_noise_texture_data = { 4,4, 3, retro::renderer::texture_type::normal, ssao_noise.data() };
+    retro::renderer::texture_data ssao_noise_texture_data = {
+        4, 4, 3, retro::renderer::texture_type::normal, ssao_noise.data()
+    };
 
     m_ssao_noise_texture = retro::renderer::texture_loader::load_texture_from_data(ssao_noise_texture_data);
-    m_ssao_noise_texture->set_filtering(retro::renderer::texture_filtering_type::filter_min, retro::renderer::texture_filtering::nearest);
-    m_ssao_noise_texture->set_filtering(retro::renderer::texture_filtering_type::filter_mag, retro::renderer::texture_filtering::nearest);
-    m_ssao_noise_texture->set_wrapping(retro::renderer::texture_wrapping_type::wrap_s, retro::renderer::texture_wrapping::repeat);
-    m_ssao_noise_texture->set_wrapping(retro::renderer::texture_wrapping_type::wrap_t, retro::renderer::texture_wrapping::repeat);
+    m_ssao_noise_texture->set_filtering(retro::renderer::texture_filtering_type::filter_min,
+                                        retro::renderer::texture_filtering::nearest);
+    m_ssao_noise_texture->set_filtering(retro::renderer::texture_filtering_type::filter_mag,
+                                        retro::renderer::texture_filtering::nearest);
+    m_ssao_noise_texture->set_wrapping(retro::renderer::texture_wrapping_type::wrap_s,
+                                       retro::renderer::texture_wrapping::repeat);
+    m_ssao_noise_texture->set_wrapping(retro::renderer::texture_wrapping_type::wrap_t,
+                                       retro::renderer::texture_wrapping::repeat);
 }
 
 void ssao_app::setup_light()
@@ -342,22 +346,21 @@ void ssao_app::setup_light()
     m_light_model = retro::renderer::model_loader::load_model_from_file("../resources/models/cube.obj");
 }
 
-void ssao_app::on_handle_event(retro::events::base_event &event)
+void ssao_app::on_handle_event(retro::events::base_event& event)
 {
     retro::events::event_dispatcher dispatcher(event);
-    dispatcher.dispatch<retro::events::window_resize_event>([this](auto &&...args) -> decltype(auto)
-                                                            { return ssao_app::on_resize_ssao(std::forward<decltype(args)>(args)...); });
+    dispatcher.dispatch<retro::events::window_resize_event>(BIND_EVENT_FN(ssao_app::on_window_resize));
 }
 
-bool ssao_app::on_resize_ssao(retro::events::window_resize_event &resize_event)
+bool ssao_app::on_window_resize(retro::events::window_resize_event& resize_event)
 {
     m_ssao_color_fbo->resize(resize_event.get_size());
     m_ssao_blur_fbo->resize(resize_event.get_size());
     m_geometry_fbo->resize(resize_event.get_size());
-    return false;
+    return application::on_window_resize(resize_event);
 }
 
-retro::core::application *retro::core::create_application()
+retro::core::application* retro::core::create_application()
 {
     return new ssao_app();
 }

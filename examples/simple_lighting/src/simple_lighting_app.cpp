@@ -4,6 +4,8 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <imgui.h>
 
+#include <core/entry_point.h>
+
 simple_lighting_app::simple_lighting_app() : application("./")
 {
     load_shaders();
@@ -106,19 +108,11 @@ void simple_lighting_app::on_update()
 
 void simple_lighting_app::load_shaders()
 {
-    {
-        const std::string &shader_contents = retro::renderer::shader_loader::read_shader_from_file(
-            "resources/shaders/model-textured-lighting.rrs");
-        const auto &shader_sources = retro::renderer::shader_loader::parse_shader_source(shader_contents);
-        m_shader = std::make_shared<retro::renderer::shader>(shader_sources);
-    }
+    m_shader = retro::renderer::shader_loader::load_shader_from_file(
+        "resources/shaders/model-textured-lighting.rrs");
 
-    {
-        const std::string &shader_contents = retro::renderer::shader_loader::read_shader_from_file(
-            "../resources/shaders/model-colored.rrs");
-        const auto &shader_sources = retro::renderer::shader_loader::parse_shader_source(shader_contents);
-        m_shader_light = std::make_shared<retro::renderer::shader>(shader_sources);
-    }
+    m_shader_light = retro::renderer::shader_loader::load_shader_from_file(
+        "../resources/shaders/model-colored.rrs");
 }
 
 void simple_lighting_app::load_texture()
@@ -134,12 +128,15 @@ void simple_lighting_app::setup_model()
 void simple_lighting_app::setup_light()
 {
     m_selected_light = retro::renderer::light_type::point;
-    m_point_light = std::make_shared<retro::renderer::point_light>(glm::vec3(0.0f, 0.0f, 5.0f), glm::vec3(0.85f), glm::vec3(1.0f));
+    m_point_light = std::make_shared<retro::renderer::point_light>(glm::vec3(0.0f, 0.0f, 5.0f), glm::vec3(0.85f),
+                                                                   glm::vec3(1.0f));
     m_light_dir = m_camera->get_front();
     m_inner_angle = 1.45f;
     m_outer_angle = 0.5f;
 
-    m_spot_light = std::make_shared<retro::renderer::spot_light>(glm::vec3(0.0f, 0.0f, 5.0f), m_light_dir, glm::vec3(0.85f), glm::vec3(1.0f), m_inner_angle, m_outer_angle);
+    m_spot_light = std::make_shared<retro::renderer::spot_light>(glm::vec3(0.0f, 0.0f, 5.0f), m_light_dir,
+                                                                 glm::vec3(0.85f), glm::vec3(1.0f), m_inner_angle,
+                                                                 m_outer_angle);
 }
 
 void simple_lighting_app::setup_light_cube()
@@ -186,7 +183,8 @@ void simple_lighting_app::setup_light_cube()
             0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
             0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
             -0.5f, 0.5f, 0.5f, 0.0f, 0.0f,
-            -0.5f, 0.5f, -0.5f, 0.0f, 1.0f};
+            -0.5f, 0.5f, -0.5f, 0.0f, 1.0f
+        };
     size_t size = vertices.size() * sizeof(&vertices[0]);
 
     m_light_cube_vao = std::make_shared<retro::renderer::vertex_array_object>();
@@ -198,7 +196,8 @@ void simple_lighting_app::setup_light_cube()
     std::initializer_list<retro::renderer::vertex_buffer_layout_entry>
         layout_elements = {
             {"a_pos", retro::renderer::vertex_buffer_entry_type::vec_float3, false},
-            {"a_tex_coord", retro::renderer::vertex_buffer_entry_type::vec_float2, false}};
+            {"a_tex_coord", retro::renderer::vertex_buffer_entry_type::vec_float2, false}
+        };
 
     std::shared_ptr<retro::renderer::vertex_buffer_layout_descriptor> cube_vbo_layout_descriptor = std::make_shared<
         retro::renderer::vertex_buffer_layout_descriptor>(layout_elements);
@@ -213,7 +212,16 @@ void simple_lighting_app::setup_camera()
     m_camera->set_position({0.0f, 0.5f, 12.0f});
 }
 
-retro::core::application *retro::core::create_application()
+void simple_lighting_app::on_handle_event(retro::events::base_event& event)
+{
+}
+
+bool simple_lighting_app::on_window_resize(retro::events::window_resize_event& resize_event)
+{
+    return application::on_window_resize(resize_event);
+}
+
+retro::core::application* retro::core::create_application()
 {
     return new simple_lighting_app();
 }

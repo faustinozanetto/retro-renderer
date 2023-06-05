@@ -4,6 +4,8 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <imgui.h>
 
+#include <core/entry_point.h>
+
 simple_instancing_app::simple_instancing_app() : application("./")
 {
     load_shaders();
@@ -51,7 +53,7 @@ void simple_instancing_app::on_update()
     }
     ImGui::End();
 
-    ImGuiIO &io = ImGui::GetIO();
+    ImGuiIO& io = ImGui::GetIO();
     ImGui::Begin("Statistics");
     ImGui::Text("Dear ImGui %s", ImGui::GetVersion());
     ImGui::Text("Application average %.3f ms/frame (%.1f FPS)",
@@ -68,18 +70,11 @@ void simple_instancing_app::on_update()
 
 void simple_instancing_app::load_shaders()
 {
-    {
-        const std::string &shader_contents = retro::renderer::shader_loader::read_shader_from_file(
-            "../resources/shaders/model-textured.rrs");
-        const auto &shader_sources = retro::renderer::shader_loader::parse_shader_source(shader_contents);
-        m_shader = std::make_shared<retro::renderer::shader>(shader_sources);
-    }
-    {
-        const std::string &shader_contents = retro::renderer::shader_loader::read_shader_from_file(
-            "resources/shaders/model-textured-instancing.rrs");
-        const auto &shader_sources = retro::renderer::shader_loader::parse_shader_source(shader_contents);
-        m_instancing_shader = std::make_shared<retro::renderer::shader>(shader_sources);
-    }
+    m_shader = retro::renderer::shader_loader::load_shader_from_file(
+        "../resources/shaders/model-textured.rrs");
+
+    m_instancing_shader = retro::renderer::shader_loader::load_shader_from_file(
+        "resources/shaders/model-textured-instancing.rrs");
 }
 
 void simple_instancing_app::load_texture()
@@ -131,7 +126,8 @@ void simple_instancing_app::setup_cube()
             0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
             0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
             -0.5f, 0.5f, 0.5f, 0.0f, 0.0f,
-            -0.5f, 0.5f, -0.5f, 0.0f, 1.0f};
+            -0.5f, 0.5f, -0.5f, 0.0f, 1.0f
+        };
     size_t size = vertices.size() * sizeof(&vertices[0]);
 
     m_cube_vao = std::make_shared<retro::renderer::vertex_array_object>();
@@ -143,7 +139,8 @@ void simple_instancing_app::setup_cube()
     std::initializer_list<retro::renderer::vertex_buffer_layout_entry>
         layout_elements = {
             {"a_pos", retro::renderer::vertex_buffer_entry_type::vec_float3, false},
-            {"a_tex_coord", retro::renderer::vertex_buffer_entry_type::vec_float2, false}};
+            {"a_tex_coord", retro::renderer::vertex_buffer_entry_type::vec_float2, false}
+        };
 
     std::shared_ptr<retro::renderer::vertex_buffer_layout_descriptor> cube_vbo_layout_descriptor = std::make_shared<
         retro::renderer::vertex_buffer_layout_descriptor>(layout_elements);
@@ -185,11 +182,13 @@ void simple_instancing_app::setup_instancing()
         instancing_matrices.push_back(model);
     }
     size_t size = instancing_matrices.size() * sizeof(&instancing_matrices[0]);
-    instancing_matrices_vbo->set_data(retro::renderer::vertex_buffer_object_usage::static_draw, size, instancing_matrices.data());
+    instancing_matrices_vbo->set_data(retro::renderer::vertex_buffer_object_usage::static_draw, size,
+                                      instancing_matrices.data());
 
     std::initializer_list<retro::renderer::vertex_buffer_layout_entry>
         layout_elements = {
-            {"a_instance_matrix", retro::renderer::vertex_buffer_entry_type::mat4, false}};
+            {"a_instance_matrix", retro::renderer::vertex_buffer_entry_type::mat4, false}
+        };
 
     std::shared_ptr<retro::renderer::vertex_buffer_layout_descriptor> cube_vbo_layout_descriptor = std::make_shared<
         retro::renderer::vertex_buffer_layout_descriptor>(layout_elements);
@@ -203,7 +202,16 @@ void simple_instancing_app::setup_camera()
     m_camera->set_position({0.0f, 50.0f, 210.0f});
 }
 
-retro::core::application *retro::core::create_application()
+void simple_instancing_app::on_handle_event(retro::events::base_event& event)
+{
+}
+
+bool simple_instancing_app::on_window_resize(retro::events::window_resize_event& resize_event)
+{
+    return application::on_window_resize(resize_event);
+}
+
+retro::core::application* retro::core::create_application()
 {
     return new simple_instancing_app();
 }

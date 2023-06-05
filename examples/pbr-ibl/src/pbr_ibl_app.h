@@ -30,10 +30,10 @@ public:
 
     void render_skybox();
 
-    void on_handle_event(retro::events::base_event &event) override;
+    void on_handle_event(retro::events::base_event& event) override;
+    bool on_window_resize(retro::events::window_resize_event& resize_event) override;
 
 private:
-    bool on_resize_ssao(retro::events::window_resize_event &resize_event);
 
     /* Common Variables */
     std::shared_ptr<retro::camera::camera> m_camera;

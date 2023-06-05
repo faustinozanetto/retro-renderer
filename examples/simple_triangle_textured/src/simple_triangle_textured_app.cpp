@@ -1,6 +1,7 @@
 ﻿#include "simple_triangle_textured_app.h"
 
 #include <glm/ext/matrix_transform.hpp>
+#include <core/entry_point.h>
 
 simple_triangle_textured_app::simple_triangle_textured_app() : application("./")
 {
@@ -26,10 +27,8 @@ void simple_triangle_textured_app::on_update()
 
 void simple_triangle_textured_app::load_shaders()
 {
-    const std::string &shader_contents = retro::renderer::shader_loader::read_shader_from_file(
+    m_shader= retro::renderer::shader_loader::load_shader_from_file(
         "../resources/shaders/screen-textured.rrs");
-    const auto &shader_sources = retro::renderer::shader_loader::parse_shader_source(shader_contents);
-    m_shader = std::make_shared<retro::renderer::shader>(shader_sources);
 }
 
 void simple_triangle_textured_app::load_texture()
@@ -61,6 +60,15 @@ void simple_triangle_textured_app::setup_triangle()
     triangle_vbo->set_layout_descriptor(triangle_vbo_vbo_layout_descriptor);
 
     m_triangle_vao->add_vertex_buffer(triangle_vbo);
+}
+
+void simple_triangle_textured_app::on_handle_event(retro::events::base_event& event)
+{
+}
+
+bool simple_triangle_textured_app::on_window_resize(retro::events::window_resize_event& resize_event)
+{
+    return application::on_window_resize(resize_event);
 }
 
 retro::core::application *retro::core::create_application()

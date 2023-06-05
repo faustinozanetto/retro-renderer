@@ -11,6 +11,8 @@
 #include <random>
 #include <imgui.h>
 
+#include <core/entry_point.h>
+
 float lerp(float a, float b, float f)
 {
     return a + f * (b - a);
@@ -115,27 +117,21 @@ void pbr_app::on_update()
 
 void pbr_app::load_shaders()
 {
+    m_geometry_shader = retro::renderer::shader_loader::load_shader_from_file(
+        "resources/shaders/geometry.rrs");
 
-    {
-        const std::string &shader_contents = retro::renderer::shader_loader::read_shader_from_file(
-            "resources/shaders/geometry.rrs");
-        const auto &shader_sources = retro::renderer::shader_loader::parse_shader_source(shader_contents);
-        m_geometry_shader = std::make_shared<retro::renderer::shader>(shader_sources);
-    }
-    {
-        const std::string &shader_contents = retro::renderer::shader_loader::read_shader_from_file(
-            "resources/shaders/lighting.rrs");
-        const auto &shader_sources = retro::renderer::shader_loader::parse_shader_source(shader_contents);
-        m_lighting_shader = std::make_shared<retro::renderer::shader>(shader_sources);
-    }
+    m_lighting_shader = retro::renderer::shader_loader::load_shader_from_file(
+        "resources/shaders/lighting.rrs");
 }
 
 void pbr_app::load_texture()
 {
     m_albedo_texture = retro::renderer::texture_loader::load_texture_from_file("../resources/models/tv/tv-albedo.png");
     m_normal_texture = retro::renderer::texture_loader::load_texture_from_file("../resources/models/tv/tv-normal.png");
-    m_roughness_texture = retro::renderer::texture_loader::load_texture_from_file("../resources/models/tv/tv-roughness.png");
-    m_metallic_texture = retro::renderer::texture_loader::load_texture_from_file("../resources/models/tv/tv-metallic.png");
+    m_roughness_texture = retro::renderer::texture_loader::load_texture_from_file(
+        "../resources/models/tv/tv-roughness.png");
+    m_metallic_texture = retro::renderer::texture_loader::load_texture_from_file(
+        "../resources/models/tv/tv-metallic.png");
     m_ao_texture = retro::renderer::texture_loader::load_texture_from_file("../resources/models/tv/tv-ao.jpeg");
 }
 
@@ -227,24 +223,26 @@ void pbr_app::setup_fbo()
                 retro::renderer::texture_internal_format::rgba,
                 retro::renderer::texture_filtering::linear,
                 retro::renderer::texture_wrapping::clamp_to_edge,
-            }};
+            }
+        };
         retro::renderer::frame_buffer_attachment depth_attachment = {
             retro::renderer::texture_format::depth_component32f,
             retro::renderer::texture_internal_format::rgba,
             retro::renderer::texture_filtering::linear,
             retro::renderer::texture_wrapping::clamp_to_edge,
         };
-        m_geometry_fbo = std::make_shared<retro::renderer::frame_buffer>(attachments, viewport_size.x, viewport_size.y, depth_attachment);
+        m_geometry_fbo = std::make_shared<retro::renderer::frame_buffer>(
+            attachments, viewport_size.x, viewport_size.y, depth_attachment);
     }
 }
 
 void pbr_app::setup_screen_quad()
 {
     const std::vector<float> quad_vertices = {
-        1.0f, 1.0f, 0.0f, 1.0f, 1.0f,   // top right
-        1.0f, -1.0f, 0.0f, 1.0f, 0.0f,  // bottom right
+        1.0f, 1.0f, 0.0f, 1.0f, 1.0f, // top right
+        1.0f, -1.0f, 0.0f, 1.0f, 0.0f, // bottom right
         -1.0f, -1.0f, 0.0f, 0.0f, 0.0f, // bottom left
-        -1.0f, 1.0f, 0.0f, 0.0f, 1.0f   // top left
+        -1.0f, 1.0f, 0.0f, 0.0f, 1.0f // top left
     };
 
     const std::vector<uint32_t> indices = {
@@ -264,7 +262,8 @@ void pbr_app::setup_screen_quad()
 
     m_quad_vao->bind();
     vertices_vbo->bind();
-    vertices_vbo->set_data(retro::renderer::vertex_buffer_object_usage::static_draw, vertex_buffer_size, quad_vertices.data());
+    vertices_vbo->set_data(retro::renderer::vertex_buffer_object_usage::static_draw, vertex_buffer_size,
+                           quad_vertices.data());
 
     index_buffer->bind();
     index_buffer->set_data(retro::renderer::vertex_buffer_object_usage::static_draw, index_buffer_size, indices.data());
@@ -276,7 +275,8 @@ void pbr_app::setup_screen_quad()
         };
 
     std::shared_ptr<retro::renderer::vertex_buffer_layout_descriptor>
-        vertices_vbo_layout_descriptor = std::make_shared<retro::renderer::vertex_buffer_layout_descriptor>(layout_elements);
+        vertices_vbo_layout_descriptor = std::make_shared<retro::renderer::vertex_buffer_layout_descriptor>(
+            layout_elements);
     vertices_vbo->set_layout_descriptor(vertices_vbo_layout_descriptor);
 
     m_quad_vao->add_vertex_buffer(vertices_vbo);
@@ -291,20 +291,24 @@ void pbr_app::setup_light()
     m_light_model = retro::renderer::model_loader::load_model_from_file("../resources/models/cube.obj");
 }
 
-void pbr_app::on_handle_event(retro::events::base_event &event)
+void pbr_app::on_handle_event(retro::events::base_event& event)
 {
     retro::events::event_dispatcher dispatcher(event);
-    dispatcher.dispatch<retro::events::window_resize_event>([this](auto &&...args) -> decltype(auto)
-                                                            { return pbr_app::on_resize_ssao(std::forward<decltype(args)>(args)...); });
+    dispatcher.dispatch<retro::events::window_resize_event>(BIND_EVENT_FN(pbr_app::on_resize_ssao));
 }
 
-bool pbr_app::on_resize_ssao(retro::events::window_resize_event &resize_event)
+bool pbr_app::on_window_resize(retro::events::window_resize_event& resize_event)
+{
+    return application::on_window_resize(resize_event);
+}
+
+bool pbr_app::on_resize_ssao(retro::events::window_resize_event& resize_event)
 {
     m_geometry_fbo->resize(resize_event.get_size());
     return false;
 }
 
-retro::core::application *retro::core::create_application()
+retro::core::application* retro::core::create_application()
 {
     return new pbr_app();
 }

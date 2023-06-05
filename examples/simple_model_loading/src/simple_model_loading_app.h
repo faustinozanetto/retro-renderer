@@ -15,6 +15,9 @@ public:
     void setup_model();
     void setup_camera();
 
+    void on_handle_event(retro::events::base_event& event) override;
+    bool on_window_resize(retro::events::window_resize_event& resize_event) override;
+
 private:
     /* Common Variables */
     std::shared_ptr<retro::camera::camera> m_camera;

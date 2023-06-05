@@ -23,6 +23,8 @@ project "simple-lighting"
         "%{include_dirs.imgui}",
         "%{include_dirs.assimp}",
         "%{include_dirs.freetype}",
+        "%{include_dirs.openal}",
+        "%{include_dirs.dr_libs}",
     }
 
     links {

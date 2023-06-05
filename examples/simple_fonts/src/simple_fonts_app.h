@@ -14,6 +14,9 @@ public:
     void load_font();
     void setup_triangle();
 
+    void on_handle_event(retro::events::base_event& event) override;
+    bool on_window_resize(retro::events::window_resize_event& resize_event) override;
+
 private:
     /* Common Variables */
     std::shared_ptr<retro::renderer::shader> m_shader;

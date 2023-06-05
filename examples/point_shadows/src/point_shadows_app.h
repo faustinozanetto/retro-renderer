@@ -19,6 +19,9 @@ public:
     void setup_shadow_map_frame_buffer();
 
     void render_elements(const std::shared_ptr<retro::renderer::shader> &shader);
+    
+    void on_handle_event(retro::events::base_event& event) override;
+    bool on_window_resize(retro::events::window_resize_event& resize_event) override;
 
 private:
     /* Common Variables */
