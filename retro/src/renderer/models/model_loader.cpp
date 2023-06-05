@@ -25,7 +25,7 @@ namespace retro::renderer
         // Recursively parse all the assimp nodes and store the parsed mesh into the meshes vector.
         std::vector<std::shared_ptr<mesh>> model_meshes;
         parse_assimp_node(scene->mRootNode, scene, model_meshes);
-        const std::shared_ptr<model>& created_model = std::make_shared<model>(file_path, model_meshes);
+        auto created_model = std::make_shared<model>(file_path, model_meshes);
         RT_TRACE("Retro Renderer | Model loaded from file successfully!");
         RT_SEPARATOR();
         return created_model;
@@ -35,7 +35,7 @@ namespace retro::renderer
     {
         RT_SEPARATOR();
         RT_TRACE("Retro Renderer | Started loading model from meshes.");
-        const std::shared_ptr<model>& created_model = std::make_shared<model>("from_meshes", meshes);
+        auto created_model = std::make_shared<model>("from_meshes", meshes);
         RT_TRACE("Retro Renderer | Model loaded from meshes successfully!");
         RT_SEPARATOR();
         return created_model;

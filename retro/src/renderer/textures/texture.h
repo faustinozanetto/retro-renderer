@@ -110,6 +110,7 @@ namespace retro::renderer
     {
     public:
         texture(const std::string &file_name, const texture_data &texture_data);
+        ~texture() override;
 
         /* Getters */
         uint32_t get_handle_id() const { return m_handle_id; }

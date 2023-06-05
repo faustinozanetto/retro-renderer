@@ -63,18 +63,16 @@ void enemies_manager::initialize_enemy_assets()
 {
 #ifdef ASSETS_FROM_PACK
 #if (ASSETS_FROM_PACK == 1)
-    m_enemy_texture = retro::assets::asset_manager::get().get_asset_pack(retro::assets::asset_type::texture)->
-                                          get_asset<retro::renderer::texture, retro::assets::asset_type::texture>(
-                                              "enemy.jpg");
-    m_enemy_shader = retro::assets::asset_manager::get().get_asset_pack(retro::assets::asset_type::shader)->
-                                         get_asset<retro::renderer::shader, retro::assets::asset_type::shader>(
-                                             "enemy.rrs");
-    m_enemy_model = retro::assets::asset_manager::get().get_asset_pack(retro::assets::asset_type::model)->
-                                        get_asset<retro::renderer::model,
-                                                  retro::assets::asset_type::model>("enemy.obj");
-    m_enemy_explode_sound = retro::assets::asset_manager::get().get_asset_pack(retro::assets::asset_type::sound)->
-                                                get_asset<retro::audio::sound,
-                                                          retro::assets::asset_type::sound>("explosion.ogg");
+    m_enemy_texture = retro::assets::asset_manager::get().get_asset_pack("textures")->
+                                                          get_asset<retro::renderer::texture>(
+                                                              "enemy.jpg");
+    m_enemy_shader = retro::assets::asset_manager::get().get_asset_pack("shaders")->
+                                                         get_asset<retro::renderer::shader>(
+                                                             "enemy.rrs");
+    m_enemy_model = retro::assets::asset_manager::get().get_asset_pack("models")->
+                                                        get_asset<retro::renderer::model>("enemy.obj");
+    m_enemy_explode_sound = retro::assets::asset_manager::get().get_asset_pack("sounds")->
+                                                                get_asset<retro::audio::sound>("explosion.ogg");
 #else
     m_enemy_texture = retro::renderer::texture_loader::load_texture_from_file("resources/textures/enemy.jpg");
     m_enemy_shader = retro::renderer::shader_loader::load_shader_from_file(
@@ -112,12 +110,12 @@ void enemies_manager::generate_enemies(int amount)
 
 void enemies_manager::save_assets() const
 {
-    retro::assets::asset_manager::get().get_asset_pack(retro::assets::asset_type::texture)->save_asset(
+    retro::assets::asset_manager::get().get_asset_pack("textures")->save_asset(
         m_enemy_texture);
-    retro::assets::asset_manager::get().get_asset_pack(retro::assets::asset_type::model)->save_asset(
+    retro::assets::asset_manager::get().get_asset_pack("models")->save_asset(
         m_enemy_model);
-    retro::assets::asset_manager::get().get_asset_pack(retro::assets::asset_type::shader)->save_asset(
+    retro::assets::asset_manager::get().get_asset_pack("shaders")->save_asset(
         m_enemy_shader);
-    retro::assets::asset_manager::get().get_asset_pack(retro::assets::asset_type::sound)->save_asset(
-    m_enemy_explode_sound);
+    retro::assets::asset_manager::get().get_asset_pack("sounds")->save_asset(
+        m_enemy_explode_sound);
 }

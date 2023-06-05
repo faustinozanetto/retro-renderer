@@ -39,6 +39,7 @@ namespace retro::assets
     {
     public:
         asset(asset_metadata metadata);
+        virtual ~asset() = default;
 
         /* Getters */
         const asset_metadata& get_metadata() const { return m_metadata; }

@@ -29,7 +29,7 @@ namespace retro::audio
             data = parse_wav_sound(file_path);
         }
 
-        const std::shared_ptr<sound>& created_sound = std::make_shared<sound>(file_path, data);
+        auto created_sound = std::make_shared<sound>(file_path, data);
         RT_TRACE("Retro Renderer | Sound loaded from file successfully!");
         RT_SEPARATOR();
         return created_sound;
@@ -57,7 +57,7 @@ namespace retro::audio
         sound_data.size = sample_count * channels * sizeof(short);
         sound_data.data = samples;
 
-        const std::shared_ptr<sound>& created_sound = std::make_shared<sound>("from_memory", sound_data);
+        auto created_sound = std::make_shared<sound>("from_memory", sound_data);
         RT_TRACE("Retro Renderer | Sound loaded from memory successfully!");
         RT_SEPARATOR();
         return created_sound;
@@ -87,7 +87,7 @@ namespace retro::audio
         // Clean up the WAV file
         drwav_uninit(&wav);
 
-        const std::shared_ptr<sound>& created_sound = std::make_shared<sound>("from_memory", sound_data);
+        auto created_sound = std::make_shared<sound>("from_memory", sound_data);
         RT_TRACE("Retro Renderer | Sound loaded from memory successfully!");
         RT_SEPARATOR();
         return created_sound;

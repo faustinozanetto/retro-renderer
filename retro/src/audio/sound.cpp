@@ -57,7 +57,8 @@ namespace retro::audio
         asset_pack_file.write(buffer.data(), size);
     }
 
-    std::shared_ptr<sound> sound::deserialize(const assets::asset_metadata& metadata, std::ifstream& asset_pack_file)
+    std::shared_ptr<sound> sound::deserialize(const assets::asset_metadata& metadata,
+                                                     std::ifstream& asset_pack_file)
     {
         // Read the sound file size from the asset pack file
         size_t data_size;
@@ -68,15 +69,23 @@ namespace retro::audio
 
         // Deserialize the sound's data
         asset_pack_file.read(data.data(), data_size);
-
-        std::shared_ptr<sound> sound;
+        
         const std::string& file_extension = utils::extract_file_extension(metadata.file_name);
         if (file_extension == ".ogg")
-            sound = sound_loader::load_ogg_sound_from_memory(data.data(), data_size);
-        else if (file_extension == ".wav")
-            sound = sound_loader::load_wav_sound_from_memory(data.data(), data_size);
+        {
+            const std::shared_ptr<sound>& sound = sound_loader::load_ogg_sound_from_memory(data.data(), data_size);
+            RT_ASSERT_MSG(sound, "Could not deserialize sound!");
+            sound->set_metadata(metadata);
+            return sound;
+        }
+        if (file_extension == ".wav")
+        {
+            const std::shared_ptr<sound>& sound = sound_loader::load_wav_sound_from_memory(data.data(), data_size);
+            RT_ASSERT_MSG(sound, "Could not deserialize sound!");
+            sound->set_metadata(metadata);
+            return sound;
+        }
 
-        sound->set_metadata(metadata);
-        return sound;
+        RT_ASSERT_MSG(false, "Could not deserialize sound!")
     }
 }

@@ -110,6 +110,11 @@ namespace retro::renderer
         }
     }
 
+    texture::~texture()
+    {
+        glDeleteTextures(1, &m_handle_id);
+    }
+
     std::string texture::get_texture_filtering_to_string(texture_filtering filtering)
     {
         switch (filtering)

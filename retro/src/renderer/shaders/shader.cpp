@@ -173,7 +173,7 @@ namespace retro::renderer
             parsed_contents[type] = content;
         }
 
-        const std::shared_ptr<shader>& shader = shader_loader::load_shader_from_contents(parsed_contents);
+        auto shader = shader_loader::load_shader_from_contents(parsed_contents);
         shader->set_metadata(metadata);
         return shader;
     }

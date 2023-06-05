@@ -7,30 +7,26 @@ namespace retro::assets
     class asset_pack
     {
     public:
-        asset_pack(asset_type type, const std::string& file_path);
+        asset_pack(const std::string& file_path);
 
         /* Getters */
-        asset_type get_type() const { return m_type; }
         std::unordered_map<uint64_t, std::shared_ptr<asset>>& get_assets() { return m_assets; }
-
-        template <class T, asset_type type>
-        const std::shared_ptr<T>& get_asset(const std::string& asset_file_name)
+        
+        template <class T>
+        std::shared_ptr<T> get_asset(const std::string& asset_file_name)
         {
             std::shared_ptr<T> found_asset;
             for (auto& asset : m_assets)
             {
-                if (asset.second->get_metadata().type == type)
+                found_asset = std::dynamic_pointer_cast<T>(
+                    asset.second);
+                if (found_asset && asset_file_name.compare(found_asset->get_metadata().file_name) == 0)
                 {
-                    found_asset = std::dynamic_pointer_cast<T>(
-                        asset.second);
-                    if (found_asset && found_asset->get_metadata().file_name == asset_file_name)
-                    {
-                        break;
-                    }
+                    return found_asset;
                 }
             }
-            assert(found_asset, "Could not find asset!");
-            return found_asset;
+            assert(false, "Could not find asset!");
+            return nullptr;
         }
 
         /* Functions */
@@ -47,7 +43,6 @@ namespace retro::assets
         void serialize_asset_metadata(const asset_metadata& asset_metadata, std::ofstream& asset_pack_file);
         asset_metadata deserialize_asset_metadata(std::ifstream& asset_pack_file);
 
-        asset_type m_type;
         std::string m_file_path;
         std::unordered_map<uint64_t, std::shared_ptr<asset>> m_assets;
     };

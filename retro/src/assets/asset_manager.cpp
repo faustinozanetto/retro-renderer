@@ -5,19 +5,29 @@ namespace retro::assets
 {
     asset_manager::asset_manager()
     {
-        for (asset_type type : asset_types)
-        {
-            const std::string& file_path =
-                std::format("resources/packs/{}s.pack", asset::get_asset_type_to_string(type));
-            const std::shared_ptr<asset_pack> pack = std::make_shared<asset_pack>(type, file_path);
-            m_asset_packs.insert(std::make_pair(type, pack));
-        }
     }
 
-    std::shared_ptr<asset_pack>& asset_manager::get_asset_pack(asset_type type)
+    const std::shared_ptr<asset_pack>& asset_manager::get_asset_pack(const std::string& asset_pack_name) const
     {
-        RT_ASSERT_MSG(m_asset_packs[type], "Asset pack not found!");
-        return m_asset_packs[type];
+        std::shared_ptr<asset_pack> asset_pack = nullptr;
+        for (auto& pack : m_asset_packs)
+        {
+            if (pack.first == asset_pack_name)
+            {
+                asset_pack = pack.second;
+                break;
+            }
+        }
+        RT_ASSERT_MSG(asset_pack, "Could not find asset pack!");
+        return asset_pack;
+    }
+
+    void asset_manager::register_asset_pack(const std::string& asset_pack_name)
+    {
+        const std::string& file_path =
+            std::format("resources/packs/{}.pack", asset_pack_name);
+        auto pack = std::make_shared<asset_pack>(file_path);
+        m_asset_packs.insert(std::make_pair(asset_pack_name, pack));
     }
 
     void asset_manager::register_asset(asset* asset)
@@ -25,21 +35,19 @@ namespace retro::assets
         m_assets[asset->get_metadata().type].push_back(asset);
     }
 
-    void asset_manager::deserialize_packs()
+    void asset_manager::deserialize_packs() const
     {
-        for (asset_type type : asset_types)
+        for (const auto& asset_pack : m_asset_packs)
         {
-            RT_ASSERT_MSG(m_asset_packs[type], "Asset pack not found!");
-            m_asset_packs[type]->deserialize_pack();
+            asset_pack.second->deserialize_pack();
         }
     }
 
-    void asset_manager::serialize_packs()
+    void asset_manager::serialize_packs() const
     {
-        for (asset_type type : asset_types)
+        for (const auto& asset_pack : m_asset_packs)
         {
-            RT_ASSERT_MSG(m_asset_packs[type], "Asset pack not found!");
-            m_asset_packs[type]->serialize_pack();
+            asset_pack.second->serialize_pack();
         }
     }
 }

@@ -10,7 +10,7 @@ namespace retro::renderer
         RT_SEPARATOR();
         RT_TRACE("Retro Renderer | Started loading texture from file.");
         const texture_data& data = parse_texture_file_contents(file_path);
-        const std::shared_ptr<texture>& created_texture = std::make_shared<texture>(file_path, data);
+        auto created_texture = std::make_shared<texture>(file_path, data);
         RT_TRACE("Retro Renderer | Texture loaded from file successfully!");
         RT_SEPARATOR();
         return created_texture;
@@ -21,7 +21,7 @@ namespace retro::renderer
         RT_SEPARATOR();
         RT_TRACE("Retro Renderer | Started loading texture cubemap from file.");
         const texture_data& data = parse_texture_cubemap_file_contents(file_path);
-        const std::shared_ptr<texture>& created_texture = std::make_shared<texture>(file_path, data);
+        auto created_texture = std::make_shared<texture>(file_path, data);
         RT_TRACE("Retro Renderer | Texture cubemap loaded from file successfully!");
         RT_SEPARATOR();
         return created_texture;
@@ -31,7 +31,7 @@ namespace retro::renderer
     {
         RT_SEPARATOR();
         RT_TRACE("Retro Renderer | Started loading texture from data.");
-        const std::shared_ptr<texture>& created_texture = std::make_shared<texture>("from_data", raw_data);
+        auto created_texture = std::make_shared<texture>("from_data", raw_data);
         RT_TRACE("Retro Renderer | Texture loaded from data successfully!");
         RT_SEPARATOR();
         return created_texture;
@@ -50,7 +50,7 @@ namespace retro::renderer
         RT_ASSERT_MSG(channels > 0, "Invalid texture channels count!");
 
         texture_data texture_data = {width, height, channels, texture_type::normal, loaded_data};
-        const std::shared_ptr<texture>& created_texture = std::make_shared<texture>("from_memory", texture_data);
+        auto created_texture = std::make_shared<texture>("from_memory", texture_data);
         RT_TRACE("Retro Renderer | Texture loaded from memory successfully!");
         RT_SEPARATOR();
         return created_texture;

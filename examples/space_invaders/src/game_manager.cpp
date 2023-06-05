@@ -81,13 +81,13 @@ void game_manager::debug_asset_packs()
     // Display asset packs as tree nodes
     for (const auto& pair : retro::assets::asset_manager::get().get_asset_packs())
     {
-        retro::assets::asset_type type = pair.first;
+        const std::string& name = pair.first;
         const std::shared_ptr<retro::assets::asset_pack>& pack = pair.second;
 
-        bool packNodeOpen = ImGui::TreeNodeEx(reinterpret_cast<void*>(static_cast<intptr_t>(type)),
+        bool packNodeOpen = ImGui::TreeNodeEx(name.c_str(),
                                               ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_Framed,
                                               "Asset Pack - Type: %s",
-                                              retro::assets::asset::get_asset_type_to_string(type).c_str());
+                                              name.c_str());
 
         if (packNodeOpen)
         {
@@ -109,7 +109,7 @@ void game_manager::debug_asset_packs()
                     // Display asset metadata
                     ImGui::Text("File Path: %s", metadata.file_path.c_str());
                     ImGui::Text("File Name: %s", metadata.file_name.c_str());
-                    ImGui::Text("Type: %s", retro::assets::asset::get_asset_type_to_string(type).c_str());
+                    ImGui::Text("Type: %s", retro::assets::asset::get_asset_type_to_string(metadata.type).c_str());
                     ImGui::Text("UUID: %llu", metadata.uuid);
 
                     ImGui::TreePop();
@@ -209,8 +209,7 @@ void game_manager::initialize_fonts()
 {
 #ifdef ASSETS_FROM_PACK
 #if (ASSETS_FROM_PACK == 1)
-    m_font = retro::assets::asset_manager::get().get_asset_pack(retro::assets::asset_type::font)->get_asset<
-        retro::renderer::font, retro::assets::asset_type::font>("arial.ttf");
+    m_font = retro::assets::asset_manager::get().get_asset_pack("fonts")->get_asset<retro::renderer::font>("arial.ttf");
 #else
     m_font = retro::renderer::font_loader::load_font_from_file("resources/fonts/arial.ttf");
 #endif
@@ -221,8 +220,8 @@ void game_manager::initialize_shaders()
 {
 #ifdef ASSETS_FROM_PACK
 #if (ASSETS_FROM_PACK == 1)
-    m_font_shader = retro::assets::asset_manager::get().get_asset_pack(retro::assets::asset_type::shader)->get_asset<
-        retro::renderer::shader, retro::assets::asset_type::shader>("font.rrs");
+    m_font_shader = retro::assets::asset_manager::get().get_asset_pack("shaders")->get_asset<
+        retro::renderer::shader>("font.rrs");
 #else
     m_font_shader = retro::renderer::shader_loader::load_shader_from_file(
         "resources/shaders/font.rrs");
@@ -329,9 +328,9 @@ bool game_manager::on_window_resize(retro::events::window_resize_event& window_r
 
 void game_manager::save_assets()
 {
-    retro::assets::asset_manager::get().get_asset_pack(retro::assets::asset_type::shader)->save_asset(
+    retro::assets::asset_manager::get().get_asset_pack("shaders")->save_asset(
         m_font_shader);
-    retro::assets::asset_manager::get().get_asset_pack(retro::assets::asset_type::font)->save_asset(
+    retro::assets::asset_manager::get().get_asset_pack("fonts")->save_asset(
         m_font);
 
     m_player_manager->save_assets();

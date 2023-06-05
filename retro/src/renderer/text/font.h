@@ -32,7 +32,7 @@ namespace retro::renderer
     {
     public:
         font(const std::string &file_name, const font_data &font_data);
-        ~font();
+        ~font() override;
 
         /* Getters */
         const std::shared_ptr<vertex_array_object> &get_font_vao() const { return m_font_vao; }

@@ -9,16 +9,13 @@
 
 namespace retro::assets
 {
-    asset_pack::asset_pack(asset_type type, const std::string& file_path)
+    asset_pack::asset_pack(const std::string& file_path)
     {
-        m_type = type;
         m_file_path = file_path;
     }
 
     void asset_pack::save_asset(const std::shared_ptr<asset>& asset)
     {
-        RT_ASSERT_MSG(m_type == asset->get_metadata().type, "Asset type does not match asset pack type!");
-
         m_assets.insert(std::make_pair(asset->get_metadata().uuid, asset));
     }
 
@@ -36,6 +33,8 @@ namespace retro::assets
         for (const auto& asset : m_assets)
         {
             // Serialize the asset's metadata
+            RT_ASSERT_MSG(asset.second, "Asset has invalid asset pointer!");
+            
             const asset_metadata& metadata = asset.second->get_metadata();
             serialize_asset_metadata(metadata, asset_pack_file);
             // Perform custom asset serialization
@@ -69,7 +68,7 @@ namespace retro::assets
             asset_metadata metadata = deserialize_asset_metadata(asset_pack_file);
 
             RT_TRACE("Retro Renderer | Asset Deserialized: {} {} {} {}", metadata.uuid, metadata.file_path,
-                     metadata.file_name, (int)metadata.type);
+                     metadata.file_name, static_cast<int>(metadata.type));
 
             std::shared_ptr<asset> asset;
 
@@ -81,7 +80,6 @@ namespace retro::assets
                     asset = renderer::shader::deserialize(metadata, asset_pack_file);
                     break;
                 }
-
             case asset_type::model:
                 {
                     asset = renderer::model::deserialize(metadata, asset_pack_file);
@@ -132,6 +130,7 @@ namespace retro::assets
 
     void asset_pack::serialize_asset_metadata(const asset_metadata& asset_metadata, std::ofstream& asset_pack_file)
     {
+        RT_ASSERT_MSG(asset_metadata.file_name.c_str(), "Invalid asset metadata!");
         // Serialize the asset's type
         asset_pack_file.write(reinterpret_cast<const char*>(&asset_metadata.type), sizeof(asset_metadata.type));
 
