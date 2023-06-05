@@ -67,8 +67,9 @@ void level_manager::update_ammo_pickups()
 
 void level_manager::play_ambient_sound()
 {
+    m_ambient_sound_emitter->set_location(game_manager::get().get_player_manager()->get_player().position);
     m_ambient_sound_emitter->set_sound(m_ambient_sound);
-    m_ambient_sound_emitter->set_volume(0.5f);
+   // m_ambient_sound_emitter->set_volume(0.5f);
 }
 
 void level_manager::initialize_audio()
@@ -98,12 +99,12 @@ void level_manager::initialize_background_assets()
     m_ambient_sound = game_manager::get().get_assets_manager()->get_asset_pack(retro::assets::asset_type::sound)->
                                           get_asset<
                                               retro::audio::sound, retro::assets::asset_type::sound>(
-                                              "ambient.ogg");
+                                              "ambient.wav");
 #else
     m_background_texture = retro::renderer::texture_loader::load_texture_from_file(
         "resources/textures/space.jpg");
     m_background_shader = retro::renderer::shader_loader::load_shader_from_file("resources/shaders/background.rrs");
-    m_ambient_sound = retro::audio::sound_loader::load_sound_from_file("resources/audio/ambient.ogg");
+    m_ambient_sound = retro::audio::sound_loader::load_sound_from_file("resources/audio/ambient.wav");
 #endif
 #endif
 }

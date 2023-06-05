@@ -5,7 +5,7 @@ Model from <https://skfb.ly/ooDDN>
 
 ## ✨ About
 
-Retro Renderer is a graphics renderer being built on top of OpenGL and C++, it is currently under heavy development so there is not much at the moment to showcase.
+Retro Renderer is a graphics renderer being built on top of OpenGL and C++, it is currently under heavy development with multiple example projects to showcase the features it offers.
 
 ## 🚀 Installation and Usage
 
@@ -24,14 +24,30 @@ The project is being developed with the latest technlogoies used in the industry
 - GLAD
 - GLM
 - Spdlog
+- DrWav
 - And more :)
 
 ## 💻 Features
 
 - Core
-  - Simple rendering via vao and vbos.
-  - Shader loading system with multiple types in one file.
-  - Logging system and file sinks with Spdlog.
+  - Assets managing with custom assets pack for serializing and serializing assets.
+  - Model loading via assimp on runtime and asset packs in release.
+  - Fully working audio system using OpenAL and support for .ogg and .wav files.
+  - Simple camera system with perspective & orthographic support.
+  - Events system for handling input and window events.
+  - Input system with full support for all keys and buttons.
+  - Logging system using spdlog with file sink support.
+- Renderer
+  - VAO and VBO support with custom layouts for definind data structure.
+  - Simple frame buffer support with custom texture attachments.
+  - Super basic lighting primitives support for spot and point lights.
+  - Material system with custom pbr parameters and textures support.
+  - Models and meshes support with custom moder loader.
+  - Render buffer support.
+  - Shaders system for loading shaders from file or from packaged asset pack.
+  - Text rendering using custom loaded font file.
+  - Textures system with lots of customization and options to load the data.
+  - Simple but powerful windowing system.
 
 ## 🎛️ Project Structure
 

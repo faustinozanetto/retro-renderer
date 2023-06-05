@@ -10,9 +10,9 @@
 
 namespace retro::core
 {
-    application* application::s_instance = nullptr;
+    application *application::s_instance = nullptr;
 
-    application::application(const std::string& working_directory)
+    application::application(const std::string &working_directory)
     {
         logging::logger::initialize();
         std::filesystem::current_path(working_directory);
@@ -35,7 +35,7 @@ namespace retro::core
     {
     }
 
-    void application::on_event(events::base_event& event)
+    void application::on_event(events::base_event &event)
     {
         events::event_dispatcher dispatcher(event);
         dispatcher.dispatch<events::window_resize_event>(BIND_EVENT_FN(application::on_window_resize));
@@ -75,7 +75,7 @@ namespace retro::core
         }
     }
 
-    bool application::on_window_resize(events::window_resize_event& resize_event)
+    bool application::on_window_resize(events::window_resize_event &resize_event)
     {
         RT_TRACE("Retro Renderer | Window resized to: {0}x{1}", resize_event.get_size().x, resize_event.get_size().y);
         renderer::renderer::set_viewport_size(resize_event.get_size());

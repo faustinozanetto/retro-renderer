@@ -7,7 +7,6 @@ game_manager* game_manager::s_instance = nullptr;
 game_manager::game_manager()
 {
     s_instance = this;
-    m_game_state = game_state::playing;
     retro::renderer::renderer::set_vsync_enabled(false);
     initialize_assets();
 #ifdef ASSETS_FROM_PACK
@@ -22,6 +21,8 @@ game_manager::game_manager()
     initialize_fonts();
     initialize_texts();
     initialize_managers();
+    start_game();
+
 }
 
 void game_manager::start_game()

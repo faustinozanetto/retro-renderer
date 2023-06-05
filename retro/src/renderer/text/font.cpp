@@ -7,8 +7,8 @@
 
 namespace retro::renderer
 {
-    font::font(const std::string& file_name, const font_data& font_data) : asset(
-        {assets::asset_type::font, file_name})
+    font::font(const std::string &file_name, const font_data &font_data) : asset(
+                                                                               {assets::asset_type::font, file_name})
     {
         m_data = font_data;
 
@@ -23,7 +23,7 @@ namespace retro::renderer
         RT_TRACE("  - Max Advance Width: '{}'", m_data.font_face->max_advance_width);
         RT_TRACE("  - Max Advance Height: '{}'", m_data.font_face->max_advance_height);
         RT_TRACE("  - Glyphs: '{}'", m_data.font_face->num_glyphs);
-        
+
         setup_buffers();
         construct_atlas();
     }
@@ -32,7 +32,7 @@ namespace retro::renderer
     {
     }
 
-    void font::serialize(std::ofstream& asset_pack_file)
+    void font::serialize(std::ofstream &asset_pack_file)
     {
         std::ifstream font_file(m_metadata.file_name, std::ios::binary | std::ios::ate);
         if (!font_file.is_open())
@@ -53,17 +53,17 @@ namespace retro::renderer
         }
 
         // Write the font file size to the asset pack file
-        asset_pack_file.write(reinterpret_cast<const char*>(&size), sizeof(std::streamsize));
+        asset_pack_file.write(reinterpret_cast<const char *>(&size), sizeof(std::streamsize));
 
         // Write the font file data to the asset pack file
         asset_pack_file.write(buffer.data(), size);
     }
 
-    std::shared_ptr<font> font::deserialize(const assets::asset_metadata& metadata, std::ifstream& asset_pack_file)
+    std::shared_ptr<font> font::deserialize(const assets::asset_metadata &metadata, std::ifstream &asset_pack_file)
     {
         // Read the font file size from the asset pack file
         size_t data_size;
-        asset_pack_file.read(reinterpret_cast<char*>(&data_size), sizeof(data_size));
+        asset_pack_file.read(reinterpret_cast<char *>(&data_size), sizeof(data_size));
 
         // Allocate memory for the font data
         std::vector<char> data(data_size);
@@ -71,7 +71,7 @@ namespace retro::renderer
         // Deserialize the font's data
         asset_pack_file.read(data.data(), data_size);
 
-        const std::shared_ptr<font>& font = font_loader::load_font_from_memory(data.data(), data_size);
+        const std::shared_ptr<font> &font = font_loader::load_font_from_memory(data.data(), data_size);
         font->set_metadata(metadata);
         return font;
     }
@@ -86,8 +86,7 @@ namespace retro::renderer
 
         std::initializer_list<vertex_buffer_layout_entry>
             layout_elements = {
-                {"a_pos_tex_coord", vertex_buffer_entry_type::vec_float4, false}
-            };
+                {"a_pos_tex_coord", vertex_buffer_entry_type::vec_float4, false}};
 
         const std::shared_ptr<vertex_buffer_layout_descriptor>
             vbo_layout_descriptor = std::make_shared<vertex_buffer_layout_descriptor>(layout_elements);
@@ -105,7 +104,7 @@ namespace retro::renderer
 
         // Create the empty atlas image
         const auto atlas_data = new unsigned char[atlas_width * atlas_height]; // RED format
-        memset(atlas_data, 0, atlas_width * atlas_height); // Set initial pixels to transparent
+        memset(atlas_data, 0, atlas_width * atlas_height);                     // Set initial pixels to transparent
 
         int atlas_x = 0; // Current X position within the atlas
 
@@ -148,8 +147,7 @@ namespace retro::renderer
                 glm::ivec2(m_data.font_face->glyph->bitmap.width, m_data.font_face->glyph->bitmap.rows),
                 glm::ivec2(m_data.font_face->glyph->bitmap_left, m_data.font_face->glyph->bitmap_top),
                 u1, v1, u2, v2,
-                static_cast<unsigned int>(m_data.font_face->glyph->advance.x)
-            };
+                static_cast<unsigned int>(m_data.font_face->glyph->advance.x)};
 
             m_glyphs_data.insert(std::make_pair(c, glyph_data));
 
