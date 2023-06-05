@@ -11,6 +11,7 @@ namespace retro::audio
         ~audio_context();
 
     private:
+        void print_debug_info();
         ALCcontext* m_audio_context;
         ALCdevice* m_audio_device;
     };

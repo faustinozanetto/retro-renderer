@@ -28,8 +28,7 @@ public:
     void initialize_managers();
 
     void initialize_assets();
-
-    void initialize_audio();
+    
     void initialize_camera();
     void initialize_fonts();
     void initialize_shaders();
@@ -60,9 +59,6 @@ private:
     std::shared_ptr<retro::assets::asset_manager> m_assets_manager;
 
     std::shared_ptr<retro::assets::asset_pack> m_shaders_pack;
-
-    /* Audio */
-    std::shared_ptr<retro::audio::audio_context> m_audio_context;
 
     /* Texts */
     std::shared_ptr<retro::renderer::text> m_fps_text;

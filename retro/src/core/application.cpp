@@ -19,11 +19,15 @@ namespace retro::core
         RT_TRACE("Retro Renderer | Application initialization started.");
         s_instance = this;
         time::update_time();
+        /* Window */
         m_window = std::make_shared<renderer::window>(1280, 720, "Retro Renderer");
         m_window->set_event_function(BIND_EVENT_FN(application::on_event));
+        /* Renderer */
         renderer::renderer::initialize();
-
+        /* UI */
         ui::interface::initialize();
+        /* Audio */
+        m_audio_context = std::make_shared<audio::audio_context>();
         time::update_time();
     }
 

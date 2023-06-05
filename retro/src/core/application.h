@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+#include "audio/audio_context.h"
 #include "renderer/window/window.h"
 
 // Entry point used in applications.
@@ -29,6 +30,7 @@ namespace retro::core
         void main_loop();
 
         std::shared_ptr<renderer::window> m_window;
+        std::shared_ptr<audio::audio_context> m_audio_context;
         float m_frame_delay;
 
         friend int ::main(int argc, char **argv);

@@ -9,7 +9,6 @@ game_manager::game_manager()
     s_instance = this;
     m_game_state = game_state::playing;
     retro::renderer::renderer::set_vsync_enabled(false);
-    initialize_audio();
     initialize_assets();
 #ifdef ASSETS_FROM_PACK
 #if (ASSETS_FROM_PACK == 1)
@@ -86,7 +85,7 @@ void game_manager::debug_asset_packs()
         const std::shared_ptr<retro::assets::asset_pack>& pack = pair.second;
 
         bool packNodeOpen = ImGui::TreeNodeEx(reinterpret_cast<void*>(static_cast<intptr_t>(type)),
-            ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_Framed, "Asset Pack - Type: %d", type);
+            ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_Framed, "Asset Pack - Type: %s", retro::assets::asset::get_asset_type_to_string(type));
 
         if (packNodeOpen)
         {
@@ -185,11 +184,6 @@ void game_manager::initialize_managers()
 void game_manager::initialize_assets()
 {
     m_assets_manager = std::make_shared<retro::assets::asset_manager>();
-}
-
-void game_manager::initialize_audio()
-{
-    m_audio_context = std::make_shared<retro::audio::audio_context>();
 }
 
 void game_manager::initialize_camera()
