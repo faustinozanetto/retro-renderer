@@ -3,7 +3,7 @@
 
 namespace retro::renderer
 {
-    vertex_buffer_object::vertex_buffer_object(vertex_buffer_object_target buffer_target, uint32_t count)
+    vertex_buffer_object::vertex_buffer_object(vertex_buffer_object_target buffer_target, int count)
     {
         m_buffer_target = buffer_target;
         m_count = count;

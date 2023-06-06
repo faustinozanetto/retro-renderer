@@ -41,7 +41,7 @@ namespace retro::renderer
 
     private:
         void initialize();
-        void attach_color_texture(frame_buffer_attachment attachment, uint32_t handle_id, int index);
+        void attach_color_texture(frame_buffer_attachment attachment, uint32_t handle_id, int index) const;
         void attach_depth_texture(frame_buffer_attachment attachment, uint32_t handle_id);
 
         uint32_t m_handle_id;

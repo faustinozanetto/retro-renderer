@@ -16,8 +16,8 @@ namespace retro::renderer
 {
     struct glyph_data
     {
-        glm::ivec2 size;    // Size of glyph
-        glm::ivec2 bearing; // Offset from baseline to left/top of glyph
+        glm::vec2 size;    // Size of glyph
+        glm::vec2 bearing; // Offset from baseline to left/top of glyph
         float u1, v1, u2, v2;
         unsigned int advance; // Horizontal offset to advance to next glyph
     };

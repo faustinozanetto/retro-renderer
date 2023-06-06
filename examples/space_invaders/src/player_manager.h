@@ -12,7 +12,7 @@ struct player
     glm::vec3 speed;
 
     float move_speed;
-    
+
     int ammo;
     int max_ammo;
 
@@ -32,8 +32,8 @@ class player_manager
 public:
     player_manager();
 
-    void draw_player();
-    void draw_bullets();
+    void draw_player(const std::shared_ptr<retro::renderer::shader>& geometry_shader);
+    void draw_bullets(const std::shared_ptr<retro::renderer::shader>& geometry_shader);
 
     void update_player();
     void update_bullets();
@@ -52,22 +52,27 @@ public:
     void player_crash();
 
     void save_assets() const;
-    
+
     /* Getters */
-    player& get_player() { return m_player; }
-    std::list<bullet>& get_bullets() { return m_player_bullets; }
+    player &get_player() { return m_player; }
+    std::list<bullet> &get_bullets() { return m_player_bullets; }
 
 private:
     /* Player */
     player m_player;
     std::shared_ptr<retro::audio::sound_emitter> m_player_sound_emitter;
 
-    /* Assets */
-    std::shared_ptr<retro::renderer::texture> m_player_texture;
+    /* Model */
+    std::shared_ptr<retro::renderer::material> m_player_material;
     std::shared_ptr<retro::renderer::model> m_player_model;
+    std::shared_ptr<retro::renderer::texture> m_player_albedo_texture;
+    std::shared_ptr<retro::renderer::texture> m_player_normal_texture;
+    std::shared_ptr<retro::renderer::texture> m_player_roughness_texture;
+    std::shared_ptr<retro::renderer::texture> m_player_metallic_texture;
+    std::shared_ptr<retro::renderer::texture> m_player_ao_texture;
+
+    /* Assets */
     std::shared_ptr<retro::renderer::vertex_array_object> m_bullet_vao;
-    std::shared_ptr<retro::renderer::shader> m_player_shader;
-    std::shared_ptr<retro::renderer::shader> m_bullet_shader;
     std::shared_ptr<retro::audio::sound> m_shoot_sound;
     std::shared_ptr<retro::audio::sound> m_crash_sound;
 

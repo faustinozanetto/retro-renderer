@@ -26,12 +26,12 @@ namespace retro::renderer
     class vertex_buffer_object
     {
     public:
-        vertex_buffer_object(vertex_buffer_object_target buffer_target, uint32_t count = 0);
+        vertex_buffer_object(vertex_buffer_object_target buffer_target, int count = 0);
         ~vertex_buffer_object();
 
         /* Getters */
         uint32_t get_handle_id() const { return m_handle_id; }
-        uint32_t get_count() const { return m_count; }
+        int get_count() const { return m_count; }
         vertex_buffer_object_target get_target() const { return m_buffer_target; }
         const std::shared_ptr<vertex_buffer_layout_descriptor> &get_layout_descriptor() const { return m_layout_descriptor; }
 
@@ -48,7 +48,7 @@ namespace retro::renderer
 
     private:
         uint32_t m_handle_id;
-        uint32_t m_count;
+        int m_count;
         vertex_buffer_object_target m_buffer_target;
         std::shared_ptr<vertex_buffer_layout_descriptor> m_layout_descriptor;
     };

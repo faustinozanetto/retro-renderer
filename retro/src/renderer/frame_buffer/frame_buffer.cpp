@@ -23,7 +23,8 @@ namespace retro::renderer
         RT_TRACE("Retro Renderer | Frame buffer created successfully.");
     }
 
-    frame_buffer::frame_buffer(const std::vector<frame_buffer_attachment> &attachments, int width, int height, frame_buffer_attachment depth_attachment)
+    frame_buffer::frame_buffer(const std::vector<frame_buffer_attachment>& attachments, int width, int height,
+                               frame_buffer_attachment depth_attachment)
     {
         RT_TRACE("Retro Renderer | Started creating frame buffer.");
         m_width = width;
@@ -42,7 +43,7 @@ namespace retro::renderer
         RT_TRACE("Retro Renderer | Frame buffer created successfully.");
     }
 
-    frame_buffer::frame_buffer(const std::vector<frame_buffer_attachment> &attachments, int width, int height)
+    frame_buffer::frame_buffer(const std::vector<frame_buffer_attachment>& attachments, int width, int height)
     {
         RT_TRACE("Retro Renderer | Started creating frame buffer.");
         m_width = width;
@@ -107,14 +108,15 @@ namespace retro::renderer
         }
 
         // Draw buffers.
-        if (!m_attachments.empty())
+        if (m_attachments.size() > 1)
         {
             const GLenum buffers[8] = {
                 GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3,
-                GL_COLOR_ATTACHMENT4, GL_COLOR_ATTACHMENT5, GL_COLOR_ATTACHMENT6, GL_COLOR_ATTACHMENT7};
+                GL_COLOR_ATTACHMENT4, GL_COLOR_ATTACHMENT5, GL_COLOR_ATTACHMENT6, GL_COLOR_ATTACHMENT7
+            };
             glDrawBuffers(m_attachments.size(), buffers);
         }
-        else if (m_has_depth_attachment)
+        else if (m_attachments.empty())
         {
             // Only depth-pass
             glDrawBuffer(GL_NONE);
@@ -122,11 +124,10 @@ namespace retro::renderer
         }
 
         // Error checking
-        /*
         const auto fboStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
         RT_ASSERT_MSG(fboStatus == GL_FRAMEBUFFER_COMPLETE,
                       "An error occurred while creating frame buffer: " + std::to_string(fboStatus))
-                      */
+
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
 
@@ -142,23 +143,30 @@ namespace retro::renderer
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
 
-    void frame_buffer::attach_color_texture(frame_buffer_attachment attachment, uint32_t handle_id, int index)
+    void frame_buffer::attach_color_texture(frame_buffer_attachment attachment, uint32_t handle_id, int index) const
     {
         glBindTexture(GL_TEXTURE_2D, handle_id);
-        glTexImage2D(GL_TEXTURE_2D, 0, texture::get_texture_format_to_opengl(attachment.format), m_width, m_height, 0, texture::get_texture_internal_format_to_opengl(attachment.internal_format), GL_FLOAT, nullptr);
+        glTexImage2D(GL_TEXTURE_2D, 0, texture::get_texture_format_to_opengl(attachment.format), m_width, m_height, 0,
+                     texture::get_texture_internal_format_to_opengl(attachment.internal_format), GL_UNSIGNED_BYTE, nullptr);
 
         // Filtering
         if (attachment.filtering != texture_filtering::none)
         {
-            glTextureParameteri(handle_id, texture::get_texture_filtering_type_to_opengl(texture_filtering_type::filter_min), texture::get_texture_filtering_to_opengl(attachment.filtering));
-            glTextureParameteri(handle_id, texture::get_texture_filtering_type_to_opengl(texture_filtering_type::filter_mag), texture::get_texture_filtering_to_opengl(attachment.filtering));
+            glTextureParameteri(
+                handle_id, texture::get_texture_filtering_type_to_opengl(texture_filtering_type::filter_min),
+                texture::get_texture_filtering_to_opengl(attachment.filtering));
+            glTextureParameteri(
+                handle_id, texture::get_texture_filtering_type_to_opengl(texture_filtering_type::filter_mag),
+                texture::get_texture_filtering_to_opengl(attachment.filtering));
         }
 
         // Wrapping
         if (attachment.wrapping != texture_wrapping::none)
         {
-            glTextureParameteri(handle_id, texture::get_texture_wrapping_type_to_opengl(texture_wrapping_type::wrap_s), texture::get_texture_wrapping_to_opengl(attachment.wrapping));
-            glTextureParameteri(handle_id, texture::get_texture_wrapping_type_to_opengl(texture_wrapping_type::wrap_t), texture::get_texture_wrapping_to_opengl(attachment.wrapping));
+            glTextureParameteri(handle_id, texture::get_texture_wrapping_type_to_opengl(texture_wrapping_type::wrap_s),
+                                texture::get_texture_wrapping_to_opengl(attachment.wrapping));
+            glTextureParameteri(handle_id, texture::get_texture_wrapping_type_to_opengl(texture_wrapping_type::wrap_t),
+                                texture::get_texture_wrapping_to_opengl(attachment.wrapping));
         }
 
         // Attach texture
@@ -174,15 +182,21 @@ namespace retro::renderer
         // Filtering
         if (attachment.filtering != texture_filtering::none)
         {
-            glTextureParameteri(handle_id, texture::get_texture_filtering_type_to_opengl(texture_filtering_type::filter_min), texture::get_texture_filtering_to_opengl(attachment.filtering));
-            glTextureParameteri(handle_id, texture::get_texture_filtering_type_to_opengl(texture_filtering_type::filter_mag), texture::get_texture_filtering_to_opengl(attachment.filtering));
+            glTextureParameteri(
+                handle_id, texture::get_texture_filtering_type_to_opengl(texture_filtering_type::filter_min),
+                texture::get_texture_filtering_to_opengl(attachment.filtering));
+            glTextureParameteri(
+                handle_id, texture::get_texture_filtering_type_to_opengl(texture_filtering_type::filter_mag),
+                texture::get_texture_filtering_to_opengl(attachment.filtering));
         }
 
         // Wrapping
         if (attachment.wrapping != texture_wrapping::none)
         {
-            glTextureParameteri(handle_id, texture::get_texture_wrapping_type_to_opengl(texture_wrapping_type::wrap_s), texture::get_texture_wrapping_to_opengl(attachment.wrapping));
-            glTextureParameteri(handle_id, texture::get_texture_wrapping_type_to_opengl(texture_wrapping_type::wrap_t), texture::get_texture_wrapping_to_opengl(attachment.wrapping));
+            glTextureParameteri(handle_id, texture::get_texture_wrapping_type_to_opengl(texture_wrapping_type::wrap_s),
+                                texture::get_texture_wrapping_to_opengl(attachment.wrapping));
+            glTextureParameteri(handle_id, texture::get_texture_wrapping_type_to_opengl(texture_wrapping_type::wrap_t),
+                                texture::get_texture_wrapping_to_opengl(attachment.wrapping));
         }
 
         // Attach texture
@@ -190,15 +204,18 @@ namespace retro::renderer
         glBindTexture(GL_TEXTURE_2D, 0);
     }
 
-    void frame_buffer::resize(const glm::ivec2 &dimensions)
+    void frame_buffer::resize(const glm::ivec2& dimensions)
     {
         m_width = dimensions.x;
         m_height = dimensions.y;
         initialize();
     }
 
-    void frame_buffer::attach_texture(const std::shared_ptr<texture> &texture, uint32_t target, render_buffer_attachment_type attachment, uint32_t texture_target, int mipmaps_level)
+    void frame_buffer::attach_texture(const std::shared_ptr<texture>& texture, uint32_t target,
+                                      render_buffer_attachment_type attachment, uint32_t texture_target,
+                                      int mipmaps_level)
     {
-        glFramebufferTexture2D(target, render_buffer::get_render_buffer_attachment_type_to_opengl(attachment), texture_target, texture->get_handle_id(), mipmaps_level);
+        glFramebufferTexture2D(target, render_buffer::get_render_buffer_attachment_type_to_opengl(attachment),
+                               texture_target, texture->get_handle_id(), mipmaps_level);
     }
 }

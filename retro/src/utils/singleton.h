@@ -8,7 +8,7 @@ namespace retro
     class singleton
     {
     public:
-        static T &get()
+        static T& get()
         {
             if (!s_instance)
                 s_instance = new T();
@@ -18,7 +18,7 @@ namespace retro
         template <typename... TArgs>
         static void initialize(TArgs... args)
         {
-            assert(s_instance == nullptr, "Singleton already initialized!");
+            RT_ASSERT_MSG(s_instance == nullptr, "Singleton already initialized!");
             s_instance = new T(std::forward<TArgs>(args)...);
         }
 
@@ -33,16 +33,13 @@ namespace retro
 
     protected:
         singleton()
-        {
-        }
+        = default;
 
-        ~singleton()
-        {
-        }
+        virtual ~singleton() = default;
 
-        static T *s_instance;
+        static T* s_instance;
     };
 
     template <class T>
-    T *singleton<T>::s_instance = nullptr;
+    T* singleton<T>::s_instance = nullptr;
 }

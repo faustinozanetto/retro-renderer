@@ -181,7 +181,7 @@ namespace retro::renderer
         RT_ASSERT_MSG(false, "Invalid texture wrapping type!");
     }
 
-    uint32_t texture::get_texture_filtering_to_opengl(texture_filtering filtering)
+    int texture::get_texture_filtering_to_opengl(texture_filtering filtering)
     {
         switch (filtering)
         {
@@ -203,7 +203,7 @@ namespace retro::renderer
         RT_ASSERT_MSG(false, "Invalid texture filtering!");
     }
 
-    uint32_t texture::get_texture_filtering_type_to_opengl(texture_filtering_type filtering_type)
+    int texture::get_texture_filtering_type_to_opengl(texture_filtering_type filtering_type)
     {
         switch (filtering_type)
         {
@@ -215,7 +215,7 @@ namespace retro::renderer
         RT_ASSERT_MSG(false, "Invalid texture filtering type!");
     }
 
-    uint32_t texture::get_texture_wrapping_to_opengl(texture_wrapping wrapping)
+    int texture::get_texture_wrapping_to_opengl(texture_wrapping wrapping)
     {
         switch (wrapping)
         {
@@ -233,7 +233,7 @@ namespace retro::renderer
         RT_ASSERT_MSG(false, "Invalid texture wrapping!");
     }
 
-    uint32_t texture::get_texture_wrapping_type_to_opengl(texture_wrapping_type wrapping_type)
+    int texture::get_texture_wrapping_type_to_opengl(texture_wrapping_type wrapping_type)
     {
         switch (wrapping_type)
         {
@@ -323,7 +323,7 @@ namespace retro::renderer
         RT_ASSERT_MSG(false, "Invalid texture format!");
     }
 
-    uint32_t texture::get_texture_internal_format_to_opengl(texture_internal_format internal_format)
+    int texture::get_texture_internal_format_to_opengl(texture_internal_format internal_format)
     {
         switch (internal_format)
         {
@@ -349,7 +349,7 @@ namespace retro::renderer
         RT_ASSERT_MSG(false, "Invalid texture internal format!");
     }
 
-    uint32_t texture::get_texture_format_to_opengl(texture_format format)
+    int texture::get_texture_format_to_opengl(texture_format format)
     {
         switch (format)
         {

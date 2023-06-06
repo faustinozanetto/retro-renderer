@@ -20,8 +20,8 @@ class level_manager
 public:
     level_manager();
 
-    void draw_background();
-    void draw_ammo_pickups();
+    void draw_background(const std::shared_ptr<retro::renderer::shader>& geometry_shader);
+    void draw_ammo_pickups(const std::shared_ptr<retro::renderer::shader>& geometry_shader);
     void update_ammo_pickups();
 
     void play_ambient_sound();
@@ -38,10 +38,10 @@ public:
     void play_ammo_pickup_sound();
 
     void save_assets() const;
-    
+
     /* Getters */
     static level_manager& get() { return *s_instance; }
-    
+
     glm::vec2 get_level_min() const { return m_level_min; }
     glm::vec2 get_level_max() const { return m_level_max; }
     std::list<ammo_pickup>& get_ammo_pickups() { return m_ammo_pickups; }
@@ -54,8 +54,6 @@ private:
     std::shared_ptr<retro::audio::sound_emitter> m_ambient_sound_emitter;
 
     /* Assets */
-    std::shared_ptr<retro::renderer::shader> m_background_shader;
-    std::shared_ptr<retro::renderer::shader> m_ammo_pickup_shader;
     std::shared_ptr<retro::renderer::texture> m_background_texture;
     std::shared_ptr<retro::renderer::vertex_array_object> m_background_vao;
     std::shared_ptr<retro::audio::sound> m_ammo_pickup_sound;

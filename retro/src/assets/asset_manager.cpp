@@ -9,17 +9,7 @@ namespace retro::assets
 
     const std::shared_ptr<asset_pack>& asset_manager::get_asset_pack(const std::string& asset_pack_name) const
     {
-        std::shared_ptr<asset_pack> asset_pack = nullptr;
-        for (auto& pack : m_asset_packs)
-        {
-            if (pack.first == asset_pack_name)
-            {
-                asset_pack = pack.second;
-                break;
-            }
-        }
-        RT_ASSERT_MSG(asset_pack, "Could not find asset pack!");
-        return asset_pack;
+        return m_asset_packs.at(asset_pack_name);
     }
 
     void asset_manager::register_asset_pack(const std::string& asset_pack_name)

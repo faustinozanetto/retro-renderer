@@ -129,7 +129,7 @@ namespace retro::renderer
 
         font->get_font_vao()->bind();
         bind_texture(0, glyph_atlas);
-        submit_arrays(GL_TRIANGLES, text_vertices.size());
+        submit_arrays(GL_TRIANGLES, (int)text_vertices.size());
         font->get_font_vao()->un_bind();
     }
 

@@ -38,7 +38,7 @@ namespace retro::renderer
                 {"a_tangent", vertex_buffer_entry_type::vec_float3, false},
                 {"a_bitangent", vertex_buffer_entry_type::vec_float3, false}};
 
-        std::shared_ptr<vertex_buffer_layout_descriptor> vertices_vbo_layout_descriptor = std::make_shared<
+        const std::shared_ptr<vertex_buffer_layout_descriptor> vertices_vbo_layout_descriptor = std::make_shared<
             vertex_buffer_layout_descriptor>(layout_elements);
         vertices_vbo->set_layout_descriptor(vertices_vbo_layout_descriptor);
 

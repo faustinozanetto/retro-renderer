@@ -128,16 +128,16 @@ namespace retro::renderer
         static std::string get_texture_wrapping_to_string(texture_wrapping wrapping);
         static std::string get_texture_wrapping_type_to_string(texture_wrapping_type wrapping_type);
 
-        static uint32_t get_texture_filtering_to_opengl(texture_filtering filtering);
-        static uint32_t get_texture_filtering_type_to_opengl(texture_filtering_type filtering_type);
-        static uint32_t get_texture_wrapping_to_opengl(texture_wrapping wrapping);
-        static uint32_t get_texture_wrapping_type_to_opengl(texture_wrapping_type wrapping_type);
+        static int get_texture_filtering_to_opengl(texture_filtering filtering);
+        static int get_texture_filtering_type_to_opengl(texture_filtering_type filtering_type);
+        static int get_texture_wrapping_to_opengl(texture_wrapping wrapping);
+        static int get_texture_wrapping_type_to_opengl(texture_wrapping_type wrapping_type);
 
         static std::string get_texture_format_to_string(texture_format format);
         static std::string get_texture_internal_format_to_string(texture_internal_format internal_format);
 
-        static uint32_t get_texture_format_to_opengl(texture_format format);
-        static uint32_t get_texture_internal_format_to_opengl(texture_internal_format internal_format);
+        static int get_texture_format_to_opengl(texture_format format);
+        static int get_texture_internal_format_to_opengl(texture_internal_format internal_format);
 
         static texture_formats get_texture_formats_from_channel_count(int channel_count);
 

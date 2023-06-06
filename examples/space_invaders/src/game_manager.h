@@ -23,7 +23,7 @@ public:
     game_manager();
 
     void start_game();
-    
+
     void update_game();
     void draw_game();
 
@@ -32,11 +32,13 @@ public:
     void handle_collisions();
     void check_game_end();
     void initialize_managers();
-    
+
     void initialize_camera();
     void initialize_fonts();
     void initialize_shaders();
     void initialize_texts();
+    void initialize_screen_quad();
+    void initialize_frame_buffers();
 
     void check_wave_finished();
     void initialize_game_waves();
@@ -51,12 +53,12 @@ public:
     /* Getters */
     static game_manager& get() { return *s_instance; }
     std::shared_ptr<retro::camera::camera>& get_camera() { return m_camera; }
-    std::shared_ptr<player_manager>& get_player_manager() { return m_player_manager;}
-    std::shared_ptr<level_manager>& get_level_manager() { return m_level_manager;}
-    std::shared_ptr<enemies_manager>& get_enemies_manager() { return m_enemies_manager;}
+    std::shared_ptr<player_manager>& get_player_manager() { return m_player_manager; }
+    std::shared_ptr<level_manager>& get_level_manager() { return m_level_manager; }
+    std::shared_ptr<enemies_manager>& get_enemies_manager() { return m_enemies_manager; }
     int get_current_wave() const { return m_current_wave; }
     int get_total_waves() const { return m_total_waves; }
-    
+
     static bool check_collider_collision(const box_collider& collider1, const box_collider& collider2);
 
 private:
@@ -66,7 +68,15 @@ private:
     std::shared_ptr<level_manager> m_level_manager;
     std::shared_ptr<enemies_manager> m_enemies_manager;
     bool m_disable_player_collision;
-    
+
+    /* Rendering */
+    glm::vec3 m_light_dir;
+    std::shared_ptr<retro::renderer::frame_buffer> m_geometry_fbo;
+    std::shared_ptr<retro::renderer::shader> m_geometry_shader;
+    std::shared_ptr<retro::renderer::shader> m_screen_shader;
+    std::shared_ptr<retro::renderer::shader> m_pbr_shader;
+    std::shared_ptr<retro::renderer::vertex_array_object> m_screen_vao;
+
     /* Waves */
     int m_total_waves;
     int m_current_wave;
@@ -77,11 +87,11 @@ private:
     std::shared_ptr<retro::renderer::text> m_ammo_text;
     std::shared_ptr<retro::renderer::text> m_wave_text;
     std::shared_ptr<retro::renderer::text> m_enemies_left_text;
-    
+
     /* Fonts */
     std::shared_ptr<retro::renderer::font> m_font;
     std::shared_ptr<retro::renderer::shader> m_font_shader;
-    
+
     /* Camera */
     std::shared_ptr<retro::camera::camera> m_camera;
 
