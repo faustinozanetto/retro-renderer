@@ -105,6 +105,8 @@ void player_manager::initialize_player_assets()
         retro::renderer::texture>("player_metallic.png");
     m_player_ao_texture = retro::assets::asset_manager::get().get_asset_pack("textures")->get_asset<
         retro::renderer::texture>("player_ao.png");
+    m_player_emissive_texture = retro::assets::asset_manager::get().get_asset_pack("textures")->get_asset<
+       retro::renderer::texture>("player_emissive.png");
     
     m_player_model = retro::assets::asset_manager::get().get_asset_pack("models")->get_asset<
         retro::renderer::model>("player.obj");
@@ -118,6 +120,7 @@ void player_manager::initialize_player_assets()
     m_player_roughness_texture = retro::renderer::texture_loader::load_texture_from_file("resources/textures/player/player_roughness.png");
     m_player_metallic_texture = retro::renderer::texture_loader::load_texture_from_file("resources/textures/player/player_metallic.png");
     m_player_ao_texture = retro::renderer::texture_loader::load_texture_from_file("resources/textures/player/player_ao.png");
+    m_player_emissive_texture = retro::renderer::texture_loader::load_texture_from_file("resources/textures/player/player_emissive.png");
     
     m_player_model = retro::renderer::model_loader::load_model_from_file(
         "resources/models/player.obj");
@@ -155,12 +158,18 @@ void player_manager::initialize_player_model()
     ambient_occlusion.is_enabled = true;
     ambient_occlusion.type = retro::renderer::material_texture_type::ambient_occlusion;
 
+    retro::renderer::material_texture emissive;
+    emissive.texture = m_player_emissive_texture;
+    emissive.is_enabled = true;
+    emissive.type = retro::renderer::material_texture_type::emissive;
+
     std::map<retro::renderer::material_texture_type, int> material_bindings;
     material_bindings[retro::renderer::material_texture_type::albedo] = 0;
     material_bindings[retro::renderer::material_texture_type::normal] = 1;
     material_bindings[retro::renderer::material_texture_type::roughness] = 2;
     material_bindings[retro::renderer::material_texture_type::metallic] = 3;
     material_bindings[retro::renderer::material_texture_type::ambient_occlusion] = 4;
+    material_bindings[retro::renderer::material_texture_type::emissive] = 5;
 
     std::unordered_map<retro::renderer::material_texture_type, retro::renderer::material_texture> textures;
     textures[retro::renderer::material_texture_type::albedo] = albedo;
@@ -168,8 +177,10 @@ void player_manager::initialize_player_model()
     textures[retro::renderer::material_texture_type::roughness] = roughness;
     textures[retro::renderer::material_texture_type::metallic] = metallic;
     textures[retro::renderer::material_texture_type::ambient_occlusion] = ambient_occlusion;
+    textures[retro::renderer::material_texture_type::emissive] = emissive;
 
     m_player_material = std::make_shared<retro::renderer::material>(textures, material_bindings);
+    m_player_material->set_emissive_strength(1.0f);
     {
         m_bullet_vao = std::make_shared<retro::renderer::vertex_array_object>();
         m_bullet_vao->bind();
@@ -260,6 +271,7 @@ void player_manager::save_assets() const
     retro::assets::asset_manager::get().get_asset_pack("textures")->save_asset(m_player_roughness_texture);
     retro::assets::asset_manager::get().get_asset_pack("textures")->save_asset(m_player_metallic_texture);
     retro::assets::asset_manager::get().get_asset_pack("textures")->save_asset(m_player_ao_texture);
+    retro::assets::asset_manager::get().get_asset_pack("textures")->save_asset(m_player_emissive_texture);
     
     retro::assets::asset_manager::get().get_asset_pack("models")->save_asset(
         m_player_model);

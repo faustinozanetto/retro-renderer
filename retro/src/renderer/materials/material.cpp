@@ -5,18 +5,21 @@
 
 namespace retro::renderer
 {
-    material::material(const std::map<material_texture_type, int> &texture_bindings) : material({}, texture_bindings)
+    material::material(const std::map<material_texture_type, int>& texture_bindings) : material({}, texture_bindings)
     {
     }
 
-    material::material(const std::unordered_map<material_texture_type, material_texture> &textures, const std::map<material_texture_type, int> &texture_bindings)
+    material::material(const std::unordered_map<material_texture_type, material_texture>& textures,
+                       const std::map<material_texture_type, int>& texture_bindings)
     {
         const material_texture_type types[] = {
             material_texture_type::albedo,
             material_texture_type::normal,
             material_texture_type::roughness,
             material_texture_type::metallic,
-            material_texture_type::ambient_occlusion};
+            material_texture_type::ambient_occlusion,
+            material_texture_type::emissive
+        };
 
         for (const material_texture_type type : types)
         {
@@ -27,16 +30,18 @@ namespace retro::renderer
             m_textures.insert({type, texture});
         }
 
-        for (auto &[type, texture] : textures)
+        for (auto& [type, texture] : textures)
         {
             m_textures[type] = texture;
         }
 
         m_material_texture_bindings = texture_bindings;
         m_albedo = glm::vec3(0.15f);
+        m_emissive = glm::vec3(0.0f);
         m_roughness = 1.0f;
         m_metallic = 0.0f;
         m_ambient_occlusion = 1.0f;
+        m_emissive_strength = 0.0f;
         m_tilling = 1.0f;
     }
 
@@ -44,15 +49,17 @@ namespace retro::renderer
     {
     }
 
-    void material::bind(const std::shared_ptr<shader> &shader)
+    void material::bind(const std::shared_ptr<shader>& shader)
     {
         shader->set_vec_float3("u_material.albedo", m_albedo);
+        shader->set_vec_float3("u_material.emissive", m_emissive);
         shader->set_float("u_material.roughness", m_roughness);
         shader->set_float("u_material.metallic", m_metallic);
         shader->set_float("u_material.ambient_occlusion", m_ambient_occlusion);
         shader->set_float("u_material.tilling", m_tilling);
+        shader->set_float("u_material.emissive_strength", m_emissive_strength);
 
-        for (auto &[type, texture] : m_textures)
+        for (auto& [type, texture] : m_textures)
         {
             std::string enabled_uniform_location = get_material_enabled_uniform_location(type);
             shader->set_int(enabled_uniform_location, texture.is_enabled ? 1 : 0);
@@ -77,6 +84,8 @@ namespace retro::renderer
             return "metallic";
         case material_texture_type::ambient_occlusion:
             return "ambient_occlusion";
+        case material_texture_type::emissive:
+            return "emissive";
         }
         RT_ASSERT_MSG(false, "Invalid material texture type!");
     }
@@ -95,6 +104,8 @@ namespace retro::renderer
             return "u_material.metallic_map_enabled";
         case material_texture_type::ambient_occlusion:
             return "u_material.ambient_occlusion_map_enabled";
+        case material_texture_type::emissive:
+            return "u_material.emissive_map_enabled";
         }
         RT_ASSERT_MSG(false, "Invalid material texture type!");
     }

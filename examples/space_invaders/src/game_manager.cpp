@@ -88,7 +88,8 @@ void game_manager::draw_game()
     retro::renderer::renderer::bind_texture(0, m_geometry_fbo->get_attachment_id(0)); // Position
     retro::renderer::renderer::bind_texture(1, m_geometry_fbo->get_attachment_id(1)); // Albedo
     retro::renderer::renderer::bind_texture(2, m_geometry_fbo->get_attachment_id(2)); // Normal
-    retro::renderer::renderer::bind_texture(3, m_geometry_fbo->get_attachment_id(3)); // Roughmetalao
+    retro::renderer::renderer::bind_texture(3, m_geometry_fbo->get_attachment_id(3)); // Roughness - Metallic - AO 
+    retro::renderer::renderer::bind_texture(4, m_geometry_fbo->get_attachment_id(4)); // Emissive
     m_screen_vao->bind();
     retro::renderer::renderer::submit_elements(GL_TRIANGLES, 6);
     m_screen_vao->un_bind();
@@ -376,7 +377,14 @@ void game_manager::initialize_frame_buffers()
                 retro::renderer::texture_internal_format::rgba,
                 retro::renderer::texture_filtering::linear,
                 retro::renderer::texture_wrapping::clamp_to_edge,
-            }
+            },
+            // Emissive
+           {
+               retro::renderer::texture_format::rgba8,
+               retro::renderer::texture_internal_format::rgba,
+               retro::renderer::texture_filtering::linear,
+               retro::renderer::texture_wrapping::clamp_to_edge,
+           }
         };
         retro::renderer::frame_buffer_attachment depth_attachment = {
             retro::renderer::texture_format::depth_component32f,

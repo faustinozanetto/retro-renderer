@@ -70,6 +70,7 @@ private:
     std::shared_ptr<retro::renderer::texture> m_player_roughness_texture;
     std::shared_ptr<retro::renderer::texture> m_player_metallic_texture;
     std::shared_ptr<retro::renderer::texture> m_player_ao_texture;
+    std::shared_ptr<retro::renderer::texture> m_player_emissive_texture;
 
     /* Assets */
     std::shared_ptr<retro::renderer::vertex_array_object> m_bullet_vao;

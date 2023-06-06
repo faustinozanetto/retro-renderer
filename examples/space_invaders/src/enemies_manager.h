@@ -51,6 +51,7 @@ private:
     std::shared_ptr<retro::renderer::texture> m_enemy_roughness_texture;
     std::shared_ptr<retro::renderer::texture> m_enemy_metallic_texture;
     std::shared_ptr<retro::renderer::texture> m_enemy_ao_texture;
+    std::shared_ptr<retro::renderer::texture> m_enemy_emissive_texture;
 
     /* Generation */
     std::random_device m_enemy_rd;
