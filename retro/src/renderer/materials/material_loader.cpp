@@ -56,7 +56,8 @@ namespace retro::renderer
                 current_section = line.substr(1, line.length() - 3);
             }
             // Read each section
-            else {
+            else
+            {
                 if (current_section == "parameters")
                 {
                     parse_material_parameters_from_file(line, material_data);
@@ -70,7 +71,7 @@ namespace retro::renderer
         return material_data;
     }
 
-    void material_loader::parse_material_parameters_from_file(const std::string& line, material_data& material_data)
+    void material_loader::parse_material_parameters_from_file(const std::string &line, material_data &material_data)
     {
         std::istringstream iss(line);
         std::string param;
@@ -109,7 +110,7 @@ namespace retro::renderer
         }
     }
 
-    void material_loader::parse_material_textures_from_file(const std::string& line, std::ifstream& material_file, material_data& material_data)
+    void material_loader::parse_material_textures_from_file(const std::string &line, std::ifstream &material_file, material_data &material_data)
     {
         std::string texture_section_line;
         std::string current_texture_type;
@@ -145,19 +146,22 @@ namespace retro::renderer
             std::string file_name = utils::remove_carriage(utils::extract_file_name(texture_path));
             auto texture_asset = assets::asset_manager::get().get_asset<texture, assets::asset_type::texture>(file_name);
             // If the texture was previously loaded use that one
-            if (texture_asset) {
+            if (texture_asset)
+            {
                 RT_TRACE("Material has texture asset '{}' already loaded!",
-                    material::get_material_texture_type_to_string(texture_type));
+                         material::get_material_texture_type_to_string(texture_type));
                 material_texture.texture = texture_asset;
             }
-            else {
+            else
+            {
+                RT_TRACE("Material texture asset '{}' created because it wasnt found!",
+                         material::get_material_texture_type_to_string(texture_type));
                 material_texture.texture = texture_loader::load_texture_from_file(texture_path);
             }
             material_texture.type = texture_type;
             material_texture.is_enabled = true;
 
-            material_data.textures.insert({ texture_type, material_texture });
-
+            material_data.textures.insert({texture_type, material_texture});
         }
     }
 }

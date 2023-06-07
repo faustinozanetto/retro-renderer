@@ -10,12 +10,12 @@
 
 namespace retro::assets
 {
-    asset_pack::asset_pack(const std::string& file_path)
+    asset_pack::asset_pack(const std::string &file_path)
     {
         m_file_path = file_path;
     }
 
-    void asset_pack::save_asset(const std::shared_ptr<asset>& asset)
+    void asset_pack::save_asset(const std::shared_ptr<asset> &asset)
     {
         m_assets.insert(std::make_pair(asset->get_metadata().uuid, asset));
     }
@@ -29,14 +29,16 @@ namespace retro::assets
 
         // Write the number of assets in the pack
         const size_t num_assets = m_assets.size();
-        asset_pack_file.write(reinterpret_cast<const char*>(&num_assets), sizeof(num_assets));
+        asset_pack_file.write(reinterpret_cast<const char *>(&num_assets), sizeof(num_assets));
 
-        for (const auto& asset : m_assets)
+        for (const auto &asset : m_assets)
         {
             // Serialize the asset's metadata
             RT_ASSERT_MSG(asset.second, "Asset has invalid asset pointer!");
-            
-            const asset_metadata& metadata = asset.second->get_metadata();
+
+            const asset_metadata &metadata = asset.second->get_metadata();
+            RT_TRACE("  - Serializing Asset: {} {} {} {}", metadata.uuid, metadata.file_path,
+                     metadata.file_name, static_cast<int>(metadata.type));
             serialize_asset_metadata(metadata, asset_pack_file);
             // Perform custom asset serialization
             asset.second->serialize(asset_pack_file);
@@ -58,12 +60,13 @@ namespace retro::assets
 
         // Deserialize the number of assets in the pack
         size_t num_assets;
-        asset_pack_file.read(reinterpret_cast<char*>(&num_assets), sizeof(num_assets));
+        asset_pack_file.read(reinterpret_cast<char *>(&num_assets), sizeof(num_assets));
 
         for (size_t i = 0; i < num_assets; ++i)
         {
             // Check if we have reached the end of the file
-            if (!asset_pack_file) break;
+            if (!asset_pack_file)
+                break;
 
             // Deserialize the asset's metadata
             asset_metadata metadata = deserialize_asset_metadata(asset_pack_file);
@@ -77,36 +80,36 @@ namespace retro::assets
             switch (metadata.type)
             {
             case asset_type::shader:
-                {
-                    asset = renderer::shader::deserialize(metadata, asset_pack_file);
-                    break;
-                }
+            {
+                asset = renderer::shader::deserialize(metadata, asset_pack_file);
+                break;
+            }
             case asset_type::model:
-                {
-                    asset = renderer::model::deserialize(metadata, asset_pack_file);
-                    break;
-                }
+            {
+                asset = renderer::model::deserialize(metadata, asset_pack_file);
+                break;
+            }
 
             case asset_type::texture:
-                {
-                    asset = renderer::texture::deserialize(metadata, asset_pack_file);
-                    break;
-                }
+            {
+                asset = renderer::texture::deserialize(metadata, asset_pack_file);
+                break;
+            }
             case asset_type::sound:
-                {
-                    asset = audio::sound::deserialize(metadata, asset_pack_file);
-                    break;
-                }
+            {
+                asset = audio::sound::deserialize(metadata, asset_pack_file);
+                break;
+            }
             case asset_type::font:
-                {
-                    asset = renderer::font::deserialize(metadata, asset_pack_file);
-                    break;
-                }
+            {
+                asset = renderer::font::deserialize(metadata, asset_pack_file);
+                break;
+            }
             case asset_type::material:
-                {
-                    asset = renderer::material::deserialize(metadata, asset_pack_file);
-                    break;
-                }
+            {
+                asset = renderer::material::deserialize(metadata, asset_pack_file);
+                break;
+            }
             }
 
             RT_ASSERT_MSG(asset, "Failed to deserialized asset: '{}'!", name);
@@ -118,63 +121,63 @@ namespace retro::assets
         RT_SEPARATOR();
     }
 
-    void asset_pack::write_string(const std::string& string, std::ofstream& asset_pack)
+    void asset_pack::write_string(const std::string &string, std::ofstream &asset_pack)
     {
         size_t size = string.size();
-        asset_pack.write(reinterpret_cast<const char*>(&size), sizeof(size));
+        asset_pack.write(reinterpret_cast<const char *>(&size), sizeof(size));
         asset_pack.write(string.c_str(), size);
     }
 
-    std::string asset_pack::read_string(std::ifstream& asset_pack)
+    std::string asset_pack::read_string(std::ifstream &asset_pack)
     {
         size_t size;
-        asset_pack.read(reinterpret_cast<char*>(&size), sizeof(size));
+        asset_pack.read(reinterpret_cast<char *>(&size), sizeof(size));
         std::string str(size, '\0');
         asset_pack.read(&str[0], size);
         return str;
     }
 
-    void asset_pack::serialize_asset_metadata(const asset_metadata& asset_metadata, std::ofstream& asset_pack_file)
+    void asset_pack::serialize_asset_metadata(const asset_metadata &asset_metadata, std::ofstream &asset_pack_file)
     {
         RT_ASSERT_MSG(asset_metadata.file_name.c_str(), "Invalid asset metadata!");
         // Serialize the asset's type
-        asset_pack_file.write(reinterpret_cast<const char*>(&asset_metadata.type), sizeof(asset_metadata.type));
+        asset_pack_file.write(reinterpret_cast<const char *>(&asset_metadata.type), sizeof(asset_metadata.type));
 
         // Serialize the asset's file name
         const size_t file_name_length = asset_metadata.file_name.size();
-        asset_pack_file.write(reinterpret_cast<const char*>(&file_name_length), sizeof(file_name_length));
+        asset_pack_file.write(reinterpret_cast<const char *>(&file_name_length), sizeof(file_name_length));
         asset_pack_file.write(asset_metadata.file_name.c_str(), file_name_length);
 
         // Serialize the asset's file path
         const size_t file_path_length = asset_metadata.file_path.size();
-        asset_pack_file.write(reinterpret_cast<const char*>(&file_path_length), sizeof(file_path_length));
+        asset_pack_file.write(reinterpret_cast<const char *>(&file_path_length), sizeof(file_path_length));
         asset_pack_file.write(asset_metadata.file_path.c_str(), file_path_length);
 
         // Serialize the asset's UUID
-        asset_pack_file.write(reinterpret_cast<const char*>(&asset_metadata.uuid), sizeof(asset_metadata.uuid));
+        asset_pack_file.write(reinterpret_cast<const char *>(&asset_metadata.uuid), sizeof(asset_metadata.uuid));
     }
 
-    asset_metadata asset_pack::deserialize_asset_metadata(std::ifstream& asset_pack_file)
+    asset_metadata asset_pack::deserialize_asset_metadata(std::ifstream &asset_pack_file)
     {
         asset_metadata metadata;
 
         // Deserialize the asset's type
-        asset_pack_file.read(reinterpret_cast<char*>(&metadata.type), sizeof(metadata.type));
+        asset_pack_file.read(reinterpret_cast<char *>(&metadata.type), sizeof(metadata.type));
 
         // Deserialize the asset's file name
         size_t file_name_length;
-        asset_pack_file.read(reinterpret_cast<char*>(&file_name_length), sizeof(file_name_length));
+        asset_pack_file.read(reinterpret_cast<char *>(&file_name_length), sizeof(file_name_length));
         metadata.file_name.resize(file_name_length);
         asset_pack_file.read(&metadata.file_name[0], file_name_length);
 
         // Deserialize the asset's file path
         size_t file_path_length;
-        asset_pack_file.read(reinterpret_cast<char*>(&file_path_length), sizeof(file_path_length));
+        asset_pack_file.read(reinterpret_cast<char *>(&file_path_length), sizeof(file_path_length));
         metadata.file_path.resize(file_path_length);
         asset_pack_file.read(&metadata.file_path[0], file_path_length);
 
         // Deserialize the asset's UUID
-        asset_pack_file.read(reinterpret_cast<char*>(&metadata.uuid), sizeof(metadata.uuid));
+        asset_pack_file.read(reinterpret_cast<char *>(&metadata.uuid), sizeof(metadata.uuid));
 
         return metadata;
     }

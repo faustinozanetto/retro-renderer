@@ -52,6 +52,17 @@ namespace retro::renderer
         }
     }
 
+    void material::save_textures(const std::shared_ptr<assets::asset_pack> &asset_pack)
+    {
+        for (auto &texture : m_data.textures)
+        {
+            if (!texture.second.texture)
+                continue;
+
+            asset_pack->save_asset(texture.second.texture);
+        }
+    }
+
     void material::serialize(std::ofstream &asset_pack_file)
     {
         // Serialize material data excluding the textures map

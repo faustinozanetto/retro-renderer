@@ -20,10 +20,10 @@ class enemies_manager
 public:
     enemies_manager();
 
-    void draw_enemies(const std::shared_ptr<retro::renderer::shader>& geometry_shader);
+    void draw_enemies(const std::shared_ptr<retro::renderer::shader> &geometry_shader);
     void update_enemies();
 
-    void play_enemy_explode_sound(enemy& enemy);
+    void play_enemy_explode_sound(enemy &enemy);
 
     void initialize_enemy_params();
     void initialize_enemy_assets();
@@ -35,7 +35,7 @@ public:
     void save_assets() const;
 
     /* Getters */
-    std::vector<enemy>& get_enemies() { return m_enemies; }
+    std::vector<enemy> &get_enemies() { return m_enemies; }
 
 private:
     /* Enemies */
@@ -46,12 +46,6 @@ private:
     /* Model */
     std::shared_ptr<retro::renderer::material> m_enemy_material;
     std::shared_ptr<retro::renderer::model> m_enemy_model;
-    std::shared_ptr<retro::renderer::texture> m_enemy_albedo_texture;
-    std::shared_ptr<retro::renderer::texture> m_enemy_normal_texture;
-    std::shared_ptr<retro::renderer::texture> m_enemy_roughness_texture;
-    std::shared_ptr<retro::renderer::texture> m_enemy_metallic_texture;
-    std::shared_ptr<retro::renderer::texture> m_enemy_ao_texture;
-    std::shared_ptr<retro::renderer::texture> m_enemy_emissive_texture;
 
     /* Generation */
     std::random_device m_enemy_rd;

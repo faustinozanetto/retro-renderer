@@ -32,8 +32,8 @@ class player_manager
 public:
     player_manager();
 
-    void draw_player(const std::shared_ptr<retro::renderer::shader>& geometry_shader);
-    void draw_bullets(const std::shared_ptr<retro::renderer::shader>& geometry_shader);
+    void draw_player(const std::shared_ptr<retro::renderer::shader> &geometry_shader);
+    void draw_bullets(const std::shared_ptr<retro::renderer::shader> &geometry_shader);
 
     void update_player();
     void update_bullets();
@@ -63,12 +63,6 @@ private:
     std::shared_ptr<retro::audio::sound_emitter> m_player_sound_emitter;
     std::shared_ptr<retro::renderer::material> m_player_material;
     std::shared_ptr<retro::renderer::model> m_player_model;
-    std::shared_ptr<retro::renderer::texture> m_player_albedo_texture;
-    std::shared_ptr<retro::renderer::texture> m_player_normal_texture;
-    std::shared_ptr<retro::renderer::texture> m_player_roughness_texture;
-    std::shared_ptr<retro::renderer::texture> m_player_metallic_texture;
-    std::shared_ptr<retro::renderer::texture> m_player_ao_texture;
-    std::shared_ptr<retro::renderer::texture> m_player_emissive_texture;
 
     /* Bullet */
     std::shared_ptr<retro::renderer::vertex_array_object> m_bullet_vao;

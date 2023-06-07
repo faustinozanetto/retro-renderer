@@ -96,13 +96,6 @@ void player_manager::initialize_player_assets()
 {
 #ifdef ASSETS_FROM_PACK
 #if (ASSETS_FROM_PACK == 1)
-    m_player_albedo_texture = retro::assets::asset_manager::get().get_asset_pack("textures")->get_asset<retro::renderer::texture>("player_albedo.png");
-    m_player_normal_texture = retro::assets::asset_manager::get().get_asset_pack("textures")->get_asset<retro::renderer::texture>("player_normal.png");
-    m_player_roughness_texture = retro::assets::asset_manager::get().get_asset_pack("textures")->get_asset<retro::renderer::texture>("player_roughness.png");
-    m_player_metallic_texture = retro::assets::asset_manager::get().get_asset_pack("textures")->get_asset<retro::renderer::texture>("player_metallic.png");
-    m_player_ao_texture = retro::assets::asset_manager::get().get_asset_pack("textures")->get_asset<retro::renderer::texture>("player_ao.png");
-    m_player_emissive_texture = retro::assets::asset_manager::get().get_asset_pack("textures")->get_asset<retro::renderer::texture>("player_emissive.png");
-
     m_player_model = retro::assets::asset_manager::get().get_asset_pack("models")->get_asset<retro::renderer::model>("player.obj");
     m_shoot_sound = retro::assets::asset_manager::get().get_asset_pack("sounds")->get_asset<retro::audio::sound>(
         "player_shoot.wav");
@@ -111,13 +104,6 @@ void player_manager::initialize_player_assets()
     m_player_material = retro::assets::asset_manager::get().get_asset_pack("materials")->get_asset<retro::renderer::material>("player.rrm");
     m_bullet_material = retro::assets::asset_manager::get().get_asset_pack("materials")->get_asset<retro::renderer::material>("bullet.rrm");
 #else
-    m_player_albedo_texture = retro::renderer::texture_loader::load_texture_from_file("resources/textures/player/player_albedo.png");
-    m_player_normal_texture = retro::renderer::texture_loader::load_texture_from_file("resources/textures/player/player_normal.png");
-    m_player_roughness_texture = retro::renderer::texture_loader::load_texture_from_file("resources/textures/player/player_roughness.png");
-    m_player_metallic_texture = retro::renderer::texture_loader::load_texture_from_file("resources/textures/player/player_metallic.png");
-    m_player_ao_texture = retro::renderer::texture_loader::load_texture_from_file("resources/textures/player/player_ao.png");
-    m_player_emissive_texture = retro::renderer::texture_loader::load_texture_from_file("resources/textures/player/player_emissive.png");
-
     m_player_model = retro::renderer::model_loader::load_model_from_file(
         "resources/models/player.obj");
     m_shoot_sound = retro::audio::sound_loader::load_sound_from_file("resources/audio/player_shoot.wav");
@@ -215,15 +201,12 @@ void player_manager::player_crash()
 void player_manager::save_assets() const
 {
     /* Save player textures */
-    retro::assets::asset_manager::get().get_asset_pack("textures")->save_asset(m_player_albedo_texture);
-    retro::assets::asset_manager::get().get_asset_pack("textures")->save_asset(m_player_normal_texture);
-    retro::assets::asset_manager::get().get_asset_pack("textures")->save_asset(m_player_roughness_texture);
-    retro::assets::asset_manager::get().get_asset_pack("textures")->save_asset(m_player_metallic_texture);
-    retro::assets::asset_manager::get().get_asset_pack("textures")->save_asset(m_player_ao_texture);
-    retro::assets::asset_manager::get().get_asset_pack("textures")->save_asset(m_player_emissive_texture);
-
-    retro::assets::asset_manager::get().get_asset_pack("materials")->save_asset(m_player_material);
-    retro::assets::asset_manager::get().get_asset_pack("materials")->save_asset(m_bullet_material);
+    auto &materials_asset_pack = retro::assets::asset_manager::get().get_asset_pack("materials");
+    auto &textures_asset_pack = retro::assets::asset_manager::get().get_asset_pack("textures");
+    materials_asset_pack->save_asset(m_player_material);
+    m_player_material->save_textures(textures_asset_pack);
+    materials_asset_pack->save_asset(m_bullet_material);
+    m_bullet_material->save_textures(textures_asset_pack);
 
     retro::assets::asset_manager::get().get_asset_pack("models")->save_asset(
         m_player_model);

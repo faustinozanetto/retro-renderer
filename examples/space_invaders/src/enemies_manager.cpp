@@ -14,9 +14,9 @@ enemies_manager::enemies_manager()
     initialize_enemy_generation();
 }
 
-void enemies_manager::draw_enemies(const std::shared_ptr<retro::renderer::shader>& geometry_shader)
+void enemies_manager::draw_enemies(const std::shared_ptr<retro::renderer::shader> &geometry_shader)
 {
-    for (enemy& enemy : m_enemies)
+    for (enemy &enemy : m_enemies)
     {
         auto enemy_model = glm::mat4(1.0f);
         enemy_model = translate(enemy_model, enemy.position);
@@ -30,7 +30,7 @@ void enemies_manager::draw_enemies(const std::shared_ptr<retro::renderer::shader
 void enemies_manager::update_enemies()
 {
     // Enemy behaviour
-    for (enemy& enemy : m_enemies)
+    for (enemy &enemy : m_enemies)
     {
         enemy.position.x -= enemy.speed.x * retro::core::time::get_delta_time();
         enemy.collider.position = enemy.position;
@@ -42,7 +42,7 @@ void enemies_manager::update_enemies()
     }
 }
 
-void enemies_manager::play_enemy_explode_sound(enemy& enemy)
+void enemies_manager::play_enemy_explode_sound(enemy &enemy)
 {
     m_enemy_sound_emitter->set_location(enemy.position);
     m_enemy_sound_emitter->set_sound(m_enemy_explode_sound);
@@ -59,32 +59,13 @@ void enemies_manager::initialize_enemy_assets()
 {
 #ifdef ASSETS_FROM_PACK
 #if (ASSETS_FROM_PACK == 1)
-    m_enemy_albedo_texture = retro::assets::asset_manager::get().get_asset_pack("textures")->get_asset<
-        retro::renderer::texture>("enemy_albedo.jpg");
-    m_enemy_normal_texture = retro::assets::asset_manager::get().get_asset_pack("textures")->get_asset<
-        retro::renderer::texture>("enemy_normal.jpg");
-    m_enemy_roughness_texture = retro::assets::asset_manager::get().get_asset_pack("textures")->get_asset<
-        retro::renderer::texture>("enemy_roughness.jpg");
-    m_enemy_metallic_texture = retro::assets::asset_manager::get().get_asset_pack("textures")->get_asset<
-        retro::renderer::texture>("enemy_metallic.jpg");
-    m_enemy_ao_texture = retro::assets::asset_manager::get().get_asset_pack("textures")->get_asset<
-        retro::renderer::texture>("enemy_ao.jpg");
-    m_enemy_emissive_texture = retro::assets::asset_manager::get().get_asset_pack("textures")->get_asset<
-    retro::renderer::texture>("enemy_emissive.jpg");
-    
+
     m_enemy_model = retro::assets::asset_manager::get().get_asset_pack("models")->get_asset<retro::renderer::model>("enemy.obj");
     m_enemy_explode_sound = retro::assets::asset_manager::get().get_asset_pack("sounds")->get_asset<retro::audio::sound>("explosion.ogg");
 
-    m_enemy_material = retro::assets::asset_manager::get().get_asset_pack("materials")->get_asset<retro::renderer::material>(
-        "enemy.rrm");
+    m_enemy_material = retro::assets::asset_manager::get().get_asset_pack("materials")->get_asset<retro::renderer::material>("enemy.rrm");
 #else
-    m_enemy_albedo_texture = retro::renderer::texture_loader::load_texture_from_file("resources/textures/enemy/enemy_albedo.jpg");
-    m_enemy_normal_texture = retro::renderer::texture_loader::load_texture_from_file("resources/textures/enemy/enemy_normal.jpg");
-    m_enemy_roughness_texture = retro::renderer::texture_loader::load_texture_from_file("resources/textures/enemy/enemy_roughness.jpg");
-    m_enemy_metallic_texture = retro::renderer::texture_loader::load_texture_from_file("resources/textures/enemy/enemy_metallic.jpg");
-    m_enemy_ao_texture = retro::renderer::texture_loader::load_texture_from_file("resources/textures/enemy/enemy_ao.jpg");
-    m_enemy_emissive_texture = retro::renderer::texture_loader::load_texture_from_file("resources/textures/enemy/enemy_emissive.jpg");
-    
+
     m_enemy_model = retro::renderer::model_loader::load_model_from_file("resources/models/enemy.obj");
     m_enemy_explode_sound = retro::audio::sound_loader::load_sound_from_file("resources/audio/explosion.ogg");
     m_enemy_material = retro::renderer::material_loader::load_material_from_file("resources/materials/enemy.rrm");
@@ -94,7 +75,6 @@ void enemies_manager::initialize_enemy_assets()
 
 void enemies_manager::initialize_enemy_model()
 {
-  
 }
 
 void enemies_manager::initialize_enemy_generation()
@@ -124,13 +104,10 @@ void enemies_manager::generate_enemies(int amount)
 
 void enemies_manager::save_assets() const
 {
-    retro::assets::asset_manager::get().get_asset_pack("textures")->save_asset(m_enemy_albedo_texture);
-    retro::assets::asset_manager::get().get_asset_pack("textures")->save_asset(m_enemy_normal_texture);
-    retro::assets::asset_manager::get().get_asset_pack("textures")->save_asset(m_enemy_roughness_texture);
-    retro::assets::asset_manager::get().get_asset_pack("textures")->save_asset(m_enemy_metallic_texture);
-    retro::assets::asset_manager::get().get_asset_pack("textures")->save_asset(m_enemy_ao_texture);
-    retro::assets::asset_manager::get().get_asset_pack("textures")->save_asset(m_enemy_emissive_texture);
-    retro::assets::asset_manager::get().get_asset_pack("materials")->save_asset(m_enemy_material);
+    auto &materials_asset_pack = retro::assets::asset_manager::get().get_asset_pack("materials");
+    auto &textures_asset_pack = retro::assets::asset_manager::get().get_asset_pack("textures");
+    materials_asset_pack->save_asset(m_enemy_material);
+    m_enemy_material->save_textures(textures_asset_pack);
     retro::assets::asset_manager::get().get_asset_pack("models")->save_asset(
         m_enemy_model);
     retro::assets::asset_manager::get().get_asset_pack("sounds")->save_asset(
