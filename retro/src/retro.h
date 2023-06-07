@@ -26,6 +26,7 @@
 #include "renderer/render_buffer/render_buffer.h"
 
 #include "renderer/materials/material.h"
+#include "renderer/materials/material_loader.h"
 
 #include "renderer/models/mesh.h"
 #include "renderer/models/model.h"

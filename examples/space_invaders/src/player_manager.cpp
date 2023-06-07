@@ -85,10 +85,10 @@ void player_manager::initialize_player_params()
     m_player.max_ammo = 10;
     m_player.ammo = m_player.max_ammo;
     m_player.move_speed = 6.5f;
-    m_player.position = glm::vec3(5.0f, 0.0f, 0.0f);
+    m_player.position = glm::vec3(3.0f, 0.0f, 0.0f);
     m_player.target_position = m_player.position;
     m_player.speed = glm::vec3(5.0f);
-    m_player.collider = box_collider(m_player.position, glm::vec3(6.0f));
+    m_player.collider = box_collider(m_player.position, glm::vec3(3.0f));
 }
 
 void player_manager::initialize_player_assets()
@@ -114,6 +114,8 @@ void player_manager::initialize_player_assets()
         "player_shoot.wav");
     m_crash_sound = retro::assets::asset_manager::get().get_asset_pack("sounds")->get_asset<retro::audio::sound>(
         "explosion.ogg");
+    m_player_material = retro::assets::asset_manager::get().get_asset_pack("materials")->get_asset<retro::renderer::material>(
+        "player.rrm");
 #else
     m_player_albedo_texture = retro::renderer::texture_loader::load_texture_from_file("resources/textures/player/player_albedo.png");
     m_player_normal_texture = retro::renderer::texture_loader::load_texture_from_file("resources/textures/player/player_normal.png");
@@ -126,61 +128,14 @@ void player_manager::initialize_player_assets()
         "resources/models/player.obj");
     m_shoot_sound = retro::audio::sound_loader::load_sound_from_file("resources/audio/player_shoot.wav");
     m_crash_sound = retro::audio::sound_loader::load_sound_from_file("resources/audio/explosion.ogg");
+
+    m_player_material = retro::renderer::material_loader::load_material_from_file("resources/materials/player.rrm");
 #endif
 #endif
 }
 
 void player_manager::initialize_player_model()
 {
-    /* Setup player material for model */
-    retro::renderer::material_texture albedo;
-    albedo.texture = m_player_albedo_texture;
-    albedo.is_enabled = true;
-    albedo.type = retro::renderer::material_texture_type::albedo;
-
-    retro::renderer::material_texture normal;
-    normal.texture = m_player_normal_texture;
-    normal.is_enabled = true;
-    normal.type = retro::renderer::material_texture_type::normal;
-
-    retro::renderer::material_texture roughness;
-    roughness.texture = m_player_roughness_texture;
-    roughness.is_enabled = true;
-    roughness.type = retro::renderer::material_texture_type::roughness;
-
-    retro::renderer::material_texture metallic;
-    metallic.texture = m_player_metallic_texture;
-    metallic.is_enabled = true;
-    metallic.type = retro::renderer::material_texture_type::metallic;
-
-    retro::renderer::material_texture ambient_occlusion;
-    ambient_occlusion.texture = m_player_ao_texture;
-    ambient_occlusion.is_enabled = true;
-    ambient_occlusion.type = retro::renderer::material_texture_type::ambient_occlusion;
-
-    retro::renderer::material_texture emissive;
-    emissive.texture = m_player_emissive_texture;
-    emissive.is_enabled = true;
-    emissive.type = retro::renderer::material_texture_type::emissive;
-
-    std::map<retro::renderer::material_texture_type, int> material_bindings;
-    material_bindings[retro::renderer::material_texture_type::albedo] = 0;
-    material_bindings[retro::renderer::material_texture_type::normal] = 1;
-    material_bindings[retro::renderer::material_texture_type::roughness] = 2;
-    material_bindings[retro::renderer::material_texture_type::metallic] = 3;
-    material_bindings[retro::renderer::material_texture_type::ambient_occlusion] = 4;
-    material_bindings[retro::renderer::material_texture_type::emissive] = 5;
-
-    std::unordered_map<retro::renderer::material_texture_type, retro::renderer::material_texture> textures;
-    textures[retro::renderer::material_texture_type::albedo] = albedo;
-    textures[retro::renderer::material_texture_type::normal] = normal;
-    textures[retro::renderer::material_texture_type::roughness] = roughness;
-    textures[retro::renderer::material_texture_type::metallic] = metallic;
-    textures[retro::renderer::material_texture_type::ambient_occlusion] = ambient_occlusion;
-    textures[retro::renderer::material_texture_type::emissive] = emissive;
-
-    m_player_material = std::make_shared<retro::renderer::material>(textures, material_bindings);
-    m_player_material->set_emissive_strength(1.0f);
     {
         m_bullet_vao = std::make_shared<retro::renderer::vertex_array_object>();
         m_bullet_vao->bind();
@@ -252,7 +207,7 @@ void player_manager::player_shoot()
     player_bullet.speed = glm::vec3(80.0f);
     player_bullet.position = m_player.position;
     player_bullet.collider.position = m_player.position;
-    player_bullet.collider.size = glm::vec3(3.0f);
+    player_bullet.collider.size = glm::vec3(1.0f);
     m_player_bullets.push_back(player_bullet);
     m_player.ammo--;
 }
@@ -272,6 +227,8 @@ void player_manager::save_assets() const
     retro::assets::asset_manager::get().get_asset_pack("textures")->save_asset(m_player_metallic_texture);
     retro::assets::asset_manager::get().get_asset_pack("textures")->save_asset(m_player_ao_texture);
     retro::assets::asset_manager::get().get_asset_pack("textures")->save_asset(m_player_emissive_texture);
+
+    retro::assets::asset_manager::get().get_asset_pack("materials")->save_asset(m_player_material);
     
     retro::assets::asset_manager::get().get_asset_pack("models")->save_asset(
         m_player_model);

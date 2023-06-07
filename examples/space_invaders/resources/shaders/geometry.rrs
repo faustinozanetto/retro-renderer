@@ -85,33 +85,33 @@ void main() {
 
     vec3 albedo = u_material.albedo;
     if (u_material.albedo_map_enabled == 1)
-        albedo = texture(u_albedo_map, o_geometry.tex_coords).rgb;
+        albedo = texture(u_albedo_map, o_geometry.tex_coords * u_material.tilling).rgb;
     g_albedo = albedo;
 
     vec3 normal = o_geometry.normal;
     if (u_material.normal_map_enabled == 1) {
-        normal = texture(u_normal_map, o_geometry.tex_coords).rgb;
+        normal = texture(u_normal_map, o_geometry.tex_coords * u_material.tilling).rgb;
         normal = normalize(normal * 2.0 - 1.0);
     }
     g_normal = normalize(o_geometry.tbn * normal);
 
     float roughness = u_material.roughness;
     if (u_material.roughness_map_enabled == 1)
-        roughness = texture(u_roughness_map, o_geometry.tex_coords).r;
+        roughness = texture(u_roughness_map, o_geometry.tex_coords * u_material.tilling).r;
 
     float metallic = u_material.metallic;
     if (u_material.metallic_map_enabled == 1)
-        metallic = texture(u_metallic_map, o_geometry.tex_coords).r;
+        metallic = texture(u_metallic_map, o_geometry.tex_coords * u_material.tilling).r;
 
     float ambient_occlusion = u_material.ambient_occlusion;
     if (u_material.ambient_occlusion_map_enabled == 1)
-        ambient_occlusion = texture(u_ambient_occlusion_map, o_geometry.tex_coords).r;
+        ambient_occlusion = texture(u_ambient_occlusion_map, o_geometry.tex_coords * u_material.tilling).r;
 
     g_roughmetalao = vec3(roughness, metallic, ambient_occlusion);
     
     vec3 emissive = u_material.emissive * u_material.emissive_strength;
     if (u_material.emissive_map_enabled == 1)
-        emissive = texture(u_emissive_map, o_geometry.tex_coords).rgb * u_material.emissive_strength;
+        emissive = texture(u_emissive_map, o_geometry.tex_coords * u_material.tilling).rgb * u_material.emissive_strength;
         
     g_emissive = emissive;
 }

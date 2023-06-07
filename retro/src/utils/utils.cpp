@@ -21,4 +21,32 @@ namespace retro
 
         return "";
     }
+
+    std::string utils::trim(const std::string& string)
+    {
+        // Find the first non-whitespace character
+        size_t first = string.find_first_not_of(" \t");
+
+        // If the string is all whitespace, return an empty string
+        if (first == std::string::npos)
+            return "";
+
+        // Find the last non-whitespace character
+        size_t last = string.find_last_not_of(" \t");
+
+        // Extract the trimmed substring
+        return string.substr(first, last - first + 1);
+    }
+
+    std::string utils::remove_carriage(const std::string& string)
+    {
+        std::string output = string;
+        size_t pos = output.find('\r');
+        while (pos != std::string::npos)
+        {
+            output.erase(pos, 1);
+            pos = output.find('\r', pos);
+        }
+        return output;
+    }
 }

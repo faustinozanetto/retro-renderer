@@ -9,6 +9,7 @@ space_invaders_app::space_invaders_app() : application("./")
     retro::assets::asset_manager::get().register_asset_pack("shaders");
     retro::assets::asset_manager::get().register_asset_pack("textures");
     retro::assets::asset_manager::get().register_asset_pack("sounds");
+    retro::assets::asset_manager::get().register_asset_pack("materials");
     initialize_managers();
 }
 

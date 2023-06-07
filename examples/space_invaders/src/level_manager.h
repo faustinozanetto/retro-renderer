@@ -53,6 +53,8 @@ private:
     std::shared_ptr<retro::audio::sound_emitter> m_ammo_pickup_sound_emitter;
     std::shared_ptr<retro::audio::sound_emitter> m_ambient_sound_emitter;
 
+    std::shared_ptr<retro::renderer::material> m_background_material;
+
     /* Assets */
     std::shared_ptr<retro::renderer::texture> m_background_texture;
     std::shared_ptr<retro::renderer::vertex_array_object> m_background_vao;
@@ -61,7 +63,7 @@ private:
 
     /* Ammo Pickups */
     std::shared_ptr<retro::renderer::model> m_ammo_pickup_model;
-    std::shared_ptr<retro::renderer::texture> m_ammo_pickup_texture;
+    std::shared_ptr<retro::renderer::material> m_ammo_pickup_material;
     std::list<ammo_pickup> m_ammo_pickups;
     std::random_device m_ammo_pickups_rd;
     std::uniform_real_distribution<float> m_ammo_pickups_rand_x;

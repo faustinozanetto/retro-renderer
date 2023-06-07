@@ -10,7 +10,7 @@ game_manager::game_manager()
 {
     s_instance = this;
     m_disable_player_collision = true;
-    m_light_dir = {1.8f, -5.5f, 1.4f};
+    m_light_dir = {1.8f, -5.5f, -3.6f};
     retro::renderer::renderer::set_vsync_enabled(false);
 #ifdef ASSETS_FROM_PACK
 #if (ASSETS_FROM_PACK == 1)
@@ -69,7 +69,7 @@ void game_manager::draw_game()
     m_geometry_shader->set_mat4("u_view", m_camera->get_view_matrix());
     m_geometry_shader->set_mat4("u_projection", m_camera->get_projection_matrix());
 
-    //  m_level_manager->draw_background(m_geometry_shader);
+    m_level_manager->draw_background(m_geometry_shader);
     m_level_manager->draw_ammo_pickups(m_geometry_shader);
     m_player_manager->draw_player(m_geometry_shader);
     m_player_manager->draw_bullets(m_geometry_shader);

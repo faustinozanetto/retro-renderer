@@ -3,8 +3,6 @@
 #include "renderer/textures/texture.h"
 #include "renderer/shaders/shader.h"
 
-#include <map>
-
 namespace retro::renderer
 {
     enum class material_texture_type
@@ -24,49 +22,66 @@ namespace retro::renderer
         bool is_enabled;
     };
 
-    class material
+    struct material_data_serialize
+    {
+        glm::vec3 albedo;
+        glm::vec3 emissive;
+        float roughness;
+        float metallic;
+        float ambient_occlusion;
+        float emissive_strength;
+        float tilling;
+    };
+
+    struct material_data
+    {
+        glm::vec3 albedo;
+        glm::vec3 emissive;
+        float roughness;
+        float metallic;
+        float ambient_occlusion;
+        float emissive_strength;
+        float tilling;
+
+        std::map<material_texture_type, material_texture> textures;
+
+        material_data() : textures({}), albedo(glm::vec3(0.0f)), emissive(glm::vec3(0.0f)), roughness(1.0f), metallic(0.0f), ambient_occlusion(1.0f), emissive_strength(0.0f), tilling(1.0f) {}
+
+        material_data(const std::map<material_texture_type, material_texture>& textures, const glm::vec3 &albedo = glm::vec3(0.0f), const glm::vec3 &emissive = glm::vec3(0.0f), float roughness = 1.0f, float metallic = 0.0f, float ambient_occlusion = 1.0f, float emissive_strength = 0.0f, float tilling = 1.0f) : textures(textures), albedo(albedo), emissive(emissive), roughness(roughness), metallic(metallic), ambient_occlusion(ambient_occlusion), emissive_strength(emissive_strength), tilling(tilling) {}
+    };
+
+    constexpr material_texture_type types[] = {
+    material_texture_type::albedo,
+    material_texture_type::normal,
+    material_texture_type::roughness,
+    material_texture_type::metallic,
+    material_texture_type::ambient_occlusion,
+    material_texture_type::emissive };
+
+    class material : public assets::asset
     {
     public:
-        material(const std::map<material_texture_type, int>& texture_bindings);
-        material(const std::unordered_map<material_texture_type, material_texture>& textures,
-                 const std::map<material_texture_type, int>& texture_bindings);
+        material(const std::string& file_name, const material_data &material_data,
+                 const std::map<material_texture_type, int> &texture_bindings);
         ~material();
 
         /* Functions */
-        void bind(const std::shared_ptr<shader>& shader);
+        void bind(const std::shared_ptr<shader> &shader);
 
         /* Getters */
-        glm::vec3 get_albedo() const { return m_albedo; }
-        glm::vec3 get_emissive() const { return m_emissive; }
-        float get_roughness() const { return m_roughness; }
-        float get_metallic() const { return m_metallic; }
-        float get_tilling() const { return m_tilling; }
-        float get_ambient_occlusion() const { return m_ambient_occlusion; }
-        float get_emissive_strength() const { return m_emissive_strength; }
+        const material_data& get_data() const { return m_data; }
 
-        /* Setters */
-        void set_albedo(const glm::vec3& albedo) { m_albedo = albedo; }
-        void set_emissive(const glm::vec3& emissive) { m_emissive = emissive; }
-        void set_roughness(float roughness) { m_roughness = roughness; }
-        void set_metallic(float metallic) { m_metallic = metallic; }
-        void set_ambient_occlusion(float ambient_occlusion) { m_ambient_occlusion = ambient_occlusion; }
-        void set_tilling(float tilling) { m_tilling = tilling; }
-        void set_emissive_strength(float emissive_strength) { m_emissive_strength = emissive_strength; }
+        /* Asset */
+        void serialize(std::ofstream& asset_pack_file) override;
+        static std::shared_ptr<material> deserialize(const assets::asset_metadata& metadata, std::ifstream& asset_pack_file);
 
         /* Utilities */
+        static material_texture_type get_material_texture_type_from_string(const std::string& texture_type);
         static std::string get_material_texture_type_to_string(material_texture_type texture_type);
         static std::string get_material_enabled_uniform_location(material_texture_type texture_type);
 
     private:
-        std::unordered_map<material_texture_type, material_texture> m_textures;
         std::map<material_texture_type, int> m_material_texture_bindings;
-
-        glm::vec3 m_albedo;
-        glm::vec3 m_emissive;
-        float m_roughness;
-        float m_metallic;
-        float m_tilling;
-        float m_ambient_occlusion;
-        float m_emissive_strength;
+        material_data m_data;
     };
 }

@@ -2,8 +2,8 @@
 # Parameters section
 [parameters]
 # Albedo color
-albedo: (1,1,1)
-emissive: (0,0,0)
+albedo: 1 1 1
+emissive: 0 0 0
 emissive_strength: 0.0
 roughness: 1.0
 metallic: 1.0
@@ -12,20 +12,14 @@ tilling: 1.0
 # Textures section
 [textures]
 albedo:
-    path: ""
-    enabled: true
+    path: resources/textures/player/player_albedo.png
 normal:
-    path: ""
-    enabled: true
+    path: resources/textures/player/player_normal.png
 roughness:
-    path: ""
-    enabled: true
+    path: resources/textures/player/player_roughness.png
 metallic:
-    path: ""
-    enabled: true
+    path: resources/textures/player/player_metallic.png
 ambient_occlusion:
-    path: ""
-    enabled: true
+    path: resources/textures/player/player_ao.png
 emissive:
-    path: ""
-    enabled: true
+    path: resources/textures/player/player_emissive.png

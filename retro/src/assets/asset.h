@@ -12,10 +12,11 @@ namespace retro::assets
         model,
         sound,
         font,
+        material,
     };
 
     constexpr asset_type asset_types[]{
-        asset_type::shader, asset_type::texture, asset_type::model, asset_type::sound, asset_type::font
+        asset_type::shader, asset_type::texture, asset_type::model, asset_type::sound, asset_type::font, asset_type::material,
     };
 
     struct asset_metadata

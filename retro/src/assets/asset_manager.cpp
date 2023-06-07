@@ -9,6 +9,7 @@ namespace retro::assets
 
     const std::shared_ptr<asset_pack>& asset_manager::get_asset_pack(const std::string& asset_pack_name) const
     {
+        RT_ASSERT_MSG(m_asset_packs.contains(asset_pack_name), "Unkown asset pack!");
         return m_asset_packs.at(asset_pack_name);
     }
 
@@ -20,9 +21,9 @@ namespace retro::assets
         m_asset_packs.insert(std::make_pair(asset_pack_name, pack));
     }
 
-    void asset_manager::register_asset(asset* asset)
+    void asset_manager::register_asset(const std::shared_ptr<asset>& asset_object)
     {
-        m_assets[asset->get_metadata().type].push_back(asset);
+        m_assets[asset_object->get_metadata().type].push_back(asset_object);
     }
 
     void asset_manager::deserialize_packs() const

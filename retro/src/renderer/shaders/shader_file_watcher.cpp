@@ -27,10 +27,10 @@ namespace retro::renderer
             core::application::get().submit_to_main_thread([path, this]()
             {
                 const std::string& file_name = utils::extract_file_name(path);
-                shader* shader_asset = nullptr;
-                for (assets::asset* asset : assets::asset_manager::get().get_assets()[assets::asset_type::shader])
+                std::shared_ptr<shader> shader_asset = nullptr;
+                for (std::shared_ptr<assets::asset> asset : assets::asset_manager::get().get_assets()[assets::asset_type::shader])
                 {
-                    auto* casted_asset = dynamic_cast<shader*>(asset);
+                    auto casted_asset = std::dynamic_pointer_cast<shader>(asset);
                     if (casted_asset && casted_asset->get_metadata().file_name == file_name)
                     {
                         shader_asset = casted_asset;

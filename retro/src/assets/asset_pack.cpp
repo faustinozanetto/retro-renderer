@@ -5,6 +5,7 @@
 #include "renderer/models/model.h"
 #include "renderer/shaders/shader.h"
 #include "renderer/text/font.h"
+#include "renderer/materials/material.h"
 #include "renderer/textures/texture.h"
 
 namespace retro::assets
@@ -99,6 +100,11 @@ namespace retro::assets
             case asset_type::font:
                 {
                     asset = renderer::font::deserialize(metadata, asset_pack_file);
+                    break;
+                }
+            case asset_type::material:
+                {
+                    asset = renderer::material::deserialize(metadata, asset_pack_file);
                     break;
                 }
             }
