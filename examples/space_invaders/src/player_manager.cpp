@@ -14,7 +14,7 @@ player_manager::player_manager()
     initialize_player_model();
 }
 
-void player_manager::draw_player(const std::shared_ptr<retro::renderer::shader>& geometry_shader)
+void player_manager::draw_player(const std::shared_ptr<retro::renderer::shader> &geometry_shader)
 {
     glm::mat4 model = glm::mat4(1.0f);
     model = translate(model, m_player.position);
@@ -24,15 +24,16 @@ void player_manager::draw_player(const std::shared_ptr<retro::renderer::shader>&
     retro::renderer::renderer::submit_model(m_player_model);
 }
 
-void player_manager::draw_bullets(const std::shared_ptr<retro::renderer::shader>& geometry_shader)
+void player_manager::draw_bullets(const std::shared_ptr<retro::renderer::shader> &geometry_shader)
 {
-    for (bullet& bullet : m_player_bullets)
+    for (bullet &bullet : m_player_bullets)
     {
         auto model = glm::mat4(1.0f);
         model = translate(model, bullet.position);
-        model = scale(model, {1.0f, 0.15f, 1.0f});
+        model = scale(model, {2.0f, 0.15f, 1.0f});
         geometry_shader->set_mat4("u_transform", model);
         m_bullet_vao->bind();
+        m_bullet_material->bind(geometry_shader);
         retro::renderer::renderer::submit_elements(GL_TRIANGLES, 6);
         m_bullet_vao->un_bind();
     }
@@ -95,27 +96,20 @@ void player_manager::initialize_player_assets()
 {
 #ifdef ASSETS_FROM_PACK
 #if (ASSETS_FROM_PACK == 1)
-    m_player_albedo_texture = retro::assets::asset_manager::get().get_asset_pack("textures")->get_asset<
-        retro::renderer::texture>("player_albedo.png");
-    m_player_normal_texture = retro::assets::asset_manager::get().get_asset_pack("textures")->get_asset<
-        retro::renderer::texture>("player_normal.png");
-    m_player_roughness_texture = retro::assets::asset_manager::get().get_asset_pack("textures")->get_asset<
-        retro::renderer::texture>("player_roughness.png");
-    m_player_metallic_texture = retro::assets::asset_manager::get().get_asset_pack("textures")->get_asset<
-        retro::renderer::texture>("player_metallic.png");
-    m_player_ao_texture = retro::assets::asset_manager::get().get_asset_pack("textures")->get_asset<
-        retro::renderer::texture>("player_ao.png");
-    m_player_emissive_texture = retro::assets::asset_manager::get().get_asset_pack("textures")->get_asset<
-       retro::renderer::texture>("player_emissive.png");
-    
-    m_player_model = retro::assets::asset_manager::get().get_asset_pack("models")->get_asset<
-        retro::renderer::model>("player.obj");
+    m_player_albedo_texture = retro::assets::asset_manager::get().get_asset_pack("textures")->get_asset<retro::renderer::texture>("player_albedo.png");
+    m_player_normal_texture = retro::assets::asset_manager::get().get_asset_pack("textures")->get_asset<retro::renderer::texture>("player_normal.png");
+    m_player_roughness_texture = retro::assets::asset_manager::get().get_asset_pack("textures")->get_asset<retro::renderer::texture>("player_roughness.png");
+    m_player_metallic_texture = retro::assets::asset_manager::get().get_asset_pack("textures")->get_asset<retro::renderer::texture>("player_metallic.png");
+    m_player_ao_texture = retro::assets::asset_manager::get().get_asset_pack("textures")->get_asset<retro::renderer::texture>("player_ao.png");
+    m_player_emissive_texture = retro::assets::asset_manager::get().get_asset_pack("textures")->get_asset<retro::renderer::texture>("player_emissive.png");
+
+    m_player_model = retro::assets::asset_manager::get().get_asset_pack("models")->get_asset<retro::renderer::model>("player.obj");
     m_shoot_sound = retro::assets::asset_manager::get().get_asset_pack("sounds")->get_asset<retro::audio::sound>(
         "player_shoot.wav");
     m_crash_sound = retro::assets::asset_manager::get().get_asset_pack("sounds")->get_asset<retro::audio::sound>(
         "explosion.ogg");
-    m_player_material = retro::assets::asset_manager::get().get_asset_pack("materials")->get_asset<retro::renderer::material>(
-        "player.rrm");
+    m_player_material = retro::assets::asset_manager::get().get_asset_pack("materials")->get_asset<retro::renderer::material>("player.rrm");
+    m_bullet_material = retro::assets::asset_manager::get().get_asset_pack("materials")->get_asset<retro::renderer::material>("bullet.rrm");
 #else
     m_player_albedo_texture = retro::renderer::texture_loader::load_texture_from_file("resources/textures/player/player_albedo.png");
     m_player_normal_texture = retro::renderer::texture_loader::load_texture_from_file("resources/textures/player/player_normal.png");
@@ -123,13 +117,14 @@ void player_manager::initialize_player_assets()
     m_player_metallic_texture = retro::renderer::texture_loader::load_texture_from_file("resources/textures/player/player_metallic.png");
     m_player_ao_texture = retro::renderer::texture_loader::load_texture_from_file("resources/textures/player/player_ao.png");
     m_player_emissive_texture = retro::renderer::texture_loader::load_texture_from_file("resources/textures/player/player_emissive.png");
-    
+
     m_player_model = retro::renderer::model_loader::load_model_from_file(
         "resources/models/player.obj");
     m_shoot_sound = retro::audio::sound_loader::load_sound_from_file("resources/audio/player_shoot.wav");
     m_crash_sound = retro::audio::sound_loader::load_sound_from_file("resources/audio/explosion.ogg");
 
     m_player_material = retro::renderer::material_loader::load_material_from_file("resources/materials/player.rrm");
+    m_bullet_material = retro::renderer::material_loader::load_material_from_file("resources/materials/bullet.rrm");
 #endif
 #endif
 }
@@ -143,14 +138,14 @@ void player_manager::initialize_player_model()
         const std::vector<float> vertices = {
             // Positions      // Texture coordinates
             -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, // Bottom-left
-            0.5f, -0.5f, 0.0f, 1.0f, 0.0f, // Bottom-right
-            0.5f, 0.5f, 0.0f, 1.0f, 1.0f, // Top-right
-            -0.5f, 0.5f, 0.0f, 0.0f, 1.0f // Top-left
+            0.5f, -0.5f, 0.0f, 1.0f, 0.0f,  // Bottom-right
+            0.5f, 0.5f, 0.0f, 1.0f, 1.0f,   // Top-right
+            -0.5f, 0.5f, 0.0f, 0.0f, 1.0f   // Top-left
         };
 
         const std::vector<uint32_t> indices = {
             0, 1, 2, // First triangle
-            2, 3, 0 // Second triangle
+            2, 3, 0  // Second triangle
         };
 
         const auto ebo = std::make_shared<
@@ -166,8 +161,7 @@ void player_manager::initialize_player_model()
         std::initializer_list<retro::renderer::vertex_buffer_layout_entry>
             layout_elements = {
                 {"a_pos", retro::renderer::vertex_buffer_entry_type::vec_float3, false},
-                {"a_tex_coord", retro::renderer::vertex_buffer_entry_type::vec_float2, false}
-            };
+                {"a_tex_coord", retro::renderer::vertex_buffer_entry_type::vec_float2, false}};
 
         const auto vbo_layout_descriptor = std::make_shared<
             retro::renderer::vertex_buffer_layout_descriptor>(layout_elements);
@@ -204,7 +198,7 @@ void player_manager::player_shoot()
     m_player_sound_emitter->play();
 
     bullet player_bullet;
-    player_bullet.speed = glm::vec3(80.0f);
+    player_bullet.speed = glm::vec3(120.0f);
     player_bullet.position = m_player.position;
     player_bullet.collider.position = m_player.position;
     player_bullet.collider.size = glm::vec3(1.0f);
@@ -229,7 +223,8 @@ void player_manager::save_assets() const
     retro::assets::asset_manager::get().get_asset_pack("textures")->save_asset(m_player_emissive_texture);
 
     retro::assets::asset_manager::get().get_asset_pack("materials")->save_asset(m_player_material);
-    
+    retro::assets::asset_manager::get().get_asset_pack("materials")->save_asset(m_bullet_material);
+
     retro::assets::asset_manager::get().get_asset_pack("models")->save_asset(
         m_player_model);
     retro::assets::asset_manager::get().get_asset_pack("sounds")->save_asset(

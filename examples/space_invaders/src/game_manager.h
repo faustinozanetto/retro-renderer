@@ -45,21 +45,21 @@ public:
     void start_game_wave() const;
     void move_to_next_wave();
 
-    bool on_key_pressed(retro::events::key_pressed_event& key_pressed_event);
-    bool on_window_resize(retro::events::window_resize_event& window_resize_event);
+    bool on_key_pressed(retro::events::key_pressed_event &key_pressed_event);
+    bool on_window_resize(retro::events::window_resize_event &window_resize_event);
 
     void save_assets();
 
     /* Getters */
-    static game_manager& get() { return *s_instance; }
-    std::shared_ptr<retro::camera::camera>& get_camera() { return m_camera; }
-    std::shared_ptr<player_manager>& get_player_manager() { return m_player_manager; }
-    std::shared_ptr<level_manager>& get_level_manager() { return m_level_manager; }
-    std::shared_ptr<enemies_manager>& get_enemies_manager() { return m_enemies_manager; }
+    static game_manager &get() { return *s_instance; }
+    std::shared_ptr<retro::camera::camera> &get_camera() { return m_camera; }
+    std::shared_ptr<player_manager> &get_player_manager() { return m_player_manager; }
+    std::shared_ptr<level_manager> &get_level_manager() { return m_level_manager; }
+    std::shared_ptr<enemies_manager> &get_enemies_manager() { return m_enemies_manager; }
     int get_current_wave() const { return m_current_wave; }
     int get_total_waves() const { return m_total_waves; }
 
-    static bool check_collider_collision(const box_collider& collider1, const box_collider& collider2);
+    static bool check_collider_collision(const box_collider &collider1, const box_collider &collider2);
 
 private:
     /* Game */
@@ -76,6 +76,9 @@ private:
     std::shared_ptr<retro::renderer::shader> m_screen_shader;
     std::shared_ptr<retro::renderer::shader> m_pbr_shader;
     std::shared_ptr<retro::renderer::vertex_array_object> m_screen_vao;
+    std::shared_ptr<retro::renderer::frame_buffer> m_text_fbo;
+    std::shared_ptr<retro::renderer::frame_buffer> m_lighting_fbo;
+    std::shared_ptr<retro::renderer::shader> m_final_shader;
 
     /* Waves */
     int m_total_waves;
@@ -95,5 +98,5 @@ private:
     /* Camera */
     std::shared_ptr<retro::camera::camera> m_camera;
 
-    static game_manager* s_instance;
+    static game_manager *s_instance;
 };

@@ -18,21 +18,19 @@ level_manager::level_manager()
     initialize_audio();
 }
 
-void level_manager::draw_background(const std::shared_ptr<retro::renderer::shader>& geometry_shader)
+void level_manager::draw_background(const std::shared_ptr<retro::renderer::shader> &geometry_shader)
 {
-  //  retro::renderer::renderer::set_depth_test(false);
     m_background_vao->bind();
     glm::mat4 model = glm::mat4(1.0f);
-    model = glm::translate(model, {0,0, -5.0f});
-    model = glm::scale(model, { 500.0f, 500.0f, 1.0f });
+    model = glm::translate(model, {0, 0, -5.0f});
+    model = glm::scale(model, {500.0f, 500.0f, 1.0f});
     geometry_shader->set_mat4("u_transform", model);
     m_background_material->bind(geometry_shader);
     retro::renderer::renderer::submit_elements(GL_TRIANGLES, 6);
     m_background_vao->un_bind();
-    //retro::renderer::renderer::set_depth_test(true);
 }
 
-void level_manager::draw_ammo_pickups(const std::shared_ptr<retro::renderer::shader>& geometry_shader)
+void level_manager::draw_ammo_pickups(const std::shared_ptr<retro::renderer::shader> &geometry_shader)
 {
     for (ammo_pickup &ammo_pickup : m_ammo_pickups)
     {
@@ -66,7 +64,6 @@ void level_manager::play_ambient_sound()
 {
     m_ambient_sound_emitter->set_location(game_manager::get().get_player_manager()->get_player().position);
     m_ambient_sound_emitter->set_sound(m_ambient_sound);
-    // m_ambient_sound_emitter->set_volume(0.5f);
 }
 
 void level_manager::initialize_audio()
@@ -85,17 +82,15 @@ void level_manager::initialize_background_assets()
 {
 #ifdef ASSETS_FROM_PACK
 #if (ASSETS_FROM_PACK == 1)
-    m_background_texture = retro::assets::asset_manager::get().get_asset_pack(
-                                                                  "textures")
-                               ->get_asset<retro::renderer::texture>(
-                                   "space.jpg");
     m_ambient_sound = retro::assets::asset_manager::get().get_asset_pack(
                                                              "sounds")
                           ->get_asset<retro::audio::sound>(
                               "ambient.wav");
+    m_background_material = retro::assets::asset_manager::get().get_asset_pack(
+        "materials")
+        ->get_asset<retro::renderer::material>(
+            "background.rrm");
 #else
-    m_background_texture = retro::renderer::texture_loader::load_texture_from_file(
-        "resources/textures/space.jpg");
     m_ambient_sound = retro::audio::sound_loader::load_sound_from_file("resources/audio/ambient.wav");
     m_background_material = retro::renderer::material_loader::load_material_from_file("resources/materials/background.rrm");
 #endif
@@ -149,9 +144,8 @@ void level_manager::initialize_ammo_pickup_assets()
 #ifdef ASSETS_FROM_PACK
 #if (ASSETS_FROM_PACK == 1)
 
-    m_ammo_pickup_material = retro::assets::asset_manager::get().get_asset_pack("materials")->get_asset<retro::renderer::material>(
-        "ammo_pickup.rrm");
-   
+    m_ammo_pickup_material = retro::assets::asset_manager::get().get_asset_pack("materials")->get_asset<retro::renderer::material>("ammo_pickup.rrm");
+
     m_ammo_pickup_model = retro::assets::asset_manager::get().get_asset_pack(
                                                                  "models")
                               ->get_asset<retro::renderer::model>(
@@ -196,7 +190,7 @@ void level_manager::generate_ammo_pickups(int count)
             m_ammo_pickups_rand_x(m_ammo_pickups_rand_gen), m_ammo_pickups_rand_y(m_ammo_pickups_rand_gen), 0.0f};
         pikcup.speed = {10.5f, 0.0f, 0.0f};
         pikcup.size = glm::vec3(0.05f);
-        pikcup.collider = {pikcup.position, pikcup.size};
+        pikcup.collider = {pikcup.position, glm::vec3(1.0f)};
         m_ammo_pickups.push_back(pikcup);
     }
 }
@@ -210,8 +204,8 @@ void level_manager::play_ammo_pickup_sound()
 
 void level_manager::save_assets() const
 {
-    retro::assets::asset_manager::get().get_asset_pack("textures")->save_asset(m_background_texture);
     retro::assets::asset_manager::get().get_asset_pack("materials")->save_asset(m_ammo_pickup_material);
+    retro::assets::asset_manager::get().get_asset_pack("materials")->save_asset(m_background_material);
 
     retro::assets::asset_manager::get().get_asset_pack("models")->save_asset(
         m_ammo_pickup_model);

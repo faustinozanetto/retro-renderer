@@ -53,11 +53,10 @@ private:
     std::shared_ptr<retro::audio::sound_emitter> m_ammo_pickup_sound_emitter;
     std::shared_ptr<retro::audio::sound_emitter> m_ambient_sound_emitter;
 
+    /* Background */
     std::shared_ptr<retro::renderer::material> m_background_material;
-
-    /* Assets */
-    std::shared_ptr<retro::renderer::texture> m_background_texture;
     std::shared_ptr<retro::renderer::vertex_array_object> m_background_vao;
+
     std::shared_ptr<retro::audio::sound> m_ammo_pickup_sound;
     std::shared_ptr<retro::audio::sound> m_ambient_sound;
 

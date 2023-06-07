@@ -4,7 +4,7 @@
 
 #include "imgui.h"
 
-game_manager* game_manager::s_instance = nullptr;
+game_manager *game_manager::s_instance = nullptr;
 
 game_manager::game_manager()
 {
@@ -53,9 +53,11 @@ void game_manager::update_game()
 
         draw_game();
 
-        retro::ui::engine_ui::begin_frame();
-        debug_asset_packs();
-        retro::ui::engine_ui::end_frame();
+        /*
+                retro::ui::engine_ui::begin_frame();
+                debug_asset_packs();
+                retro::ui::engine_ui::end_frame();
+                */
     }
 }
 
@@ -78,26 +80,30 @@ void game_manager::draw_game()
     m_geometry_shader->un_bind();
     m_geometry_fbo->un_bind();
 
-    // 2. Render geometry result to screen
+    // 2. Render geometry result using pbr to screen
+    m_lighting_fbo->bind();
     retro::renderer::renderer::clear_screen();
     m_pbr_shader->bind();
     m_pbr_shader->set_vec_float3("u_cam_pos", m_camera->get_position());
-    m_pbr_shader->set_vec_float3("u_directional_light.position", {0.0f, 0.0f,0.0f});
+    m_pbr_shader->set_vec_float3("u_directional_light.position", {0.0f, 0.0f, 0.0f});
     m_pbr_shader->set_vec_float3("u_directional_light.direction", m_light_dir);
-    m_pbr_shader->set_vec_float3("u_directional_light.color", {0.85f,0.85f,0.85f});
+    m_pbr_shader->set_vec_float3("u_directional_light.color", {5.0f, 5.0f, 5.0f});
     retro::renderer::renderer::bind_texture(0, m_geometry_fbo->get_attachment_id(0)); // Position
     retro::renderer::renderer::bind_texture(1, m_geometry_fbo->get_attachment_id(1)); // Albedo
     retro::renderer::renderer::bind_texture(2, m_geometry_fbo->get_attachment_id(2)); // Normal
-    retro::renderer::renderer::bind_texture(3, m_geometry_fbo->get_attachment_id(3)); // Roughness - Metallic - AO 
+    retro::renderer::renderer::bind_texture(3, m_geometry_fbo->get_attachment_id(3)); // Roughness - Metallic - AO
     retro::renderer::renderer::bind_texture(4, m_geometry_fbo->get_attachment_id(4)); // Emissive
     m_screen_vao->bind();
     retro::renderer::renderer::submit_elements(GL_TRIANGLES, 6);
     m_screen_vao->un_bind();
     m_pbr_shader->un_bind();
+    m_lighting_fbo->un_bind();
 
+    // 3. Render to text buffer
     glEnable(GL_BLEND);
-
-    // Texts
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    m_text_fbo->bind();
+    retro::renderer::renderer::clear_screen();
     m_font_shader->bind();
     m_enemies_left_text->set_content(std::format("Enemies Left: {}", m_enemies_manager->get_enemies().size()));
     retro::renderer::renderer::submit_text(m_font_shader, m_font, m_enemies_left_text);
@@ -108,6 +114,17 @@ void game_manager::draw_game()
     m_fps_text->set_content(std::format("FPS: {}", retro::core::time::get_fps()));
     retro::renderer::renderer::submit_text(m_font_shader, m_font, m_fps_text);
     m_font_shader->un_bind();
+    m_text_fbo->un_bind();
+    glDisable(GL_BLEND);
+
+    // 4. Combine results and final pass
+    m_final_shader->bind();
+    retro::renderer::renderer::bind_texture(0, m_lighting_fbo->get_attachment_id(0)); // Lighting fbo output
+    retro::renderer::renderer::bind_texture(1, m_text_fbo->get_attachment_id(0));     // Text fbo output
+    m_screen_vao->bind();
+    retro::renderer::renderer::submit_elements(GL_TRIANGLES, 6);
+    m_screen_vao->un_bind();
+    m_final_shader->un_bind();
 }
 
 void game_manager::debug_asset_packs()
@@ -115,12 +132,21 @@ void game_manager::debug_asset_packs()
     ImGui::Begin("Rendering");
     ImGui::SliderFloat3("Light Dir", glm::value_ptr(m_light_dir), -6.5f, 6.5f);
     ImGui::End();
+
+    ImGui::Begin("Render Passes");
+    ImGui::Image((ImTextureID)(m_geometry_fbo->get_attachment_id(0)), {512, 512}, {0, 1}, {1, 0});
+    ImGui::Image((ImTextureID)(m_geometry_fbo->get_attachment_id(1)), {512, 512}, {0, 1}, {1, 0});
+    ImGui::Image((ImTextureID)(m_geometry_fbo->get_attachment_id(2)), {512, 512}, {0, 1}, {1, 0});
+    ImGui::Image((ImTextureID)(m_geometry_fbo->get_attachment_id(3)), {512, 512}, {0, 1}, {1, 0});
+    ImGui::Image((ImTextureID)(m_geometry_fbo->get_attachment_id(4)), {512, 512}, {0, 1}, {1, 0});
+    ImGui::Image((ImTextureID)(m_text_fbo->get_attachment_id(0)), {512, 512}, {0, 1}, {1, 0});
+    ImGui::End();
     ImGui::Begin("Asset Packs");
     // Display asset packs as tree nodes
-    for (const auto& pair : retro::assets::asset_manager::get().get_asset_packs())
+    for (const auto &pair : retro::assets::asset_manager::get().get_asset_packs())
     {
-        const std::string& name = pair.first;
-        const std::shared_ptr<retro::assets::asset_pack>& pack = pair.second;
+        const std::string &name = pair.first;
+        const std::shared_ptr<retro::assets::asset_pack> &pack = pair.second;
 
         bool packNodeOpen = ImGui::TreeNodeEx(name.c_str(),
                                               ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_Framed,
@@ -134,11 +160,11 @@ void game_manager::debug_asset_packs()
 
             // Display assets within the pack
             ImGui::Indent();
-            for (const auto& asset : pack->get_assets())
+            for (const auto &asset : pack->get_assets())
             {
-                const retro::assets::asset_metadata& metadata = asset.second->get_metadata();
+                const retro::assets::asset_metadata &metadata = asset.second->get_metadata();
 
-                bool assetNodeOpen = ImGui::TreeNodeEx(reinterpret_cast<void*>(static_cast<intptr_t>(asset.first)),
+                bool assetNodeOpen = ImGui::TreeNodeEx(reinterpret_cast<void *>(static_cast<intptr_t>(asset.first)),
                                                        ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_Framed,
                                                        "Asset Name: %s", metadata.file_name.c_str());
 
@@ -166,7 +192,7 @@ void game_manager::handle_collisions()
     // 1. Check enemy-player collisions
     if (!m_disable_player_collision)
     {
-        for (const enemy& enemy : m_enemies_manager->get_enemies())
+        for (const enemy &enemy : m_enemies_manager->get_enemies())
         {
             if (check_collider_collision(enemy.collider, m_player_manager->get_player().collider))
             {
@@ -178,8 +204,7 @@ void game_manager::handle_collisions()
     }
 
     // 2. Check player-ammo pickup
-    for (auto it_ammo_pickup = m_level_manager->get_ammo_pickups().begin(); it_ammo_pickup != m_level_manager->
-         get_ammo_pickups().end();)
+    for (auto it_ammo_pickup = m_level_manager->get_ammo_pickups().begin(); it_ammo_pickup != m_level_manager->get_ammo_pickups().end();)
     {
         if (check_collider_collision(m_player_manager->get_player().collider, it_ammo_pickup->collider))
         {
@@ -198,8 +223,7 @@ void game_manager::handle_collisions()
     {
         bool bullet_deleted = false;
 
-        for (auto it_enemy = m_enemies_manager->get_enemies().begin(); it_enemy != m_enemies_manager->get_enemies().
-             end();)
+        for (auto it_enemy = m_enemies_manager->get_enemies().begin(); it_enemy != m_enemies_manager->get_enemies().end();)
         {
             if (check_collider_collision(it_enemy->collider, it_bullet->collider))
             {
@@ -258,21 +282,20 @@ void game_manager::initialize_shaders()
 {
 #ifdef ASSETS_FROM_PACK
 #if (ASSETS_FROM_PACK == 1)
-    m_font_shader = retro::assets::asset_manager::get().get_asset_pack("shaders")->get_asset<
-        retro::renderer::shader>("font.rrs");
-    m_geometry_shader = retro::assets::asset_manager::get().get_asset_pack("shaders")->get_asset<
-    retro::renderer::shader>("geometry.rrs");
-    m_pbr_shader = retro::assets::asset_manager::get().get_asset_pack("shaders")->get_asset<
-retro::renderer::shader>("pbr.rrs");
-    m_screen_shader = retro::assets::asset_manager::get().get_asset_pack("shaders")->get_asset<
-retro::renderer::shader>("screen.rrs");
+    m_font_shader = retro::assets::asset_manager::get().get_asset_pack("shaders")->get_asset<retro::renderer::shader>("font.rrs");
+    m_geometry_shader = retro::assets::asset_manager::get().get_asset_pack("shaders")->get_asset<retro::renderer::shader>("geometry.rrs");
+    m_pbr_shader = retro::assets::asset_manager::get().get_asset_pack("shaders")->get_asset<retro::renderer::shader>("pbr.rrs");
+    m_screen_shader = retro::assets::asset_manager::get().get_asset_pack("shaders")->get_asset<retro::renderer::shader>("screen.rrs");
+    m_final_shader = retro::assets::asset_manager::get().get_asset_pack("shaders")->get_asset<retro::renderer::shader>("final.rrs");
 #else
+    m_final_shader = retro::renderer::shader_loader::load_shader_from_file(
+        "resources/shaders/final.rrs");
     m_font_shader = retro::renderer::shader_loader::load_shader_from_file(
         "resources/shaders/font.rrs");
     m_screen_shader = retro::renderer::shader_loader::load_shader_from_file(
         "resources/shaders/screen.rrs");
     m_pbr_shader = retro::renderer::shader_loader::load_shader_from_file(
-"resources/shaders/pbr.rrs");
+        "resources/shaders/pbr.rrs");
     m_geometry_shader = retro::renderer::shader_loader::load_shader_from_file(
         "resources/shaders/geometry.rrs");
 #endif
@@ -287,7 +310,7 @@ void game_manager::initialize_texts()
                                                                   glm::vec2(
                                                                       25.0f,
                                                                       retro::renderer::renderer::get_viewport_size().y -
-                                                                      25.0f),
+                                                                          25.0f),
                                                                   glm::vec2(0.5f, 0.5f));
     m_ammo_text = std::make_shared<retro::renderer::text>("Ammo Left: 0",
                                                           glm::vec2(
@@ -299,10 +322,10 @@ void game_manager::initialize_texts()
 void game_manager::initialize_screen_quad()
 {
     const std::vector<float> quad_vertices = {
-        1.0f, 1.0f, 0.0f, 1.0f, 1.0f, // top right
-        1.0f, -1.0f, 0.0f, 1.0f, 0.0f, // bottom right
+        1.0f, 1.0f, 0.0f, 1.0f, 1.0f,   // top right
+        1.0f, -1.0f, 0.0f, 1.0f, 0.0f,  // bottom right
         -1.0f, -1.0f, 0.0f, 0.0f, 0.0f, // bottom left
-        -1.0f, 1.0f, 0.0f, 0.0f, 1.0f // top left
+        -1.0f, 1.0f, 0.0f, 0.0f, 1.0f   // top left
     };
 
     const std::vector<uint32_t> indices = {
@@ -352,40 +375,39 @@ void game_manager::initialize_frame_buffers()
         std::vector<retro::renderer::frame_buffer_attachment> attachments = {
             //  Position
             {
-                retro::renderer::texture_format::rgba8,
+                retro::renderer::texture_format::rgba16f,
                 retro::renderer::texture_internal_format::rgba,
                 retro::renderer::texture_filtering::linear,
                 retro::renderer::texture_wrapping::clamp_to_edge,
             },
             // Albedo
             {
-                retro::renderer::texture_format::rgba8,
+                retro::renderer::texture_format::rgba16f,
                 retro::renderer::texture_internal_format::rgba,
                 retro::renderer::texture_filtering::linear,
                 retro::renderer::texture_wrapping::clamp_to_edge,
             },
             // Normals
             {
-                retro::renderer::texture_format::rgba8,
+                retro::renderer::texture_format::rgba16f,
                 retro::renderer::texture_internal_format::rgba,
                 retro::renderer::texture_filtering::linear,
                 retro::renderer::texture_wrapping::clamp_to_edge,
             },
             // Roughness Metallic AO
             {
-                retro::renderer::texture_format::rgba8,
+                retro::renderer::texture_format::rgba16f,
                 retro::renderer::texture_internal_format::rgba,
                 retro::renderer::texture_filtering::linear,
                 retro::renderer::texture_wrapping::clamp_to_edge,
             },
             // Emissive
-           {
-               retro::renderer::texture_format::rgba8,
-               retro::renderer::texture_internal_format::rgba,
-               retro::renderer::texture_filtering::linear,
-               retro::renderer::texture_wrapping::clamp_to_edge,
-           }
-        };
+            {
+                retro::renderer::texture_format::rgba16f,
+                retro::renderer::texture_internal_format::rgba,
+                retro::renderer::texture_filtering::linear,
+                retro::renderer::texture_wrapping::clamp_to_edge,
+            }};
         retro::renderer::frame_buffer_attachment depth_attachment = {
             retro::renderer::texture_format::depth_component32f,
             retro::renderer::texture_internal_format::rgba,
@@ -394,6 +416,30 @@ void game_manager::initialize_frame_buffers()
         };
         m_geometry_fbo = std::make_shared<retro::renderer::frame_buffer>(
             attachments, viewport_size.x, viewport_size.y, depth_attachment);
+    }
+    {
+        std::vector<retro::renderer::frame_buffer_attachment> attachments = {
+            //  Position
+            {
+                retro::renderer::texture_format::rgba16f,
+                retro::renderer::texture_internal_format::rgba,
+                retro::renderer::texture_filtering::linear,
+                retro::renderer::texture_wrapping::clamp_to_edge,
+            },
+        };
+        m_text_fbo = std::make_shared<retro::renderer::frame_buffer>(attachments, viewport_size.x, viewport_size.y);
+    }
+    {
+        std::vector<retro::renderer::frame_buffer_attachment> attachments = {
+            //  Position
+            {
+                retro::renderer::texture_format::rgba16f,
+                retro::renderer::texture_internal_format::rgba,
+                retro::renderer::texture_filtering::linear,
+                retro::renderer::texture_wrapping::clamp_to_edge,
+            },
+        };
+        m_lighting_fbo = std::make_shared<retro::renderer::frame_buffer>(attachments, viewport_size.x, viewport_size.y);
     }
 }
 
@@ -432,7 +478,7 @@ void game_manager::move_to_next_wave()
     }
 }
 
-bool game_manager::on_key_pressed(retro::events::key_pressed_event& key_pressed_event)
+bool game_manager::on_key_pressed(retro::events::key_pressed_event &key_pressed_event)
 {
     if (m_game_state == game_state::starting)
     {
@@ -469,13 +515,15 @@ bool game_manager::on_key_pressed(retro::events::key_pressed_event& key_pressed_
     return false;
 }
 
-bool game_manager::on_window_resize(retro::events::window_resize_event& window_resize_event)
+bool game_manager::on_window_resize(retro::events::window_resize_event &window_resize_event)
 {
     m_enemies_left_text->set_posiiton(glm::vec2(0, window_resize_event.get_size().y - 25.0f));
     m_ammo_text->set_posiiton(glm::vec2(window_resize_event.get_size().x - 175.0f,
                                         window_resize_event.get_size().y -
-                                        25.0f));
+                                            25.0f));
     m_geometry_fbo->resize(window_resize_event.get_size());
+    m_text_fbo->resize(window_resize_event.get_size());
+    m_lighting_fbo->resize(window_resize_event.get_size());
     return false;
 }
 
@@ -489,6 +537,8 @@ void game_manager::save_assets()
         m_screen_shader);
     retro::assets::asset_manager::get().get_asset_pack("shaders")->save_asset(
         m_pbr_shader);
+    retro::assets::asset_manager::get().get_asset_pack("shaders")->save_asset(
+        m_final_shader);
     retro::assets::asset_manager::get().get_asset_pack("fonts")->save_asset(
         m_font);
 
@@ -498,7 +548,7 @@ void game_manager::save_assets()
     retro::assets::asset_manager::get().serialize_packs();
 }
 
-bool game_manager::check_collider_collision(const box_collider& collider1, const box_collider& collider2)
+bool game_manager::check_collider_collision(const box_collider &collider1, const box_collider &collider2)
 {
     // Calculate the half sizes of the boxes
     glm::vec3 halfSize1 = collider1.size * 0.5f;

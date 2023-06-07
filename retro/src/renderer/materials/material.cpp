@@ -7,8 +7,8 @@
 
 namespace retro::renderer
 {
-    material::material(const std::string& file_name, const material_data& material_data,
-        const std::map<material_texture_type, int>& texture_bindings) : asset({ assets::asset_type::material, file_name })
+    material::material(const std::string &file_name, const material_data &material_data,
+                       const std::map<material_texture_type, int> &texture_bindings) : asset({assets::asset_type::material, file_name})
     {
         m_material_texture_bindings = texture_bindings;
         m_data = material_data;
@@ -16,7 +16,8 @@ namespace retro::renderer
         // Fill in the textures that were not provided in the constructor
         for (material_texture_type type : types)
         {
-            if (m_data.textures.contains(type)) continue;
+            if (m_data.textures.contains(type))
+                continue;
 
             material_texture texture;
             texture.is_enabled = false;
@@ -51,7 +52,7 @@ namespace retro::renderer
         }
     }
 
-    void material::serialize(std::ofstream& asset_pack_file)
+    void material::serialize(std::ofstream &asset_pack_file)
     {
         // Serialize material data excluding the textures map
         material_data_serialize data_serialize;
@@ -63,38 +64,50 @@ namespace retro::renderer
         data_serialize.emissive_strength = m_data.emissive_strength;
         data_serialize.tilling = m_data.tilling;
 
-        asset_pack_file.write(reinterpret_cast<const char*>(&data_serialize), sizeof(data_serialize));
+        asset_pack_file.write(reinterpret_cast<const char *>(&data_serialize), sizeof(data_serialize));
 
-        // Serialize textures using custom struct
-        int num_textures = m_data.textures.size();
-        asset_pack_file.write(reinterpret_cast<const char*>(&num_textures), sizeof(int));
-        for (const auto& texture : m_data.textures) {
+        // Count textures with valid reference
+        int num_textures = 0;
+        for (auto &texture : m_data.textures)
+        {
+            if (!texture.second.texture)
+                continue;
+            num_textures++;
+        }
+
+        asset_pack_file.write(reinterpret_cast<const char *>(&num_textures), sizeof(int));
+        for (auto &texture : m_data.textures)
+        {
+            if (!texture.second.texture)
+                continue;
+
             // Serialize texture file path
-            const size_t file_path_length = texture.second.texture->get_metadata().file_path.size();
-            asset_pack_file.write(reinterpret_cast<const char*>(&file_path_length), sizeof(file_path_length));
+            size_t file_path_length = texture.second.texture->get_metadata().file_path.size();
+            asset_pack_file.write(reinterpret_cast<const char *>(&file_path_length), sizeof(file_path_length));
             asset_pack_file.write(texture.second.texture->get_metadata().file_path.c_str(), file_path_length);
 
             // Serialize texture type
-            asset_pack_file.write(reinterpret_cast<const char*>(&texture.first), sizeof(texture.first));
+            asset_pack_file.write(reinterpret_cast<const char *>(&texture.first), sizeof(texture.first));
 
             // Serialize texture enabled
-            asset_pack_file.write(reinterpret_cast<const char*>(&texture.second.is_enabled), sizeof(texture.second.is_enabled));
+            asset_pack_file.write(reinterpret_cast<const char *>(&texture.second.is_enabled), sizeof(texture.second.is_enabled));
         }
 
         // Serialize material texture bindings
         int num_bindings = m_material_texture_bindings.size();
-        asset_pack_file.write(reinterpret_cast<const char*>(&num_bindings), sizeof(int));
-        for (const auto& binding : m_material_texture_bindings) {
-            asset_pack_file.write(reinterpret_cast<const char*>(&binding.first), sizeof(material_texture_type));
-            asset_pack_file.write(reinterpret_cast<const char*>(&binding.second), sizeof(int));
+        asset_pack_file.write(reinterpret_cast<const char *>(&num_bindings), sizeof(int));
+        for (const auto &binding : m_material_texture_bindings)
+        {
+            asset_pack_file.write(reinterpret_cast<const char *>(&binding.first), sizeof(material_texture_type));
+            asset_pack_file.write(reinterpret_cast<const char *>(&binding.second), sizeof(int));
         }
     }
 
-    std::shared_ptr<material> material::deserialize(const assets::asset_metadata& metadata, std::ifstream& asset_pack_file)
+    std::shared_ptr<material> material::deserialize(const assets::asset_metadata &metadata, std::ifstream &asset_pack_file)
     {
         // Deserialize material data excluding the textures map
         material_data_serialize data_serialize;
-        asset_pack_file.read(reinterpret_cast<char*>(&data_serialize), sizeof(material_data_serialize));
+        asset_pack_file.read(reinterpret_cast<char *>(&data_serialize), sizeof(material_data_serialize));
 
         // Reconstruct the material data struct
         material_data data;
@@ -108,50 +121,54 @@ namespace retro::renderer
 
         // Deserialize textures
         int num_textures;
-        asset_pack_file.read(reinterpret_cast<char*>(&num_textures), sizeof(int));
-        for (int i = 0; i < num_textures; ++i) {
+        asset_pack_file.read(reinterpret_cast<char *>(&num_textures), sizeof(int));
+        for (int i = 0; i < num_textures; ++i)
+        {
             // Deserialize textue file path.
             std::string texture_file_path;
             size_t file_path_length;
-            asset_pack_file.read(reinterpret_cast<char*>(&file_path_length), sizeof(file_path_length));
+            asset_pack_file.read(reinterpret_cast<char *>(&file_path_length), sizeof(file_path_length));
             texture_file_path.resize(file_path_length);
             asset_pack_file.read(&texture_file_path[0], file_path_length);
 
             // Deserialize texture type
             material_texture_type texture_type;
-            asset_pack_file.read(reinterpret_cast<char*>(&texture_type), sizeof(texture_type));
+            asset_pack_file.read(reinterpret_cast<char *>(&texture_type), sizeof(texture_type));
 
             // Deserialize texture enabled
             bool texture_enabled;
-            asset_pack_file.read(reinterpret_cast<char*>(&texture_enabled), sizeof(texture_enabled));
+            asset_pack_file.read(reinterpret_cast<char *>(&texture_enabled), sizeof(texture_enabled));
 
             material_texture material_texture;
             auto texture_asset = assets::asset_manager::get().get_asset<texture, assets::asset_type::texture>(utils::extract_file_name(texture_file_path));
             // If the texture was previously loaded use that one
-            if (texture_asset) {
+            if (texture_asset)
+            {
                 RT_TRACE("Material '{}' has texture asset '{}' already loaded!", metadata.file_name, material::get_material_texture_type_to_string(texture_type));
                 material_texture.texture = texture_asset;
             }
-            else {
+            else
+            {
                 material_texture.texture = texture_loader::load_texture_from_file(texture_file_path);
             }
 
             material_texture.type = texture_type;
             material_texture.is_enabled = texture_enabled;
 
-            data.textures.insert({ texture_type, material_texture });
+            data.textures.insert({texture_type, material_texture});
         }
 
         // Deserialize material texture bindings
         std::map<material_texture_type, int> material_bindings;
 
         int num_bindings;
-        asset_pack_file.read(reinterpret_cast<char*>(&num_bindings), sizeof(int));
-        for (int i = 0; i < num_bindings; ++i) {
+        asset_pack_file.read(reinterpret_cast<char *>(&num_bindings), sizeof(int));
+        for (int i = 0; i < num_bindings; ++i)
+        {
             material_texture_type type;
             int texture_index;
-            asset_pack_file.read(reinterpret_cast<char*>(&type), sizeof(material_texture_type));
-            asset_pack_file.read(reinterpret_cast<char*>(&texture_index), sizeof(int));
+            asset_pack_file.read(reinterpret_cast<char *>(&type), sizeof(material_texture_type));
+            asset_pack_file.read(reinterpret_cast<char *>(&texture_index), sizeof(int));
 
             // Add the texture binding to the material
             material_bindings[type] = texture_index;
@@ -162,7 +179,7 @@ namespace retro::renderer
         return created_material;
     }
 
-    material_texture_type material::get_material_texture_type_from_string(const std::string& texture_type)
+    material_texture_type material::get_material_texture_type_from_string(const std::string &texture_type)
     {
         if (texture_type == "albedo")
             return material_texture_type::albedo;

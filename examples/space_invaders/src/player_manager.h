@@ -61,8 +61,6 @@ private:
     /* Player */
     player m_player;
     std::shared_ptr<retro::audio::sound_emitter> m_player_sound_emitter;
-
-    /* Model */
     std::shared_ptr<retro::renderer::material> m_player_material;
     std::shared_ptr<retro::renderer::model> m_player_model;
     std::shared_ptr<retro::renderer::texture> m_player_albedo_texture;
@@ -72,8 +70,11 @@ private:
     std::shared_ptr<retro::renderer::texture> m_player_ao_texture;
     std::shared_ptr<retro::renderer::texture> m_player_emissive_texture;
 
-    /* Assets */
+    /* Bullet */
     std::shared_ptr<retro::renderer::vertex_array_object> m_bullet_vao;
+    std::shared_ptr<retro::renderer::material> m_bullet_material;
+
+    /* Sounds */
     std::shared_ptr<retro::audio::sound> m_shoot_sound;
     std::shared_ptr<retro::audio::sound> m_crash_sound;
 

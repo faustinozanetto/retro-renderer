@@ -8,8 +8,8 @@ emissive_strength: 0.0
 roughness: 1.0
 metallic: 1.0
 ambient_occlusion: 1.0
-tilling: 22.0
+tilling: 15.0
 # Textures section
 [textures]
 albedo:
-    path: resources/textures/space.jpg
+    path: resources/textures/space.png
