@@ -20,10 +20,10 @@ namespace retro::renderer
 
     void shader_file_watcher::on_shader_asset_file_update(const std::string& path, file_watcher_event change_type)
     {
-        RT_TRACE("Shader file updated: '{}'", path);
         // If shader file was modified, perform hot reload
         if (change_type == file_watcher_event::modified)
         {
+            RT_TRACE("Retro Renderer | Performing shader hot reload on shader: '{}'", path);
             core::application::get().submit_to_main_thread([path, this]()
             {
                 const std::string& file_name = utils::extract_file_name(path);

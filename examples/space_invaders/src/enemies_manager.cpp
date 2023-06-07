@@ -59,13 +59,10 @@ void enemies_manager::initialize_enemy_assets()
 {
 #ifdef ASSETS_FROM_PACK
 #if (ASSETS_FROM_PACK == 1)
-
     m_enemy_model = retro::assets::asset_manager::get().get_asset_pack("models")->get_asset<retro::renderer::model>("enemy.obj");
     m_enemy_explode_sound = retro::assets::asset_manager::get().get_asset_pack("sounds")->get_asset<retro::audio::sound>("explosion.ogg");
-
     m_enemy_material = retro::assets::asset_manager::get().get_asset_pack("materials")->get_asset<retro::renderer::material>("enemy.rrm");
 #else
-
     m_enemy_model = retro::renderer::model_loader::load_model_from_file("resources/models/enemy.obj");
     m_enemy_explode_sound = retro::audio::sound_loader::load_sound_from_file("resources/audio/explosion.ogg");
     m_enemy_material = retro::renderer::material_loader::load_material_from_file("resources/materials/enemy.rrm");

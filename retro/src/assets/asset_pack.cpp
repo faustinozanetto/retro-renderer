@@ -6,12 +6,21 @@
 #include "renderer/shaders/shader.h"
 #include "renderer/text/font.h"
 #include "renderer/materials/material.h"
+#include "assets/asset_manager.h"
 #include "renderer/textures/texture.h"
 
 namespace retro::assets
 {
-    asset_pack::asset_pack(const std::string &file_path)
+    asset_pack::asset_pack(const std::string &name, const std::string &file_path, const std::unordered_set<std::shared_ptr<asset_pack>> &dependencies)
     {
+        m_name = name;
+        m_file_path = file_path;
+        m_dependencies = dependencies;
+    }
+
+    asset_pack::asset_pack(const std::string &name, const std::string &file_path)
+    {
+        m_name = name;
         m_file_path = file_path;
     }
 
@@ -54,6 +63,7 @@ namespace retro::assets
         RT_SEPARATOR();
         RT_TRACE("Retro Renderer | Started deserializing asset pack.");
         RT_TRACE("  - File Path: '{}'", m_file_path);
+
         m_assets.clear();
 
         std::ifstream asset_pack_file(m_file_path, std::ios::binary);
@@ -117,6 +127,7 @@ namespace retro::assets
             // Store the asset in the map using its UUID as the key
             m_assets[asset->get_metadata().uuid] = std::move(asset);
         }
+
         RT_TRACE("Retro Renderer | Asset pack successfully deserialized!");
         RT_SEPARATOR();
     }

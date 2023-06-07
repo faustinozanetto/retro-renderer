@@ -147,7 +147,7 @@ namespace retro::renderer
     {
         glBindTexture(GL_TEXTURE_2D, handle_id);
         glTexImage2D(GL_TEXTURE_2D, 0, texture::get_texture_format_to_opengl(attachment.format), m_width, m_height, 0,
-                     texture::get_texture_internal_format_to_opengl(attachment.internal_format), GL_UNSIGNED_BYTE, nullptr);
+                     texture::get_texture_internal_format_to_opengl(attachment.internal_format), GL_FLOAT, nullptr);
 
         // Filtering
         if (attachment.filtering != texture_filtering::none)

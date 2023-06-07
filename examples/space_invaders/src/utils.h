@@ -2,7 +2,7 @@
 
 #include <glm/glm.hpp>
 
-#define ASSETS_FROM_PACK 1
+#define ASSETS_FROM_PACK 0
 
 struct box_collider
 {

@@ -11,9 +11,13 @@ namespace retro::renderer
     public:
         shader_file_watcher();
         
-        void create_shader_file_watcher(const std::shared_ptr<shader>& shader);
+        /* Getters */
+        const  std::unordered_map<std::string, std::shared_ptr<FileWatch<std::string>>>& get_shader_file_watchers() const { return m_shader_file_watchers; }
 
+        /* Functions */
+        void create_shader_file_watcher(const std::shared_ptr<shader>& shader);
         void on_shader_asset_file_update(const std::string& path, file_watcher_event change_type);
+
     private:
         std::unordered_map<std::string, std::shared_ptr<FileWatch<std::string>>> m_shader_file_watchers;
     };
