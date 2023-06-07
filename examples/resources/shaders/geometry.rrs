@@ -1,0 +1,117 @@
+#shader vertex
+#version 450 core
+
+layout (location = 0) in vec3 a_pos;
+layout (location = 1) in vec2 a_tex_coord;
+layout (location = 2) in vec3 a_normal;
+layout (location = 3) in vec3 a_tangent;
+layout (location = 4) in vec3 a_bitangent;
+
+layout (location = 0) uniform mat4 u_transform;
+layout (location = 1) uniform mat4 u_view;
+layout (location = 2) uniform mat4 u_projection;
+
+struct geometry_out {
+    vec3 frag_pos;
+    vec2 tex_coords;
+    vec3 normal;
+    mat3 tbn;
+};
+
+layout (location = 0) out geometry_out o_geometry;
+
+void main() {
+    vec4 view_pos  = u_view * u_transform * vec4(a_pos, 1.0f);
+    o_geometry.tex_coords = a_tex_coord;
+    o_geometry.frag_pos = vec3(u_transform * vec4(a_pos, 1.0));
+
+    mat3 normalMatrix = transpose(inverse(mat3(u_transform)));
+    vec3 T = normalize(normalMatrix * a_tangent);
+    vec3 N = normalize(normalMatrix * a_normal);
+	T = normalize(T - dot(T, N) * N);
+    vec3 B = cross(N, T);
+    o_geometry.tbn =  mat3(T, B, N);
+    o_geometry.normal = N;
+
+    gl_Position = u_projection * view_pos;
+}
+
+#shader fragment
+#version 450 core
+
+struct geometry_out {
+    vec3 frag_pos;
+    vec2 tex_coords;
+    vec3 normal;
+    mat3 tbn;
+};
+
+layout(location = 0) in geometry_out o_geometry;
+
+layout (binding = 0) uniform sampler2D u_albedo_map;
+layout (binding = 1) uniform sampler2D u_normal_map;
+layout (binding = 2) uniform sampler2D u_roughness_map;
+layout (binding = 3) uniform sampler2D u_metallic_map;
+layout (binding = 4) uniform sampler2D u_ambient_occlusion_map;
+layout (binding = 5) uniform sampler2D u_emissive_map;
+
+layout(location = 0) out vec3 g_position;	
+layout(location = 1) out vec3 g_albedo;
+layout(location = 2) out vec3 g_normal;
+layout(location = 3) out vec3 g_roughmetalao;
+layout(location = 4) out vec3 g_emissive;
+
+struct material {
+    vec3 albedo;
+    vec3 emissive;
+    float roughness;
+    float metallic;
+    float ambient_occlusion;
+    float tilling;
+    float emissive_strength;
+
+    int albedo_map_enabled;
+    int normal_map_enabled;
+    int roughness_map_enabled;
+    int metallic_map_enabled;
+    int ambient_occlusion_map_enabled;
+    int emissive_map_enabled;
+};
+
+uniform material u_material;
+
+void main() {
+    g_position = o_geometry.frag_pos;
+
+    vec3 albedo = u_material.albedo;
+    if (u_material.albedo_map_enabled == 1)
+        albedo = texture(u_albedo_map, o_geometry.tex_coords * u_material.tilling).rgb;
+    g_albedo = albedo;
+
+    vec3 normal = o_geometry.normal;
+    if (u_material.normal_map_enabled == 1) {
+        normal = texture(u_normal_map, o_geometry.tex_coords * u_material.tilling).rgb;
+        normal = normalize(normal * 2.0 - 1.0);
+    }
+    g_normal = normalize(o_geometry.tbn * normal);
+
+    float roughness = u_material.roughness;
+    if (u_material.roughness_map_enabled == 1)
+        roughness = texture(u_roughness_map, o_geometry.tex_coords * u_material.tilling).r;
+
+    float metallic = u_material.metallic;
+    if (u_material.metallic_map_enabled == 1)
+        metallic = texture(u_metallic_map, o_geometry.tex_coords * u_material.tilling).r;
+
+    float ambient_occlusion = u_material.ambient_occlusion;
+    if (u_material.ambient_occlusion_map_enabled == 1)
+        ambient_occlusion = texture(u_ambient_occlusion_map, o_geometry.tex_coords * u_material.tilling).r;
+
+    g_roughmetalao = vec3(roughness, metallic, ambient_occlusion);
+    
+    vec3 emissive = u_material.emissive * u_material.emissive_strength;
+    if (u_material.emissive_map_enabled == 1)
+        emissive = texture(u_emissive_map, o_geometry.tex_coords * u_material.tilling).rgb * u_material.emissive_strength;
+        
+    g_emissive = emissive;
+}

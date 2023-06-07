@@ -1,0 +1,25 @@
+# Material storage file
+# Parameters section
+[parameters]
+# Albedo color
+albedo: 1 1 1
+emissive: 0 0 0
+emissive_strength: 10.0
+roughness: 1.0
+metallic: 1.0
+ambient_occlusion: 1.0
+tilling: 1.0
+# Textures section
+[textures]
+albedo:
+    path: ../resources/textures/radio/present_07_low_radio_BaseColor.jpg
+normal:
+    path: ../resources/textures/radio/present_07_low_radio_Normal.jpg
+roughness:
+    path: ../resources/textures/radio/present_07_low_radio_Roughness.jpg
+metallic:
+    path: ../resources/textures/radio/present_07_low_radio_Metallic.jpg
+ambient_occlusion:
+    path: ../resources/textures/radio/present_07_low_radio_AO.png
+emissive:
+    path: ../resources/textures/radio/present_07_low_radio_Emissive.jpg
