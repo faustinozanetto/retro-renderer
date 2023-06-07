@@ -9,7 +9,7 @@
 
 namespace retro::renderer
 {
-    texture_data::texture_data(int width, int height, int channels, texture_type type, void* data)
+    texture_data::texture_data(int width, int height, int channels, texture_type type, void *data)
     {
         this->width = width;
         this->height = height;
@@ -19,8 +19,8 @@ namespace retro::renderer
         this->formats = texture::get_texture_formats_from_channel_count(channels);
     }
 
-    texture::texture(const std::string& file_name, const texture_data& texture_data) : asset(
-        {assets::asset_type::texture, file_name})
+    texture::texture(const std::string &file_name, const texture_data &texture_data) : asset(
+                                                                                           {assets::asset_type::texture, file_name})
     {
         m_data = texture_data;
         m_data.mip_map_levels = static_cast<int>(floor(log2((std::min)(m_data.width, m_data.height))));
@@ -309,6 +309,8 @@ namespace retro::renderer
             return "rgba16f";
         case texture_format::rgba32f:
             return "rgba32f";
+        case texture_format::r11g11b10:
+            return "r11g11b10";
         case texture_format::depth_component16:
             return "depth_component16";
         case texture_format::depth_component24:
@@ -385,6 +387,8 @@ namespace retro::renderer
             return GL_RGBA16F;
         case texture_format::rgba32f:
             return GL_RGBA32F;
+        case texture_format::r11g11b10:
+            return GL_R11F_G11F_B10F;
         case texture_format::depth_component16:
             return GL_DEPTH_COMPONENT16;
         case texture_format::depth_component24:
@@ -438,7 +442,7 @@ namespace retro::renderer
                             get_texture_wrapping_to_opengl(wrapping));
     }
 
-    void texture::serialize(std::ofstream& asset_pack_file)
+    void texture::serialize(std::ofstream &asset_pack_file)
     {
         // Read texture file.
         std::ifstream texture_file(m_metadata.file_path, std::ios::binary | std::ios::ate);
@@ -456,18 +460,18 @@ namespace retro::renderer
         }
 
         // Write the texture file size to the asset pack file
-        asset_pack_file.write(reinterpret_cast<const char*>(&size), sizeof(std::streamsize));
+        asset_pack_file.write(reinterpret_cast<const char *>(&size), sizeof(std::streamsize));
 
         // Write the texture file data to the asset pack file
         asset_pack_file.write(buffer.data(), size);
     }
 
-    std::shared_ptr<texture> texture::deserialize(const assets::asset_metadata& metadata,
-                                                  std::ifstream& asset_pack_file)
+    std::shared_ptr<texture> texture::deserialize(const assets::asset_metadata &metadata,
+                                                  std::ifstream &asset_pack_file)
     {
         // Read the texture file size from the asset pack file
         size_t data_size;
-        asset_pack_file.read(reinterpret_cast<char*>(&data_size), sizeof(data_size));
+        asset_pack_file.read(reinterpret_cast<char *>(&data_size), sizeof(data_size));
 
         // Allocate memory for the texture data
         std::vector<char> data(data_size);
@@ -475,7 +479,7 @@ namespace retro::renderer
         // Deserialize the texture's data
         asset_pack_file.read(data.data(), data_size);
 
-        const std::shared_ptr<texture>& texture = texture_loader::load_texture_from_memory(data.data(), data_size);
+        const std::shared_ptr<texture> &texture = texture_loader::load_texture_from_memory(data.data(), data_size);
         texture->set_metadata(metadata);
         return texture;
         /*

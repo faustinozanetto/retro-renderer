@@ -9,7 +9,9 @@ bloom_app::bloom_app() : application("./")
     setup_model();
     setup_camera();
     setup_frame_buffers();
+    setup_bloom();
     setup_screen_quad();
+    m_final_render_target = m_lighting_fbo->get_attachment_id(0);
 }
 
 bloom_app::~bloom_app()
@@ -35,12 +37,12 @@ void bloom_app::on_update()
     m_geometry_fbo->un_bind();
 
     // 2. Render geometry result using pbr to screen
-    // m_lighting_fbo->bind();
+    m_lighting_fbo->bind();
     retro::renderer::renderer::clear_screen();
     m_pbr_shader->bind();
     m_pbr_shader->set_vec_float3("u_cam_pos", m_camera->get_position());
     m_pbr_shader->set_vec_float3("u_directional_light.position", {0.0f, 0.0f, 0.0f});
-    m_pbr_shader->set_vec_float3("u_directional_light.direction", {1.8f, -5.5f, -3.6f});
+    m_pbr_shader->set_vec_float3("u_directional_light.direction", {glm::sin(retro::core::time::get_time()), -5.5f, -3.6f});
     m_pbr_shader->set_vec_float3("u_directional_light.color", {10.0f, 10.0f, 10.0f});
     retro::renderer::renderer::bind_texture(0, m_geometry_fbo->get_attachment_id(0)); // Position
     retro::renderer::renderer::bind_texture(1, m_geometry_fbo->get_attachment_id(1)); // Albedo
@@ -51,7 +53,35 @@ void bloom_app::on_update()
     retro::renderer::renderer::submit_elements(GL_TRIANGLES, 6);
     m_screen_vao->un_bind();
     m_pbr_shader->un_bind();
-    // m_lighting_fbo->un_bind();
+    m_lighting_fbo->un_bind();
+
+    // 3. Bloom calculation pass
+    int current_downsample_input = m_lighting_fbo->get_attachment_id(0);
+    int mip_level = 1;
+    for (auto &downsample_fbo : m_bloom_downsample_fbos)
+    {
+        downsample_fbo->bind();
+        retro::renderer::renderer::clear_screen();
+        m_bloom_downsample_shader->bind();
+        retro::renderer::renderer::bind_texture(0, current_downsample_input);
+        m_bloom_downsample_shader->set_vec_float2("u_source_res", retro::renderer::renderer::get_viewport_size());
+        mip_level++;
+        m_screen_vao->bind();
+        retro::renderer::renderer::submit_elements(GL_TRIANGLES, 6);
+        m_screen_vao->un_bind();
+        m_bloom_downsample_shader->un_bind();
+        downsample_fbo->un_bind();
+        current_downsample_input = downsample_fbo->get_attachment_id(0);
+    }
+
+    // 3. Render final result to screen
+    retro::renderer::renderer::set_viewport_size(retro::renderer::renderer::get_viewport_size());
+    m_screen_shader->bind();
+    retro::renderer::renderer::bind_texture(0, m_final_render_target);
+    m_screen_vao->bind();
+    retro::renderer::renderer::submit_elements(GL_TRIANGLES, 6);
+    m_screen_vao->un_bind();
+    m_screen_shader->un_bind();
 }
 
 void bloom_app::load_shaders()
@@ -62,6 +92,8 @@ void bloom_app::load_shaders()
         "../resources/shaders/pbr.rrs");
     m_screen_shader = retro::renderer::shader_loader::load_shader_from_file(
         "../resources/shaders/screen.rrs");
+    m_bloom_downsample_shader = retro::renderer::shader_loader::load_shader_from_file(
+        "resources/shaders/bloom_downsample.rrs");
 }
 
 void bloom_app::setup_model()
@@ -188,9 +220,42 @@ void bloom_app::setup_frame_buffers()
     }
 }
 
+void bloom_app::setup_bloom()
+{
+    const int bloom_downsample_fbo_count = 6;
+    int downsample_factor = 2;
+    glm::ivec2 viewport_size = retro::renderer::renderer::get_viewport_size();
+    for (int i = 0; i < bloom_downsample_fbo_count; i++)
+    {
+        std::vector<retro::renderer::frame_buffer_attachment> attachments = {
+            //  Position
+            {
+                retro::renderer::texture_format::r11g11b10,
+                retro::renderer::texture_internal_format::rgb,
+                retro::renderer::texture_filtering::linear,
+                retro::renderer::texture_wrapping::clamp_to_edge,
+            },
+
+        };
+
+        // Calculate the resolution based on the current downsample factor
+        int downsample_width = viewport_size.x / downsample_factor;
+        int downsample_height = viewport_size.y / downsample_factor;
+
+        // Create the bloom downsample FBO with the calculated resolution
+
+        auto bloom_downsample_fbo = std::make_shared<retro::renderer::frame_buffer>(attachments, downsample_width, downsample_height);
+        m_bloom_downsample_fbos.push_back(bloom_downsample_fbo);
+
+        // Increase the downsample factor for the next level
+        downsample_factor *= 2;
+    }
+}
+
 void bloom_app::on_handle_event(retro::events::base_event &event)
 {
     retro::events::event_dispatcher dispatcher(event);
+    dispatcher.dispatch<retro::events::key_pressed_event>(BIND_EVENT_FN(bloom_app::on_key_pressed));
     dispatcher.dispatch<retro::events::window_resize_event>(BIND_EVENT_FN(bloom_app::on_window_resize));
 }
 
@@ -199,6 +264,41 @@ bool bloom_app::on_window_resize(retro::events::window_resize_event &resize_even
     m_geometry_fbo->resize(resize_event.get_size());
     m_lighting_fbo->resize(resize_event.get_size());
     return application::on_window_resize(resize_event);
+}
+
+bool bloom_app::on_key_pressed(retro::events::key_pressed_event &key_pressed_event)
+{
+    if (key_pressed_event.get_key_code() == retro::key::D1)
+    {
+        m_final_render_target = m_lighting_fbo->get_attachment_id(0);
+        return true;
+    }
+    if (key_pressed_event.get_key_code() == retro::key::D2)
+    {
+        m_final_render_target = m_geometry_fbo->get_attachment_id(0);
+        return true;
+    }
+    if (key_pressed_event.get_key_code() == retro::key::D3)
+    {
+        m_final_render_target = m_geometry_fbo->get_attachment_id(1);
+        return true;
+    }
+    if (key_pressed_event.get_key_code() == retro::key::D4)
+    {
+        m_final_render_target = m_geometry_fbo->get_attachment_id(2);
+        return true;
+    }
+    if (key_pressed_event.get_key_code() == retro::key::D5)
+    {
+        m_final_render_target = m_geometry_fbo->get_attachment_id(3);
+        return true;
+    }
+    if (key_pressed_event.get_key_code() == retro::key::D6)
+    {
+        m_final_render_target = m_geometry_fbo->get_attachment_id(4);
+        return true;
+    }
+    return false;
 }
 
 retro::core::application *retro::core::create_application()

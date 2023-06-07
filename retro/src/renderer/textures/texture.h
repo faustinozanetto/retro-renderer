@@ -41,6 +41,7 @@ namespace retro::renderer
         rgba16,
         rgba16f,
         rgba32f,
+        r11g11b10,
         depth_component16,
         depth_component24,
         depth_component32,
@@ -120,7 +121,7 @@ namespace retro::renderer
 
         /* Asset */
         void serialize(std::ofstream &asset_pack_file) override;
-        static std::shared_ptr<texture> deserialize(const assets::asset_metadata &metadata, std::ifstream& asset_pack_file);
+        static std::shared_ptr<texture> deserialize(const assets::asset_metadata &metadata, std::ifstream &asset_pack_file);
 
         /* Utilities */
         static std::string get_texture_filtering_to_string(texture_filtering filtering);

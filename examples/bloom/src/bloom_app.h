@@ -15,15 +15,22 @@ public:
     void setup_camera();
     void setup_screen_quad();
     void setup_frame_buffers();
+    void setup_bloom();
 
     void on_handle_event(retro::events::base_event &event) override;
     bool on_window_resize(retro::events::window_resize_event &resize_event) override;
+    bool on_key_pressed(retro::events::key_pressed_event &key_pressed_event);
 
 private:
     /* Common Variables */
     std::shared_ptr<retro::camera::camera> m_camera;
 
+    /* Bloom */
+    std::vector<std::shared_ptr<retro::renderer::frame_buffer>> m_bloom_downsample_fbos;
+    std::shared_ptr<retro::renderer::shader> m_bloom_downsample_shader;
+
     /* Rendering */
+    int m_final_render_target;
     std::shared_ptr<retro::renderer::frame_buffer> m_geometry_fbo;
     std::shared_ptr<retro::renderer::frame_buffer> m_lighting_fbo;
     std::shared_ptr<retro::renderer::shader> m_geometry_shader;
