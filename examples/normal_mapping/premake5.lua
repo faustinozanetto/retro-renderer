@@ -25,6 +25,7 @@ project "normal-mapping"
         "%{include_dirs.freetype}",
         "%{include_dirs.openal}",
         "%{include_dirs.dr_libs}",
+        "%{include_dirs.entt}",
     }
 
     links {

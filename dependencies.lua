@@ -10,6 +10,7 @@ include_dirs["assimp"] = "%{wks.location}/third_party/assimp/include"
 include_dirs["freetype"] = "%{wks.location}/third_party/freetype/include"
 include_dirs["openal"] = "%{wks.location}/third_party/openal/include"
 include_dirs["dr_libs"] = "%{wks.location}/third_party/dr_libs"
+include_dirs["entt"] = "%{wks.location}/third_party/entt/single_include"
 
 library_dirs = {}
 

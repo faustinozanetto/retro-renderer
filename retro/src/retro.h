@@ -51,6 +51,10 @@
 #include "assets/asset_pack.h"
 #include "assets/asset_manager.h"
 
+// Scene Include
+#include "scene/scene.h"
+#include "scene/scene_actor.h"
+
 // Input Include
 #include "input/input.h"
 #include "input/key_codes.h"
