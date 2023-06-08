@@ -23,6 +23,7 @@ namespace retro::renderer
         material_bindings[retro::renderer::material_texture_type::metallic] = 3;
         material_bindings[retro::renderer::material_texture_type::ambient_occlusion] = 4;
         material_bindings[retro::renderer::material_texture_type::emissive] = 5;
+        material_bindings[retro::renderer::material_texture_type::opacity] = 6;
         auto created_material = std::make_shared<material>(file_path, material_data, material_bindings);
         RT_TRACE("Retro Renderer | Material loaded from file successfully!");
         RT_SEPARATOR();

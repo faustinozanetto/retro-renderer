@@ -2,6 +2,7 @@
 
 #include <glm/ext/matrix_transform.hpp>
 #include <core/entry_point.h>
+#include <glm/gtc/type_ptr.hpp>
 #include <imgui.h>
 
 bloom_app::bloom_app() : application("./")
@@ -13,6 +14,7 @@ bloom_app::bloom_app() : application("./")
     setup_screen_quad();
     m_filter_radius = 0.005f;
     m_bloom_sample_count = 6;
+    m_model_pos = glm::vec3(0.0f);
     setup_bloom();
     m_final_render_target = m_lighting_fbo->get_attachment_id(0);
 }
@@ -24,13 +26,15 @@ bloom_app::~bloom_app()
 void bloom_app::on_update()
 {
     retro::renderer::renderer::set_state(retro::renderer::renderer_state::blend, false);
+    retro::renderer::renderer::set_state(retro::renderer::renderer_state::depth, true);
     // 1. Render to geometry fbo
     m_geometry_fbo->bind();
     retro::renderer::renderer::clear_screen();
     m_geometry_shader->bind();
     glm::mat4 model = glm::mat4(1.0f);
-    model = glm::scale(model, glm::vec3(2.0f));
-    model = glm::rotate(model, static_cast<float>(glfwGetTime()), {0, 1, 0});
+    model = glm::scale(model, glm::vec3(0.07f));
+    model = glm::translate(model, m_model_pos);
+    model = glm::rotate(model, static_cast<float>(glfwGetTime()), {0, 0.05, 0});
     m_geometry_shader->set_mat4("u_transform", model);
     m_geometry_shader->set_mat4("u_view", m_camera->get_view_matrix());
     m_geometry_shader->set_mat4("u_projection", m_camera->get_projection_matrix());
@@ -38,6 +42,7 @@ void bloom_app::on_update()
     retro::renderer::renderer::submit_model(m_model);
     m_geometry_shader->un_bind();
     m_geometry_fbo->un_bind();
+    retro::renderer::renderer::set_state(retro::renderer::renderer_state::depth, false);
 
     // 2. Render geometry result using pbr to screen
     m_lighting_fbo->bind();
@@ -129,6 +134,10 @@ void bloom_app::on_update()
     // 6. ImGui Debug
     retro::ui::engine_ui::begin_frame();
 
+    ImGui::Begin("Model");
+    ImGui::SliderFloat3("Position", glm::value_ptr(m_model_pos), -50.0f, 50.0f);
+    ImGui::End();
+
     ImGui::Begin("Bloom");
     ImGui::SliderFloat("Filter Radius", &m_filter_radius, 0.0001f, 0.001f);
     if (ImGui::SliderInt("Bloom Mip Count", &m_bloom_sample_count, 1, 10))
@@ -179,8 +188,8 @@ void bloom_app::load_shaders()
 
 void bloom_app::setup_model()
 {
-    m_model = retro::renderer::model_loader::load_model_from_file("../resources/models/radio/radio.obj");
-    m_material = retro::renderer::material_loader::load_material_from_file("../resources/materials/radio.rrm");
+    m_model = retro::renderer::model_loader::load_model_from_file("../resources/models/mushroom/mushroom.fbx");
+    m_material = retro::renderer::material_loader::load_material_from_file("../resources/materials/mushroom.rrm");
 }
 
 void bloom_app::setup_camera()

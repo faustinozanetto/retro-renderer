@@ -13,7 +13,8 @@ namespace retro::renderer
         roughness,
         metallic,
         ambient_occlusion,
-        emissive
+        emissive,
+        opacity
     };
 
     struct material_texture
@@ -57,7 +58,8 @@ namespace retro::renderer
         material_texture_type::roughness,
         material_texture_type::metallic,
         material_texture_type::ambient_occlusion,
-        material_texture_type::emissive};
+        material_texture_type::emissive,
+        material_texture_type::opacity};
 
     class material : public assets::asset
     {

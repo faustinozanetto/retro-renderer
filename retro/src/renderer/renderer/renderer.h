@@ -24,7 +24,8 @@ namespace retro::renderer
     enum class renderer_state
     {
         depth,
-        blend
+        blend,
+        face_cull
     };
 
     class renderer

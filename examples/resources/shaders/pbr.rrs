@@ -113,6 +113,7 @@ void main()
     vec3 normal = texture(u_normal_map, o_tex_coord).rgb;
     vec3 roughmetalao = texture(u_roughmetalao_map, o_tex_coord).rgb;
     vec3 emissive = texture(u_emissive_map, o_tex_coord).rgb;
+    float opacity = texture(u_albedo_map, o_tex_coord).a;
     float roughness = roughmetalao.r;
     float metallic = roughmetalao.g;
     float ambient_occlusion = roughmetalao.b;

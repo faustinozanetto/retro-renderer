@@ -483,7 +483,7 @@ namespace retro::renderer
         {
             texture_format format = get_texture_format_from_internal_format(m_data.internal_format);
             glTextureSubImage2D(m_handle_id, 0, 0, 0, m_data.width, m_data.height, get_texture_format_to_opengl(format),
-                                m_data.internal_format == texture_internal_format::rgba16f ? GL_FLOAT : m_data.internal_format == texture_internal_format::r11g11b10 ? GL_FLOAT
+                                 m_data.internal_format == texture_internal_format::r11g11b10 ? GL_FLOAT
                                                                                                                                                                      : GL_UNSIGNED_BYTE,
                                 m_data.data);
 

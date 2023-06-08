@@ -50,6 +50,7 @@ private:
     std::shared_ptr<retro::renderer::vertex_array_object> m_screen_vao;
 
     /* Model Variables */
+    glm::vec3 m_model_pos;
     std::shared_ptr<retro::renderer::material> m_material;
     std::shared_ptr<retro::renderer::model> m_model;
 };

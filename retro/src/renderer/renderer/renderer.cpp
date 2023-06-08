@@ -191,6 +191,8 @@ namespace retro::renderer
             return GL_DEPTH_TEST;
         case renderer_state::blend:
             return GL_BLEND;
+        case renderer_state::face_cull:
+            return GL_CULL_FACE;
         }
         RT_ASSERT_MSG(false, "Unknown renderer state!");
     }

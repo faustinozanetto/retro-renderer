@@ -54,9 +54,10 @@ layout (binding = 2) uniform sampler2D u_roughness_map;
 layout (binding = 3) uniform sampler2D u_metallic_map;
 layout (binding = 4) uniform sampler2D u_ambient_occlusion_map;
 layout (binding = 5) uniform sampler2D u_emissive_map;
+layout (binding = 6) uniform sampler2D u_opacity_map;
 
 layout(location = 0) out vec3 g_position;	
-layout(location = 1) out vec3 g_albedo;
+layout(location = 1) out vec4 g_albedo_opacity;
 layout(location = 2) out vec3 g_normal;
 layout(location = 3) out vec3 g_roughmetalao;
 layout(location = 4) out vec3 g_emissive;
@@ -76,6 +77,7 @@ struct material {
     int metallic_map_enabled;
     int ambient_occlusion_map_enabled;
     int emissive_map_enabled;
+    int opacity_map_enabled;
 };
 
 uniform material u_material;
@@ -86,7 +88,14 @@ void main() {
     vec3 albedo = u_material.albedo;
     if (u_material.albedo_map_enabled == 1)
         albedo = texture(u_albedo_map, o_geometry.tex_coords * u_material.tilling).rgb;
-    g_albedo = albedo;
+    
+    float opacity = 1.0;
+    if (u_material.opacity_map_enabled == 1)
+        opacity = texture(u_opacity_map, o_geometry.tex_coords * u_material.tilling).r;
+
+    if (opacity < 0.1) discard;
+
+    g_albedo_opacity = vec4(albedo, opacity);
 
     vec3 normal = o_geometry.normal;
     if (u_material.normal_map_enabled == 1) {

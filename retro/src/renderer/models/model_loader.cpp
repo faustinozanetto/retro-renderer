@@ -31,7 +31,7 @@ namespace retro::renderer
         return created_model;
     }
 
-    std::shared_ptr<model> model_loader::load_model_from_meshes(const std::vector<std::shared_ptr<mesh>>& meshes)
+    std::shared_ptr<model> model_loader::load_model_from_meshes(const std::vector<std::shared_ptr<mesh>> &meshes)
     {
         RT_SEPARATOR();
         RT_TRACE("Retro Renderer | Started loading model from meshes.");

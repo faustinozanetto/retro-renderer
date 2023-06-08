@@ -1,0 +1,27 @@
+# Material storage file
+# Parameters section
+[parameters]
+# Albedo color
+albedo: 1 1 1
+emissive: 0 0 0
+emissive_strength: 20.0
+roughness: 1.0
+metallic: 1.0
+ambient_occlusion: 1.0
+tilling: 1.0
+# Textures section
+[textures]
+albedo:
+    path: ../resources/textures/mushroom/Mushroom_Base.png
+normal:
+    path: ../resources/textures/mushroom/Mushroom_Normal.png
+roughness:
+    path: ../resources/textures/mushroom/Mushroom_Roughness.png
+metallic:
+    path: ../resources/textures/mushroom/Mushroom_Metallic.png
+ambient_occlusion:
+    path: ../resources/textures/mushroom/Mushroom_AO.png
+emissive:
+    path: ../resources/textures/mushroom/Mushroom_Emissive.png
+opacity:
+    path: ../resources/textures/mushroom/Mushroom_Opacity.png

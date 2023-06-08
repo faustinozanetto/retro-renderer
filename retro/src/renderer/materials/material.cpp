@@ -204,6 +204,8 @@ namespace retro::renderer
             return material_texture_type::ambient_occlusion;
         else if (texture_type == "emissive")
             return material_texture_type::emissive;
+        else if (texture_type == "opacity")
+            return material_texture_type::opacity;
         RT_ASSERT_MSG(false, "Invalid material texture type!");
     }
 
@@ -223,6 +225,8 @@ namespace retro::renderer
             return "ambient_occlusion";
         case material_texture_type::emissive:
             return "emissive";
+        case material_texture_type::opacity:
+            return "opacity";
         }
         RT_ASSERT_MSG(false, "Invalid material texture type!");
     }
@@ -243,6 +247,8 @@ namespace retro::renderer
             return "u_material.ambient_occlusion_map_enabled";
         case material_texture_type::emissive:
             return "u_material.emissive_map_enabled";
+        case material_texture_type::opacity:
+            return "u_material.opacity_map_enabled";
         }
         RT_ASSERT_MSG(false, "Invalid material texture type!");
     }
