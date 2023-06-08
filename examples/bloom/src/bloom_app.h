@@ -4,8 +4,7 @@
 
 struct bloom_mip_data
 {
-    glm::vec2 size;
-    glm::ivec2 int_size;
+    glm::ivec2 size;
     std::shared_ptr<retro::renderer::texture> texture;
 };
 
@@ -38,6 +37,7 @@ private:
     std::shared_ptr<retro::renderer::shader> m_bloom_downsample_shader;
     std::shared_ptr<retro::renderer::shader> m_bloom_upsample_shader;
     std::vector<bloom_mip_data> m_bloom_mips;
+    float m_filter_radius;
 
     /* Rendering */
     int m_final_render_target;

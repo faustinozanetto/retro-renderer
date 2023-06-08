@@ -69,11 +69,14 @@ namespace retro::renderer
         set_text_projection();
     }
 
-    void renderer::set_depth_test(bool is_enabled)
+    void renderer::set_state(renderer_state state, bool is_enabled)
     {
         if (is_enabled)
-            glEnable(GL_DEPTH_TEST);
-        else glDisable(GL_DEPTH_TEST);
+        {
+            glEnable(get_renderer_state_to_opengl(state));
+            return;
+        }
+        glDisable(get_renderer_state_to_opengl(state));
     }
 
     void renderer::bind_texture(uint32_t slot, uint32_t handle_id)
@@ -95,7 +98,7 @@ namespace retro::renderer
         for (char c : text->get_content())
         {
             // Retrieve the glyph information for the map
-            const glyph_data& data = font->get_glyphs_data().at(c);
+            const glyph_data &data = font->get_glyphs_data().at(c);
 
             float xpos = x + data.bearing.x * text->get_scale().x;
             float ypos = y - (data.size.y - data.bearing.y) * text->get_scale().y;
@@ -103,12 +106,12 @@ namespace retro::renderer
             float w = data.size.x * text->get_scale().x;
             float h = data.size.y * text->get_scale().y;
 
-            text_vertex v1 = { glm::vec4(xpos,     ypos + h,   data.u1,data.v1) };
-            text_vertex v2 = { glm::vec4(xpos,     ypos,       data.u1, data.v2) };
-            text_vertex v3 = { glm::vec4(xpos + w, ypos,       data.u2, data.v2) };
-            text_vertex v4 = { glm::vec4(xpos,     ypos + h,   data.u1, data.v1) };
-            text_vertex v5 = { glm::vec4(xpos + w, ypos,       data.u2, data.v2) };
-            text_vertex v6 = { glm::vec4(xpos + w, ypos + h,   data.u2, data.v1) };
+            text_vertex v1 = {glm::vec4(xpos, ypos + h, data.u1, data.v1)};
+            text_vertex v2 = {glm::vec4(xpos, ypos, data.u1, data.v2)};
+            text_vertex v3 = {glm::vec4(xpos + w, ypos, data.u2, data.v2)};
+            text_vertex v4 = {glm::vec4(xpos, ypos + h, data.u1, data.v1)};
+            text_vertex v5 = {glm::vec4(xpos + w, ypos, data.u2, data.v2)};
+            text_vertex v6 = {glm::vec4(xpos + w, ypos + h, data.u2, data.v1)};
 
             // Add the vertices to the vertices vector
             text_vertices.push_back(v1);
@@ -167,7 +170,7 @@ namespace retro::renderer
         }
     }
 
-    void renderer::submit_model_instanced(const std::shared_ptr<model>& model, int instance_count)
+    void renderer::submit_model_instanced(const std::shared_ptr<model> &model, int instance_count)
     {
         for (const auto &mesh : model->get_meshes())
         {
@@ -179,5 +182,16 @@ namespace retro::renderer
     {
         s_data.text_projection = glm::ortho(0.0f, static_cast<float>(s_data.window->get_width()), 0.0f,
                                             static_cast<float>(s_data.window->get_height()));
+    }
+    uint32_t renderer::get_renderer_state_to_opengl(renderer_state state)
+    {
+        switch (state)
+        {
+        case renderer_state::depth:
+            return GL_DEPTH_TEST;
+        case renderer_state::blend:
+            return GL_BLEND;
+        }
+        RT_ASSERT_MSG(false, "Unknown renderer state!");
     }
 }

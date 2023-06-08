@@ -151,8 +151,9 @@ namespace retro::renderer
     void frame_buffer::attach_color_texture(frame_buffer_attachment attachment, uint32_t handle_id, int index) const
     {
         glBindTexture(GL_TEXTURE_2D, handle_id);
-        glTexImage2D(GL_TEXTURE_2D, 0, texture::get_texture_format_to_opengl(attachment.format), attachment.size.x, attachment.size.y, 0,
-                     texture::get_texture_internal_format_to_opengl(attachment.internal_format), GL_FLOAT, nullptr);
+        texture_format format = texture::get_texture_format_from_internal_format(attachment.internal_format);
+        glTexImage2D(GL_TEXTURE_2D, 0, texture::get_texture_internal_format_to_opengl(attachment.internal_format), attachment.size.x, attachment.size.y, 0,
+                     texture::get_texture_format_to_opengl(format), GL_FLOAT, nullptr);
 
         // Filtering
         if (attachment.filtering != texture_filtering::none)
@@ -237,8 +238,7 @@ namespace retro::renderer
             attachment_data.size = {texture->get_data().width, texture->get_data().height};
             attachment_data.filtering = texture_filtering::linear;
             attachment_data.wrapping = texture_wrapping::clamp_to_edge;
-            attachment_data.format = texture->get_data().formats.format;
-            attachment_data.internal_format = texture->get_data().formats.internal_format;
+            attachment_data.internal_format = texture->get_data().internal_format;
             m_attachments_data.push_back(attachment_data);
         }
     }

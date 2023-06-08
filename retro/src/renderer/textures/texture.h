@@ -11,7 +11,7 @@ namespace retro::renderer
         cubemap,
     };
 
-    enum class texture_internal_format
+    enum class texture_format
     {
         rg = 0,
         rgb,
@@ -24,7 +24,7 @@ namespace retro::renderer
         alpha,
     };
 
-    enum class texture_format
+    enum class texture_internal_format
     {
         r8 = 0,
         r16,
@@ -62,7 +62,7 @@ namespace retro::renderer
         int height;
         int channels;
         int mip_map_levels;
-        texture_formats formats;
+        texture_internal_format internal_format;
         texture_type type;
         void *data;
 
@@ -70,12 +70,12 @@ namespace retro::renderer
 
         texture_data(int width, int height, int channels, texture_type type, void *data);
 
-        texture_data(int width, int height, int channels, texture_formats formats, texture_type type, void *data) : width(width), height(height), channels(channels), formats(formats), type(type), data(data)
+        texture_data(int width, int height, int channels, texture_internal_format internal_format, texture_type type, void *data) : width(width), height(height), channels(channels), internal_format(internal_format), type(type), data(data)
         {
         }
 
-        texture_data(int width, int height, int channels, int mip_map_levels, texture_formats formats, texture_type type, void *data) : width(width),
-                                                                                                                                        height(height), channels(channels), mip_map_levels(mip_map_levels), formats(formats), type(type), data(data)
+        texture_data(int width, int height, int channels, int mip_map_levels, texture_internal_format internal_format, texture_type type, void *data) : width(width),
+                                                                                                                                                        height(height), channels(channels), mip_map_levels(mip_map_levels), internal_format(internal_format), type(type), data(data)
         {
         }
     };
@@ -132,6 +132,7 @@ namespace retro::renderer
         static std::shared_ptr<texture> deserialize(const assets::asset_metadata &metadata, std::ifstream &asset_pack_file);
 
         /* Utilities */
+        static texture_format get_texture_format_from_internal_format(texture_internal_format internal_format);
         static std::string get_texture_filtering_to_string(texture_filtering filtering);
         static std::string get_texture_filtering_type_to_string(texture_filtering_type filtering_type);
         static std::string get_texture_wrapping_to_string(texture_wrapping wrapping);
@@ -152,7 +153,6 @@ namespace retro::renderer
 
     private:
         void initialize();
-        bool requires_float_data_pixel();
 
         texture_data m_data;
 

@@ -43,7 +43,6 @@ float KarisAverage(vec3 col)
 	return 1.0f / (1.0f + luma);
 }
 
-
 void main()
 {
     vec2 source_texel_size = 1.0 / u_source_res;

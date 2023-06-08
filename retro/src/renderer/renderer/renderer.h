@@ -21,21 +21,29 @@ namespace retro::renderer
         bool vsync_enabled;
     };
 
+    enum class renderer_state
+    {
+        depth,
+        blend
+    };
+
     class renderer
     {
     public:
         static void initialize();
 
+        /* Getters */
         static glm::ivec2 get_viewport_size();
-
         static bool get_window_should_close();
+
+        /* Functions */
         static void clear_screen();
         static void poll_input();
         static void swap_buffers();
         static void set_clear_color(const glm::vec4 &clear_color);
         static void set_vsync_enabled(bool is_vsync_enabled);
         static void set_viewport_size(const glm::ivec2 &viewport_size);
-        static void set_depth_test(bool is_enabled);
+        static void set_state(renderer_state state, bool is_enabled);
 
         static void bind_texture(uint32_t slot, uint32_t handle_id);
 
@@ -48,7 +56,10 @@ namespace retro::renderer
 
         static void submit_model(const std::shared_ptr<model> &model);
         static void submit_model_instanced(const std::shared_ptr<model> &model, int instance_count);
-        
+
         static void set_text_projection();
+
+        /* Utils */
+        static uint32_t get_renderer_state_to_opengl(renderer_state state);
     };
 }

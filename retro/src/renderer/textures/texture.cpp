@@ -16,7 +16,7 @@ namespace retro::renderer
         this->channels = channels;
         this->data = data;
         this->type = type;
-        this->formats = texture::get_texture_formats_from_channel_count(channels);
+        this->internal_format = texture::get_texture_formats_from_channel_count(channels).internal_format;
     }
 
     texture::texture(const std::string &file_name, const texture_data &texture_data) : asset(
@@ -31,8 +31,7 @@ namespace retro::renderer
         RT_TRACE("  - Height: {0}px", m_data.height);
         RT_TRACE("  - Channels: {0}", m_data.channels);
         RT_TRACE("  - Mipmap Levels: {0}", m_data.mip_map_levels);
-        RT_TRACE("  - Format: '{0}'", get_texture_format_to_string(m_data.formats.format));
-        RT_TRACE("  - Internal Format: '{0}'", get_texture_internal_format_to_string(m_data.formats.internal_format));
+        RT_TRACE("  - Internal Format: '{0}'", get_texture_internal_format_to_string(m_data.internal_format));
 
         initialize();
     }
@@ -40,6 +39,60 @@ namespace retro::renderer
     texture::~texture()
     {
         glDeleteTextures(1, &m_handle_id);
+    }
+
+    texture_format texture::get_texture_format_from_internal_format(texture_internal_format internal_format)
+    {
+        switch (internal_format)
+        {
+        case texture_internal_format::r8:
+            return texture_format::red;
+        case texture_internal_format::r16:
+            return texture_format::red;
+        case texture_internal_format::r16f:
+            return texture_format::red;
+        case texture_internal_format::r32f:
+            return texture_format::red;
+        case texture_internal_format::rg8:
+            return texture_format::rg;
+        case texture_internal_format::rg16:
+            return texture_format::rg;
+        case texture_internal_format::rg16f:
+            return texture_format::rg;
+        case texture_internal_format::rg32f:
+            return texture_format::rg;
+        case texture_internal_format::rgb8:
+            return texture_format::rgb;
+        case texture_internal_format::rgb16:
+            return texture_format::rgb;
+        case texture_internal_format::rgb16f:
+            return texture_format::rgb;
+        case texture_internal_format::rgb32f:
+            return texture_format::rgb;
+        case texture_internal_format::rgba8:
+            return texture_format::rgba;
+        case texture_internal_format::rgba16:
+            return texture_format::rgba;
+        case texture_internal_format::rgba16f:
+            return texture_format::rgba;
+        case texture_internal_format::rgba32f:
+            return texture_format::rgba;
+        case texture_internal_format::r11g11b10:
+            return texture_format::rgb;
+        case texture_internal_format::depth_component16:
+            return texture_format::red;
+        case texture_internal_format::depth_component24:
+            return texture_format::red;
+        case texture_internal_format::depth_component32:
+            return texture_format::red;
+        case texture_internal_format::depth_component32f:
+            return texture_format::red;
+        case texture_internal_format::stencil_index8:
+            return texture_format::red;
+        default:
+            return texture_format::rgba;
+        }
+        RT_ASSERT_MSG(false, "Invalid texture internal format!");
     }
 
     std::string texture::get_texture_filtering_to_string(texture_filtering filtering)
@@ -174,106 +227,80 @@ namespace retro::renderer
         RT_ASSERT_MSG(false, "Invalid texture wrapping type!");
     }
 
-    std::string texture::get_texture_internal_format_to_string(texture_internal_format internal_format)
-    {
-        switch (internal_format)
-        {
-        case texture_internal_format::rg:
-            return "rg";
-        case texture_internal_format::rgb:
-            return "rgb";
-        case texture_internal_format::rgba:
-            return "rgba";
-        case texture_internal_format::bgr:
-            return "bgr";
-        case texture_internal_format::bgra:
-            return "bgra";
-        case texture_internal_format::red:
-            return "red";
-        case texture_internal_format::green:
-            return "green";
-        case texture_internal_format::blue:
-            return "blue";
-        case texture_internal_format::alpha:
-            return "alpha";
-        }
-        RT_ASSERT_MSG(false, "Invalid texture internal format!");
-    }
-
     std::string texture::get_texture_format_to_string(texture_format format)
     {
         switch (format)
         {
-        case texture_format::r8:
-            return "r8";
-        case texture_format::r16:
-            return "r16";
-        case texture_format::r16f:
-            return "r16f";
-        case texture_format::r32f:
-            return "r32f";
-        case texture_format::rg8:
-            return "rg8";
-        case texture_format::rg16:
-            return "rg16";
-        case texture_format::rg16f:
-            return "rg16f";
-        case texture_format::rg32f:
-            return "rg32f";
-        case texture_format::rgb8:
-            return "rgb8";
-        case texture_format::rgb16:
-            return "rgb16";
-        case texture_format::rgb16f:
-            return "rgb16f";
-        case texture_format::rgb32f:
-            return "rgb32f";
-        case texture_format::rgba8:
-            return "rgba8";
-        case texture_format::rgba16:
-            return "rgba16";
-        case texture_format::rgba16f:
-            return "rgba16f";
-        case texture_format::rgba32f:
-            return "rgba32f";
-        case texture_format::r11g11b10:
-            return "r11g11b10";
-        case texture_format::depth_component16:
-            return "depth_component16";
-        case texture_format::depth_component24:
-            return "depth_component24";
-        case texture_format::depth_component32:
-            return "depth_component32";
-        case texture_format::depth_component32f:
-            return "depth_component32f";
-        case texture_format::stencil_index8:
-            return "stencil_index8";
+        case texture_format::rg:
+            return "rg";
+        case texture_format::rgb:
+            return "rgb";
+        case texture_format::rgba:
+            return "rgba";
+        case texture_format::bgr:
+            return "bgr";
+        case texture_format::bgra:
+            return "bgra";
+        case texture_format::red:
+            return "red";
+        case texture_format::green:
+            return "green";
+        case texture_format::blue:
+            return "blue";
+        case texture_format::alpha:
+            return "alpha";
         }
         RT_ASSERT_MSG(false, "Invalid texture format!");
     }
 
-    int texture::get_texture_internal_format_to_opengl(texture_internal_format internal_format)
+    std::string texture::get_texture_internal_format_to_string(texture_internal_format internal_format)
     {
         switch (internal_format)
         {
-        case texture_internal_format::rg:
-            return GL_RG;
-        case texture_internal_format::rgb:
-            return GL_RGB;
-        case texture_internal_format::rgba:
-            return GL_RGBA;
-        case texture_internal_format::bgr:
-            return GL_BGR;
-        case texture_internal_format::bgra:
-            return GL_BGRA;
-        case texture_internal_format::red:
-            return GL_RED;
-        case texture_internal_format::green:
-            return GL_GREEN;
-        case texture_internal_format::blue:
-            return GL_BLUE;
-        case texture_internal_format::alpha:
-            return GL_ALPHA;
+        case texture_internal_format::r8:
+            return "r8";
+        case texture_internal_format::r16:
+            return "r16";
+        case texture_internal_format::r16f:
+            return "r16f";
+        case texture_internal_format::r32f:
+            return "r32f";
+        case texture_internal_format::rg8:
+            return "rg8";
+        case texture_internal_format::rg16:
+            return "rg16";
+        case texture_internal_format::rg16f:
+            return "rg16f";
+        case texture_internal_format::rg32f:
+            return "rg32f";
+        case texture_internal_format::rgb8:
+            return "rgb8";
+        case texture_internal_format::rgb16:
+            return "rgb16";
+        case texture_internal_format::rgb16f:
+            return "rgb16f";
+        case texture_internal_format::rgb32f:
+            return "rgb32f";
+        case texture_internal_format::rgba8:
+            return "rgba8";
+        case texture_internal_format::rgba16:
+            return "rgba16";
+        case texture_internal_format::rgba16f:
+            return "rgba16f";
+        case texture_internal_format::rgba32f:
+            return "rgba32f";
+        case texture_internal_format::r11g11b10:
+            return "r11g11b10";
+        case texture_internal_format::depth_component16:
+            return "depth_component16";
+        case texture_internal_format::depth_component24:
+            return "depth_component24";
+        case texture_internal_format::depth_component32:
+            return "depth_component32";
+        case texture_internal_format::depth_component32f:
+            return "depth_component32f";
+        case texture_internal_format::stencil_index8:
+            return "stencil_index8";
         }
         RT_ASSERT_MSG(false, "Invalid texture internal format!");
     }
@@ -282,77 +309,103 @@ namespace retro::renderer
     {
         switch (format)
         {
-        case texture_format::r8:
-            return GL_R8;
-        case texture_format::r16:
-            return GL_R16;
-        case texture_format::r16f:
-            return GL_R16F;
-        case texture_format::r32f:
-            return GL_R32F;
-        case texture_format::rg8:
-            return GL_RG8;
-        case texture_format::rg16:
-            return GL_RG16;
-        case texture_format::rg16f:
-            return GL_RG16F;
-        case texture_format::rg32f:
-            return GL_RG32F;
-        case texture_format::rgb8:
-            return GL_RGB8;
-        case texture_format::rgb16:
-            return GL_RGB16;
-        case texture_format::rgb16f:
-            return GL_RGB16F;
-        case texture_format::rgb32f:
-            return GL_RGB32F;
-        case texture_format::rgba8:
-            return GL_RGBA8;
-        case texture_format::rgba16:
-            return GL_RGBA16;
-        case texture_format::rgba16f:
-            return GL_RGBA16F;
-        case texture_format::rgba32f:
-            return GL_RGBA32F;
-        case texture_format::r11g11b10:
-            return GL_R11F_G11F_B10F;
-        case texture_format::depth_component16:
-            return GL_DEPTH_COMPONENT16;
-        case texture_format::depth_component24:
-            return GL_DEPTH_COMPONENT24;
-        case texture_format::depth_component32:
-            return GL_DEPTH_COMPONENT32;
-        case texture_format::depth_component32f:
-            return GL_DEPTH_COMPONENT32F;
-        case texture_format::stencil_index8:
-            return GL_STENCIL_INDEX8;
+        case texture_format::rg:
+            return GL_RG;
+        case texture_format::rgb:
+            return GL_RGB;
+        case texture_format::rgba:
+            return GL_RGBA;
+        case texture_format::bgr:
+            return GL_BGR;
+        case texture_format::bgra:
+            return GL_BGRA;
+        case texture_format::red:
+            return GL_RED;
+        case texture_format::green:
+            return GL_GREEN;
+        case texture_format::blue:
+            return GL_BLUE;
+        case texture_format::alpha:
+            return GL_ALPHA;
         }
         RT_ASSERT_MSG(false, "Invalid texture format!");
+    }
+
+    int texture::get_texture_internal_format_to_opengl(texture_internal_format internal_format)
+    {
+        switch (internal_format)
+        {
+        case texture_internal_format::r8:
+            return GL_R8;
+        case texture_internal_format::r16:
+            return GL_R16;
+        case texture_internal_format::r16f:
+            return GL_R16F;
+        case texture_internal_format::r32f:
+            return GL_R32F;
+        case texture_internal_format::rg8:
+            return GL_RG8;
+        case texture_internal_format::rg16:
+            return GL_RG16;
+        case texture_internal_format::rg16f:
+            return GL_RG16F;
+        case texture_internal_format::rg32f:
+            return GL_RG32F;
+        case texture_internal_format::rgb8:
+            return GL_RGB8;
+        case texture_internal_format::rgb16:
+            return GL_RGB16;
+        case texture_internal_format::rgb16f:
+            return GL_RGB16F;
+        case texture_internal_format::rgb32f:
+            return GL_RGB32F;
+        case texture_internal_format::rgba8:
+            return GL_RGBA8;
+        case texture_internal_format::rgba16:
+            return GL_RGBA16;
+        case texture_internal_format::rgba16f:
+            return GL_RGBA16F;
+        case texture_internal_format::rgba32f:
+            return GL_RGBA32F;
+        case texture_internal_format::r11g11b10:
+            return GL_R11F_G11F_B10F;
+        case texture_internal_format::depth_component16:
+            return GL_DEPTH_COMPONENT16;
+        case texture_internal_format::depth_component24:
+            return GL_DEPTH_COMPONENT24;
+        case texture_internal_format::depth_component32:
+            return GL_DEPTH_COMPONENT32;
+        case texture_internal_format::depth_component32f:
+            return GL_DEPTH_COMPONENT32F;
+        case texture_internal_format::stencil_index8:
+            return GL_STENCIL_INDEX8;
+        }
+        RT_ASSERT_MSG(false, "Invalid texture internal format!");
     }
 
     texture_formats texture::get_texture_formats_from_channel_count(int channel_count)
     {
         RT_ASSERT_MSG(channel_count > 0 && channel_count < 5, "Invalid texture chnnaels count!");
-        texture_formats formats{};
+        texture_formats formats;
         if (channel_count == 4)
         {
-            formats.format = texture_format::rgba16f;
-            formats.internal_format = texture_internal_format::rgba;
+            formats.internal_format = texture_internal_format::rgba16f;
+            formats.format = texture_format::rgba;
         }
         else if (channel_count == 3)
         {
-            formats.format = texture_format::rgb16f;
-            formats.internal_format = texture_internal_format::rgb;
+            formats.internal_format = texture_internal_format::rgb16f;
+            formats.format = texture_format::rgb;
         }
         else if (channel_count == 2)
         {
-            formats.format = texture_format::rg16f;
-            formats.internal_format = texture_internal_format::rg;
+            formats.internal_format = texture_internal_format::rg16f;
+            formats.format = texture_format::rg;
         }
         else if (channel_count == 1)
         {
-            formats.format = texture_format::r16f;
-            formats.internal_format = texture_internal_format::red;
+            formats.internal_format = texture_internal_format::r16f;
+            formats.format = texture_format::red;
         }
         return formats;
     }
@@ -365,7 +418,7 @@ namespace retro::renderer
             glCreateTextures(GL_TEXTURE_2D, 1, &m_handle_id);
             glBindTexture(GL_TEXTURE_2D, m_handle_id);
             glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-            glTextureStorage2D(m_handle_id, 1, get_texture_format_to_opengl(m_data.formats.format), m_data.width,
+            glTextureStorage2D(m_handle_id, 1, get_texture_internal_format_to_opengl(m_data.internal_format), m_data.width,
                                m_data.height);
 
             // Filtering
@@ -382,9 +435,8 @@ namespace retro::renderer
             glCreateTextures(GL_TEXTURE_2D, 1, &m_handle_id);
             glBindTexture(GL_TEXTURE_2D, m_handle_id);
             glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-            glTextureStorage2D(m_handle_id, m_data.mip_map_levels, get_texture_format_to_opengl(m_data.formats.format),
-                               m_data.width,
-                               m_data.height);
+            glTextureStorage2D(m_handle_id, 1, get_texture_internal_format_to_opengl(m_data.internal_format), m_data.width,
+                m_data.height);
 
             // Wrapping
             set_wrapping(texture_wrapping_type::wrap_s, texture_wrapping::clamp_to_edge);
@@ -394,8 +446,9 @@ namespace retro::renderer
             set_filtering(texture_filtering_type::filter_min, texture_filtering::linear);
             set_filtering(texture_filtering_type::filter_mag, texture_filtering::linear);
 
+            texture_format format = get_texture_format_from_internal_format(m_data.internal_format);
             glTextureSubImage2D(m_handle_id, 0, 0, 0, m_data.width, m_data.height,
-                                get_texture_internal_format_to_opengl(m_data.formats.internal_format), GL_FLOAT,
+                get_texture_format_to_opengl(format), GL_FLOAT,
                                 m_data.data);
             glGenerateTextureMipmap(m_handle_id);
             glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
@@ -405,12 +458,13 @@ namespace retro::renderer
             // Create OpenGL texture
             glCreateTextures(GL_TEXTURE_CUBE_MAP, 1, &m_handle_id);
             glBindTexture(GL_TEXTURE_CUBE_MAP, m_handle_id);
+            texture_format format = get_texture_format_from_internal_format(m_data.internal_format);
             // Create all 6 faces.
             for (unsigned int i = 0; i < 6; ++i)
             {
-                glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, get_texture_format_to_opengl(m_data.formats.format),
+                glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, get_texture_format_to_opengl(format),
                              m_data.width, m_data.height, 0,
-                             get_texture_internal_format_to_opengl(m_data.formats.internal_format),
+                             get_texture_internal_format_to_opengl(m_data.internal_format),
                              GL_FLOAT, m_data.data);
             }
 
@@ -427,9 +481,10 @@ namespace retro::renderer
         // Allocating memory.
         if (m_data.type == texture_type::normal)
         {
-            glTextureSubImage2D(m_handle_id, 0, 0, 0, m_data.width, m_data.height, get_texture_internal_format_to_opengl(m_data.formats.internal_format),
-                                m_data.formats.format == texture_format::rgba16f ? GL_FLOAT : m_data.formats.format == texture_format::r11g11b10 ? GL_FLOAT
-                                                                                                                                                 : GL_UNSIGNED_BYTE,
+            texture_format format = get_texture_format_from_internal_format(m_data.internal_format);
+            glTextureSubImage2D(m_handle_id, 0, 0, 0, m_data.width, m_data.height, get_texture_format_to_opengl(format),
+                                m_data.internal_format == texture_internal_format::rgba16f ? GL_FLOAT : m_data.internal_format == texture_internal_format::r11g11b10 ? GL_FLOAT
+                                                                                                                                                                     : GL_UNSIGNED_BYTE,
                                 m_data.data);
 
             /*
@@ -445,38 +500,6 @@ namespace retro::renderer
 
             // glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
         }
-    }
-
-    bool texture::requires_float_data_pixel()
-    {
-        switch (m_data.formats.format)
-        {
-        case texture_format::r8:
-        case texture_format::r16:
-        case texture_format::rg8:
-        case texture_format::rg16:
-        case texture_format::rgb8:
-        case texture_format::rgba8:
-        case texture_format::rgba16:
-        case texture_format::depth_component16:
-        case texture_format::depth_component24:
-        case texture_format::depth_component32:
-        case texture_format::stencil_index8:
-            return false;
-
-        case texture_format::r16f:
-        case texture_format::r32f:
-        case texture_format::rg16f:
-        case texture_format::rg32f:
-        case texture_format::rgb16f:
-        case texture_format::rgb32f:
-        case texture_format::rgba16f:
-        case texture_format::rgba32f:
-        case texture_format::r11g11b10:
-            return true;
-        }
-
-        return false;
     }
 
     void texture::set_filtering(texture_filtering_type filtering_type, texture_filtering filtering)
