@@ -11,12 +11,12 @@ namespace retro::scene
         scene_manager();
 
         /* Getters */
-        const std::unique_ptr<scene> &get_active_scene() const { return m_active_scene; }
+        const std::shared_ptr<scene> &get_active_scene() const { return m_active_scene; }
 
         /* Functions */
-        void set_active_scene(const std::unique_ptr<scene> &scene);
+        void set_active_scene(const std::shared_ptr<scene> &scene);
 
     private:
-        std::unique_ptr<scene> m_active_scene;
-    }
+        std::shared_ptr<scene> m_active_scene;
+    };
 }

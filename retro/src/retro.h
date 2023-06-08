@@ -54,6 +54,7 @@
 // Scene Include
 #include "scene/scene.h"
 #include "scene/scene_actor.h"
+#include "scene/scene_manager.h"
 
 // Input Include
 #include "input/input.h"

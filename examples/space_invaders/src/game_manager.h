@@ -33,6 +33,7 @@ public:
     void check_game_end();
     void initialize_managers();
 
+    void initialize_scene();
     void initialize_camera();
     void initialize_fonts();
     void initialize_shaders();
@@ -68,6 +69,9 @@ private:
     std::shared_ptr<level_manager> m_level_manager;
     std::shared_ptr<enemies_manager> m_enemies_manager;
     bool m_disable_player_collision;
+
+    /* Scene */
+    std::shared_ptr<retro::scene::scene> m_scene;
 
     /* Rendering */
     glm::vec3 m_light_dir;

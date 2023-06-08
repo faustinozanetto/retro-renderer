@@ -10,7 +10,9 @@ namespace retro::scene
     class scene
     {
     public:
+        scene();
         scene(const std::string &name);
+        ~scene();
 
         /* Getters */
         const std::string &get_name() const { return m_name; }

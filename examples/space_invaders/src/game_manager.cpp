@@ -18,6 +18,7 @@ game_manager::game_manager()
 #else
 #endif
 #endif
+    initialize_scene();
     initialize_camera();
     initialize_screen_quad();
     initialize_shaders();
@@ -256,6 +257,12 @@ void game_manager::initialize_managers()
     m_level_manager = std::make_shared<level_manager>();
     m_player_manager = std::make_shared<player_manager>();
     m_enemies_manager = std::make_shared<enemies_manager>();
+}
+
+void game_manager::initialize_scene()
+{
+    m_scene = std::make_shared<retro::scene::scene>("space_invaders_scene");
+    retro::scene::scene_manager::get().set_active_scene(m_scene);
 }
 
 void game_manager::initialize_camera()
