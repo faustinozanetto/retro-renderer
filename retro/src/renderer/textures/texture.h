@@ -5,7 +5,7 @@ namespace retro::renderer
 {
     enum class texture_type
     {
-        none= 0,
+        none = 0,
         normal,
         hdr,
         cubemap,
@@ -122,6 +122,7 @@ namespace retro::renderer
 
         /* Getters */
         uint32_t get_handle_id() const { return m_handle_id; }
+        const texture_data &get_data() const { return m_data; }
 
         void set_filtering(texture_filtering_type filtering_type, texture_filtering filtering);
         void set_wrapping(texture_wrapping_type wrapping_type, texture_wrapping wrapping);

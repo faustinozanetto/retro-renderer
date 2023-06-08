@@ -364,6 +364,7 @@ namespace retro::renderer
             // Create OpenGL texture
             glCreateTextures(GL_TEXTURE_2D, 1, &m_handle_id);
             glBindTexture(GL_TEXTURE_2D, m_handle_id);
+            glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
             glTextureStorage2D(m_handle_id, 1, get_texture_format_to_opengl(m_data.formats.format), m_data.width,
                                m_data.height);
 
@@ -456,6 +457,7 @@ namespace retro::renderer
         case texture_format::rg16:
         case texture_format::rgb8:
         case texture_format::rgba8:
+        case texture_format::rgba16:
         case texture_format::depth_component16:
         case texture_format::depth_component24:
         case texture_format::depth_component32:
@@ -471,7 +473,6 @@ namespace retro::renderer
         case texture_format::rgba16f:
         case texture_format::rgba32f:
         case texture_format::r11g11b10:
-        case texture_format::rgba16:
             return true;
         }
 

@@ -4,7 +4,7 @@
 # Albedo color
 albedo: 1 1 1
 emissive: 0 0 0
-emissive_strength: 20.0
+emissive_strength: 25.0
 roughness: 1.0
 metallic: 1.0
 ambient_occlusion: 1.0

@@ -209,10 +209,18 @@ namespace retro::renderer
         glBindTexture(GL_TEXTURE_2D, 0);
     }
 
-    void frame_buffer::resize(const glm::ivec2 &dimensions)
+    void frame_buffer::resize(const glm::ivec2 &dimensions, bool update_attachments)
     {
         m_width = dimensions.x;
         m_height = dimensions.y;
+        if (update_attachments)
+        {
+            for (auto &attachment : m_attachments_data)
+            {
+                attachment.size = dimensions;
+            }
+        }
+        pre_initialize();
         initialize();
     }
 
@@ -225,6 +233,13 @@ namespace retro::renderer
         if (attachment == render_buffer_attachment_type::color)
         {
             m_attachments.push_back(texture->get_handle_id());
+            frame_buffer_attachment attachment_data;
+            attachment_data.size = {texture->get_data().width, texture->get_data().height};
+            attachment_data.filtering = texture_filtering::linear;
+            attachment_data.wrapping = texture_wrapping::clamp_to_edge;
+            attachment_data.format = texture->get_data().formats.format;
+            attachment_data.internal_format = texture->get_data().formats.internal_format;
+            m_attachments_data.push_back(attachment_data);
         }
     }
 }
