@@ -1,7 +1,7 @@
 #pragma once
 
 #include "utils/uuid.h"
-#include "scene/scene_actor.h"
+#include "scene/actors/scene_actor.h"
 
 #include <entt/entt.hpp>
 

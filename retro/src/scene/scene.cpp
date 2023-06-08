@@ -28,6 +28,8 @@ namespace retro::scene
     std::shared_ptr<scene_actor> scene::create_actor()
     {
         entt::entity actor_handle = m_actors_registry->create();
-        return std::make_shared<scene_actor>(actor_handle);
+        const auto &actor = std::make_shared<scene_actor>(actor_handle);
+        actor->set_scene(this);
+        return actor;
     }
 }
