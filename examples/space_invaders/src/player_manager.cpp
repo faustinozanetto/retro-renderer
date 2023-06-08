@@ -16,8 +16,9 @@ player_manager::player_manager()
 
 void player_manager::draw_player(const std::shared_ptr<retro::renderer::shader> &geometry_shader)
 {
+    auto &transform_component = m_player_actor->get_component<retro::scene::transform_component>();
     glm::mat4 model = glm::mat4(1.0f);
-    model = translate(model, m_player.position);
+    model = translate(model, transform_component.get_location());
     model = scale(model, m_player.collider.size);
     geometry_shader->set_mat4("u_transform", model);
     m_player_material->bind(geometry_shader);
@@ -41,8 +42,9 @@ void player_manager::draw_bullets(const std::shared_ptr<retro::renderer::shader>
 
 void player_manager::update_player()
 {
-    m_player.collider.position = m_player.position;
-    m_player_sound_emitter->set_location(m_player.position);
+    auto &transform_component = m_player_actor->get_component<retro::scene::transform_component>();
+    m_player.collider.position = transform_component.get_location();
+    m_player_sound_emitter->set_location(transform_component.get_location());
 }
 
 void player_manager::update_bullets()
@@ -70,26 +72,32 @@ void player_manager::refill_ammo()
 void player_manager::lerp_player_position()
 {
     // Lineally interpolate current to target player location.
-    float lerp_player_y = LERP(m_player.position.y,
+    auto &transform_component = m_player_actor->get_component<retro::scene::transform_component>();
+    float lerp_player_y = LERP(transform_component.get_location().y,
                                m_player.target_position.y,
                                retro::core::time::get_delta_time() * m_player.move_speed);
     lerp_player_y = std::clamp(lerp_player_y, game_manager::get().get_level_manager()->get_level_min().y,
                                game_manager::get().get_level_manager()->get_level_max().y);
-    m_player.position.y = lerp_player_y;
+    glm::vec3 new_location = transform_component.get_location();
+    new_location.y = lerp_player_y;
+    transform_component.set_location(new_location);
 }
 
 void player_manager::initialize_player_params()
 {
+    m_player_actor = retro::scene::scene_manager::get().get_active_scene()->create_actor("player actor");
+    auto &transform_component = m_player_actor->add_component<retro::scene::transform_component>();
+    transform_component.set_location({3.0f, 0.0f, 0.0f});
+
     m_player_bullets = std::list<bullet>();
     m_player_sound_emitter = std::make_shared<retro::audio::sound_emitter>();
 
     m_player.max_ammo = 10;
     m_player.ammo = m_player.max_ammo;
     m_player.move_speed = 6.5f;
-    m_player.position = glm::vec3(3.0f, 0.0f, 0.0f);
-    m_player.target_position = m_player.position;
+    m_player.target_position = transform_component.get_location();
     m_player.speed = glm::vec3(5.0f);
-    m_player.collider = box_collider(m_player.position, glm::vec3(3.0f));
+    m_player.collider = box_collider(transform_component.get_location(), glm::vec3(3.0f));
 }
 
 void player_manager::initialize_player_assets()
@@ -161,7 +169,9 @@ void player_manager::initialize_player_model()
 
 void player_manager::move_player_up()
 {
-    if (m_player.position.y < game_manager::get().get_level_manager()->get_level_max().y)
+    auto &transform_component = m_player_actor->get_component<retro::scene::transform_component>();
+
+    if (transform_component.get_location().y < game_manager::get().get_level_manager()->get_level_max().y)
         m_player.target_position.y += m_player.speed.y;
     else
         m_player.target_position.y = game_manager::get().get_level_manager()->get_level_max().y;
@@ -169,7 +179,9 @@ void player_manager::move_player_up()
 
 void player_manager::move_player_down()
 {
-    if (m_player.position.y > game_manager::get().get_level_manager()->get_level_min().y)
+    auto &transform_component = m_player_actor->get_component<retro::scene::transform_component>();
+
+    if (transform_component.get_location().y > game_manager::get().get_level_manager()->get_level_min().y)
         m_player.target_position.y -= m_player.speed.y;
     else
         m_player.target_position.y = game_manager::get().get_level_manager()->get_level_min().y;
@@ -183,10 +195,12 @@ void player_manager::player_shoot()
     m_player_sound_emitter->set_sound(m_shoot_sound);
     m_player_sound_emitter->play();
 
+    auto &transform_component = m_player_actor->get_component<retro::scene::transform_component>();
+
     bullet player_bullet;
     player_bullet.speed = glm::vec3(120.0f);
-    player_bullet.position = m_player.position;
-    player_bullet.collider.position = m_player.position;
+    player_bullet.position = transform_component.get_location();
+    player_bullet.collider.position = transform_component.get_location();
     player_bullet.collider.size = glm::vec3(1.0f);
     m_player_bullets.push_back(player_bullet);
     m_player.ammo--;

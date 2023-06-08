@@ -57,6 +57,7 @@
 #include "scene/actors/scene_actor.h"
 #include "scene/actors/components/base_component.h"
 #include "scene/actors/components/transform_component.h"
+#include "scene/actors/components/name_component.h"
 
 // Input Include
 #include "input/input.h"

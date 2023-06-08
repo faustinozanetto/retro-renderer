@@ -7,7 +7,6 @@
 
 struct player
 {
-    glm::vec3 position;
     glm::vec3 target_position;
     glm::vec3 speed;
 
@@ -55,6 +54,7 @@ public:
 
     /* Getters */
     player &get_player() { return m_player; }
+    std::shared_ptr<retro::scene::scene_actor>& get_player_actor() { return m_player_actor; }
     std::list<bullet> &get_bullets() { return m_player_bullets; }
 
 private:
@@ -63,6 +63,7 @@ private:
     std::shared_ptr<retro::audio::sound_emitter> m_player_sound_emitter;
     std::shared_ptr<retro::renderer::material> m_player_material;
     std::shared_ptr<retro::renderer::model> m_player_model;
+    std::shared_ptr<retro::scene::scene_actor> m_player_actor;
 
     /* Bullet */
     std::shared_ptr<retro::renderer::vertex_array_object> m_bullet_vao;

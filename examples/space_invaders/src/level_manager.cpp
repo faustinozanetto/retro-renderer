@@ -62,7 +62,7 @@ void level_manager::update_ammo_pickups()
 
 void level_manager::play_ambient_sound()
 {
-    m_ambient_sound_emitter->set_location(game_manager::get().get_player_manager()->get_player().position);
+    m_ambient_sound_emitter->set_location(game_manager::get().get_player_manager()->get_player_actor()->get_component<retro::scene::transform_component>().get_location());
     m_ambient_sound_emitter->set_sound(m_ambient_sound);
 }
 
@@ -197,7 +197,7 @@ void level_manager::generate_ammo_pickups(int count)
 
 void level_manager::play_ammo_pickup_sound()
 {
-    m_ammo_pickup_sound_emitter->set_location(game_manager::get().get_player_manager()->get_player().position);
+    m_ammo_pickup_sound_emitter->set_location(game_manager::get().get_player_manager()->get_player_actor()->get_component<retro::scene::transform_component>().get_location());
     m_ammo_pickup_sound_emitter->set_sound(m_ammo_pickup_sound);
     m_ammo_pickup_sound_emitter->play();
 }

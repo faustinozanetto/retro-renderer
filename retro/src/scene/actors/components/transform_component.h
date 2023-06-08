@@ -1,6 +1,6 @@
 #pragma once
 
-#include "assets/actors/components/base_component.h"
+#include "scene/actors/components/base_component.h"
 
 #include <glm/glm.hpp>
 

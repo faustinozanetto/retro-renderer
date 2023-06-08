@@ -1,6 +1,9 @@
 #include "rtpch.h"
 #include "scene.h"
 
+#include "scene/actors/scene_actor.h"
+#include "scene/actors/components/name_component.h"
+
 namespace retro::scene
 {
     scene::scene() : scene("default_scene")
@@ -29,6 +32,15 @@ namespace retro::scene
     {
         entt::entity actor_handle = m_actors_registry->create();
         const auto &actor = std::make_shared<scene_actor>(actor_handle);
+        actor->set_scene(this);
+        return actor;
+    }
+
+    std::shared_ptr<scene_actor> scene::create_actor(const std::string &name)
+    {
+        entt::entity actor_handle = m_actors_registry->create();
+        const auto &actor = std::make_shared<scene_actor>(actor_handle);
+        actor->add_component<name_component>(name);
         actor->set_scene(this);
         return actor;
     }
