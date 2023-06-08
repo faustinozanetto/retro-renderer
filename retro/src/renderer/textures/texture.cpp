@@ -23,7 +23,8 @@ namespace retro::renderer
                                                                                            {assets::asset_type::texture, file_name})
     {
         m_data = texture_data;
-        m_data.mip_map_levels = static_cast<int>(floor(log2((std::min)(m_data.width, m_data.height))));
+        if (m_data.mip_map_levels != 0)
+            m_data.mip_map_levels = static_cast<int>(floor(log2((std::min)(m_data.width, m_data.height))));
 
         RT_TRACE("Texture Information:");
         RT_TRACE("  - Width: {0}px", m_data.width);
@@ -33,81 +34,7 @@ namespace retro::renderer
         RT_TRACE("  - Format: '{0}'", get_texture_format_to_string(m_data.formats.format));
         RT_TRACE("  - Internal Format: '{0}'", get_texture_internal_format_to_string(m_data.formats.internal_format));
 
-        if (m_data.type == texture_type::normal)
-        {
-            // Create OpenGL texture
-            glCreateTextures(GL_TEXTURE_2D, 1, &m_handle_id);
-            glBindTexture(GL_TEXTURE_2D, m_handle_id);
-            glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-            glTextureStorage2D(m_handle_id, m_data.mip_map_levels, get_texture_format_to_opengl(m_data.formats.format),
-                               m_data.width,
-                               m_data.height);
-
-            // Filtering
-            set_filtering(texture_filtering_type::filter_min, texture_filtering::linear);
-            set_filtering(texture_filtering_type::filter_mag, texture_filtering::linear);
-
-            // Wrapping
-            set_wrapping(texture_wrapping_type::wrap_s, texture_wrapping::repeat);
-            set_wrapping(texture_wrapping_type::wrap_t, texture_wrapping::repeat);
-        }
-        else if (m_data.type == texture_type::hdr)
-        {
-            // Create OpenGL texture
-            glCreateTextures(GL_TEXTURE_2D, 1, &m_handle_id);
-            glBindTexture(GL_TEXTURE_2D, m_handle_id);
-            glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-            glTextureStorage2D(m_handle_id, m_data.mip_map_levels, get_texture_format_to_opengl(m_data.formats.format),
-                               m_data.width,
-                               m_data.height);
-
-            // Wrapping
-            set_wrapping(texture_wrapping_type::wrap_s, texture_wrapping::clamp_to_edge);
-            set_wrapping(texture_wrapping_type::wrap_t, texture_wrapping::clamp_to_edge);
-
-            // Filtering
-            set_filtering(texture_filtering_type::filter_min, texture_filtering::linear);
-            set_filtering(texture_filtering_type::filter_mag, texture_filtering::linear);
-
-            glTextureSubImage2D(m_handle_id, 0, 0, 0, m_data.width, m_data.height,
-                                get_texture_internal_format_to_opengl(m_data.formats.internal_format), GL_FLOAT,
-                                m_data.data);
-            glGenerateTextureMipmap(m_handle_id);
-            glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
-        }
-        else if (m_data.type == texture_type::cubemap)
-        {
-            // Create OpenGL texture
-            glCreateTextures(GL_TEXTURE_CUBE_MAP, 1, &m_handle_id);
-            glBindTexture(GL_TEXTURE_CUBE_MAP, m_handle_id);
-            // Create all 6 faces.
-            for (unsigned int i = 0; i < 6; ++i)
-            {
-                glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, get_texture_format_to_opengl(m_data.formats.format),
-                             m_data.width, m_data.height, 0,
-                             get_texture_internal_format_to_opengl(m_data.formats.internal_format),
-                             GL_FLOAT, m_data.data);
-            }
-
-            // Wrapping
-            set_wrapping(texture_wrapping_type::wrap_s, texture_wrapping::clamp_to_edge);
-            set_wrapping(texture_wrapping_type::wrap_t, texture_wrapping::clamp_to_edge);
-            set_wrapping(texture_wrapping_type::wrap_r, texture_wrapping::clamp_to_edge);
-
-            // Filtering
-            set_filtering(texture_filtering_type::filter_min, texture_filtering::linear);
-            set_filtering(texture_filtering_type::filter_mag, texture_filtering::linear);
-        }
-
-        // Allocating memory.
-        if (m_data.type == texture_type::normal)
-        {
-            glTextureSubImage2D(m_handle_id, 0, 0, 0, m_data.width, m_data.height,
-                                get_texture_internal_format_to_opengl(m_data.formats.internal_format), GL_UNSIGNED_BYTE,
-                                m_data.data);
-            glGenerateTextureMipmap(m_handle_id);
-            glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
-        }
+        initialize();
     }
 
     texture::~texture()
@@ -428,6 +355,85 @@ namespace retro::renderer
             formats.internal_format = texture_internal_format::red;
         }
         return formats;
+    }
+
+    void texture::initialize()
+    {
+        if (m_data.type == texture_type::normal)
+        {
+            // Create OpenGL texture
+            glCreateTextures(GL_TEXTURE_2D, 1, &m_handle_id);
+            glBindTexture(GL_TEXTURE_2D, m_handle_id);
+            glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+            glTextureStorage2D(m_handle_id, m_data.mip_map_levels, get_texture_format_to_opengl(m_data.formats.format),
+                               m_data.width,
+                               m_data.height);
+
+            // Filtering
+            set_filtering(texture_filtering_type::filter_min, texture_filtering::linear);
+            set_filtering(texture_filtering_type::filter_mag, texture_filtering::linear);
+
+            // Wrapping
+            set_wrapping(texture_wrapping_type::wrap_s, texture_wrapping::repeat);
+            set_wrapping(texture_wrapping_type::wrap_t, texture_wrapping::repeat);
+        }
+        else if (m_data.type == texture_type::hdr)
+        {
+            // Create OpenGL texture
+            glCreateTextures(GL_TEXTURE_2D, 1, &m_handle_id);
+            glBindTexture(GL_TEXTURE_2D, m_handle_id);
+            glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+            glTextureStorage2D(m_handle_id, m_data.mip_map_levels, get_texture_format_to_opengl(m_data.formats.format),
+                               m_data.width,
+                               m_data.height);
+
+            // Wrapping
+            set_wrapping(texture_wrapping_type::wrap_s, texture_wrapping::clamp_to_edge);
+            set_wrapping(texture_wrapping_type::wrap_t, texture_wrapping::clamp_to_edge);
+
+            // Filtering
+            set_filtering(texture_filtering_type::filter_min, texture_filtering::linear);
+            set_filtering(texture_filtering_type::filter_mag, texture_filtering::linear);
+
+            glTextureSubImage2D(m_handle_id, 0, 0, 0, m_data.width, m_data.height,
+                                get_texture_internal_format_to_opengl(m_data.formats.internal_format), GL_FLOAT,
+                                m_data.data);
+            glGenerateTextureMipmap(m_handle_id);
+            glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+        }
+        else if (m_data.type == texture_type::cubemap)
+        {
+            // Create OpenGL texture
+            glCreateTextures(GL_TEXTURE_CUBE_MAP, 1, &m_handle_id);
+            glBindTexture(GL_TEXTURE_CUBE_MAP, m_handle_id);
+            // Create all 6 faces.
+            for (unsigned int i = 0; i < 6; ++i)
+            {
+                glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, get_texture_format_to_opengl(m_data.formats.format),
+                             m_data.width, m_data.height, 0,
+                             get_texture_internal_format_to_opengl(m_data.formats.internal_format),
+                             GL_FLOAT, m_data.data);
+            }
+
+            // Wrapping
+            set_wrapping(texture_wrapping_type::wrap_s, texture_wrapping::clamp_to_edge);
+            set_wrapping(texture_wrapping_type::wrap_t, texture_wrapping::clamp_to_edge);
+            set_wrapping(texture_wrapping_type::wrap_r, texture_wrapping::clamp_to_edge);
+
+            // Filtering
+            set_filtering(texture_filtering_type::filter_min, texture_filtering::linear);
+            set_filtering(texture_filtering_type::filter_mag, texture_filtering::linear);
+        }
+
+        // Allocating memory.
+        if (m_data.type == texture_type::normal)
+        {
+            glTextureSubImage2D(m_handle_id, 0, 0, 0, m_data.width, m_data.height,
+                                get_texture_internal_format_to_opengl(m_data.formats.internal_format), GL_UNSIGNED_BYTE,
+                                m_data.data);
+            glGenerateTextureMipmap(m_handle_id);
+            glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+        }
     }
 
     void texture::set_filtering(texture_filtering_type filtering_type, texture_filtering filtering)

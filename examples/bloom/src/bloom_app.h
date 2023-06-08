@@ -2,6 +2,13 @@
 
 #include "retro.h"
 
+struct bloom_mip_data
+{
+    glm::vec2 size;
+    glm::ivec2 int_size;
+    std::shared_ptr<retro::renderer::texture> texture;
+};
+
 class bloom_app : public retro::core::application
 {
 public:
@@ -26,8 +33,12 @@ private:
     std::shared_ptr<retro::camera::camera> m_camera;
 
     /* Bloom */
-    std::vector<std::shared_ptr<retro::renderer::frame_buffer>> m_bloom_downsample_fbos;
+    int m_bloom_sample_count;
+    std::shared_ptr<retro::renderer::frame_buffer> m_bloom_fbo;
+    std::vector<std::shared_ptr<retro::renderer::frame_buffer>> m_bloom_upsample_fbos;
     std::shared_ptr<retro::renderer::shader> m_bloom_downsample_shader;
+    std::shared_ptr<retro::renderer::shader> m_bloom_upsample_shader;
+    std::vector<bloom_mip_data> m_bloom_mips;
 
     /* Rendering */
     int m_final_render_target;
@@ -35,6 +46,7 @@ private:
     std::shared_ptr<retro::renderer::frame_buffer> m_lighting_fbo;
     std::shared_ptr<retro::renderer::shader> m_geometry_shader;
     std::shared_ptr<retro::renderer::shader> m_screen_shader;
+    std::shared_ptr<retro::renderer::shader> m_final_shader;
     std::shared_ptr<retro::renderer::shader> m_pbr_shader;
     std::shared_ptr<retro::renderer::vertex_array_object> m_screen_vao;
 

@@ -201,36 +201,30 @@ void pbr_app::setup_fbo()
                 retro::renderer::texture_format::rgba16f,
                 retro::renderer::texture_internal_format::rgba,
                 retro::renderer::texture_filtering::linear,
-                retro::renderer::texture_wrapping::clamp_to_edge,
-            },
+                retro::renderer::texture_wrapping::clamp_to_edge, viewport_size},
             // Albedo
             {
                 retro::renderer::texture_format::rgba16f,
                 retro::renderer::texture_internal_format::rgba,
                 retro::renderer::texture_filtering::linear,
-                retro::renderer::texture_wrapping::clamp_to_edge,
-            },
+                retro::renderer::texture_wrapping::clamp_to_edge, viewport_size},
             // Normals
             {
                 retro::renderer::texture_format::rgba16f,
                 retro::renderer::texture_internal_format::rgba,
                 retro::renderer::texture_filtering::linear,
-                retro::renderer::texture_wrapping::clamp_to_edge,
-            },
+                retro::renderer::texture_wrapping::clamp_to_edge, viewport_size},
             // Roughness Metallic AO
             {
                 retro::renderer::texture_format::rgba16f,
                 retro::renderer::texture_internal_format::rgba,
                 retro::renderer::texture_filtering::linear,
-                retro::renderer::texture_wrapping::clamp_to_edge,
-            }
-        };
+                retro::renderer::texture_wrapping::clamp_to_edge, viewport_size}};
         retro::renderer::frame_buffer_attachment depth_attachment = {
             retro::renderer::texture_format::depth_component32f,
             retro::renderer::texture_internal_format::rgba,
             retro::renderer::texture_filtering::linear,
-            retro::renderer::texture_wrapping::clamp_to_edge,
-        };
+            retro::renderer::texture_wrapping::clamp_to_edge, viewport_size};
         m_geometry_fbo = std::make_shared<retro::renderer::frame_buffer>(
             attachments, viewport_size.x, viewport_size.y, depth_attachment);
     }
@@ -239,10 +233,10 @@ void pbr_app::setup_fbo()
 void pbr_app::setup_screen_quad()
 {
     const std::vector<float> quad_vertices = {
-        1.0f, 1.0f, 0.0f, 1.0f, 1.0f, // top right
-        1.0f, -1.0f, 0.0f, 1.0f, 0.0f, // bottom right
+        1.0f, 1.0f, 0.0f, 1.0f, 1.0f,   // top right
+        1.0f, -1.0f, 0.0f, 1.0f, 0.0f,  // bottom right
         -1.0f, -1.0f, 0.0f, 0.0f, 0.0f, // bottom left
-        -1.0f, 1.0f, 0.0f, 0.0f, 1.0f // top left
+        -1.0f, 1.0f, 0.0f, 0.0f, 1.0f   // top left
     };
 
     const std::vector<uint32_t> indices = {
@@ -291,24 +285,24 @@ void pbr_app::setup_light()
     m_light_model = retro::renderer::model_loader::load_model_from_file("../resources/models/cube.obj");
 }
 
-void pbr_app::on_handle_event(retro::events::base_event& event)
+void pbr_app::on_handle_event(retro::events::base_event &event)
 {
     retro::events::event_dispatcher dispatcher(event);
     dispatcher.dispatch<retro::events::window_resize_event>(BIND_EVENT_FN(pbr_app::on_resize_ssao));
 }
 
-bool pbr_app::on_window_resize(retro::events::window_resize_event& resize_event)
+bool pbr_app::on_window_resize(retro::events::window_resize_event &resize_event)
 {
     return application::on_window_resize(resize_event);
 }
 
-bool pbr_app::on_resize_ssao(retro::events::window_resize_event& resize_event)
+bool pbr_app::on_resize_ssao(retro::events::window_resize_event &resize_event)
 {
     m_geometry_fbo->resize(resize_event.get_size());
     return false;
 }
 
-retro::core::application* retro::core::create_application()
+retro::core::application *retro::core::create_application()
 {
     return new pbr_app();
 }

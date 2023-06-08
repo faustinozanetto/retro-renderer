@@ -70,8 +70,8 @@ void ssao_app::on_update()
     {
         m_ssao_shader->set_vec_float3("u_samples[" + std::to_string(i) + "]", m_ssao_kernel[i]);
     }
-    retro::renderer::renderer::bind_texture(0, m_geometry_fbo->get_attachment_id(0)); // Position
-    retro::renderer::renderer::bind_texture(1, m_geometry_fbo->get_attachment_id(2)); // Normal
+    retro::renderer::renderer::bind_texture(0, m_geometry_fbo->get_attachment_id(0));  // Position
+    retro::renderer::renderer::bind_texture(1, m_geometry_fbo->get_attachment_id(2));  // Normal
     retro::renderer::renderer::bind_texture(2, m_ssao_noise_texture->get_handle_id()); // SSAO Noise
     m_quad_vao->bind();
     retro::renderer::renderer::submit_elements(GL_TRIANGLES, 6);
@@ -91,9 +91,9 @@ void ssao_app::on_update()
     // 4. Render lighting result
     retro::renderer::renderer::clear_screen();
     m_lighting_shader->bind();
-    retro::renderer::renderer::bind_texture(0, m_geometry_fbo->get_attachment_id(0)); // Position
-    retro::renderer::renderer::bind_texture(1, m_geometry_fbo->get_attachment_id(1)); // Albedo
-    retro::renderer::renderer::bind_texture(2, m_geometry_fbo->get_attachment_id(2)); // Normal
+    retro::renderer::renderer::bind_texture(0, m_geometry_fbo->get_attachment_id(0));  // Position
+    retro::renderer::renderer::bind_texture(1, m_geometry_fbo->get_attachment_id(1));  // Albedo
+    retro::renderer::renderer::bind_texture(2, m_geometry_fbo->get_attachment_id(2));  // Normal
     retro::renderer::renderer::bind_texture(3, m_ssao_blur_fbo->get_attachment_id(0)); // SSAO
     m_lighting_shader->set_vec_float3("p_light.position", m_light_pos);
     m_lighting_shader->set_vec_float3("p_light.color", m_light_color);
@@ -107,9 +107,9 @@ void ssao_app::on_update()
 
     retro::ui::engine_ui::begin_frame();
     ImGui::Begin("SSAO");
-    ImGui::Image((void*)(intptr_t)m_ssao_color_fbo->get_attachment_id(0), {256, 256}, ImVec2(0, 1), ImVec2(1, 0));
-    ImGui::Image((void*)(intptr_t)m_ssao_blur_fbo->get_attachment_id(0), {256, 256}, ImVec2(0, 1), ImVec2(1, 0));
-    ImGui::Image((void*)(intptr_t)m_ssao_noise_texture->get_handle_id(), {256, 256}, ImVec2(0, 1), ImVec2(1, 0));
+    ImGui::Image((void *)(intptr_t)m_ssao_color_fbo->get_attachment_id(0), {256, 256}, ImVec2(0, 1), ImVec2(1, 0));
+    ImGui::Image((void *)(intptr_t)m_ssao_blur_fbo->get_attachment_id(0), {256, 256}, ImVec2(0, 1), ImVec2(1, 0));
+    ImGui::Image((void *)(intptr_t)m_ssao_noise_texture->get_handle_id(), {256, 256}, ImVec2(0, 1), ImVec2(1, 0));
     bool use_ssao = m_use_ssao;
     if (ImGui::Checkbox("Use", &use_ssao))
     {
@@ -186,29 +186,24 @@ void ssao_app::setup_fbo()
                 retro::renderer::texture_format::rgba16f,
                 retro::renderer::texture_internal_format::rgba,
                 retro::renderer::texture_filtering::linear,
-                retro::renderer::texture_wrapping::clamp_to_edge,
-            },
+                retro::renderer::texture_wrapping::clamp_to_edge, viewport_size},
             // Albedo
             {
                 retro::renderer::texture_format::rgba16f,
                 retro::renderer::texture_internal_format::rgba,
                 retro::renderer::texture_filtering::linear,
-                retro::renderer::texture_wrapping::clamp_to_edge,
-            },
+                retro::renderer::texture_wrapping::clamp_to_edge, viewport_size},
             // Normals
             {
                 retro::renderer::texture_format::rgba16f,
                 retro::renderer::texture_internal_format::rgba,
                 retro::renderer::texture_filtering::linear,
-                retro::renderer::texture_wrapping::clamp_to_edge,
-            }
-        };
+                retro::renderer::texture_wrapping::clamp_to_edge, viewport_size}};
         retro::renderer::frame_buffer_attachment depth_attachment = {
             retro::renderer::texture_format::depth_component32f,
             retro::renderer::texture_internal_format::rgba,
             retro::renderer::texture_filtering::linear,
-            retro::renderer::texture_wrapping::clamp_to_edge,
-        };
+            retro::renderer::texture_wrapping::clamp_to_edge, viewport_size};
         m_geometry_fbo = std::make_shared<retro::renderer::frame_buffer>(
             attachments, viewport_size.x, viewport_size.y, depth_attachment);
     }
@@ -221,9 +216,7 @@ void ssao_app::setup_fbo()
                 retro::renderer::texture_format::r16f,
                 retro::renderer::texture_internal_format::red,
                 retro::renderer::texture_filtering::nearest,
-                retro::renderer::texture_wrapping::none,
-            }
-        };
+                retro::renderer::texture_wrapping::none, viewport_size}};
         m_ssao_color_fbo = std::make_shared<retro::renderer::frame_buffer>(
             attachments, viewport_size.x, viewport_size.y);
     }
@@ -235,9 +228,7 @@ void ssao_app::setup_fbo()
                 retro::renderer::texture_format::r16f,
                 retro::renderer::texture_internal_format::red,
                 retro::renderer::texture_filtering::nearest,
-                retro::renderer::texture_wrapping::none,
-            }
-        };
+                retro::renderer::texture_wrapping::none, viewport_size}};
         m_ssao_blur_fbo = std::make_shared<
             retro::renderer::frame_buffer>(attachments, viewport_size.x, viewport_size.y);
     }
@@ -246,10 +237,10 @@ void ssao_app::setup_fbo()
 void ssao_app::setup_screen_quad()
 {
     const std::vector<float> quad_vertices = {
-        1.0f, 1.0f, 0.0f, 1.0f, 1.0f, // top right
-        1.0f, -1.0f, 0.0f, 1.0f, 0.0f, // bottom right
+        1.0f, 1.0f, 0.0f, 1.0f, 1.0f,   // top right
+        1.0f, -1.0f, 0.0f, 1.0f, 0.0f,  // bottom right
         -1.0f, -1.0f, 0.0f, 0.0f, 0.0f, // bottom left
-        -1.0f, 1.0f, 0.0f, 0.0f, 1.0f // top left
+        -1.0f, 1.0f, 0.0f, 0.0f, 1.0f   // top left
     };
 
     const std::vector<uint32_t> indices = {
@@ -325,8 +316,7 @@ void ssao_app::setup_ssao()
     }
 
     retro::renderer::texture_data ssao_noise_texture_data = {
-        4, 4, 3, retro::renderer::texture_type::normal, ssao_noise.data()
-    };
+        4, 4, 3, retro::renderer::texture_type::normal, ssao_noise.data()};
 
     m_ssao_noise_texture = retro::renderer::texture_loader::load_texture_from_data(ssao_noise_texture_data);
     m_ssao_noise_texture->set_filtering(retro::renderer::texture_filtering_type::filter_min,
@@ -346,13 +336,13 @@ void ssao_app::setup_light()
     m_light_model = retro::renderer::model_loader::load_model_from_file("../resources/models/cube.obj");
 }
 
-void ssao_app::on_handle_event(retro::events::base_event& event)
+void ssao_app::on_handle_event(retro::events::base_event &event)
 {
     retro::events::event_dispatcher dispatcher(event);
     dispatcher.dispatch<retro::events::window_resize_event>(BIND_EVENT_FN(ssao_app::on_window_resize));
 }
 
-bool ssao_app::on_window_resize(retro::events::window_resize_event& resize_event)
+bool ssao_app::on_window_resize(retro::events::window_resize_event &resize_event)
 {
     m_ssao_color_fbo->resize(resize_event.get_size());
     m_ssao_blur_fbo->resize(resize_event.get_size());
@@ -360,7 +350,7 @@ bool ssao_app::on_window_resize(retro::events::window_resize_event& resize_event
     return application::on_window_resize(resize_event);
 }
 
-retro::core::application* retro::core::create_application()
+retro::core::application *retro::core::create_application()
 {
     return new ssao_app();
 }

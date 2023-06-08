@@ -9,8 +9,8 @@ bloom_app::bloom_app() : application("./")
     setup_model();
     setup_camera();
     setup_frame_buffers();
-    setup_bloom();
     setup_screen_quad();
+    setup_bloom();
     m_final_render_target = m_lighting_fbo->get_attachment_id(0);
 }
 
@@ -55,33 +55,70 @@ void bloom_app::on_update()
     m_pbr_shader->un_bind();
     m_lighting_fbo->un_bind();
 
-    // 3. Bloom calculation pass
-    int current_downsample_input = m_lighting_fbo->get_attachment_id(0);
-    int mip_level = 1;
-    for (auto &downsample_fbo : m_bloom_downsample_fbos)
+    // 3. Bloom downsample pass
+    m_bloom_fbo->bind();
+
+    m_bloom_downsample_shader->bind();
+    // Bind pbr result texture
+    retro::renderer::renderer::bind_texture(0, m_lighting_fbo->get_attachment_id(0));
+    m_bloom_downsample_shader->set_vec_float2("u_source_res", retro::renderer::renderer::get_viewport_size());
+    for (int i = 0; i < m_bloom_mips.size(); i++)
     {
-        downsample_fbo->bind();
-        retro::renderer::renderer::clear_screen();
-        m_bloom_downsample_shader->bind();
-        retro::renderer::renderer::bind_texture(0, current_downsample_input);
-        m_bloom_downsample_shader->set_vec_float2("u_source_res", retro::renderer::renderer::get_viewport_size());
-        mip_level++;
+        bloom_mip_data &bloom_mip = m_bloom_mips[i];
+        retro::renderer::renderer::set_viewport_size(bloom_mip.size);
+        // Attach bloom mip textue to rbo.
+        m_bloom_fbo->attach_texture(bloom_mip.texture, GL_FRAMEBUFFER, retro::renderer::render_buffer_attachment_type::color, GL_TEXTURE_2D, 0);
+
+        // Draw screen quad
         m_screen_vao->bind();
         retro::renderer::renderer::submit_elements(GL_TRIANGLES, 6);
         m_screen_vao->un_bind();
-        m_bloom_downsample_shader->un_bind();
-        downsample_fbo->un_bind();
-        current_downsample_input = downsample_fbo->get_attachment_id(0);
+
+        // Set current mip resolution as srcResolution for next iteration
+        m_bloom_downsample_shader->set_vec_float2("u_source_res", bloom_mip.size);
+        // Set current mip as texture input for next iteration
+        retro::renderer::renderer::bind_texture(0, bloom_mip.texture->get_handle_id());
     }
+    m_bloom_downsample_shader->un_bind();
+
+    // 4. Bloom upsample pass
+    // Enable additive blending
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_ONE, GL_ONE);
+    glBlendEquation(GL_FUNC_ADD);
+    m_bloom_upsample_shader->bind();
+    m_bloom_upsample_shader->set_float("u_filter_radius", 0.005f);
+    for (int i = m_bloom_mips.size() - 1; i > 0; i--)
+    {
+        bloom_mip_data &bloom_mip = m_bloom_mips[i];
+        bloom_mip_data &bloom_next_mip = m_bloom_mips[i - 1];
+
+        // Bind mip texture
+        retro::renderer::renderer::bind_texture(0, bloom_mip.texture->get_handle_id());
+
+        retro::renderer::renderer::set_viewport_size(bloom_next_mip.size);
+        // Attach bloom mip textue to rbo.
+        m_bloom_fbo->attach_texture(bloom_next_mip.texture, GL_FRAMEBUFFER, retro::renderer::render_buffer_attachment_type::color, GL_TEXTURE_2D, 0);
+
+        // Draw screen quad
+        m_screen_vao->bind();
+        retro::renderer::renderer::submit_elements(GL_TRIANGLES, 6);
+        m_screen_vao->un_bind();
+    }
+    glDisable(GL_BLEND);
+    m_bloom_upsample_shader->un_bind();
+
+    m_bloom_fbo->un_bind();
 
     // 3. Render final result to screen
     retro::renderer::renderer::set_viewport_size(retro::renderer::renderer::get_viewport_size());
-    m_screen_shader->bind();
+    m_final_shader->bind();
     retro::renderer::renderer::bind_texture(0, m_final_render_target);
+    retro::renderer::renderer::bind_texture(1, m_bloom_upsample_fbos[0]->get_attachment_id(0));
     m_screen_vao->bind();
     retro::renderer::renderer::submit_elements(GL_TRIANGLES, 6);
     m_screen_vao->un_bind();
-    m_screen_shader->un_bind();
+    m_final_shader->un_bind();
 }
 
 void bloom_app::load_shaders()
@@ -94,6 +131,11 @@ void bloom_app::load_shaders()
         "../resources/shaders/screen.rrs");
     m_bloom_downsample_shader = retro::renderer::shader_loader::load_shader_from_file(
         "resources/shaders/bloom_downsample.rrs");
+    m_bloom_upsample_shader = retro::renderer::shader_loader::load_shader_from_file(
+        "resources/shaders/bloom_upsample.rrs");
+
+    m_final_shader = retro::renderer::shader_loader::load_shader_from_file(
+        "resources/shaders/final.rrs");
 }
 
 void bloom_app::setup_model()
@@ -167,42 +209,36 @@ void bloom_app::setup_frame_buffers()
                 retro::renderer::texture_format::rgba16f,
                 retro::renderer::texture_internal_format::rgba,
                 retro::renderer::texture_filtering::linear,
-                retro::renderer::texture_wrapping::clamp_to_edge,
-            },
+                retro::renderer::texture_wrapping::clamp_to_edge, viewport_size},
             // Albedo
             {
                 retro::renderer::texture_format::rgba16f,
                 retro::renderer::texture_internal_format::rgba,
                 retro::renderer::texture_filtering::linear,
-                retro::renderer::texture_wrapping::clamp_to_edge,
-            },
+                retro::renderer::texture_wrapping::clamp_to_edge, viewport_size},
             // Normals
             {
                 retro::renderer::texture_format::rgba16f,
                 retro::renderer::texture_internal_format::rgba,
                 retro::renderer::texture_filtering::linear,
-                retro::renderer::texture_wrapping::clamp_to_edge,
-            },
+                retro::renderer::texture_wrapping::clamp_to_edge, viewport_size},
             // Roughness Metallic AO
             {
                 retro::renderer::texture_format::rgba16f,
                 retro::renderer::texture_internal_format::rgba,
                 retro::renderer::texture_filtering::linear,
-                retro::renderer::texture_wrapping::clamp_to_edge,
-            },
+                retro::renderer::texture_wrapping::clamp_to_edge, viewport_size},
             // Emissive
             {
                 retro::renderer::texture_format::rgba16f,
                 retro::renderer::texture_internal_format::rgba,
                 retro::renderer::texture_filtering::linear,
-                retro::renderer::texture_wrapping::clamp_to_edge,
-            }};
+                retro::renderer::texture_wrapping::clamp_to_edge, viewport_size}};
         retro::renderer::frame_buffer_attachment depth_attachment = {
             retro::renderer::texture_format::depth_component32f,
             retro::renderer::texture_internal_format::rgba,
             retro::renderer::texture_filtering::linear,
-            retro::renderer::texture_wrapping::clamp_to_edge,
-        };
+            retro::renderer::texture_wrapping::clamp_to_edge, viewport_size};
         m_geometry_fbo = std::make_shared<retro::renderer::frame_buffer>(
             attachments, viewport_size.x, viewport_size.y, depth_attachment);
     }
@@ -213,8 +249,7 @@ void bloom_app::setup_frame_buffers()
                 retro::renderer::texture_format::rgba16f,
                 retro::renderer::texture_internal_format::rgba,
                 retro::renderer::texture_filtering::linear,
-                retro::renderer::texture_wrapping::clamp_to_edge,
-            },
+                retro::renderer::texture_wrapping::clamp_to_edge, viewport_size},
         };
         m_lighting_fbo = std::make_shared<retro::renderer::frame_buffer>(attachments, viewport_size.x, viewport_size.y);
     }
@@ -222,34 +257,33 @@ void bloom_app::setup_frame_buffers()
 
 void bloom_app::setup_bloom()
 {
-    const int bloom_downsample_fbo_count = 6;
-    int downsample_factor = 2;
-    glm::ivec2 viewport_size = retro::renderer::renderer::get_viewport_size();
-    for (int i = 0; i < bloom_downsample_fbo_count; i++)
+    glm::vec2 viewport_size = retro::renderer::renderer::get_viewport_size();
+    glm::ivec2 viewport_size_int = retro::renderer::renderer::get_viewport_size();
+
+    m_bloom_sample_count = 6;
+
+    // Setup bloom fbo
+    for (GLuint  i = 0; i < m_bloom_sample_count; i++)
     {
-        std::vector<retro::renderer::frame_buffer_attachment> attachments = {
-            //  Position
-            {
-                retro::renderer::texture_format::r11g11b10,
-                retro::renderer::texture_internal_format::rgb,
-                retro::renderer::texture_filtering::linear,
-                retro::renderer::texture_wrapping::clamp_to_edge,
-            },
+        bloom_mip_data bloom_mip{};
+        viewport_size *= 0.5f;
+        viewport_size_int /= 2;
 
-        };
+        bloom_mip.size = viewport_size;
+        bloom_mip.int_size = viewport_size_int;
 
-        // Calculate the resolution based on the current downsample factor
-        int downsample_width = viewport_size.x / downsample_factor;
-        int downsample_height = viewport_size.y / downsample_factor;
+        bloom_mip.texture =
+            std::make_shared<retro::renderer::texture>(std::format("bloom_mip_{}", i),
+           retro::renderer::texture_data(viewport_size_int.x, viewport_size_int.y, 3, 0, 
+            {retro::renderer::texture_format::r11g11b10, retro::renderer::texture_internal_format::rgb}, retro::renderer::texture_type::normal, nullptr ));
 
-        // Create the bloom downsample FBO with the calculated resolution
-
-        auto bloom_downsample_fbo = std::make_shared<retro::renderer::frame_buffer>(attachments, downsample_width, downsample_height);
-        m_bloom_downsample_fbos.push_back(bloom_downsample_fbo);
-
-        // Increase the downsample factor for the next level
-        downsample_factor *= 2;
+        m_bloom_mips.emplace_back(bloom_mip);
     }
+    // Create the bloom fbo
+    m_bloom_fbo = std::make_shared<retro::renderer::frame_buffer>(retro::renderer::renderer::get_viewport_size().x, retro::renderer::renderer::get_viewport_size().y);
+
+    // Attach first bloom mip texture to rbo.
+    m_bloom_fbo->attach_texture(m_bloom_mips[0].texture, GL_FRAMEBUFFER, retro::renderer::render_buffer_attachment_type::color, GL_TEXTURE_2D, 0);
 }
 
 void bloom_app::on_handle_event(retro::events::base_event &event)

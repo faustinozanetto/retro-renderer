@@ -16,6 +16,7 @@ namespace retro::renderer
         texture_internal_format internal_format;
         texture_filtering filtering;
         texture_wrapping wrapping;
+        glm::vec2 size;
     };
 
     class frame_buffer

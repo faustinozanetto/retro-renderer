@@ -101,13 +101,13 @@ void pbr_ibl_app::on_update()
     // 2. Render unsing the pbr shader
     m_final_fbo->bind();
     m_lighting_shader->bind();
-    retro::renderer::renderer::bind_texture(0, m_geometry_fbo->get_attachment_id(0)); // Position
-    retro::renderer::renderer::bind_texture(1, m_geometry_fbo->get_attachment_id(1)); // Albedo
-    retro::renderer::renderer::bind_texture(2, m_geometry_fbo->get_attachment_id(2)); // Normal
-    retro::renderer::renderer::bind_texture(3, m_geometry_fbo->get_attachment_id(3)); // Roughmetalao
+    retro::renderer::renderer::bind_texture(0, m_geometry_fbo->get_attachment_id(0));              // Position
+    retro::renderer::renderer::bind_texture(1, m_geometry_fbo->get_attachment_id(1));              // Albedo
+    retro::renderer::renderer::bind_texture(2, m_geometry_fbo->get_attachment_id(2));              // Normal
+    retro::renderer::renderer::bind_texture(3, m_geometry_fbo->get_attachment_id(3));              // Roughmetalao
     retro::renderer::renderer::bind_texture(4, m_environment_irradiance_texture->get_handle_id()); // Irradiance
-    retro::renderer::renderer::bind_texture(5, m_environment_prefilter_texture->get_handle_id()); // Prefilter
-    retro::renderer::renderer::bind_texture(6, m_environment_brdf_texture); // BRDF
+    retro::renderer::renderer::bind_texture(5, m_environment_prefilter_texture->get_handle_id());  // Prefilter
+    retro::renderer::renderer::bind_texture(6, m_environment_brdf_texture);                        // BRDF
 
     m_lighting_shader->set_mat4("u_view", m_camera->get_view_matrix());
     m_lighting_shader->set_mat4("u_projection", m_camera->get_projection_matrix());
@@ -338,36 +338,30 @@ void pbr_ibl_app::setup_fbo()
                 retro::renderer::texture_format::rgba16f,
                 retro::renderer::texture_internal_format::rgba,
                 retro::renderer::texture_filtering::linear,
-                retro::renderer::texture_wrapping::clamp_to_edge,
-            },
+                retro::renderer::texture_wrapping::clamp_to_edge, viewport_size},
             // Albedo
             {
                 retro::renderer::texture_format::rgba16f,
                 retro::renderer::texture_internal_format::rgba,
                 retro::renderer::texture_filtering::linear,
-                retro::renderer::texture_wrapping::clamp_to_edge,
-            },
+                retro::renderer::texture_wrapping::clamp_to_edge, viewport_size},
             // Normals
             {
                 retro::renderer::texture_format::rgba16f,
                 retro::renderer::texture_internal_format::rgba,
                 retro::renderer::texture_filtering::linear,
-                retro::renderer::texture_wrapping::clamp_to_edge,
-            },
+                retro::renderer::texture_wrapping::clamp_to_edge, viewport_size},
             // Roughness Metallic AO
             {
                 retro::renderer::texture_format::rgba16f,
                 retro::renderer::texture_internal_format::rgba,
                 retro::renderer::texture_filtering::linear,
-                retro::renderer::texture_wrapping::clamp_to_edge,
-            }
-        };
+                retro::renderer::texture_wrapping::clamp_to_edge, viewport_size}};
         retro::renderer::frame_buffer_attachment depth_attachment = {
             retro::renderer::texture_format::depth_component32f,
             retro::renderer::texture_internal_format::rgba,
             retro::renderer::texture_filtering::linear,
-            retro::renderer::texture_wrapping::clamp_to_edge,
-        };
+            retro::renderer::texture_wrapping::clamp_to_edge, viewport_size};
         m_geometry_fbo = std::make_shared<retro::renderer::frame_buffer>(
             attachments, viewport_size.x, viewport_size.y, depth_attachment);
     }
@@ -380,15 +374,13 @@ void pbr_ibl_app::setup_fbo()
                 retro::renderer::texture_format::rgba16f,
                 retro::renderer::texture_internal_format::rgba,
                 retro::renderer::texture_filtering::linear,
-                retro::renderer::texture_wrapping::clamp_to_edge,
-            },
+                retro::renderer::texture_wrapping::clamp_to_edge, viewport_size},
         };
         retro::renderer::frame_buffer_attachment depth_attachment = {
             retro::renderer::texture_format::depth_component32f,
             retro::renderer::texture_internal_format::rgba,
             retro::renderer::texture_filtering::linear,
-            retro::renderer::texture_wrapping::clamp_to_edge,
-        };
+            retro::renderer::texture_wrapping::clamp_to_edge, viewport_size};
         m_final_fbo = std::make_shared<retro::renderer::frame_buffer>(attachments, viewport_size.x, viewport_size.y,
                                                                       depth_attachment);
     }
@@ -397,10 +389,10 @@ void pbr_ibl_app::setup_fbo()
 void pbr_ibl_app::setup_screen_quad()
 {
     const std::vector<float> quad_vertices = {
-        1.0f, 1.0f, 0.0f, 1.0f, 1.0f, // top right
-        1.0f, -1.0f, 0.0f, 1.0f, 0.0f, // bottom right
+        1.0f, 1.0f, 0.0f, 1.0f, 1.0f,   // top right
+        1.0f, -1.0f, 0.0f, 1.0f, 0.0f,  // bottom right
         -1.0f, -1.0f, 0.0f, 0.0f, 0.0f, // bottom left
-        -1.0f, 1.0f, 0.0f, 0.0f, 1.0f // top left
+        -1.0f, 1.0f, 0.0f, 0.0f, 1.0f   // top left
     };
 
     const std::vector<uint32_t> indices = {
@@ -457,46 +449,46 @@ void pbr_ibl_app::setup_enviroment_cube()
         cube_vertices = {
             // back face
             -1.0f, -1.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, // bottom-left
-            1.0f, 1.0f, -1.0f, 0.0f, 0.0f, -1.0f, 1.0f, 1.0f, // top-right
-            1.0f, -1.0f, -1.0f, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, // bottom-right
-            1.0f, 1.0f, -1.0f, 0.0f, 0.0f, -1.0f, 1.0f, 1.0f, // top-right
+            1.0f, 1.0f, -1.0f, 0.0f, 0.0f, -1.0f, 1.0f, 1.0f,   // top-right
+            1.0f, -1.0f, -1.0f, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f,  // bottom-right
+            1.0f, 1.0f, -1.0f, 0.0f, 0.0f, -1.0f, 1.0f, 1.0f,   // top-right
             -1.0f, -1.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, // bottom-left
-            -1.0f, 1.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f, // top-left
+            -1.0f, 1.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f,  // top-left
             // front face
             -1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, // bottom-left
-            1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, // bottom-right
-            1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, // top-right
-            1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, // top-right
-            -1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, // top-left
+            1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f,  // bottom-right
+            1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,   // top-right
+            1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,   // top-right
+            -1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f,  // top-left
             -1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, // bottom-left
             // left face
-            -1.0f, 1.0f, 1.0f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f, // top-right
-            -1.0f, 1.0f, -1.0f, -1.0f, 0.0f, 0.0f, 1.0f, 1.0f, // top-left
+            -1.0f, 1.0f, 1.0f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f,   // top-right
+            -1.0f, 1.0f, -1.0f, -1.0f, 0.0f, 0.0f, 1.0f, 1.0f,  // top-left
             -1.0f, -1.0f, -1.0f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f, // bottom-left
             -1.0f, -1.0f, -1.0f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f, // bottom-left
-            -1.0f, -1.0f, 1.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, // bottom-right
-            -1.0f, 1.0f, 1.0f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f, // top-right
+            -1.0f, -1.0f, 1.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f,  // bottom-right
+            -1.0f, 1.0f, 1.0f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f,   // top-right
             // right face
-            1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, // top-left
+            1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f,   // top-left
             1.0f, -1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, // bottom-right
-            1.0f, 1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, // top-right
+            1.0f, 1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f,  // top-right
             1.0f, -1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, // bottom-right
-            1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, // top-left
-            1.0f, -1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, // bottom-left
+            1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f,   // top-left
+            1.0f, -1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f,  // bottom-left
             // bottom face
             -1.0f, -1.0f, -1.0f, 0.0f, -1.0f, 0.0f, 0.0f, 1.0f, // top-right
-            1.0f, -1.0f, -1.0f, 0.0f, -1.0f, 0.0f, 1.0f, 1.0f, // top-left
-            1.0f, -1.0f, 1.0f, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f, // bottom-left
-            1.0f, -1.0f, 1.0f, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f, // bottom-left
-            -1.0f, -1.0f, 1.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, // bottom-right
+            1.0f, -1.0f, -1.0f, 0.0f, -1.0f, 0.0f, 1.0f, 1.0f,  // top-left
+            1.0f, -1.0f, 1.0f, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f,   // bottom-left
+            1.0f, -1.0f, 1.0f, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f,   // bottom-left
+            -1.0f, -1.0f, 1.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f,  // bottom-right
             -1.0f, -1.0f, -1.0f, 0.0f, -1.0f, 0.0f, 0.0f, 1.0f, // top-right
             // top face
             -1.0f, 1.0f, -1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, // top-left
-            1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, // bottom-right
-            1.0f, 1.0f, -1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, // top-right
-            1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, // bottom-right
+            1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f,   // bottom-right
+            1.0f, 1.0f, -1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f,  // top-right
+            1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f,   // bottom-right
             -1.0f, 1.0f, -1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, // top-left
-            -1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f // bottom-left
+            -1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f   // bottom-left
         };
     size_t size = cube_vertices.size() * sizeof(&cube_vertices[0]);
 
@@ -510,8 +502,7 @@ void pbr_ibl_app::setup_enviroment_cube()
         layout_elements = {
             {"a_pos", retro::renderer::vertex_buffer_entry_type::vec_float3, false},
             {"a_normal", retro::renderer::vertex_buffer_entry_type::vec_float3, false},
-            {"a_tex_coord", retro::renderer::vertex_buffer_entry_type::vec_float2, false}
-        };
+            {"a_tex_coord", retro::renderer::vertex_buffer_entry_type::vec_float2, false}};
 
     std::shared_ptr<retro::renderer::vertex_buffer_layout_descriptor> cube_vbo_layout_descriptor = std::make_shared<
         retro::renderer::vertex_buffer_layout_descriptor>(layout_elements);
@@ -557,8 +548,7 @@ void pbr_ibl_app::setup_environment_quad()
     std::initializer_list<retro::renderer::vertex_buffer_layout_entry>
         layout_elements = {
             {"a_pos", retro::renderer::vertex_buffer_entry_type::vec_float3, false},
-            {"a_tex_coord", retro::renderer::vertex_buffer_entry_type::vec_float2, false}
-        };
+            {"a_tex_coord", retro::renderer::vertex_buffer_entry_type::vec_float2, false}};
 
     std::shared_ptr<retro::renderer::vertex_buffer_layout_descriptor> vbo_layout_descriptor = std::make_shared<
         retro::renderer::vertex_buffer_layout_descriptor>(layout_elements);
@@ -572,8 +562,7 @@ void pbr_ibl_app::setup_environment_cubemap()
     // pbr: setup cubemap to render to and attach to framebuffer
     // ---------------------------------------------------------
     retro::renderer::texture_data texture_data = {
-        m_environment_map_size, m_environment_map_size, 3, retro::renderer::texture_type::cubemap, nullptr
-    };
+        m_environment_map_size, m_environment_map_size, 3, retro::renderer::texture_type::cubemap, nullptr};
     m_environment_cubemap_texture = std::make_shared<retro::renderer::texture>("environment", texture_data);
 }
 
@@ -625,8 +614,7 @@ void pbr_ibl_app::setup_environment_equirectangular_map()
         glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)),
         glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)),
         glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f)),
-        glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, -1.0f, 0.0f))
-    };
+        glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, -1.0f, 0.0f))};
 
     // pbr: convert HDR equirectangular environment map to cubemap equivalent
     // ----------------------------------------------------------------------
@@ -657,8 +645,7 @@ void pbr_ibl_app::setup_environment_irradiance_map()
     // pbr: create an irradiance cubemap, and re-scale capture FBO to irradiance scale.
     // --------------------------------------------------------------------------------
     retro::renderer::texture_data texture_data = {
-        m_irradiance_map_size, m_irradiance_map_size, 3, retro::renderer::texture_type::cubemap, nullptr
-    };
+        m_irradiance_map_size, m_irradiance_map_size, 3, retro::renderer::texture_type::cubemap, nullptr};
     m_environment_irradiance_texture = std::make_shared<retro::renderer::texture>("irradiance", texture_data);
 
     m_environment_capture_fbo->bind(false);
@@ -690,8 +677,7 @@ void pbr_ibl_app::setup_environment_prefilter_map()
     // pbr: create a pre-filter cubemap, and re-scale capture FBO to pre-filter scale.
     // --------------------------------------------------------------------------------
     retro::renderer::texture_data texture_data = {
-        m_prefilter_map_size, m_prefilter_map_size, 3, retro::renderer::texture_type::cubemap, nullptr
-    };
+        m_prefilter_map_size, m_prefilter_map_size, 3, retro::renderer::texture_type::cubemap, nullptr};
     m_environment_prefilter_texture = std::make_shared<retro::renderer::texture>("pre_filter", texture_data);
 
     glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
@@ -777,20 +763,20 @@ void pbr_ibl_app::render_skybox()
     m_skybox_shader->un_bind();
 }
 
-void pbr_ibl_app::on_handle_event(retro::events::base_event& event)
+void pbr_ibl_app::on_handle_event(retro::events::base_event &event)
 {
     retro::events::event_dispatcher dispatcher(event);
-  //  dispatcher.dispatch<retro::events::window_resize_event>(BIND_EVENT_FN(pbr_ibl_app::on_resize_ssao));
+    //  dispatcher.dispatch<retro::events::window_resize_event>(BIND_EVENT_FN(pbr_ibl_app::on_resize_ssao));
 }
 
-bool pbr_ibl_app::on_window_resize(retro::events::window_resize_event& resize_event)
+bool pbr_ibl_app::on_window_resize(retro::events::window_resize_event &resize_event)
 {
     m_geometry_fbo->resize(resize_event.get_size());
     m_final_fbo->resize(resize_event.get_size());
     return application::on_window_resize(resize_event);
 }
 
-retro::core::application* retro::core::create_application()
+retro::core::application *retro::core::create_application()
 {
     return new pbr_ibl_app();
 }

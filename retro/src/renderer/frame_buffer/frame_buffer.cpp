@@ -23,7 +23,7 @@ namespace retro::renderer
         RT_TRACE("Retro Renderer | Frame buffer created successfully.");
     }
 
-    frame_buffer::frame_buffer(const std::vector<frame_buffer_attachment>& attachments, int width, int height,
+    frame_buffer::frame_buffer(const std::vector<frame_buffer_attachment> &attachments, int width, int height,
                                frame_buffer_attachment depth_attachment)
     {
         RT_TRACE("Retro Renderer | Started creating frame buffer.");
@@ -43,7 +43,7 @@ namespace retro::renderer
         RT_TRACE("Retro Renderer | Frame buffer created successfully.");
     }
 
-    frame_buffer::frame_buffer(const std::vector<frame_buffer_attachment>& attachments, int width, int height)
+    frame_buffer::frame_buffer(const std::vector<frame_buffer_attachment> &attachments, int width, int height)
     {
         RT_TRACE("Retro Renderer | Started creating frame buffer.");
         m_width = width;
@@ -112,11 +112,10 @@ namespace retro::renderer
         {
             const GLenum buffers[8] = {
                 GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3,
-                GL_COLOR_ATTACHMENT4, GL_COLOR_ATTACHMENT5, GL_COLOR_ATTACHMENT6, GL_COLOR_ATTACHMENT7
-            };
+                GL_COLOR_ATTACHMENT4, GL_COLOR_ATTACHMENT5, GL_COLOR_ATTACHMENT6, GL_COLOR_ATTACHMENT7};
             glDrawBuffers(m_attachments.size(), buffers);
         }
-        else if (m_attachments.empty())
+        else if (m_attachments.empty() && m_has_depth_attachment)
         {
             // Only depth-pass
             glDrawBuffer(GL_NONE);
@@ -146,7 +145,7 @@ namespace retro::renderer
     void frame_buffer::attach_color_texture(frame_buffer_attachment attachment, uint32_t handle_id, int index) const
     {
         glBindTexture(GL_TEXTURE_2D, handle_id);
-        glTexImage2D(GL_TEXTURE_2D, 0, texture::get_texture_format_to_opengl(attachment.format), m_width, m_height, 0,
+        glTexImage2D(GL_TEXTURE_2D, 0, texture::get_texture_format_to_opengl(attachment.format), attachment.size.x, attachment.size.y, 0,
                      texture::get_texture_internal_format_to_opengl(attachment.internal_format), GL_FLOAT, nullptr);
 
         // Filtering
@@ -204,14 +203,14 @@ namespace retro::renderer
         glBindTexture(GL_TEXTURE_2D, 0);
     }
 
-    void frame_buffer::resize(const glm::ivec2& dimensions)
+    void frame_buffer::resize(const glm::ivec2 &dimensions)
     {
         m_width = dimensions.x;
         m_height = dimensions.y;
         initialize();
     }
 
-    void frame_buffer::attach_texture(const std::shared_ptr<texture>& texture, uint32_t target,
+    void frame_buffer::attach_texture(const std::shared_ptr<texture> &texture, uint32_t target,
                                       render_buffer_attachment_type attachment, uint32_t texture_target,
                                       int mipmaps_level)
     {

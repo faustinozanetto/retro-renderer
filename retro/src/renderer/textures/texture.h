@@ -72,6 +72,11 @@ namespace retro::renderer
         texture_data(int width, int height, int channels, texture_formats formats, texture_type type, void *data) : width(width), height(height), channels(channels), formats(formats), type(type), data(data)
         {
         }
+
+        texture_data(int width, int height, int channels, int mip_map_levels, texture_formats formats, texture_type type, void *data) : width(width),
+                                                                                                                                        height(height), channels(channels), mip_map_levels(mip_map_levels), formats(formats), type(type), data(data)
+        {
+        }
     };
 
     enum class texture_filtering
@@ -110,6 +115,7 @@ namespace retro::renderer
     class texture : public assets::asset
     {
     public:
+        texture() = default;
         texture(const std::string &file_name, const texture_data &texture_data);
         ~texture() override;
 
@@ -143,6 +149,8 @@ namespace retro::renderer
         static texture_formats get_texture_formats_from_channel_count(int channel_count);
 
     private:
+        void initialize();
+
         texture_data m_data;
 
         uint32_t m_handle_id;
