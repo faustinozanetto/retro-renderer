@@ -6,7 +6,7 @@ struct bloom_mip_data
 {
     glm::vec2 size;
     glm::ivec2 int_size;
-    std::shared_ptr<retro::renderer::texture> texture;
+   uint32_t texture;
 };
 
 class bloom_app : public retro::core::application
@@ -35,9 +35,9 @@ private:
     /* Bloom */
     int m_bloom_sample_count;
     std::shared_ptr<retro::renderer::frame_buffer> m_bloom_fbo;
-    std::vector<std::shared_ptr<retro::renderer::frame_buffer>> m_bloom_upsample_fbos;
     std::shared_ptr<retro::renderer::shader> m_bloom_downsample_shader;
     std::shared_ptr<retro::renderer::shader> m_bloom_upsample_shader;
+    unsigned int mFBO;
     std::vector<bloom_mip_data> m_bloom_mips;
 
     /* Rendering */

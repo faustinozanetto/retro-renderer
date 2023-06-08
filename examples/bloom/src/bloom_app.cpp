@@ -56,14 +56,37 @@ void bloom_app::on_update()
     m_lighting_fbo->un_bind();
 
     // 3. Bloom downsample pass
-    m_bloom_fbo->bind();
+    // m_bloom_fbo->bind();
+    glBindFramebuffer(GL_FRAMEBUFFER, mFBO);
 
     m_bloom_downsample_shader->bind();
     // Bind pbr result texture
     retro::renderer::renderer::bind_texture(0, m_lighting_fbo->get_attachment_id(0));
     m_bloom_downsample_shader->set_vec_float2("u_source_res", retro::renderer::renderer::get_viewport_size());
-    for (int i = 0; i < m_bloom_mips.size(); i++)
+    m_bloom_downsample_shader->set_int("mipLevel", 0);
+    for (int i = 0; i < (int)m_bloom_mips.size(); i++)
     {
+        bloom_mip_data &bloom_mip = m_bloom_mips[i];
+        retro::renderer::renderer::set_viewport_size(bloom_mip.size);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+                               GL_TEXTURE_2D, bloom_mip.texture, 0);
+
+        // Draw screen quad
+        m_screen_vao->bind();
+        retro::renderer::renderer::submit_elements(GL_TRIANGLES, 6);
+        m_screen_vao->un_bind();
+
+        // Set current mip resolution as srcResolution for next iteration
+        m_bloom_downsample_shader->set_vec_float2("u_source_res", bloom_mip.size);
+        // Set current mip as texture input for next iteration
+        retro::renderer::renderer::bind_texture(0, bloom_mip.texture);
+        // Disable Karis average for consequent downsamples
+        if (i == 0)
+        {
+            m_bloom_downsample_shader->set_int("mipLevel", 1);
+        }
+
+        /*
         bloom_mip_data &bloom_mip = m_bloom_mips[i];
         retro::renderer::renderer::set_viewport_size(bloom_mip.size);
         // Attach bloom mip textue to rbo.
@@ -78,6 +101,7 @@ void bloom_app::on_update()
         m_bloom_downsample_shader->set_vec_float2("u_source_res", bloom_mip.size);
         // Set current mip as texture input for next iteration
         retro::renderer::renderer::bind_texture(0, bloom_mip.texture->get_handle_id());
+        */
     }
     m_bloom_downsample_shader->un_bind();
 
@@ -94,11 +118,13 @@ void bloom_app::on_update()
         bloom_mip_data &bloom_next_mip = m_bloom_mips[i - 1];
 
         // Bind mip texture
-        retro::renderer::renderer::bind_texture(0, bloom_mip.texture->get_handle_id());
+        retro::renderer::renderer::bind_texture(0, bloom_mip.texture);
 
         retro::renderer::renderer::set_viewport_size(bloom_next_mip.size);
         // Attach bloom mip textue to rbo.
-        m_bloom_fbo->attach_texture(bloom_next_mip.texture, GL_FRAMEBUFFER, retro::renderer::render_buffer_attachment_type::color, GL_TEXTURE_2D, 0);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+                               GL_TEXTURE_2D, bloom_next_mip.texture, 0);
+        // m_bloom_fbo->attach_texture(bloom_next_mip.texture, GL_FRAMEBUFFER, retro::renderer::render_buffer_attachment_type::color, //GL_TEXTURE_2D, 0);
 
         // Draw screen quad
         m_screen_vao->bind();
@@ -108,13 +134,16 @@ void bloom_app::on_update()
     glDisable(GL_BLEND);
     m_bloom_upsample_shader->un_bind();
 
-    m_bloom_fbo->un_bind();
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    // m_bloom_fbo->un_bind();
 
     // 3. Render final result to screen
+    retro::renderer::renderer::clear_screen();
     retro::renderer::renderer::set_viewport_size(retro::renderer::renderer::get_viewport_size());
     m_final_shader->bind();
     retro::renderer::renderer::bind_texture(0, m_final_render_target);
-    retro::renderer::renderer::bind_texture(1, m_bloom_upsample_fbos[0]->get_attachment_id(0));
+    retro::renderer::renderer::bind_texture(1, m_bloom_mips[0].texture);
     m_screen_vao->bind();
     retro::renderer::renderer::submit_elements(GL_TRIANGLES, 6);
     m_screen_vao->un_bind();
@@ -241,6 +270,7 @@ void bloom_app::setup_frame_buffers()
             retro::renderer::texture_wrapping::clamp_to_edge, viewport_size};
         m_geometry_fbo = std::make_shared<retro::renderer::frame_buffer>(
             attachments, viewport_size.x, viewport_size.y, depth_attachment);
+        m_geometry_fbo->initialize();
     }
     {
         std::vector<retro::renderer::frame_buffer_attachment> attachments = {
@@ -252,18 +282,21 @@ void bloom_app::setup_frame_buffers()
                 retro::renderer::texture_wrapping::clamp_to_edge, viewport_size},
         };
         m_lighting_fbo = std::make_shared<retro::renderer::frame_buffer>(attachments, viewport_size.x, viewport_size.y);
+        m_lighting_fbo->initialize();
     }
 }
 
 void bloom_app::setup_bloom()
 {
+    glGenFramebuffers(1, &mFBO);
+    glBindFramebuffer(GL_FRAMEBUFFER, mFBO);
+
     glm::vec2 viewport_size = retro::renderer::renderer::get_viewport_size();
     glm::ivec2 viewport_size_int = retro::renderer::renderer::get_viewport_size();
 
     m_bloom_sample_count = 6;
 
-    // Setup bloom fbo
-    for (GLuint  i = 0; i < m_bloom_sample_count; i++)
+    for (GLuint i = 0; i < m_bloom_sample_count; i++)
     {
         bloom_mip_data bloom_mip{};
         viewport_size *= 0.5f;
@@ -272,18 +305,64 @@ void bloom_app::setup_bloom()
         bloom_mip.size = viewport_size;
         bloom_mip.int_size = viewport_size_int;
 
-        bloom_mip.texture =
-            std::make_shared<retro::renderer::texture>(std::format("bloom_mip_{}", i),
-           retro::renderer::texture_data(viewport_size_int.x, viewport_size_int.y, 3, 0, 
-            {retro::renderer::texture_format::r11g11b10, retro::renderer::texture_internal_format::rgb}, retro::renderer::texture_type::normal, nullptr ));
+        glGenTextures(1, &bloom_mip.texture);
+        glBindTexture(GL_TEXTURE_2D, bloom_mip.texture);
+        // we are downscaling an HDR color buffer, so we need a float texture format
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_R11F_G11F_B10F,
+                     (int)viewport_size.x, (int)viewport_size.y,
+                     0, GL_RGB, GL_FLOAT, nullptr);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
+        std::cout << "Created bloom mip " << viewport_size_int.x << 'x' << viewport_size_int.y << std::endl;
         m_bloom_mips.emplace_back(bloom_mip);
     }
-    // Create the bloom fbo
-    m_bloom_fbo = std::make_shared<retro::renderer::frame_buffer>(retro::renderer::renderer::get_viewport_size().x, retro::renderer::renderer::get_viewport_size().y);
 
-    // Attach first bloom mip texture to rbo.
-    m_bloom_fbo->attach_texture(m_bloom_mips[0].texture, GL_FRAMEBUFFER, retro::renderer::render_buffer_attachment_type::color, GL_TEXTURE_2D, 0);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+                           GL_TEXTURE_2D, m_bloom_mips[0].texture, 0);
+
+    // setup attachments
+    unsigned int attachments[1] = {GL_COLOR_ATTACHMENT0};
+    glDrawBuffers(1, attachments);
+
+    // check completion status
+    int status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+    if (status != GL_FRAMEBUFFER_COMPLETE)
+    {
+        printf("gbuffer FBO error, status: 0x%x\n", status);
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    }
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    /*
+        // Setup bloom fbo
+        for (GLuint i = 0; i < m_bloom_sample_count; i++)
+        {
+            bloom_mip_data bloom_mip{};
+            viewport_size *= 0.5f;
+            viewport_size_int /= 2;
+
+            bloom_mip.size = viewport_size;
+            bloom_mip.int_size = viewport_size_int;
+
+            bloom_mip.texture =
+                std::make_shared<retro::renderer::texture>(std::format("bloom_mip_{}", i),
+                                                           retro::renderer::texture_data(viewport_size_int.x, viewport_size_int.y, 3, 1,
+                                                                                         {retro::renderer::texture_format::r11g11b10, retro::renderer::texture_internal_format::rgb},
+                                                                                         retro::renderer::texture_type::none, nullptr));
+
+            m_bloom_mips.emplace_back(bloom_mip);
+        }
+        // Create the bloom fbo
+        m_bloom_fbo = std::make_shared<retro::renderer::frame_buffer>(retro::renderer::renderer::get_viewport_size().x, retro::renderer::renderer::get_viewport_size().y);
+
+        // Attach first bloom mip texture to rbo.
+        m_bloom_fbo->attach_texture(m_bloom_mips[0].texture, GL_FRAMEBUFFER, retro::renderer::render_buffer_attachment_type::color, GL_TEXTURE_2D, 0);
+        m_bloom_fbo->initialize();
+        */
 }
 
 void bloom_app::on_handle_event(retro::events::base_event &event)

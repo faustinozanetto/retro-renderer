@@ -19,7 +19,7 @@ namespace retro::renderer
         RT_TRACE("  - Height: {0}px", m_height);
         RT_TRACE("  - Attachments Count: {0}", m_attachments_data.size());
         RT_TRACE("  - Has Depth Attachment: '{0}'", m_has_depth_attachment ? "true" : "false");
-        initialize();
+        pre_initialize();
         RT_TRACE("Retro Renderer | Frame buffer created successfully.");
     }
 
@@ -39,7 +39,7 @@ namespace retro::renderer
         RT_TRACE("  - Attachments Count: {0}", m_attachments_data.size());
         RT_TRACE("  - Has Depth Attachment: '{0}'", m_has_depth_attachment ? "true" : "false");
 
-        initialize();
+        pre_initialize();
         RT_TRACE("Retro Renderer | Frame buffer created successfully.");
     }
 
@@ -58,8 +58,7 @@ namespace retro::renderer
         RT_TRACE("  - Attachments Count: {0}", m_attachments_data.size());
         RT_TRACE("  - Has Depth Attachment: '{0}'", m_has_depth_attachment ? "true" : "false");
 
-        initialize();
-        RT_TRACE("Retro Renderer | Frame buffer created successfully.");
+        pre_initialize();
     }
 
     frame_buffer::~frame_buffer()
@@ -72,6 +71,35 @@ namespace retro::renderer
 
     void frame_buffer::initialize()
     {
+        bind(false);
+        // Draw buffers.
+        if (!m_attachments.empty())
+        {
+            const GLenum buffers[8] = {
+                GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3,
+                GL_COLOR_ATTACHMENT4, GL_COLOR_ATTACHMENT5, GL_COLOR_ATTACHMENT6, GL_COLOR_ATTACHMENT7};
+            glDrawBuffers(m_attachments.size(), buffers);
+        }
+        else if (m_attachments.empty() && m_has_depth_attachment)
+        {
+            // Only depth-pass
+            glDrawBuffer(GL_NONE);
+            glReadBuffer(GL_NONE);
+        }
+
+        // Error checking
+        const auto fboStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+        RT_ASSERT_MSG(fboStatus == GL_FRAMEBUFFER_COMPLETE,
+                      "An error occurred while creating frame buffer: " + std::to_string(fboStatus))
+
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        m_initialized = true;
+        RT_TRACE("Retro Renderer | Frame buffer created successfully.");
+    }
+
+    void frame_buffer::pre_initialize()
+    {
+        m_initialized = false;
         // Delete old data
         if (m_handle_id)
         {
@@ -106,28 +134,6 @@ namespace retro::renderer
             glBindTexture(GL_TEXTURE_2D, m_depth_attachment);
             attach_depth_texture(m_depth_attachment_data, m_depth_attachment);
         }
-
-        // Draw buffers.
-        if (m_attachments.size() > 1)
-        {
-            const GLenum buffers[8] = {
-                GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3,
-                GL_COLOR_ATTACHMENT4, GL_COLOR_ATTACHMENT5, GL_COLOR_ATTACHMENT6, GL_COLOR_ATTACHMENT7};
-            glDrawBuffers(m_attachments.size(), buffers);
-        }
-        else if (m_attachments.empty() && m_has_depth_attachment)
-        {
-            // Only depth-pass
-            glDrawBuffer(GL_NONE);
-            glReadBuffer(GL_NONE);
-        }
-
-        // Error checking
-        const auto fboStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-        RT_ASSERT_MSG(fboStatus == GL_FRAMEBUFFER_COMPLETE,
-                      "An error occurred while creating frame buffer: " + std::to_string(fboStatus))
-
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
 
     void frame_buffer::bind(bool set_viewport_size)
@@ -216,5 +222,9 @@ namespace retro::renderer
     {
         glFramebufferTexture2D(target, render_buffer::get_render_buffer_attachment_type_to_opengl(attachment),
                                texture_target, texture->get_handle_id(), mipmaps_level);
+        if (attachment == render_buffer_attachment_type::color)
+        {
+            m_attachments.push_back(texture->get_handle_id());
+        }
     }
 }

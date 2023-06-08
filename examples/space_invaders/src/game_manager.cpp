@@ -410,6 +410,7 @@ void game_manager::initialize_frame_buffers()
             retro::renderer::texture_wrapping::clamp_to_edge, viewport_size};
         m_geometry_fbo = std::make_shared<retro::renderer::frame_buffer>(
             attachments, viewport_size.x, viewport_size.y, depth_attachment);
+        m_geometry_fbo->initialize();
     }
     {
         std::vector<retro::renderer::frame_buffer_attachment> attachments = {
@@ -421,6 +422,7 @@ void game_manager::initialize_frame_buffers()
                 retro::renderer::texture_wrapping::clamp_to_edge, viewport_size},
         };
         m_text_fbo = std::make_shared<retro::renderer::frame_buffer>(attachments, viewport_size.x, viewport_size.y);
+        m_text_fbo->initialize();
     }
     {
         std::vector<retro::renderer::frame_buffer_attachment> attachments = {
@@ -432,6 +434,7 @@ void game_manager::initialize_frame_buffers()
                 retro::renderer::texture_wrapping::clamp_to_edge, viewport_size},
         };
         m_lighting_fbo = std::make_shared<retro::renderer::frame_buffer>(attachments, viewport_size.x, viewport_size.y);
+        m_lighting_fbo->initialize();
     }
 }
 

@@ -206,6 +206,7 @@ void ssao_app::setup_fbo()
             retro::renderer::texture_wrapping::clamp_to_edge, viewport_size};
         m_geometry_fbo = std::make_shared<retro::renderer::frame_buffer>(
             attachments, viewport_size.x, viewport_size.y, depth_attachment);
+        m_geometry_fbo->initialize();
     }
 
     // 2. Setup ssao color buffer
@@ -219,6 +220,7 @@ void ssao_app::setup_fbo()
                 retro::renderer::texture_wrapping::none, viewport_size}};
         m_ssao_color_fbo = std::make_shared<retro::renderer::frame_buffer>(
             attachments, viewport_size.x, viewport_size.y);
+        m_ssao_color_fbo->initialize();
     }
     // 3 Setup ssao blur buffer
     {
@@ -231,6 +233,7 @@ void ssao_app::setup_fbo()
                 retro::renderer::texture_wrapping::none, viewport_size}};
         m_ssao_blur_fbo = std::make_shared<
             retro::renderer::frame_buffer>(attachments, viewport_size.x, viewport_size.y);
+        m_ssao_blur_fbo->initialize();
     }
 }
 

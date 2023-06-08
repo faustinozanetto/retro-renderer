@@ -5,7 +5,8 @@ namespace retro::renderer
 {
     enum class texture_type
     {
-        normal = 0,
+        none= 0,
+        normal,
         hdr,
         cubemap,
     };
@@ -150,6 +151,7 @@ namespace retro::renderer
 
     private:
         void initialize();
+        bool requires_float_data_pixel();
 
         texture_data m_data;
 

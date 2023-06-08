@@ -364,6 +364,7 @@ void pbr_ibl_app::setup_fbo()
             retro::renderer::texture_wrapping::clamp_to_edge, viewport_size};
         m_geometry_fbo = std::make_shared<retro::renderer::frame_buffer>(
             attachments, viewport_size.x, viewport_size.y, depth_attachment);
+        m_geometry_fbo->initialize();
     }
 
     // 2. Create final fbo
@@ -383,6 +384,7 @@ void pbr_ibl_app::setup_fbo()
             retro::renderer::texture_wrapping::clamp_to_edge, viewport_size};
         m_final_fbo = std::make_shared<retro::renderer::frame_buffer>(attachments, viewport_size.x, viewport_size.y,
                                                                       depth_attachment);
+        m_final_fbo->initialize();
     }
 }
 
@@ -572,6 +574,7 @@ void pbr_ibl_app::setup_environment_fbo()
     // ----------------------
     glm::ivec2 viewport_size = retro::renderer::renderer::get_viewport_size();
     m_environment_capture_fbo = std::make_shared<retro::renderer::frame_buffer>(viewport_size.x, viewport_size.y);
+    m_environment_capture_fbo->initialize();
     m_environment_capture_fbo->bind(false);
     m_environment_capture_rbo = std::make_shared<retro::renderer::render_buffer>(
         m_environment_map_size, m_environment_map_size, retro::renderer::texture_format::depth_component24);

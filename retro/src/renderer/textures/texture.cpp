@@ -359,14 +359,12 @@ namespace retro::renderer
 
     void texture::initialize()
     {
-        if (m_data.type == texture_type::normal)
+        if (m_data.type == texture_type::normal || m_data.type == texture_type::none)
         {
             // Create OpenGL texture
             glCreateTextures(GL_TEXTURE_2D, 1, &m_handle_id);
             glBindTexture(GL_TEXTURE_2D, m_handle_id);
-            glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-            glTextureStorage2D(m_handle_id, m_data.mip_map_levels, get_texture_format_to_opengl(m_data.formats.format),
-                               m_data.width,
+            glTextureStorage2D(m_handle_id, 1, get_texture_format_to_opengl(m_data.formats.format), m_data.width,
                                m_data.height);
 
             // Filtering
@@ -374,8 +372,8 @@ namespace retro::renderer
             set_filtering(texture_filtering_type::filter_mag, texture_filtering::linear);
 
             // Wrapping
-            set_wrapping(texture_wrapping_type::wrap_s, texture_wrapping::repeat);
-            set_wrapping(texture_wrapping_type::wrap_t, texture_wrapping::repeat);
+            set_wrapping(texture_wrapping_type::wrap_s, texture_wrapping::clamp_to_edge);
+            set_wrapping(texture_wrapping_type::wrap_t, texture_wrapping::clamp_to_edge);
         }
         else if (m_data.type == texture_type::hdr)
         {
@@ -428,12 +426,56 @@ namespace retro::renderer
         // Allocating memory.
         if (m_data.type == texture_type::normal)
         {
+            glTextureSubImage2D(m_handle_id, 0, 0, 0, m_data.width, m_data.height, get_texture_internal_format_to_opengl(m_data.formats.internal_format),
+                                m_data.formats.format == texture_format::rgba16f ? GL_FLOAT : m_data.formats.format == texture_format::r11g11b10 ? GL_FLOAT
+                                                                                                                                                 : GL_UNSIGNED_BYTE,
+                                m_data.data);
+
+            /*
             glTextureSubImage2D(m_handle_id, 0, 0, 0, m_data.width, m_data.height,
                                 get_texture_internal_format_to_opengl(m_data.formats.internal_format), GL_UNSIGNED_BYTE,
                                 m_data.data);
-            glGenerateTextureMipmap(m_handle_id);
-            glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+
+            glTextureSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_data.width, m_data.height, get_texture_format_to_opengl(m_data.formats.format),
+                                GL_UNSIGNED_BYTE, m_data.data);
+*/
+            // if (m_data.data != 0)
+            // glGenerateTextureMipmap(m_handle_id);
+
+            // glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
         }
+    }
+
+    bool texture::requires_float_data_pixel()
+    {
+        switch (m_data.formats.format)
+        {
+        case texture_format::r8:
+        case texture_format::r16:
+        case texture_format::rg8:
+        case texture_format::rg16:
+        case texture_format::rgb8:
+        case texture_format::rgba8:
+        case texture_format::depth_component16:
+        case texture_format::depth_component24:
+        case texture_format::depth_component32:
+        case texture_format::stencil_index8:
+            return false;
+
+        case texture_format::r16f:
+        case texture_format::r32f:
+        case texture_format::rg16f:
+        case texture_format::rg32f:
+        case texture_format::rgb16f:
+        case texture_format::rgb32f:
+        case texture_format::rgba16f:
+        case texture_format::rgba32f:
+        case texture_format::r11g11b10:
+        case texture_format::rgba16:
+            return true;
+        }
+
+        return false;
     }
 
     void texture::set_filtering(texture_filtering_type filtering_type, texture_filtering filtering)
@@ -488,31 +530,5 @@ namespace retro::renderer
         const std::shared_ptr<texture> &texture = texture_loader::load_texture_from_memory(data.data(), data_size);
         texture->set_metadata(metadata);
         return texture;
-        /*
-        texture_data data;
-        // Deserialize the texture's data size
-        size_t data_size;
-        asset_pack_file.read(reinterpret_cast<char*>(&data_size), sizeof(data_size));
-
-        // Resize the data vector to hold the texture's data
-        data.data = new char[data_size];
-
-        // Deserialize the texture's metadata (width, height, channels, mip map levels)
-        asset_pack_file.read(reinterpret_cast<char*>(&data.width), sizeof(data.width));
-        asset_pack_file.read(reinterpret_cast<char*>(&data.height), sizeof(data.height));
-        asset_pack_file.read(reinterpret_cast<char*>(&data.channels), sizeof(data.channels));
-        asset_pack_file.read(reinterpret_cast<char*>(&data.mip_map_levels), sizeof(data.mip_map_levels));
-
-        // Deserialize the texture's metadata (formats)
-        asset_pack_file.read(reinterpret_cast<char*>(&data.formats), sizeof(data.formats));
-
-        // Deserialize the texture's metadata (type)
-        asset_pack_file.read(reinterpret_cast<char*>(&data.type), sizeof(data.type));
-
-        // Deserialize the texture's data
-        asset_pack_file.read(reinterpret_cast<char*>(data.data), data_size);
-
-        return std::make_shared<texture>(name, data);
-        */
     }
 }

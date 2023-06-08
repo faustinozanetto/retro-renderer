@@ -24,3 +24,4 @@ namespace retro::logging
 #define RT_TRACE(...) ::retro::logging::logger::get_logger()->trace(__VA_ARGS__)
 #define RT_WARN(...) ::retro::logging::logger::get_logger()->warn(__VA_ARGS__)
 #define RT_ERROR(...) ::retro::logging::logger::get_logger()->error(__VA_ARGS__)
+#define RT_CRITICAL(...) ::retro::logging::logger::get_logger()->critical(__VA_ARGS__)

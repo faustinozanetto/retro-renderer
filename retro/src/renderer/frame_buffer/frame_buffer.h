@@ -33,6 +33,8 @@ namespace retro::renderer
         int get_width() const { return m_width; }
         int get_height() const { return m_height; }
 
+        /* Functions */
+        void initialize();
         void bind(bool set_viewport_size = true);
         void un_bind();
 
@@ -41,11 +43,13 @@ namespace retro::renderer
         void resize(const glm::ivec2 &dimensions);
 
     private:
-        void initialize();
+        void pre_initialize();
+
         void attach_color_texture(frame_buffer_attachment attachment, uint32_t handle_id, int index) const;
         void attach_depth_texture(frame_buffer_attachment attachment, uint32_t handle_id);
 
         uint32_t m_handle_id;
+        bool m_initialized;
         int m_width;
         int m_height;
         bool m_has_depth_attachment;
