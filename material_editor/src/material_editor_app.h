@@ -1,5 +1,7 @@
 #pragma once
 
+#include "panels/material_editor_panel.h"
+
 #include <retro.h>
 
 namespace retro::material_editor
@@ -16,5 +18,6 @@ namespace retro::material_editor
         bool on_window_resize(retro::events::window_resize_event &resize_event) override;
 
     private:
+        std::vector<std::shared_ptr<material_editor_panel>> m_editor_panels;
     };
 }

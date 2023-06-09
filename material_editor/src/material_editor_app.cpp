@@ -1,7 +1,8 @@
 #include "material_editor_app.h"
 
+#include "panels/editor_graph_panel.h"
+
 #include <core/entry_point.h>
-#include <core/application.h>
 
 #include <imgui.h>
 
@@ -10,6 +11,7 @@ namespace retro::material_editor
 
     material_editor_app::material_editor_app() : application("./", {"Retro Material Editor",1920,1080})
     {
+        m_editor_panels.push_back(std::make_shared<editor_graph_panel>());
     }
 
     material_editor_app::~material_editor_app()
@@ -77,6 +79,10 @@ namespace retro::material_editor
 
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });
         ImGui::Begin("Viewport");
+
+        for (auto& editor_panel : m_editor_panels) {
+            editor_panel->on_render_panel();
+        }
 
 		ImGui::End();
 		ImGui::PopStyleVar();
