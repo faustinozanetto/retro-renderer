@@ -1,7 +1,7 @@
 #include "editor_graph_panel.h"
 
-
-namespace retro::material_editor {
+namespace retro::material_editor
+{
 	editor_graph_panel::editor_graph_panel()
 	{
 		initialize_editor_graph();

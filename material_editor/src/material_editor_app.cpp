@@ -1,17 +1,20 @@
 #include "material_editor_app.h"
 
 #include "panels/editor_graph_panel.h"
+#include "panels/material_details_panel.h"
 
 #include <core/entry_point.h>
+#include <utils/files.h>
 
 #include <imgui.h>
 
 namespace retro::material_editor
 {
 
-    material_editor_app::material_editor_app() : application("./", {"Retro Material Editor",1920,1080})
+    material_editor_app::material_editor_app() : application("./", {"Retro Material Editor", 1920, 1080})
     {
         m_editor_panels.push_back(std::make_shared<editor_graph_panel>());
+        m_editor_panels.push_back(std::make_shared<material_details_panel>());
     }
 
     material_editor_app::~material_editor_app()
@@ -67,8 +70,9 @@ namespace retro::material_editor
         {
             if (ImGui::BeginMenu("File"))
             {
-                if (ImGui::MenuItem("Open Material...", "Ctrl+O")) {
-
+                if (ImGui::MenuItem("Open Material...", "Ctrl+O"))
+                {
+                    on_open_material_file();
                 }
 
                 ImGui::EndMenu();
@@ -77,19 +81,29 @@ namespace retro::material_editor
             ImGui::EndMenuBar();
         }
 
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{0, 0});
         ImGui::Begin("Viewport");
 
-        for (auto& editor_panel : m_editor_panels) {
+        for (auto &editor_panel : m_editor_panels)
+        {
             editor_panel->on_render_panel();
         }
 
-		ImGui::End();
-		ImGui::PopStyleVar();
+        ImGui::End();
+        ImGui::PopStyleVar();
 
         ImGui::End();
 
         ui::engine_ui::end_frame();
+    }
+
+    void material_editor_app::on_open_material_file()
+    {
+        std::string file_path = files::open_file_dialog("Retro Renderer Material", {"Material Files (*.rrm)", "*.rrm"});
+        if (!file_path.empty())
+        {
+            m_current_material_file_path = file_path;
+        }
     }
 
     void material_editor_app::on_handle_event(retro::events::base_event &event)
