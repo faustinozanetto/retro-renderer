@@ -58,6 +58,8 @@
 #include "scene/actors/components/base_component.h"
 #include "scene/actors/components/transform_component.h"
 #include "scene/actors/components/name_component.h"
+#include "scene/actors/components/model_renderer_component.h"
+#include "scene/actors/components/material_renderer_component.h"
 
 // Input Include
 #include "input/input.h"

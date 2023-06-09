@@ -9,20 +9,20 @@
 
 player_manager::player_manager()
 {
-    initialize_player_params();
     initialize_player_assets();
+    initialize_player_params();
     initialize_player_model();
 }
 
 void player_manager::draw_player(const std::shared_ptr<retro::renderer::shader> &geometry_shader)
 {
     auto &transform_component = m_player_actor->get_component<retro::scene::transform_component>();
-    glm::mat4 model = glm::mat4(1.0f);
-    model = translate(model, transform_component.get_location());
-    model = scale(model, m_player.collider.size);
-    geometry_shader->set_mat4("u_transform", model);
-    m_player_material->bind(geometry_shader);
-    retro::renderer::renderer::submit_model(m_player_model);
+    auto &model_renderer_component = m_player_actor->get_component<retro::scene::model_renderer_component>();
+    auto &material_renderer_component = m_player_actor->get_component<retro::scene::material_renderer_component>();
+
+    geometry_shader->set_mat4("u_transform", transform_component.get_transform());
+    material_renderer_component.get_material()->bind(geometry_shader);
+    retro::renderer::renderer::submit_model(model_renderer_component.get_model());
 }
 
 void player_manager::draw_bullets(const std::shared_ptr<retro::renderer::shader> &geometry_shader)
@@ -88,6 +88,9 @@ void player_manager::initialize_player_params()
     m_player_actor = retro::scene::scene_manager::get().get_active_scene()->create_actor("player actor");
     auto &transform_component = m_player_actor->add_component<retro::scene::transform_component>();
     transform_component.set_location({3.0f, 0.0f, 0.0f});
+    transform_component.set_scale(glm::vec3(4.0f));
+    auto &model_renderer_component = m_player_actor->add_component<retro::scene::model_renderer_component>(m_player_model);
+    auto &material_renderer_component = m_player_actor->add_component<retro::scene::material_renderer_component>(m_player_material);
 
     m_player_bullets = std::list<bullet>();
     m_player_sound_emitter = std::make_shared<retro::audio::sound_emitter>();

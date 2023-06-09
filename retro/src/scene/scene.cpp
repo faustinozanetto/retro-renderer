@@ -40,8 +40,8 @@ namespace retro::scene
     {
         entt::entity actor_handle = m_actors_registry->create();
         const auto &actor = std::make_shared<scene_actor>(actor_handle);
-        actor->add_component<name_component>(name);
         actor->set_scene(this);
+        actor->add_component<name_component>(name);
         return actor;
     }
 }
