@@ -183,25 +183,21 @@ void ssao_app::setup_fbo()
         std::vector<retro::renderer::frame_buffer_attachment> attachments = {
             //  Position
             {
-                retro::renderer::texture_format::rgba16f,
-                retro::renderer::texture_internal_format::rgba,
+                retro::renderer::texture_internal_format::rgba16f,
                 retro::renderer::texture_filtering::linear,
                 retro::renderer::texture_wrapping::clamp_to_edge, viewport_size},
             // Albedo
             {
-                retro::renderer::texture_format::rgba16f,
-                retro::renderer::texture_internal_format::rgba,
+                retro::renderer::texture_internal_format::rgba16f,
                 retro::renderer::texture_filtering::linear,
                 retro::renderer::texture_wrapping::clamp_to_edge, viewport_size},
             // Normals
             {
-                retro::renderer::texture_format::rgba16f,
-                retro::renderer::texture_internal_format::rgba,
+                retro::renderer::texture_internal_format::rgba16f,
                 retro::renderer::texture_filtering::linear,
                 retro::renderer::texture_wrapping::clamp_to_edge, viewport_size}};
         retro::renderer::frame_buffer_attachment depth_attachment = {
-            retro::renderer::texture_format::depth_component32f,
-            retro::renderer::texture_internal_format::rgba,
+            retro::renderer::texture_internal_format::depth_component32f,
             retro::renderer::texture_filtering::linear,
             retro::renderer::texture_wrapping::clamp_to_edge, viewport_size};
         m_geometry_fbo = std::make_shared<retro::renderer::frame_buffer>(
@@ -214,8 +210,7 @@ void ssao_app::setup_fbo()
         std::vector<retro::renderer::frame_buffer_attachment> attachments = {
             //  SSAO Color
             {
-                retro::renderer::texture_format::r16f,
-                retro::renderer::texture_internal_format::red,
+                retro::renderer::texture_internal_format::r16f,
                 retro::renderer::texture_filtering::nearest,
                 retro::renderer::texture_wrapping::none, viewport_size}};
         m_ssao_color_fbo = std::make_shared<retro::renderer::frame_buffer>(
@@ -227,8 +222,7 @@ void ssao_app::setup_fbo()
         std::vector<retro::renderer::frame_buffer_attachment> attachments = {
             //  SSAO Blur
             {
-                retro::renderer::texture_format::r16f,
-                retro::renderer::texture_internal_format::red,
+                retro::renderer::texture_internal_format::r16f,
                 retro::renderer::texture_filtering::nearest,
                 retro::renderer::texture_wrapping::none, viewport_size}};
         m_ssao_blur_fbo = std::make_shared<

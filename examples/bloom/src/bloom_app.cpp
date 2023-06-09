@@ -3,7 +3,10 @@
 #include <glm/ext/matrix_transform.hpp>
 #include <core/entry_point.h>
 #include <glm/gtc/type_ptr.hpp>
-#include <imgui.h>
+
+#include <renderer/materials/material.h>
+#include <utils/files.h>
+#include <logging/logger.h>
 
 bloom_app::bloom_app() : application("./")
 {
@@ -17,6 +20,12 @@ bloom_app::bloom_app() : application("./")
     m_model_pos = glm::vec3(0.0f);
     setup_bloom();
     m_final_render_target = m_lighting_fbo->get_attachment_id(0);
+
+    ImGuiNodeEditor::Config config;
+    m_editor_context = ImGuiNodeEditor::CreateEditor(&config);
+
+    ImGuiIO &io = ImGui::GetIO();
+    io.Fonts->AddFontFromFileTTF("../resources/fonts/arial.ttf", 16);
 }
 
 bloom_app::~bloom_app()
@@ -133,6 +142,8 @@ void bloom_app::on_update()
 
     // 6. ImGui Debug
     retro::ui::engine_ui::begin_frame();
+
+    draw_editor();
 
     ImGui::Begin("Model");
     ImGui::SliderFloat3("Position", glm::value_ptr(m_model_pos), -50.0f, 50.0f);
@@ -330,6 +341,108 @@ void bloom_app::setup_bloom()
     // Attach first bloom mip texture to rbo.
     m_bloom_fbo->attach_texture(m_bloom_mips[0].texture, GL_FRAMEBUFFER, retro::renderer::render_buffer_attachment_type::color, GL_TEXTURE_2D, 0);
     m_bloom_fbo->initialize();
+}
+
+void bloom_app::draw_editor()
+{
+    // Node Editor Widget
+    if (ImGui::Button("Save Material")) {
+
+    }
+	ImGui::Separator();
+
+    ImGuiNodeEditor::SetCurrentEditor(m_editor_context);
+    ImGuiNodeEditor::Begin("My Editor", ImVec2(0.0, 0.0f));
+
+    int uniqueId = 1;
+
+    for (auto &material_texture_type : material_texture_types_array)
+    {
+        auto& texture = m_material->get_data().textures.at(material_texture_type).texture;
+        auto basic_id = uniqueId++;
+        ImGuiNodeEditor::BeginNode(basic_id);
+        ImGui::Text(retro::renderer::material::get_material_texture_type_to_string(material_texture_type).c_str());
+		ImGui::Dummy(ImVec2(80, 0));
+		ImGui::SameLine();
+        ImGuiNodeEditor::BeginPin(uniqueId++, ImGuiNodeEditor::PinKind::Output);
+        ImGui::Text("Out ->");
+        ImGuiNodeEditor::EndPin();
+
+        ImGui::Text("Size: (%dx%d)", texture->get_data().width, texture->get_data().height);
+        if (ImGui::ImageButton((ImTextureID)texture->get_handle_id(), { 128, 128 }, { 0, 1 }, { 1, 0 })) {
+            std::string file_path = retro::files::open_file_dialog("Open Material Texture", { "Texture Files (*.jpg;*.png)", "*.png", "*.jpg" });
+            if (!file_path.empty()) {
+                retro::renderer::material_texture new_texture;
+                new_texture.is_enabled = true;
+                new_texture.type = material_texture_type;
+                new_texture.texture = retro::renderer::texture_loader::load_texture_from_file(file_path);
+                m_material->set_texture(new_texture);
+                RT_TRACE("Loaded material texture image '{}'", file_path);
+            }
+        }
+        ImGuiNodeEditor::EndNode();
+    }
+
+    ImGuiNodeEditor::BeginNode(uniqueId++);
+    ImGui::Text("Material");
+
+    for (auto& material_texture_type : material_texture_types_array)
+    {
+        ImGuiNodeEditor::BeginPin(uniqueId++, ImGuiNodeEditor::PinKind::Input);
+        ImGui::Text("-> %s", retro::renderer::material::get_material_texture_type_to_string(material_texture_type).c_str());
+        ImGuiNodeEditor::EndPin();
+    }
+
+    ImGuiNodeEditor::EndNode();
+
+	for (auto& linkInfo : m_editor_links)
+        ImGuiNodeEditor::Link(linkInfo.id, linkInfo.input_id, linkInfo.output_id);
+
+	// ==================================================================================================
+	// Interaction Handling Section
+	// This was coppied from BasicInteration.cpp. See that file for commented code.
+
+	// Handle creation action ---------------------------------------------------------------------------
+	if (ImGuiNodeEditor::BeginCreate())
+	{
+        ImGuiNodeEditor::PinId inputPinId, outputPinId;
+		if (ImGuiNodeEditor::QueryNewLink(&inputPinId, &outputPinId))
+		{
+			if (inputPinId && outputPinId)
+			{
+				if (ImGuiNodeEditor::AcceptNewItem())
+				{
+					m_editor_links.push_back({ ImGuiNodeEditor::LinkId(m_editor_next_link_id++), inputPinId, outputPinId });
+                    ImGuiNodeEditor::Link(m_editor_links.back().id, m_editor_links.back().input_id, m_editor_links.back().output_id);
+				}
+			}
+		}
+	}
+    ImGuiNodeEditor::EndCreate();
+
+	// Handle deletion action ---------------------------------------------------------------------------
+	if (ImGuiNodeEditor::BeginDelete())
+	{
+        ImGuiNodeEditor::LinkId deletedLinkId;
+		while (ImGuiNodeEditor::QueryDeletedLink(&deletedLinkId))
+		{
+			if (ImGuiNodeEditor::AcceptDeletedItem())
+			{
+				for (auto& link : m_editor_links)
+				{
+					if (link.id == deletedLinkId)
+					{
+						m_editor_links.erase(&link);
+						break;
+					}
+				}
+			}
+		}
+	}
+    ImGuiNodeEditor::EndDelete();
+
+    ImGuiNodeEditor::End();
+    ImGuiNodeEditor::SetCurrentEditor(nullptr);
 }
 
 void bloom_app::on_handle_event(retro::events::base_event &event)

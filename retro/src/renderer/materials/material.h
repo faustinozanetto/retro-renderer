@@ -52,7 +52,7 @@ namespace retro::renderer
         material_data(const std::map<material_texture_type, material_texture> &textures, const glm::vec3 &albedo = glm::vec3(0.0f), const glm::vec3 &emissive = glm::vec3(0.0f), float roughness = 1.0f, float metallic = 0.0f, float ambient_occlusion = 1.0f, float emissive_strength = 0.0f, float tilling = 1.0f) : textures(textures), albedo(albedo), emissive(emissive), roughness(roughness), metallic(metallic), ambient_occlusion(ambient_occlusion), emissive_strength(emissive_strength), tilling(tilling) {}
     };
 
-    constexpr material_texture_type types[] = {
+    constexpr material_texture_type material_texture_types_array[] = {
         material_texture_type::albedo,
         material_texture_type::normal,
         material_texture_type::roughness,
@@ -75,6 +75,7 @@ namespace retro::renderer
         const material_data &get_data() const { return m_data; }
 
         /* Setters */
+        void set_texture(const material_texture& material_texture);
         void set_albedo(const glm::vec3 &albedo) { m_data.albedo = albedo; }
         void set_ambient_occlusion(float ambient_occlusion) { m_data.ambient_occlusion = ambient_occlusion; }
         void set_roughness(float roughness) { m_data.roughness = roughness; }

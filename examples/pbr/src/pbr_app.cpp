@@ -198,31 +198,26 @@ void pbr_app::setup_fbo()
         std::vector<retro::renderer::frame_buffer_attachment> attachments = {
             //  Position
             {
-                retro::renderer::texture_format::rgba16f,
-                retro::renderer::texture_internal_format::rgba,
+                retro::renderer::texture_internal_format::rgba16f,
                 retro::renderer::texture_filtering::linear,
                 retro::renderer::texture_wrapping::clamp_to_edge, viewport_size},
             // Albedo
             {
-                retro::renderer::texture_format::rgba16f,
-                retro::renderer::texture_internal_format::rgba,
+                retro::renderer::texture_internal_format::rgba16f,
                 retro::renderer::texture_filtering::linear,
                 retro::renderer::texture_wrapping::clamp_to_edge, viewport_size},
             // Normals
             {
-                retro::renderer::texture_format::rgba16f,
-                retro::renderer::texture_internal_format::rgba,
+                retro::renderer::texture_internal_format::rgba16f,
                 retro::renderer::texture_filtering::linear,
                 retro::renderer::texture_wrapping::clamp_to_edge, viewport_size},
             // Roughness Metallic AO
             {
-                retro::renderer::texture_format::rgba16f,
-                retro::renderer::texture_internal_format::rgba,
+                retro::renderer::texture_internal_format::rgba16f,
                 retro::renderer::texture_filtering::linear,
                 retro::renderer::texture_wrapping::clamp_to_edge, viewport_size}};
         retro::renderer::frame_buffer_attachment depth_attachment = {
-            retro::renderer::texture_format::depth_component32f,
-            retro::renderer::texture_internal_format::rgba,
+            retro::renderer::texture_internal_format::depth_component32f,
             retro::renderer::texture_filtering::linear,
             retro::renderer::texture_wrapping::clamp_to_edge, viewport_size};
         m_geometry_fbo = std::make_shared<retro::renderer::frame_buffer>(

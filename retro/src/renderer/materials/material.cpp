@@ -14,7 +14,7 @@ namespace retro::renderer
         m_data = material_data;
 
         // Fill in the textures that were not provided in the constructor
-        for (material_texture_type type : types)
+        for (material_texture_type type : material_texture_types_array)
         {
             if (m_data.textures.contains(type))
                 continue;
@@ -62,6 +62,11 @@ namespace retro::renderer
             asset_pack->save_asset(texture.second.texture);
         }
     }
+
+	void material::set_texture(const material_texture& material_texture)
+	{
+        m_data.textures[material_texture.type] = material_texture;
+	}
 
     void material::serialize(std::ofstream &asset_pack_file)
     {

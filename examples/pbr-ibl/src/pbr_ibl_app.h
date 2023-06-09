@@ -64,11 +64,6 @@ private:
     bool m_use_irradiance;
 
     /* Model Variables */
-    std::shared_ptr<retro::renderer::texture> m_albedo_texture;
-    std::shared_ptr<retro::renderer::texture> m_normal_texture;
-    std::shared_ptr<retro::renderer::texture> m_roughness_texture;
-    std::shared_ptr<retro::renderer::texture> m_metallic_texture;
-    std::shared_ptr<retro::renderer::texture> m_ao_texture;
     std::shared_ptr<retro::renderer::shader> m_geometry_shader;
     std::shared_ptr<retro::renderer::model> m_model;
 

@@ -26,6 +26,7 @@ project "retro"
         "%{include_dirs.spdlog}",
         "%{include_dirs.stb}",
         "%{include_dirs.imgui}",
+        "%{include_dirs.imgui_node_editor}",
         "%{include_dirs.assimp}",
         "%{include_dirs.freetype}",
         "%{include_dirs.openal}",
@@ -37,7 +38,8 @@ project "retro"
 	{
         "glfw",
         "glad",
-        "imgui"
+        "imgui",
+        "imgui_node_editor"
     }
 
     filter "configurations:debug"

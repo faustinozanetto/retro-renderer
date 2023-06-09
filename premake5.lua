@@ -20,6 +20,7 @@ group "Dependencies"
 	include "third_party/glfw"
 	include "third_party/glad"
 	include "third_party/imgui"
+	include "third_party/imgui_node_editor"
 group ""
 
 group "core"

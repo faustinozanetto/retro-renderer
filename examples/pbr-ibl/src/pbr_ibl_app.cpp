@@ -36,9 +36,9 @@ pbr_ibl_app::~pbr_ibl_app()
 
 void pbr_ibl_app::on_update()
 {
+    // 1. Render to geometry buffer
     retro::renderer::renderer::set_state(retro::renderer::renderer_state::blend, false);
     retro::renderer::renderer::set_state(retro::renderer::renderer_state::depth, true);
-    // 1. Render to geometry buffer
     m_geometry_fbo->bind();
     retro::renderer::renderer::clear_screen();
     m_geometry_shader->bind();
@@ -47,9 +47,9 @@ void pbr_ibl_app::on_update()
 
     {
         glm::mat4 model = glm::mat4(1.0f);
-        //  model = glm::rotate(model, static_cast<float>(glfwGetTime()), {0, 1, 0});
+        model = glm::rotate(model, glm::sin(retro::core::time::get_time()), {0, 1, 0});
         model = glm::translate(model, m_object_pos);
-        model = glm::scale(model, glm::vec3(3));
+        model = glm::scale(model, glm::vec3(0.02f));
         const glm::mat4 rotation = glm::toMat4(glm::quat(m_object_rot));
         model *= rotation;
         m_geometry_shader->set_mat4("u_transform", model);
@@ -57,33 +57,6 @@ void pbr_ibl_app::on_update()
         retro::renderer::renderer::submit_model(m_model);
     }
 
-    /*
-     {
-         int nrRows = 7;
-         int nrColumns = 7;
-         float spacing = 2.5f;
-         glm::mat4 model = glm::mat4(1.0f);
-         for (int row = 0; row < nrRows; ++row)
-         {
-             m_debug_material->set_metallic((float)row / (float)nrRows);
-             for (int col = 0; col < nrColumns; ++col)
-             {
-                 // we clamp the roughness to 0.025 - 1.0 as perfectly smooth surfaces (roughness of 0.0) tend to look a bit off
-                 // on direct lighting.
-                 m_debug_material->set_roughness(glm::clamp((float)col / (float)nrColumns, 0.05f, 1.0f));
-                 model = glm::mat4(1.0f);
-                 model = glm::translate(model, glm::vec3(
-                                                   (float)(col - (nrColumns / 2)) * spacing,
-                                                   (float)(row - (nrRows / 2)) * spacing,
-                                                   -2.0f));
-                 m_debug_material->set_albedo({0.5f, 0.0f, 0.0f});
-                 m_geometry_shader->set_mat4("u_transform", model);
-                 m_debug_material->bind(m_geometry_shader);
-                 retro::renderer::renderer::submit_model(m_debug_sphere);
-             }
-         }
-     }
-     */
     {
         glm::mat4 model = glm::mat4(1.0f);
         model = glm::translate(model, m_point_light->get_position());
@@ -226,66 +199,15 @@ void pbr_ibl_app::load_shaders()
 
 void pbr_ibl_app::load_texture()
 {
-    m_albedo_texture = retro::renderer::texture_loader::load_texture_from_file(
-        "resources/models/crate/textures/crate_baseColor.jpeg");
-    m_normal_texture = retro::renderer::texture_loader::load_texture_from_file(
-        "resources/models/crate/textures/crate_normal.jpeg");
-    m_roughness_texture = retro::renderer::texture_loader::load_texture_from_file(
-        "resources/models/crate/textures/crate_metallicRoughness.png");
-    m_metallic_texture = retro::renderer::texture_loader::load_texture_from_file(
-        "resources/models/crate/textures/crate_metallicRoughness.png");
-    //  m_ao_texture = retro::renderer::texture_loader::load_texture_from_file("resources/models/crate/textures/tv-ao.jpeg");
 }
 
 void pbr_ibl_app::setup_model()
 {
     m_object_pos = glm::vec3(0);
     m_object_rot = glm::vec3(0);
-    m_model = retro::renderer::model_loader::load_model_from_file("resources/models/crate/scene.gltf");
+    m_model = retro::renderer::model_loader::load_model_from_file("../resources/models/robot/robot.obj");
 
-    retro::renderer::material_texture albedo;
-    albedo.texture = m_albedo_texture;
-    albedo.is_enabled = true;
-    albedo.type = retro::renderer::material_texture_type::albedo;
-
-    retro::renderer::material_texture normal;
-    normal.texture = m_normal_texture;
-    normal.is_enabled = true;
-    normal.type = retro::renderer::material_texture_type::normal;
-
-    retro::renderer::material_texture roughness;
-    roughness.texture = m_roughness_texture;
-    roughness.is_enabled = true;
-    roughness.type = retro::renderer::material_texture_type::roughness;
-
-    retro::renderer::material_texture metallic;
-    metallic.texture = m_metallic_texture;
-    metallic.is_enabled = true;
-    metallic.type = retro::renderer::material_texture_type::metallic;
-
-    retro::renderer::material_texture ambient_occlusion;
-    ambient_occlusion.texture = nullptr;
-    ambient_occlusion.is_enabled = false;
-    ambient_occlusion.type = retro::renderer::material_texture_type::ambient_occlusion;
-
-    std::map<retro::renderer::material_texture_type, int> material_bindings;
-    material_bindings[retro::renderer::material_texture_type::albedo] = 0;
-    material_bindings[retro::renderer::material_texture_type::normal] = 1;
-    material_bindings[retro::renderer::material_texture_type::roughness] = 2;
-    material_bindings[retro::renderer::material_texture_type::metallic] = 3;
-    material_bindings[retro::renderer::material_texture_type::ambient_occlusion] = 4;
-
-    std::map<retro::renderer::material_texture_type, retro::renderer::material_texture> textures;
-    textures[retro::renderer::material_texture_type::albedo] = albedo;
-    textures[retro::renderer::material_texture_type::normal] = normal;
-    textures[retro::renderer::material_texture_type::roughness] = roughness;
-    textures[retro::renderer::material_texture_type::metallic] = metallic;
-    textures[retro::renderer::material_texture_type::ambient_occlusion] = ambient_occlusion;
-
-    retro::renderer::material_data material_data = {textures};
-
-    m_material = std::make_shared<retro::renderer::material>("material", material_data, material_bindings);
-    m_material->set_ambient_occlusion(1.0f);
+    m_material = retro::renderer::material_loader::load_material_from_file("../resources/materials/robot.rrm");
 }
 
 void pbr_ibl_app::setup_debug_model()
@@ -545,7 +467,7 @@ void pbr_ibl_app::setup_environment_fbo()
     m_environment_capture_rbo = std::make_shared<retro::renderer::render_buffer>(
         m_environment_map_size, m_environment_map_size, retro::renderer::texture_internal_format::depth_component24);
     m_environment_capture_rbo->attach_to_frame_buffer(retro::renderer::render_buffer_attachment_type::depth);
-    //m_environment_capture_fbo->initialize();
+    // m_environment_capture_fbo->initialize();
 }
 
 void pbr_ibl_app::setup_environment()
@@ -736,13 +658,13 @@ void pbr_ibl_app::render_skybox()
 void pbr_ibl_app::on_handle_event(retro::events::base_event &event)
 {
     retro::events::event_dispatcher dispatcher(event);
-    //  dispatcher.dispatch<retro::events::window_resize_event>(BIND_EVENT_FN(pbr_ibl_app::on_resize_ssao));
+    dispatcher.dispatch<retro::events::window_resize_event>(BIND_EVENT_FN(pbr_ibl_app::on_window_resize));
 }
 
 bool pbr_ibl_app::on_window_resize(retro::events::window_resize_event &resize_event)
 {
-    m_geometry_fbo->resize(resize_event.get_size());
-    m_final_fbo->resize(resize_event.get_size());
+    m_geometry_fbo->resize(resize_event.get_size(), true);
+    m_final_fbo->resize(resize_event.get_size(), true);
     return application::on_window_resize(resize_event);
 }
 
