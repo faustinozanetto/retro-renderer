@@ -361,7 +361,7 @@ void bloom_app::draw_editor()
         auto& texture = m_material->get_data().textures.at(material_texture_type).texture;
         auto basic_id = uniqueId++;
         ImGuiNodeEditor::BeginNode(basic_id);
-        ImGui::Text(retro::renderer::material::get_material_texture_type_to_string(material_texture_type).c_str());
+        ImGui::Text("Texture %s", retro::renderer::material::get_material_texture_type_to_string(material_texture_type).c_str());
 		ImGui::Dummy(ImVec2(80, 0));
 		ImGui::SameLine();
         ImGuiNodeEditor::BeginPin(uniqueId++, ImGuiNodeEditor::PinKind::Output);
@@ -383,9 +383,43 @@ void bloom_app::draw_editor()
         ImGuiNodeEditor::EndNode();
     }
 
+
     ImGuiNodeEditor::BeginNode(uniqueId++);
     ImGui::Text("Material");
 
+    ImGui::Text("Parameters");
+	ImGui::PushItemWidth(175);
+    glm::vec3 albedo = m_material->get_data().albedo;
+    if (ImGui::ColorPicker3("Albedo", glm::value_ptr(albedo), ImGuiColorEditFlags_NoSidePreview)) {
+        m_material->set_albedo(albedo);
+    }
+    glm::vec3 emissive = m_material->get_data().emissive;
+	if (ImGui::ColorPicker3("Emissive",glm::value_ptr(emissive), ImGuiColorEditFlags_NoSidePreview)) {
+		m_material->set_emissive(emissive);
+	}
+    float roughness = m_material->get_data().roughness;
+    if (ImGui::SliderFloat("Roughness", &roughness, 0.0f, 1.0f, "%.3f")) {
+        m_material->set_roughness(roughness);
+    }
+	float metallic = m_material->get_data().metallic;
+	if (ImGui::SliderFloat("Metallic", &metallic, 0.0f, 1.0f)) {
+		m_material->set_metallic(metallic);
+	}
+	float ambient_occlusion = m_material->get_data().ambient_occlusion;
+	if (ImGui::SliderFloat("Ambient Occlusion", &ambient_occlusion, 0.0f, 1.0f)) {
+		m_material->set_ambient_occlusion(ambient_occlusion);
+	}
+	float emissive_strength = m_material->get_data().emissive_strength;
+	if (ImGui::SliderFloat("Emissive Strength", &emissive_strength, 0.0f, 30.0f)) {
+		m_material->set_emissive_strength(emissive_strength);
+	}
+	float tilling = m_material->get_data().tilling;
+	if (ImGui::SliderFloat("Tilling", &tilling, 0.0f, 10.0f)) {
+		m_material->set_tilling(tilling);
+	}
+    ImGui::PopItemWidth();
+
+    ImGui::Text("Textures");
     for (auto& material_texture_type : material_texture_types_array)
     {
         ImGuiNodeEditor::BeginPin(uniqueId++, ImGuiNodeEditor::PinKind::Input);

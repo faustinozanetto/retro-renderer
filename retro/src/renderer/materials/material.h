@@ -77,7 +77,10 @@ namespace retro::renderer
         /* Setters */
         void set_texture(const material_texture& material_texture);
         void set_albedo(const glm::vec3 &albedo) { m_data.albedo = albedo; }
+        void set_emissive(const glm::vec3 & emissive) { m_data.emissive = emissive; }
         void set_ambient_occlusion(float ambient_occlusion) { m_data.ambient_occlusion = ambient_occlusion; }
+        void set_emissive_strength(float emissive_strength) { m_data.emissive_strength = emissive_strength; }
+        void set_tilling(float tilling) { m_data.tilling = tilling; }
         void set_roughness(float roughness) { m_data.roughness = roughness; }
         void set_metallic(float metallic) { m_data.metallic = metallic; }
 

@@ -25,6 +25,7 @@ group ""
 
 group "core"
     include "retro"
+	include "material_editor"
 group ""
 
 group "utils"
