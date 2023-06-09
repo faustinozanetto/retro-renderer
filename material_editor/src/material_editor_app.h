@@ -2,6 +2,8 @@
 
 #include "panels/material_editor_panel.h"
 
+#define IMGUI_DEFINE_MATH_OPERATORS
+
 #include <retro.h>
 
 namespace retro::material_editor

@@ -1,4 +1,5 @@
 #pragma once
+
 #include "assets/asset.h"
 
 namespace retro::renderer

@@ -174,7 +174,7 @@ namespace retro::renderer
             data.textures.insert({texture_type, material_texture});
         }
 
-        // Deserialize material texture bindings
+        // De serialize material texture bindings
         std::map<material_texture_type, int> material_bindings;
 
         int num_bindings;
@@ -193,6 +193,17 @@ namespace retro::renderer
         auto created_material = std::make_shared<material>(metadata.file_path, data, material_bindings);
         created_material->set_metadata(metadata);
         return created_material;
+    }
+
+    std::vector<material_texture_type> material::get_material_texture_types()
+    {
+        return { material_texture_type::albedo,
+        material_texture_type::normal,
+        material_texture_type::roughness,
+        material_texture_type::metallic,
+        material_texture_type::ambient_occlusion,
+        material_texture_type::emissive,
+        material_texture_type::opacity };
     }
 
     material_texture_type material::get_material_texture_type_from_string(const std::string &texture_type)
