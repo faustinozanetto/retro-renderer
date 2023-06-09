@@ -17,7 +17,7 @@ namespace retro::core
     class application
     {
     public:
-        application(const std::string &working_directory);
+        application(const std::string &working_directory, const renderer::window_specification& window_specification = {"Retro Renderer", 1280, 720});
         virtual ~application();
 
         /* Getters */

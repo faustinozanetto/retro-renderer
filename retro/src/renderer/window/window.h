@@ -18,10 +18,16 @@ namespace retro::renderer
         std::function<void(events::base_event &)> event_func;
     };
 
+    struct window_specification {
+		std::string title;
+		int width;
+		int height;
+    };
+
     class window
     {
     public:
-        window(int width, int height, const std::string &title);
+        window(const window_specification& window_specification);
         ~window();
 
         /* Getters */

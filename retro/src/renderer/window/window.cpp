@@ -5,15 +5,16 @@
 
 namespace retro::renderer
 {
-    window::window(int width, int height, const std::string& title)
+    window::window(const window_specification& window_specification)
     {
+        m_data.title = window_specification.title;
+        m_data.width = window_specification.width;
+        m_data.height = window_specification.height;
         RT_TRACE("Retro Renderer | Window Initialization");
-        RT_TRACE("   - Title: {0}", title);
-        RT_TRACE("   - Width: {0}", width);
-        RT_TRACE("   - Height: {0}", height);
-        m_data.width = width;
-        m_data.height = height;
-        m_data.title = title;
+        RT_TRACE("   - Title: {0}", m_data.title);
+        RT_TRACE("   - Width: {0}", m_data.width);
+        RT_TRACE("   - Height: {0}", m_data.height);
+
 
         initialize();
     }

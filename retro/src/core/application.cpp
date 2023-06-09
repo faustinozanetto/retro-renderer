@@ -5,7 +5,7 @@
 #include "scene/scene_manager.h"
 #include "assets/asset_manager.h"
 #include "renderer/renderer/renderer.h"
-#include "interfaces/engine_ui.h"
+#include "ui/engine_ui.h"
 
 #include <filesystem>
 
@@ -13,7 +13,7 @@ namespace retro::core
 {
     application* application::s_instance = nullptr;
 
-    application::application(const std::string& working_directory)
+    application::application(const std::string& working_directory, const renderer::window_specification& window_specification)
     {
         logging::logger::initialize();
         std::filesystem::current_path(working_directory);
@@ -21,7 +21,7 @@ namespace retro::core
         s_instance = this;
         time::update_time();
         /* Window */
-        m_window = std::make_shared<renderer::window>(1280, 720, "Retro Renderer");
+        m_window = std::make_shared<renderer::window>(window_specification);
         m_window->set_event_function(BIND_EVENT_FN(application::on_event));
         /* Assets */
         assets::asset_manager::initialize();
