@@ -7,6 +7,7 @@ namespace retro::renderer
     {
         m_buffer_target = buffer_target;
         m_count = count;
+        // Create buffer
         glGenBuffers(1, &m_handle_id);
     }
 

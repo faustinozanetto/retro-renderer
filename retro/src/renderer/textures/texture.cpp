@@ -462,9 +462,9 @@ namespace retro::renderer
             // Create all 6 faces.
             for (unsigned int i = 0; i < 6; ++i)
             {
-                glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, get_texture_format_to_opengl(format),
+                glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, get_texture_internal_format_to_opengl(m_data.internal_format),
                              m_data.width, m_data.height, 0,
-                             get_texture_internal_format_to_opengl(m_data.internal_format),
+                             get_texture_format_to_opengl(format),
                              GL_FLOAT, m_data.data);
             }
 

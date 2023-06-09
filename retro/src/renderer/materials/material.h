@@ -74,6 +74,12 @@ namespace retro::renderer
         /* Getters */
         const material_data &get_data() const { return m_data; }
 
+        /* Setters */
+        void set_albedo(const glm::vec3 &albedo) { m_data.albedo = albedo; }
+        void set_ambient_occlusion(float ambient_occlusion) { m_data.ambient_occlusion = ambient_occlusion; }
+        void set_roughness(float roughness) { m_data.roughness = roughness; }
+        void set_metallic(float metallic) { m_data.metallic = metallic; }
+
         /* Asset */
         void save_textures(const std::shared_ptr<assets::asset_pack> &asset_pack);
         void serialize(std::ofstream &asset_pack_file) override;

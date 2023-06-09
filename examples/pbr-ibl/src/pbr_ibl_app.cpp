@@ -36,6 +36,8 @@ pbr_ibl_app::~pbr_ibl_app()
 
 void pbr_ibl_app::on_update()
 {
+    retro::renderer::renderer::set_state(retro::renderer::renderer_state::blend, false);
+    retro::renderer::renderer::set_state(retro::renderer::renderer_state::depth, true);
     // 1. Render to geometry buffer
     m_geometry_fbo->bind();
     retro::renderer::renderer::clear_screen();
@@ -53,12 +55,6 @@ void pbr_ibl_app::on_update()
         m_geometry_shader->set_mat4("u_transform", model);
         m_material->bind(m_geometry_shader);
         retro::renderer::renderer::submit_model(m_model);
-    }
-    {
-        glm::mat4 model = glm::mat4(1.0f);
-        m_geometry_shader->set_mat4("u_transform", model);
-        m_debug_material->bind(m_geometry_shader);
-        retro::renderer::renderer::submit_model(m_debug_sphere);
     }
 
     /*
@@ -98,8 +94,11 @@ void pbr_ibl_app::on_update()
     m_geometry_shader->un_bind();
     m_geometry_fbo->un_bind();
 
+    retro::renderer::renderer::set_state(retro::renderer::renderer_state::depth, false);
+
     // 2. Render unsing the pbr shader
     m_final_fbo->bind();
+    retro::renderer::renderer::clear_screen();
     m_lighting_shader->bind();
     retro::renderer::renderer::bind_texture(0, m_geometry_fbo->get_attachment_id(0));              // Position
     retro::renderer::renderer::bind_texture(1, m_geometry_fbo->get_attachment_id(1));              // Albedo
@@ -156,22 +155,6 @@ void pbr_ibl_app::on_update()
     {
         m_use_irradiance = use_irradiance;
     }
-    ImGui::End();
-
-    ImGui::Begin("Debug Model");
-
-    float roughness = m_debug_roughness;
-    if (ImGui::SliderFloat("Roughness", &roughness, 0.0f, 1.0f))
-    {
-        m_debug_roughness = roughness;
-    }
-    float metallic = m_debug_metallic;
-    if (ImGui::SliderFloat("Metallic", &metallic, 0.0f, 1.0f))
-    {
-        m_debug_metallic = metallic;
-    }
-    m_debug_material->set_roughness(m_debug_roughness);
-    m_debug_material->set_metallic(m_debug_metallic);
     ImGui::End();
 
     ImGui::Begin("Object");
@@ -292,14 +275,16 @@ void pbr_ibl_app::setup_model()
     material_bindings[retro::renderer::material_texture_type::metallic] = 3;
     material_bindings[retro::renderer::material_texture_type::ambient_occlusion] = 4;
 
-    std::unordered_map<retro::renderer::material_texture_type, retro::renderer::material_texture> textures;
+    std::map<retro::renderer::material_texture_type, retro::renderer::material_texture> textures;
     textures[retro::renderer::material_texture_type::albedo] = albedo;
     textures[retro::renderer::material_texture_type::normal] = normal;
     textures[retro::renderer::material_texture_type::roughness] = roughness;
     textures[retro::renderer::material_texture_type::metallic] = metallic;
     textures[retro::renderer::material_texture_type::ambient_occlusion] = ambient_occlusion;
 
-    m_material = std::make_shared<retro::renderer::material>(textures, material_bindings);
+    retro::renderer::material_data material_data = {textures};
+
+    m_material = std::make_shared<retro::renderer::material>("material", material_data, material_bindings);
     m_material->set_ambient_occlusion(1.0f);
 }
 
@@ -308,16 +293,6 @@ void pbr_ibl_app::setup_debug_model()
     m_debug_roughness = 1.0f;
     m_debug_metallic = 1.0f;
     m_debug_sphere = retro::renderer::model_loader::load_model_from_file("../resources/models/sphere.obj");
-
-    std::map<retro::renderer::material_texture_type, int> material_bindings;
-    material_bindings[retro::renderer::material_texture_type::albedo] = 0;
-    material_bindings[retro::renderer::material_texture_type::normal] = 1;
-    material_bindings[retro::renderer::material_texture_type::roughness] = 2;
-    material_bindings[retro::renderer::material_texture_type::metallic] = 3;
-    material_bindings[retro::renderer::material_texture_type::ambient_occlusion] = 4;
-
-    m_debug_material = std::make_shared<retro::renderer::material>(material_bindings);
-    m_debug_material->set_albedo(glm::vec3(1));
 }
 
 void pbr_ibl_app::setup_camera()
@@ -335,31 +310,26 @@ void pbr_ibl_app::setup_fbo()
         std::vector<retro::renderer::frame_buffer_attachment> attachments = {
             //  Position
             {
-                retro::renderer::texture_format::rgba16f,
-                retro::renderer::texture_internal_format::rgba,
+                retro::renderer::texture_internal_format::rgba16f,
                 retro::renderer::texture_filtering::linear,
                 retro::renderer::texture_wrapping::clamp_to_edge, viewport_size},
             // Albedo
             {
-                retro::renderer::texture_format::rgba16f,
-                retro::renderer::texture_internal_format::rgba,
+                retro::renderer::texture_internal_format::rgba16f,
                 retro::renderer::texture_filtering::linear,
                 retro::renderer::texture_wrapping::clamp_to_edge, viewport_size},
             // Normals
             {
-                retro::renderer::texture_format::rgba16f,
-                retro::renderer::texture_internal_format::rgba,
+                retro::renderer::texture_internal_format::rgba16f,
                 retro::renderer::texture_filtering::linear,
                 retro::renderer::texture_wrapping::clamp_to_edge, viewport_size},
             // Roughness Metallic AO
             {
-                retro::renderer::texture_format::rgba16f,
-                retro::renderer::texture_internal_format::rgba,
+                retro::renderer::texture_internal_format::rgba16f,
                 retro::renderer::texture_filtering::linear,
                 retro::renderer::texture_wrapping::clamp_to_edge, viewport_size}};
         retro::renderer::frame_buffer_attachment depth_attachment = {
-            retro::renderer::texture_format::depth_component32f,
-            retro::renderer::texture_internal_format::rgba,
+            retro::renderer::texture_internal_format::depth_component32f,
             retro::renderer::texture_filtering::linear,
             retro::renderer::texture_wrapping::clamp_to_edge, viewport_size};
         m_geometry_fbo = std::make_shared<retro::renderer::frame_buffer>(
@@ -372,14 +342,12 @@ void pbr_ibl_app::setup_fbo()
         std::vector<retro::renderer::frame_buffer_attachment> attachments = {
             //  Position
             {
-                retro::renderer::texture_format::rgba16f,
-                retro::renderer::texture_internal_format::rgba,
+                retro::renderer::texture_internal_format::rgba16f,
                 retro::renderer::texture_filtering::linear,
                 retro::renderer::texture_wrapping::clamp_to_edge, viewport_size},
         };
         retro::renderer::frame_buffer_attachment depth_attachment = {
-            retro::renderer::texture_format::depth_component32f,
-            retro::renderer::texture_internal_format::rgba,
+            retro::renderer::texture_internal_format::depth_component32f,
             retro::renderer::texture_filtering::linear,
             retro::renderer::texture_wrapping::clamp_to_edge, viewport_size};
         m_final_fbo = std::make_shared<retro::renderer::frame_buffer>(attachments, viewport_size.x, viewport_size.y,
@@ -574,11 +542,10 @@ void pbr_ibl_app::setup_environment_fbo()
     // ----------------------
     glm::ivec2 viewport_size = retro::renderer::renderer::get_viewport_size();
     m_environment_capture_fbo = std::make_shared<retro::renderer::frame_buffer>(viewport_size.x, viewport_size.y);
-    m_environment_capture_fbo->initialize();
-    m_environment_capture_fbo->bind(false);
     m_environment_capture_rbo = std::make_shared<retro::renderer::render_buffer>(
-        m_environment_map_size, m_environment_map_size, retro::renderer::texture_format::depth_component24);
+        m_environment_map_size, m_environment_map_size, retro::renderer::texture_internal_format::depth_component24);
     m_environment_capture_rbo->attach_to_frame_buffer(retro::renderer::render_buffer_attachment_type::depth);
+    //m_environment_capture_fbo->initialize();
 }
 
 void pbr_ibl_app::setup_environment()
@@ -654,7 +621,7 @@ void pbr_ibl_app::setup_environment_irradiance_map()
     m_environment_capture_fbo->bind(false);
     m_environment_capture_rbo->bind();
     m_environment_capture_rbo->set_storage_parameters(m_irradiance_map_size, m_irradiance_map_size,
-                                                      retro::renderer::texture_format::depth_component24);
+                                                      retro::renderer::texture_internal_format::depth_component24);
 
     m_irradiance_shader->bind();
     m_irradiance_shader->set_mat4("u_projection", m_capture_projection);
@@ -700,7 +667,7 @@ void pbr_ibl_app::setup_environment_prefilter_map()
         unsigned int mipHeight = static_cast<unsigned int>(m_prefilter_map_size * std::pow(0.5, mip));
         m_environment_capture_rbo->bind();
         m_environment_capture_rbo->set_storage_parameters(mipWidth, mipHeight,
-                                                          retro::renderer::texture_format::depth_component24);
+                                                          retro::renderer::texture_internal_format::depth_component24);
         retro::renderer::renderer::set_viewport_size({mipWidth, mipHeight});
 
         float roughness = (float)mip / (float)(maxMipLevels - 1);
@@ -741,7 +708,7 @@ void pbr_ibl_app::setup_environment_brdf_map()
     m_environment_capture_fbo->bind();
     m_environment_capture_rbo->bind();
     m_environment_capture_rbo->set_storage_parameters(m_brdf_map_size, m_brdf_map_size,
-                                                      retro::renderer::texture_format::depth_component24);
+                                                      retro::renderer::texture_internal_format::depth_component24);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_environment_brdf_texture, 0);
     //   m_environment_capture_fbo->attach_texture(m_environment_brdf_texture, GL_FRAMEBUFFER, retro::renderer::render_buffer_attachment_type::color, GL_TEXTURE_2D, 0);
 

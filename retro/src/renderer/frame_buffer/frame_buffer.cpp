@@ -231,15 +231,14 @@ namespace retro::renderer
     {
         glFramebufferTexture2D(target, render_buffer::get_render_buffer_attachment_type_to_opengl(attachment),
                                texture_target, texture->get_handle_id(), mipmaps_level);
-        if (attachment == render_buffer_attachment_type::color)
-        {
-            m_attachments.push_back(texture->get_handle_id());
-            frame_buffer_attachment attachment_data;
-            attachment_data.size = {texture->get_data().width, texture->get_data().height};
-            attachment_data.filtering = texture_filtering::linear;
-            attachment_data.wrapping = texture_wrapping::clamp_to_edge;
-            attachment_data.internal_format = texture->get_data().internal_format;
-            m_attachments_data.push_back(attachment_data);
-        }
+     
+        m_attachments.push_back(texture->get_handle_id());
+        frame_buffer_attachment attachment_data;
+        attachment_data.size = {texture->get_data().width, texture->get_data().height};
+        attachment_data.filtering = texture_filtering::linear;
+        attachment_data.wrapping = texture_wrapping::clamp_to_edge;
+        attachment_data.internal_format = texture->get_data().internal_format;
+        m_attachments_data.push_back(attachment_data);
+        
     }
 }

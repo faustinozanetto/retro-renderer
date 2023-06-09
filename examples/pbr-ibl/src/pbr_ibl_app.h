@@ -30,11 +30,10 @@ public:
 
     void render_skybox();
 
-    void on_handle_event(retro::events::base_event& event) override;
-    bool on_window_resize(retro::events::window_resize_event& resize_event) override;
+    void on_handle_event(retro::events::base_event &event) override;
+    bool on_window_resize(retro::events::window_resize_event &resize_event) override;
 
 private:
-
     /* Common Variables */
     std::shared_ptr<retro::camera::camera> m_camera;
     std::shared_ptr<retro::renderer::shader> m_screen_shader;
@@ -81,7 +80,6 @@ private:
 
     /* Debug Model */
     std::shared_ptr<retro::renderer::model> m_debug_sphere;
-    std::shared_ptr<retro::renderer::material> m_debug_material;
     float m_debug_roughness;
     float m_debug_metallic;
 

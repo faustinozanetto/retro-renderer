@@ -3,20 +3,16 @@
 
 namespace retro::renderer
 {
-    render_buffer::render_buffer(int width, int height, texture_format format)
+    render_buffer::render_buffer(int width, int height, texture_internal_format internal_format)
     {
         RT_TRACE("Retro Renderer | Started creating render buffer.");
-        m_width = width;
-        m_height = height;
-        m_format = format;
+        glGenRenderbuffers(1, &m_handle_id);
+        set_storage_parameters(width, height, internal_format);
 
         RT_TRACE("  - Width: {0}px", m_width);
         RT_TRACE("  - Height: {0}px", m_height);
-        RT_TRACE("  - Format: '{0}'", texture::get_texture_format_to_string(format));
+        RT_TRACE("  - Format: '{0}'", texture::get_texture_internal_format_to_string(m_internal_format));
 
-        glGenRenderbuffers(1, &m_handle_id);
-        glBindRenderbuffer(GL_RENDERBUFFER, m_handle_id);
-        glRenderbufferStorage(GL_RENDERBUFFER, texture::get_texture_format_to_opengl(m_format), m_width, m_height);
         glBindRenderbuffer(GL_RENDERBUFFER, 0);
 
         RT_TRACE("Retro Renderer | Frame buffer created successfully.");
@@ -27,13 +23,13 @@ namespace retro::renderer
         glDeleteRenderbuffers(1, &m_handle_id);
     }
 
-    void render_buffer::set_storage_parameters(int width, int height, texture_format format)
+    void render_buffer::set_storage_parameters(int width, int height, texture_internal_format internal_format)
     {
         m_width = width;
         m_height = height;
-        m_format = format;
+        m_internal_format = internal_format;
         glBindRenderbuffer(GL_RENDERBUFFER, m_handle_id);
-        glRenderbufferStorage(GL_RENDERBUFFER, texture::get_texture_format_to_opengl(m_format), m_width, m_height);
+        glRenderbufferStorage(GL_RENDERBUFFER, texture::get_texture_internal_format_to_opengl(internal_format), m_width, m_height);
     }
 
     void render_buffer::bind()
@@ -51,7 +47,7 @@ namespace retro::renderer
         glFramebufferRenderbuffer(GL_FRAMEBUFFER, get_render_buffer_attachment_type_to_opengl(attachment_type), GL_RENDERBUFFER, m_handle_id);
     }
 
-    void render_buffer::resize(const glm::ivec2& dimensions)
+    void render_buffer::resize(const glm::ivec2 &dimensions)
     {
     }
 

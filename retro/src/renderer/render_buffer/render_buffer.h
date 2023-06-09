@@ -19,17 +19,17 @@ namespace retro::renderer
     class render_buffer
     {
     public:
-        render_buffer(int width, int height, texture_format format);
+        render_buffer(int width, int height, texture_internal_format internal_format);
         ~render_buffer();
 
         /* Getters */
         uint32_t get_handle_id() const { return m_handle_id; }
         int get_width() const { return m_width; }
         int get_height() const { return m_height; }
-        texture_format get_format() const { return m_format; }
+        texture_internal_format get_internal_format() const { return m_internal_format; }
 
         /* Setters */
-        void set_storage_parameters(int width, int height, texture_format format);
+        void set_storage_parameters(int width, int height, texture_internal_format internal_format);
 
         void bind();
         void un_bind();
@@ -44,6 +44,6 @@ namespace retro::renderer
         uint32_t m_handle_id;
         int m_width;
         int m_height;
-        texture_format m_format;
+        texture_internal_format m_internal_format;
     };
 }
