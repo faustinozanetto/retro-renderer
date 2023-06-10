@@ -11,10 +11,15 @@ namespace retro::material_editor
     class editor_graph_node_texture : public editor_graph_node
     {
     public:
-        editor_graph_node_texture();
+        editor_graph_node_texture(const std::shared_ptr<renderer::texture>& texture = nullptr);
         ~editor_graph_node_texture();
 
+        /* Getters */
+        const std::shared_ptr<renderer::texture>& get_value() const { return m_value; }
+
+        /* Functions */
         void on_draw_node() override;
+        void on_value_updated() override;
 
     private:
         void load_texture_from_file();

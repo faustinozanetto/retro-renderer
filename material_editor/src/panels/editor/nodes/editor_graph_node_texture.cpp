@@ -7,7 +7,7 @@
 
 namespace retro::material_editor
 {
-    editor_graph_node_texture::editor_graph_node_texture() : editor_graph_node()
+    editor_graph_node_texture::editor_graph_node_texture(const std::shared_ptr<renderer::texture>& texture) : editor_graph_node()
     {
         graph_node node = graph_node("Texture Node", editor_graph_panel::get_next_id());
 
@@ -17,7 +17,7 @@ namespace retro::material_editor
         output_pin.kind = graph_node_pin_kind::output;
         node.outputs.push_back(output_pin);
         m_graph_node = node;
-        m_value = nullptr;
+        m_value = texture;
     }
 
     editor_graph_node_texture::~editor_graph_node_texture()
@@ -43,11 +43,19 @@ namespace retro::material_editor
         }
     }
 
+    void editor_graph_node_texture::on_value_updated()
+    {
+		if (m_value_updated_callback) {
+			m_value_updated_callback(this);
+		}
+    }
+
     void editor_graph_node_texture::load_texture_from_file()
     {
         std::string file_path = files::open_file_dialog("Open Texture", { "Texture (*.png)", "*.png", "*.jpg" });
         if (!file_path.empty()) {
             m_value = renderer::texture_loader::load_texture_from_file(file_path);
+            on_value_updated();
         }
     }
 }

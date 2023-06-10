@@ -11,6 +11,7 @@ namespace retro::material_editor
         ~editor_graph_node_float();
 
         void on_draw_node() override;
+        void on_value_updated() override;
 
     private:
         float m_value;

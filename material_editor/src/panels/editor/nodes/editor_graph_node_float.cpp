@@ -1,6 +1,7 @@
 #include "editor_graph_node_float.h"
 
 #include "../editor_graph_panel.h"
+#include "../../../material_editor_app.h"
 
 namespace retro::material_editor
 {
@@ -24,5 +25,9 @@ namespace retro::material_editor
     void editor_graph_node_float::on_draw_node()
     {
         ImGui::SliderFloat("Value", &m_value, 0.0f, 10.0f);
+    }
+
+    void editor_graph_node_float::on_value_updated()
+    {
     }
 }

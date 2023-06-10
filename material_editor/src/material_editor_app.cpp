@@ -111,13 +111,13 @@ namespace retro::material_editor
 
     void material_editor_app::initialize()
     {
+        m_current_material = renderer::material_loader::load_material_from_file("resources/materials/radio.rrm");
         m_editor_panels.push_back(std::make_shared<editor_graph_panel>());
         m_editor_panels.push_back(std::make_shared<material_details_panel>());
         m_editor_panels.push_back(std::make_shared<material_preview_panel>());
 
         m_material_preview = std::make_shared<material_preview>();
 
-        m_current_material = renderer::material_loader::load_material_from_file("resources/materials/radio.rrm");
         m_material_preview->on_material_selected(m_current_material);
     }
 

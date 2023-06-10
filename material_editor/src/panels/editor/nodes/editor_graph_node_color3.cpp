@@ -24,6 +24,15 @@ namespace retro::material_editor
 
     void editor_graph_node_color3::on_draw_node()
     {
-        ImGui::ColorPicker3("Value", glm::value_ptr(m_value), ImGuiColorEditFlags_NoTooltip);
+        if (ImGui::ColorPicker3("Value", glm::value_ptr(m_value), ImGuiColorEditFlags_NoTooltip)) {
+            on_value_updated();
+        }
+    }
+
+    void editor_graph_node_color3::on_value_updated()
+    {
+        if (m_value_updated_callback) {
+            m_value_updated_callback(this);
+        }
     }
 }

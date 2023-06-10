@@ -13,6 +13,7 @@ namespace retro::material_editor
         ~editor_graph_node_material();
 
         void on_draw_node() override;
+        void on_value_updated() override;
 
     private:
         std::shared_ptr<renderer::material> m_value;

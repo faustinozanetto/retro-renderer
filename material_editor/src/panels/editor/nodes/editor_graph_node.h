@@ -4,6 +4,7 @@
 
 #include <vector>
 #include <string>
+#include <functional>
 
 namespace ImGuiNodeEditor = ax::NodeEditor;
 
@@ -65,6 +66,8 @@ namespace retro::material_editor
     class editor_graph_node
     {
     public:
+        using graph_node_value_updated = std::function<void(editor_graph_node*)>;
+
         editor_graph_node();
         ~editor_graph_node();
 
@@ -72,9 +75,13 @@ namespace retro::material_editor
         graph_node &get_graph_node() { return m_graph_node; }
 
         /* Functions */
+        void set_value_updated_callback(const graph_node_value_updated& callback) { m_value_updated_callback = callback; }
         virtual void on_draw_node() = 0;
+
+        virtual void on_value_updated() = 0;
 
     protected:
         graph_node m_graph_node;
+        graph_node_value_updated m_value_updated_callback;
     };
 }

@@ -79,4 +79,8 @@ namespace retro::material_editor
     void editor_graph_node_material::on_draw_node()
     {
     }
+
+    void editor_graph_node_material::on_value_updated()
+    {
+    }
 }
