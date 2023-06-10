@@ -36,3 +36,9 @@ library_dirs["physx_foundation_release"] = "%{wks.location}/third_party/physx/ph
 
 library_dirs["physx_extensions_debug"] = "%{wks.location}/third_party/physx/physx/bin/win.x86_64.vc143.mt/debug/PhysXExtensions_static_64.lib"
 library_dirs["physx_extensions_release"] = "%{wks.location}/third_party/physx/physx/bin/win.x86_64.vc143.mt/release/PhysXExtensions_static_64.lib"
+
+library_dirs["physx_pvd_runtime_debug"] = "%{wks.location}/third_party/physx/physx/bin/win.x86_64.vc143.mt/debug/PVDRuntime_64.lib"
+library_dirs["physx_pvd_runtime_release"] = "%{wks.location}/third_party/physx/physx/bin/win.x86_64.vc143.mt/release/PVDRuntime_64.lib"
+
+library_dirs["physx_pvd_sdk_debug"] = "%{wks.location}/third_party/physx/physx/bin/win.x86_64.vc143.mt/debug/PhysXPvdSDK_static_64.lib"
+library_dirs["physx_pvd_sdk_release"] = "%{wks.location}/third_party/physx/physx/bin/win.x86_64.vc143.mt/release/PhysXPvdSDK_static_64.lib"

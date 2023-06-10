@@ -22,6 +22,7 @@ physx_app::~physx_app()
 
 void physx_app::on_update()
 {
+    m_physics_world->on_update();
 }
 
 void physx_app::on_handle_event(retro::events::base_event &event)
