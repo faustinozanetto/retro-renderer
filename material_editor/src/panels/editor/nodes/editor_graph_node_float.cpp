@@ -5,7 +5,7 @@
 
 namespace retro::material_editor
 {
-    editor_graph_node_float::editor_graph_node_float(float min, float max) : editor_graph_node()
+    editor_graph_node_float::editor_graph_node_float(float value, float min, float max) : editor_graph_node()
     {
         graph_node* node = new graph_node("Float Node", editor_graph_panel::get_next_id());
 
@@ -16,7 +16,7 @@ namespace retro::material_editor
         node->outputs.push_back(output_pin);
         m_graph_node = node;
 
-        m_value = 0.0f;
+        m_value = value;
         m_min = min;
         m_max = max;
     }

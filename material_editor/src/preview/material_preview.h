@@ -14,6 +14,7 @@ namespace retro::material_editor
         /* Getters */
         int get_final_render_target();
         std::shared_ptr<scene::scene_actor> &get_preview_actor() { return m_preview_actor; }
+        const std::shared_ptr<retro::renderer::frame_buffer>& get_geometry_fbo() const { return m_geometry_fbo; }
 
         /* Functions */
         void setup_fbo();

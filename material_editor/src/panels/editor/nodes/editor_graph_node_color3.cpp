@@ -5,7 +5,7 @@
 
 namespace retro::material_editor
 {
-    editor_graph_node_color3::editor_graph_node_color3()
+    editor_graph_node_color3::editor_graph_node_color3(const glm::vec3& value)
     {
         graph_node* node = new graph_node("Color 3 Node", editor_graph_panel::get_next_id());
 
@@ -16,7 +16,7 @@ namespace retro::material_editor
         node->outputs.push_back(output_pin);
 
         m_graph_node = node;
-        m_value = glm::vec3(0.0f);
+        m_value = value;
     }
 
     editor_graph_node_color3::~editor_graph_node_color3()

@@ -38,7 +38,7 @@ namespace retro::material_editor
 
 		m_editor_nodes.push_back(material_node);
 
-		std::shared_ptr<editor_graph_node_color3> albedo_color_node = std::make_shared<editor_graph_node_color3>(); // albedo
+		std::shared_ptr<editor_graph_node_color3> albedo_color_node = std::make_shared<editor_graph_node_color3>(current_material->get_data().albedo); // albedo
 		albedo_color_node->set_value_updated_callback([albedo_color_node](editor_graph_node* node) {
 			const auto& app = dynamic_cast<material_editor_app*>(&core::application::get());
 			auto& current_material = app->get_current_material();
@@ -48,7 +48,7 @@ namespace retro::material_editor
 			});
 		m_editor_nodes.push_back(albedo_color_node);
 
-		std::shared_ptr<editor_graph_node_color3> emissive_color_node = std::make_shared<editor_graph_node_color3>(); // emissive
+		std::shared_ptr<editor_graph_node_color3> emissive_color_node = std::make_shared<editor_graph_node_color3>(current_material->get_data().emissive); // emissive
 		emissive_color_node->set_value_updated_callback([albedo_color_node](editor_graph_node* node) {
 			const auto& app = dynamic_cast<material_editor_app*>(&core::application::get());
 			auto& current_material = app->get_current_material();
@@ -58,7 +58,7 @@ namespace retro::material_editor
 			});
 		m_editor_nodes.push_back(emissive_color_node);
 
-		std::shared_ptr<editor_graph_node_float> roughness_float_node = std::make_shared<editor_graph_node_float>(); // roughness
+		std::shared_ptr<editor_graph_node_float> roughness_float_node = std::make_shared<editor_graph_node_float>(current_material->get_data().roughness); // roughness
 		roughness_float_node->set_value_updated_callback([albedo_color_node](editor_graph_node* node) {
 			const auto& app = dynamic_cast<material_editor_app*>(&core::application::get());
 			auto& current_material = app->get_current_material();
@@ -68,7 +68,7 @@ namespace retro::material_editor
 			});
 		m_editor_nodes.push_back(roughness_float_node);
 
-		std::shared_ptr<editor_graph_node_float> metallic_float_node = std::make_shared<editor_graph_node_float>(); // metallic
+		std::shared_ptr<editor_graph_node_float> metallic_float_node = std::make_shared<editor_graph_node_float>(current_material->get_data().metallic); // metallic
 		metallic_float_node->set_value_updated_callback([albedo_color_node](editor_graph_node* node) {
 			const auto& app = dynamic_cast<material_editor_app*>(&core::application::get());
 			auto& current_material = app->get_current_material();
@@ -78,7 +78,7 @@ namespace retro::material_editor
 			});
 		m_editor_nodes.push_back(metallic_float_node);
 
-		std::shared_ptr<editor_graph_node_float> ambient_occlusion_float_node = std::make_shared<editor_graph_node_float>(); // ambient occlusion
+		std::shared_ptr<editor_graph_node_float> ambient_occlusion_float_node = std::make_shared<editor_graph_node_float>(current_material->get_data().ambient_occlusion); // ambient occlusion
 		ambient_occlusion_float_node->set_value_updated_callback([albedo_color_node](editor_graph_node* node) {
 			const auto& app = dynamic_cast<material_editor_app*>(&core::application::get());
 			auto& current_material = app->get_current_material();
@@ -88,7 +88,7 @@ namespace retro::material_editor
 			});
 		m_editor_nodes.push_back(ambient_occlusion_float_node);
 
-		std::shared_ptr<editor_graph_node_float> emissive_strenght_float_node = std::make_shared<editor_graph_node_float>(); // emissive strength
+		std::shared_ptr<editor_graph_node_float> emissive_strenght_float_node = std::make_shared<editor_graph_node_float>(current_material->get_data().emissive_strength, 0.0f, 25.0f); // emissive strength
 		emissive_strenght_float_node->set_value_updated_callback([albedo_color_node](editor_graph_node* node) {
 			const auto& app = dynamic_cast<material_editor_app*>(&core::application::get());
 			auto& current_material = app->get_current_material();
@@ -98,7 +98,7 @@ namespace retro::material_editor
 			});
 		m_editor_nodes.push_back(emissive_strenght_float_node);
 
-		std::shared_ptr<editor_graph_node_float> texture_tilling_float_node = std::make_shared<editor_graph_node_float>(); // texture tilling
+		std::shared_ptr<editor_graph_node_float> texture_tilling_float_node = std::make_shared<editor_graph_node_float>(current_material->get_data().tilling, 0.1f, 10.0f); // texture tilling
 		texture_tilling_float_node->set_value_updated_callback([albedo_color_node](editor_graph_node* node) {
 			const auto& app = dynamic_cast<material_editor_app*>(&core::application::get());
 			auto& current_material = app->get_current_material();
@@ -127,41 +127,8 @@ namespace retro::material_editor
 			texutre_node_link_index++;
 		}
 
-		/*
-		std::shared_ptr<editor_graph_node_texture> albedo_texture_node = std::make_shared<editor_graph_node_texture>(current_material->get_data().textures.at(renderer::material_texture_type::albedo).texture); // albedo
-		albedo_texture_node->set_value_updated_callback([albedo_color_node](editor_graph_node* node) {
-			const auto& app = dynamic_cast<material_editor_app*>(&core::application::get());
-			auto& current_material = app->get_current_material();
-
-			editor_graph_node_texture* texture_graph_node = dynamic_cast<editor_graph_node_texture*>(node);
-			renderer::material_texture material_texture;
-			material_texture.texture = texture_graph_node->get_value();
-			material_texture.type = renderer::material_texture_type::albedo;
-			material_texture.is_enabled = true;
-			current_material->set_texture(material_texture);
-			});
-		m_editor_nodes.push_back(albedo_texture_node);
-
-		std::shared_ptr<editor_graph_node_texture> normal_texture_node = std::make_shared<editor_graph_node_texture>(current_material->get_data().textures.at(renderer::material_texture_type::normal).texture); // normal
-		m_editor_nodes.push_back(normal_texture_node);
-
-		std::shared_ptr<editor_graph_node_texture> roughness_texture_node = std::make_shared<editor_graph_node_texture>(current_material->get_data().textures.at(renderer::material_texture_type::roughness).texture); // roughness
-		m_editor_nodes.push_back(roughness_texture_node);
-
-		std::shared_ptr<editor_graph_node_texture> metallic_texture_node = std::make_shared<editor_graph_node_texture>(current_material->get_data().textures.at(renderer::material_texture_type::metallic).texture); // metallic
-		m_editor_nodes.push_back(metallic_texture_node);
-
-		std::shared_ptr<editor_graph_node_texture> ambient_occlusion_texture_node = std::make_shared<editor_graph_node_texture>(current_material->get_data().textures.at(renderer::material_texture_type::ambient_occlusion).texture); // ambient occlusion
-		m_editor_nodes.push_back(ambient_occlusion_texture_node);
-
-		std::shared_ptr<editor_graph_node_texture> emissive_texture_node = std::make_shared<editor_graph_node_texture>(current_material->get_data().textures.at(renderer::material_texture_type::emissive).texture); // emissive
-		m_editor_nodes.push_back(emissive_texture_node);
-
-		std::shared_ptr<editor_graph_node_texture> opacity_texture_node = std::make_shared<editor_graph_node_texture>(current_material->get_data().textures.at(renderer::material_texture_type::opacity).texture); // opacity
-		m_editor_nodes.push_back(opacity_texture_node);
-		*/
+	
 		// Node links
-
 		graph_node_link albedo_color_node_link = graph_node_link(get_next_id(), albedo_color_node->get_graph_node()->outputs[0].id, material_node->get_graph_node()->inputs[0].id);
 		m_editor_links.push_back(albedo_color_node_link);
 
@@ -182,30 +149,6 @@ namespace retro::material_editor
 
 		graph_node_link texture_tilling_float_node_link = graph_node_link(get_next_id(), texture_tilling_float_node->get_graph_node()->outputs[0].id, material_node->get_graph_node()->inputs[6].id);
 		m_editor_links.push_back(texture_tilling_float_node_link);
-
-		// Textures links
-		/*
-		graph_node_link albedo_texture_node_link = graph_node_link(get_next_id(), albedo_texture_node->get_graph_node()->outputs[0].id, material_node->get_graph_node()->inputs[7].id);
-		m_editor_links.push_back(albedo_texture_node_link);
-
-		graph_node_link normal_texture_node_link = graph_node_link(get_next_id(), normal_texture_node->get_graph_node()->outputs[0].id, material_node->get_graph_node()->inputs[8].id);
-		m_editor_links.push_back(normal_texture_node_link);
-
-		graph_node_link roughness_texture_node_link = graph_node_link(get_next_id(), roughness_texture_node->get_graph_node()->outputs[0].id, material_node->get_graph_node()->inputs[9].id);
-		m_editor_links.push_back(roughness_texture_node_link);
-
-		graph_node_link metallic_texture_node_link = graph_node_link(get_next_id(), metallic_texture_node->get_graph_node()->outputs[0].id, material_node->get_graph_node()->inputs[10].id);
-		m_editor_links.push_back(metallic_texture_node_link);
-
-		graph_node_link ambient_occlusion_texture_node_link = graph_node_link(get_next_id(), ambient_occlusion_texture_node->get_graph_node()->outputs[0].id, material_node->get_graph_node()->inputs[11].id);
-		m_editor_links.push_back(ambient_occlusion_texture_node_link);
-
-		graph_node_link emissive_texture_node_link = graph_node_link(get_next_id(), emissive_texture_node->get_graph_node()->outputs[0].id, material_node->get_graph_node()->inputs[12].id);
-		m_editor_links.push_back(emissive_texture_node_link);
-
-		graph_node_link opacity_texture_node_link = graph_node_link(get_next_id(), opacity_texture_node->get_graph_node()->outputs[0].id, material_node->get_graph_node()->inputs[13].id);
-		m_editor_links.push_back(opacity_texture_node_link);
-		*/
 	}
 
 	graph_node_pin *editor_graph_panel::get_pin_by_id(ImGuiNodeEditor::PinId id)
@@ -256,7 +199,6 @@ namespace retro::material_editor
 
 	void editor_graph_panel::on_render_panel()
 	{
-
 		{
 			// ImGui panel for debugging editor nodes
 			ImGui::Begin("Editor Nodes Debug Panel");

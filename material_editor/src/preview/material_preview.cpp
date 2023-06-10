@@ -200,6 +200,8 @@ namespace retro::material_editor
         auto &model_renderer_component = m_preview_actor->get_component<scene::model_renderer_component>();
         auto &material_renderer_component = m_preview_actor->get_component<scene::material_renderer_component>();
 
+        if (!model_renderer_component.get_model()) return;
+
         m_geometry_shader->bind();
         m_geometry_shader->set_mat4("u_transform", transform_component.get_transform());
         m_geometry_shader->set_mat4("u_view", m_camera->get_view_matrix());

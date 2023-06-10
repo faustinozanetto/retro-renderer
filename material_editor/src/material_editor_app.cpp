@@ -29,7 +29,7 @@ namespace retro::material_editor
         bool opt_fullscreen = opt_fullscreen_persistant;
         static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
 
-        ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
+        ImGuiWindowFlags window_flags =  ImGuiWindowFlags_NoDocking;
         if (opt_fullscreen)
         {
             ImGuiViewport *viewport = ImGui::GetMainViewport();
@@ -46,7 +46,7 @@ namespace retro::material_editor
             window_flags |= ImGuiWindowFlags_NoBackground;
 
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-        ImGui::Begin("DockSpace Demo", &dockspaceOpen, window_flags);
+        ImGui::Begin("DockSpace", &dockspaceOpen, window_flags);
         ImGui::PopStyleVar();
 
         if (opt_fullscreen)
@@ -65,22 +65,6 @@ namespace retro::material_editor
 
         style.WindowMinSize.x = minWinSizeX;
 
-        if (ImGui::BeginMenuBar())
-        {
-            if (ImGui::BeginMenu("File"))
-            {
-                if (ImGui::MenuItem("Open Material...", "Ctrl+O"))
-                {
-                    on_open_material_file();
-                }
-
-                ImGui::EndMenu();
-            }
-
-            ImGui::EndMenuBar();
-        }
-
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{0, 0});
         ImGui::Begin("Viewport");
 
         for (auto &editor_panel : m_editor_panels)
@@ -92,8 +76,6 @@ namespace retro::material_editor
             m_material_preview->render_preview();
 
         ImGui::End();
-        ImGui::PopStyleVar();
-
         ImGui::End();
 
         ui::engine_ui::end_frame();
