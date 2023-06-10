@@ -76,6 +76,7 @@ namespace retro::renderer
 
         /* Setters */
         void set_texture(const material_texture& material_texture);
+        void set_texture_enabled(material_texture_type texture_type, bool is_enabled);
         void set_albedo(const glm::vec3 &albedo) { m_data.albedo = albedo; }
         void set_emissive(const glm::vec3 & emissive) { m_data.emissive = emissive; }
         void set_ambient_occlusion(float ambient_occlusion) { m_data.ambient_occlusion = ambient_occlusion; }

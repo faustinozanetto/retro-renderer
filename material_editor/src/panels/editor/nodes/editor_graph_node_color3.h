@@ -17,7 +17,6 @@ namespace retro::material_editor
 
         /* Functions */
         void on_draw_node() override;
-        void on_value_updated() override;
 
     private:
         glm::vec3 m_value;

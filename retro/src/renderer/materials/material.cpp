@@ -68,6 +68,11 @@ namespace retro::renderer
         m_data.textures[material_texture.type] = material_texture;
 	}
 
+	void material::set_texture_enabled(material_texture_type texture_type, bool is_enabled)
+	{
+        m_data.textures[texture_type].is_enabled = is_enabled;
+	}
+
     void material::serialize(std::ofstream &asset_pack_file)
     {
         // Serialize material data excluding the textures map

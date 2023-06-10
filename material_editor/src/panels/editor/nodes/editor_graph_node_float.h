@@ -7,13 +7,18 @@ namespace retro::material_editor
     class editor_graph_node_float : public editor_graph_node
     {
     public:
-        editor_graph_node_float();
+        editor_graph_node_float(float min = 0.0f, float max = 1.0f);
         ~editor_graph_node_float();
 
-        void on_draw_node() override;
-        void on_value_updated() override;
+		/* Getters */
+		float get_value() const { return m_value; }
+
+		/* Functions */
+		void on_draw_node() override;
 
     private:
         float m_value;
+        float m_min;
+        float m_max;
     };
 }

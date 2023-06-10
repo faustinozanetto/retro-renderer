@@ -22,13 +22,18 @@ namespace retro::material_editor
 		editor_graph_panel();
 		~editor_graph_panel() override;
 
+		/* Getters */
+		graph_node_pin* get_pin_by_id(ImGuiNodeEditor::PinId id);
+		graph_node_link* get_link_by_id(ImGuiNodeEditor::LinkId id);
+		editor_graph_node* get_editor_graph_node_by_id(ImGuiNodeEditor::NodeId id);
+		static int get_next_id() { return m_editor_next_link_id++; }
+
 		/* Functions */
 		void initialize_editor_graph();
 		void render_graph_nodes();
 
-		/* Getters */
-		graph_node_pin *get_pin_by_id(ImGuiNodeEditor::PinId id);
-		static int get_next_id() { return m_editor_next_link_id++; }
+		void on_link_created(graph_node_link* node_link);
+		void on_link_deleted(graph_node_link* node_link);
 
 		void on_render_panel() override;
 
