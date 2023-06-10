@@ -105,6 +105,7 @@ namespace retro::material_editor
         if (!file_path.empty())
         {
             m_current_material = renderer::material_loader::load_material_from_file(file_path);
+            m_material_preview->on_material_selected(m_current_material);
         }
     }
 
@@ -115,6 +116,9 @@ namespace retro::material_editor
         m_editor_panels.push_back(std::make_shared<material_preview_panel>());
 
         m_material_preview = std::make_shared<material_preview>();
+
+        m_current_material = renderer::material_loader::load_material_from_file("resources/materials/radio.rrm");
+        m_material_preview->on_material_selected(m_current_material);
     }
 
     void material_editor_app::on_handle_event(retro::events::base_event &event)
