@@ -6,6 +6,7 @@
 #include "nodes/editor_graph_node_material.h"
 #include "nodes/editor_graph_node_float.h"
 #include "nodes/editor_graph_node_color3.h"
+#include "nodes/editor_graph_node_texture.h"
 
 namespace retro::material_editor
 {
@@ -32,6 +33,10 @@ namespace retro::material_editor
 		m_editor_nodes.push_back(std::make_shared<editor_graph_node_float>());
 		m_editor_nodes.push_back(std::make_shared<editor_graph_node_float>());
 		m_editor_nodes.push_back(std::make_shared<editor_graph_node_color3>());
+		m_editor_nodes.push_back(std::make_shared<editor_graph_node_texture>());
+		m_editor_nodes.push_back(std::make_shared<editor_graph_node_texture>());
+		m_editor_nodes.push_back(std::make_shared<editor_graph_node_texture>());
+		m_editor_nodes.push_back(std::make_shared<editor_graph_node_texture>());
 	}
 
 	graph_node_pin *editor_graph_panel::get_pin_by_id(ImGuiNodeEditor::PinId id)

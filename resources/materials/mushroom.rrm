@@ -1,0 +1,27 @@
+# Material storage file
+# Parameters section
+[parameters]
+# Albedo color
+albedo: 1 1 1
+emissive: 0 0 0
+emissive_strength: 20.0
+roughness: 1.0
+metallic: 1.0
+ambient_occlusion: 1.0
+tilling: 1.0
+# Textures section
+[textures]
+albedo:
+    path: C:\Users/faust/Documents/Programming/retro-renderer/resources/textures/mushroom/Mushroom_Base.png
+normal:
+    path: C:\Users/faust/Documents/Programming/retro-renderer/resources/textures/mushroom/Mushroom_Normal.png
+roughness:
+    path: C:\Users/faust/Documents/Programming/retro-renderer/resources/textures/mushroom/Mushroom_Roughness.png
+metallic:
+    path: C:\Users/faust/Documents/Programming/retro-renderer/resources/textures/mushroom/Mushroom_Metallic.png
+ambient_occlusion:
+    path: C:\Users/faust/Documents/Programming/retro-renderer/resources/textures/mushroom/Mushroom_AO.png
+emissive:
+    path: C:\Users/faust/Documents/Programming/retro-renderer/resources/textures/mushroom/Mushroom_Emissive.png
+opacity:
+    path: C:\Users/faust/Documents/Programming/retro-renderer/resources/textures/mushroom/Mushroom_Opacity.png

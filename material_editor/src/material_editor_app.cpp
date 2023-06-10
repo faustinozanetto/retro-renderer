@@ -2,6 +2,7 @@
 
 #include "panels/editor/editor_graph_panel.h"
 #include "panels/material_details_panel.h"
+#include "panels/preview/material_preview_panel.h"
 
 #include <core/entry_point.h>
 #include <utils/files.h>
@@ -10,11 +11,9 @@
 
 namespace retro::material_editor
 {
-
-    material_editor_app::material_editor_app() : application("./", {"Retro Material Editor", 1920, 1080})
+    material_editor_app::material_editor_app() : application("../", {"Retro Material Editor", 1920, 1080})
     {
-        m_editor_panels.push_back(std::make_shared<editor_graph_panel>());
-        m_editor_panels.push_back(std::make_shared<material_details_panel>());
+        initialize();
     }
 
     material_editor_app::~material_editor_app()
@@ -89,6 +88,9 @@ namespace retro::material_editor
             editor_panel->on_render_panel();
         }
 
+        if (m_current_material)
+            m_material_preview->render_preview();
+
         ImGui::End();
         ImGui::PopStyleVar();
 
@@ -102,8 +104,17 @@ namespace retro::material_editor
         std::string file_path = files::open_file_dialog("Retro Renderer Material", {"Material Files (*.rrm)", "*.rrm"});
         if (!file_path.empty())
         {
-            m_current_material_file_path = file_path;
+            m_current_material = renderer::material_loader::load_material_from_file(file_path);
         }
+    }
+
+    void material_editor_app::initialize()
+    {
+        m_editor_panels.push_back(std::make_shared<editor_graph_panel>());
+        m_editor_panels.push_back(std::make_shared<material_details_panel>());
+        m_editor_panels.push_back(std::make_shared<material_preview_panel>());
+
+        m_material_preview = std::make_shared<material_preview>();
     }
 
     void material_editor_app::on_handle_event(retro::events::base_event &event)

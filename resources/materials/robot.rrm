@@ -1,0 +1,23 @@
+# Material storage file
+# Parameters section
+[parameters]
+# Albedo color
+albedo: 1 1 1
+emissive: 0 0 0
+emissive_strength: 0.0
+roughness: 1.0
+metallic: 1.0
+ambient_occlusion: 1.0
+tilling: 1.0
+# Textures section
+[textures]
+albedo:
+    path: ../resources/textures/robot/robot_steampunk_color.png
+normal:
+    path: ../resources/textures/robot/robot_steampunk_nmap.png
+roughness:
+    path: ../resources/textures/robot/robot_steampunk_rough.png
+metallic:
+    path: ../resources/textures/robot/robot_steampunk_metalness.png
+ambient_occlusion:
+    path: ../resources/textures/robot/robot_steampunk_ao.png

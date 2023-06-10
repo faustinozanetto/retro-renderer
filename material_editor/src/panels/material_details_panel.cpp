@@ -19,7 +19,6 @@ namespace retro::material_editor
         ImGui::Begin("Material Details");
 
         ImGui::Separator();
-        ImGui::Text("Material File Path: %s", app.get_current_material_file_path().c_str());
 
         ImGui::End();
     }
