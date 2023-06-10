@@ -2,7 +2,6 @@ project "retro"
 	kind "StaticLib"
 	language "C++"
 	cppdialect "C++20"
-	staticruntime "off"
 
     targetdir("%{wks.location}/binaries/" .. output_dir .. "/%{prj.name}")
     objdir("%{wks.location}/intermediates/" .. output_dir .. "/%{prj.name}")
@@ -32,6 +31,7 @@ project "retro"
         "%{include_dirs.openal}",
         "%{include_dirs.dr_libs}",
         "%{include_dirs.entt}",
+        "%{include_dirs.physx}",
     }
 
     links
@@ -51,6 +51,10 @@ project "retro"
             "%{library_dirs.assimp_debug}",
             "%{library_dirs.freetype_debug}",
             "%{library_dirs.openal_debug}",
+            "%{library_dirs.physx_debug}",
+            "%{library_dirs.physx_common_debug}",
+            "%{library_dirs.physx_foundation_debug}",
+            "%{library_dirs.physx_extensions_debug}",
         }
 
     filter "configurations:release"
@@ -62,4 +66,8 @@ project "retro"
             "%{library_dirs.assimp_release}",
             "%{library_dirs.freetype_release}",
             "%{library_dirs.openal_release}",
+            "%{library_dirs.physx_release}",
+            "%{library_dirs.physx_common_release}",
+            "%{library_dirs.physx_foundation_release}",
+            "%{library_dirs.physx_extensions_release}",
         }

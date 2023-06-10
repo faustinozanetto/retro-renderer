@@ -62,6 +62,9 @@
 #include "scene/actors/components/material_renderer_component.h"
 #include "scene/actors/components/text_renderer_component.h"
 
+// Physics Include
+#include "physics/physics_world.h"
+
 // Input Include
 #include "input/input.h"
 #include "input/key_codes.h"

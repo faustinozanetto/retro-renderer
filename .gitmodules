@@ -26,3 +26,6 @@
 [submodule "third_party/imgui_node_editor"]
 	path = third_party/imgui_node_editor
 	url = https://github.com/thedmd/imgui-node-editor
+[submodule "third_party/physx"]
+	path = third_party/physx
+	url = https://github.com/NVIDIA-Omniverse/PhysX
