@@ -1,13 +1,17 @@
 #include "editor_graph_panel.h"
 
 #include <retro.h>
+#include <glm/gtc/type_ptr.hpp>
+
+#include "nodes/editor_graph_node_material.h"
+#include "nodes/editor_graph_node_float.h"
+#include "nodes/editor_graph_node_color3.h"
 
 namespace retro::material_editor
 {
 	editor_graph_panel::editor_graph_panel()
 	{
 		initialize_editor_graph();
-		construct_material_node();
 	}
 
 	editor_graph_panel::~editor_graph_panel()
@@ -20,68 +24,29 @@ namespace retro::material_editor
 		ImGuiNodeEditor::Config config;
 		m_editor_context = ImGuiNodeEditor::CreateEditor(&config);
 
-		{
-			editor_graph_node node = editor_graph_node("Test Node", m_editor_next_link_id++);
-			editor_graph_node_pin input_pin = editor_graph_node_pin("Texture", m_editor_next_link_id++, editor_graph_node_pin_type::p_texture);
-			input_pin.node = &node;
-			input_pin.kind = editor_grpah_node_pin_kind::input;
-
-			editor_graph_node_pin output_pin = editor_graph_node_pin("Mixed", m_editor_next_link_id++, editor_graph_node_pin_type::p_texture);
-			output_pin.node = &node;
-			output_pin.kind = editor_grpah_node_pin_kind::output;
-
-			node.inputs.push_back(input_pin);
-			node.outputs.push_back(output_pin);
-			m_editor_nodes.push_back(node);
-		}
-		{
-			editor_graph_node node = editor_graph_node("Test Node", m_editor_next_link_id++);
-			editor_graph_node_pin input_pin = editor_graph_node_pin("Texture", m_editor_next_link_id++, editor_graph_node_pin_type::p_texture);
-			input_pin.node = &node;
-			input_pin.kind = editor_grpah_node_pin_kind::input;
-
-			editor_graph_node_pin output_pin = editor_graph_node_pin("Mixed", m_editor_next_link_id++, editor_graph_node_pin_type::p_texture);
-			output_pin.node = &node;
-			output_pin.kind = editor_grpah_node_pin_kind::output;
-
-			node.inputs.push_back(input_pin);
-			node.outputs.push_back(output_pin);
-			m_editor_nodes.push_back(node);
-		}
-		editor_graph_node_link node_link = editor_graph_node_link(m_editor_next_link_id++, m_editor_nodes[0].outputs[0].id, m_editor_nodes[1].inputs[0].id);
-		m_editor_links.push_back(node_link);
-
 		m_create_new_node = false;
 		m_new_link_pin = nullptr;
 		m_new_node_link_pin = nullptr;
+
+		m_editor_nodes.push_back(std::make_shared<editor_graph_node_material>());
+		m_editor_nodes.push_back(std::make_shared<editor_graph_node_float>());
+		m_editor_nodes.push_back(std::make_shared<editor_graph_node_float>());
+		m_editor_nodes.push_back(std::make_shared<editor_graph_node_color3>());
 	}
 
-	void editor_graph_panel::construct_material_node()
-	{
-		editor_graph_node node = editor_graph_node("Material Output", m_editor_next_link_id++);
-		for (auto texture_type : renderer::material::get_material_texture_types()) {
-			editor_graph_node_pin texture_input_pin = editor_graph_node_pin(renderer::material::get_material_texture_type_to_string(texture_type), 
-				m_editor_next_link_id++, editor_graph_node_pin_type::p_texture);
-
-			texture_input_pin.node = &node;
-			texture_input_pin.kind = editor_grpah_node_pin_kind::input;
-			node.inputs.push_back(texture_input_pin);
-		}
-		m_editor_nodes.push_back(node);
-	}
-
-	editor_graph_node_pin* editor_graph_panel::get_pin_by_id(ImGuiNodeEditor::PinId id)
+	graph_node_pin *editor_graph_panel::get_pin_by_id(ImGuiNodeEditor::PinId id)
 	{
 		if (!id)
 			return nullptr;
 
-		for (auto& node : m_editor_nodes)
+		for (auto &node : m_editor_nodes)
 		{
-			for (auto& pin : node.inputs)
+			auto &graph_node = node->get_graph_node();
+			for (auto &pin : graph_node.inputs)
 				if (pin.id == id)
 					return &pin;
 
-			for (auto& pin : node.outputs)
+			for (auto &pin : graph_node.outputs)
 				if (pin.id == id)
 					return &pin;
 		}
@@ -102,13 +67,21 @@ namespace retro::material_editor
 	void editor_graph_panel::render_graph_nodes()
 	{
 		// Nodes
-		for (auto& node : m_editor_nodes) {
-			ImGuiNodeEditor::BeginNode(node.id);
-			ImGui::PushID(node.id.AsPointer());
+		for (auto &node : m_editor_nodes)
+		{
+			auto &graph_node = node->get_graph_node();
+
+			ImGuiNodeEditor::BeginNode(graph_node.id);
+			ImGui::PushID(graph_node.id.AsPointer());
 			// Node name
-			ImGui::TextUnformatted(node.name.c_str());
+			ImGui::SetWindowFontScale(1.5f);
+			ImGui::Text(graph_node.name.c_str());
+			ImGui::SetWindowFontScale(1.0f);
+
+			ImGui::Spacing();
+
 			// Draw inputs
-			for (auto& input : node.inputs)
+			for (auto &input : graph_node.inputs)
 			{
 				ImGuiNodeEditor::BeginPin(input.id, ImGuiNodeEditor::PinKind::Input);
 				// Input name
@@ -116,11 +89,13 @@ namespace retro::material_editor
 					ImGui::Text("<- %s", input.name.c_str());
 				ImGuiNodeEditor::EndPin();
 			}
+
+			ImGui::SameLine();
+			ImGui::Dummy(ImVec2(250, 0));
+			ImGui::SameLine();
+
 			// Draw outputs
-			ImGui::SameLine();
-			ImGui::Dummy(ImVec2(10, 0));
-			ImGui::SameLine();
-			for (auto& input : node.outputs)
+			for (auto &input : graph_node.outputs)
 			{
 				ImGuiNodeEditor::BeginPin(input.id, ImGuiNodeEditor::PinKind::Output);
 				// Input name
@@ -128,12 +103,19 @@ namespace retro::material_editor
 					ImGui::Text("%s ->", input.name.c_str());
 				ImGuiNodeEditor::EndPin();
 			}
+
+			// Draw content from the node
+			ImGui::PushItemWidth(250);
+			node->on_draw_node();
+			ImGui::PopItemWidth();
+
 			ImGui::PopID();
 			ImGuiNodeEditor::EndNode();
 		}
 
 		// Links
-		for (auto& link : m_editor_links) {
+		for (auto &link : m_editor_links)
+		{
 			ImGuiNodeEditor::Link(link.id, link.start_id, link.end_id, ImVec4(0.85, 0.85, 0.85, 1.0), 2.0f);
 		}
 
@@ -142,23 +124,23 @@ namespace retro::material_editor
 		{
 			if (ImGuiNodeEditor::BeginCreate(ImColor(255, 255, 255), 2.0f))
 			{
-				auto showLabel = [](const char* label, ImColor color)
-					{
-						ImGui::SetCursorPosY(ImGui::GetCursorPosY() - ImGui::GetTextLineHeight());
-						auto size = ImGui::CalcTextSize(label);
+				auto showLabel = [](const char *label, ImColor color)
+				{
+					ImGui::SetCursorPosY(ImGui::GetCursorPosY() - ImGui::GetTextLineHeight());
+					auto size = ImGui::CalcTextSize(label);
 
-						auto padding = ImGui::GetStyle().FramePadding;
-						auto spacing = ImGui::GetStyle().ItemSpacing;
+					auto padding = ImGui::GetStyle().FramePadding;
+					auto spacing = ImGui::GetStyle().ItemSpacing;
 
-						ImGui::SetCursorPos(ImGui::GetCursorPos() + ImVec2(spacing.x, -spacing.y));
+					ImGui::SetCursorPos(ImGui::GetCursorPos() + ImVec2(spacing.x, -spacing.y));
 
-						auto rectMin = ImGui::GetCursorScreenPos() - padding;
-						auto rectMax = ImGui::GetCursorScreenPos() + size + padding;
+					auto rectMin = ImGui::GetCursorScreenPos() - padding;
+					auto rectMax = ImGui::GetCursorScreenPos() + size + padding;
 
-						auto drawList = ImGui::GetWindowDrawList();
-						drawList->AddRectFilled(rectMin, rectMax, color, size.y * 0.15f);
-						ImGui::TextUnformatted(label);
-					};
+					auto drawList = ImGui::GetWindowDrawList();
+					drawList->AddRectFilled(rectMin, rectMax, color, size.y * 0.15f);
+					ImGui::TextUnformatted(label);
+				};
 
 				ImGuiNodeEditor::PinId start_pin_id = 0, end_pin_id = 0;
 				if (ImGuiNodeEditor::QueryNewLink(&start_pin_id, &end_pin_id))
@@ -168,7 +150,7 @@ namespace retro::material_editor
 
 					m_new_link_pin = start_pin ? start_pin : end_pin;
 
-					if (start_pin->kind == editor_grpah_node_pin_kind::input)
+					if (start_pin->kind == graph_node_pin_kind::input)
 					{
 						std::swap(start_pin, end_pin);
 						std::swap(start_pin_id, end_pin_id);
@@ -187,7 +169,7 @@ namespace retro::material_editor
 						}
 						else if (end_pin->node == start_pin->node)
 						{
-						    showLabel("x Cannot connect to self", ImColor(45, 32, 32, 180));
+							showLabel("x Cannot connect to self", ImColor(45, 32, 32, 180));
 							ImGuiNodeEditor::RejectNewItem(ImColor(255, 0, 0), 1.0f);
 						}
 						else if (end_pin->type != start_pin->type)
@@ -200,7 +182,7 @@ namespace retro::material_editor
 							showLabel("+ Create Link", ImColor(32, 45, 32, 180));
 							if (ImGuiNodeEditor::AcceptNewItem(ImColor(128, 255, 128), 4.0f))
 							{
-								editor_graph_node_link created_link = editor_graph_node_link(m_editor_next_link_id++, start_pin_id, end_pin_id);
+								graph_node_link created_link = graph_node_link(m_editor_next_link_id++, start_pin_id, end_pin_id);
 								m_editor_links.emplace_back(created_link);
 							}
 						}
@@ -225,7 +207,8 @@ namespace retro::material_editor
 					}
 				}
 			}
-			else {
+			else
+			{
 				m_new_link_pin = nullptr;
 			}
 
@@ -239,7 +222,8 @@ namespace retro::material_editor
 				{
 					if (ImGuiNodeEditor::AcceptDeletedItem())
 					{
-						auto id = std::find_if(m_editor_links.begin(), m_editor_links.end(), [link_id](auto& link) { return link.id == link_id; });
+						auto id = std::find_if(m_editor_links.begin(), m_editor_links.end(), [link_id](auto &link)
+											   { return link.id == link_id; });
 						if (id != m_editor_links.end())
 							m_editor_links.erase(id);
 					}
@@ -250,7 +234,8 @@ namespace retro::material_editor
 				{
 					if (ImGuiNodeEditor::AcceptDeletedItem())
 					{
-						auto id = std::find_if(m_editor_nodes.begin(), m_editor_nodes.end(), [node_id](auto& node) { return node.id == node_id; });
+						auto id = std::find_if(m_editor_nodes.begin(), m_editor_nodes.end(), [node_id](std::shared_ptr<editor_graph_node> &node)
+											   { return node->get_graph_node().id == node_id; });
 						if (id != m_editor_nodes.end())
 							m_editor_nodes.erase(id);
 					}

@@ -1,6 +1,6 @@
 #include "material_editor_app.h"
 
-#include "panels/editor_graph_panel.h"
+#include "panels/editor/editor_graph_panel.h"
 #include "panels/material_details_panel.h"
 
 #include <core/entry_point.h>
