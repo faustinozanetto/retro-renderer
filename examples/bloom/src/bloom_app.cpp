@@ -21,9 +21,6 @@ bloom_app::bloom_app() : application("./")
     setup_bloom();
     m_final_render_target = m_lighting_fbo->get_attachment_id(0);
 
-    ImGuiNodeEditor::Config config;
-    m_editor_context = ImGuiNodeEditor::CreateEditor(&config);
-
     ImGuiIO &io = ImGui::GetIO();
     io.Fonts->AddFontFromFileTTF("../resources/fonts/arial.ttf", 16);
 }
@@ -142,8 +139,6 @@ void bloom_app::on_update()
 
     // 6. ImGui Debug
     retro::ui::engine_ui::begin_frame();
-
-    draw_editor();
 
     ImGui::Begin("Model");
     ImGui::SliderFloat3("Position", glm::value_ptr(m_model_pos), -50.0f, 50.0f);
@@ -343,141 +338,6 @@ void bloom_app::setup_bloom()
     m_bloom_fbo->initialize();
 }
 
-void bloom_app::draw_editor()
-{
-    // Node Editor Widget
-    if (ImGui::Button("Save Material")) {
-
-    }
-	ImGui::Separator();
-
-    ImGuiNodeEditor::SetCurrentEditor(m_editor_context);
-    ImGuiNodeEditor::Begin("My Editor", ImVec2(0.0, 0.0f));
-
-    int uniqueId = 1;
-
-    for (auto &material_texture_type : material_texture_types_array)
-    {
-        auto& texture = m_material->get_data().textures.at(material_texture_type).texture;
-        auto basic_id = uniqueId++;
-        ImGuiNodeEditor::BeginNode(basic_id);
-        ImGui::Text("Texture %s", retro::renderer::material::get_material_texture_type_to_string(material_texture_type).c_str());
-		ImGui::Dummy(ImVec2(80, 0));
-		ImGui::SameLine();
-        ImGuiNodeEditor::BeginPin(uniqueId++, ImGuiNodeEditor::PinKind::Output);
-        ImGui::Text("Out ->");
-        ImGuiNodeEditor::EndPin();
-
-        ImGui::Text("Size: (%dx%d)", texture->get_data().width, texture->get_data().height);
-        if (ImGui::ImageButton((ImTextureID)texture->get_handle_id(), { 128, 128 }, { 0, 1 }, { 1, 0 })) {
-            std::string file_path = retro::files::open_file_dialog("Open Material Texture", { "Texture Files (*.jpg;*.png)", "*.png", "*.jpg" });
-            if (!file_path.empty()) {
-                retro::renderer::material_texture new_texture;
-                new_texture.is_enabled = true;
-                new_texture.type = material_texture_type;
-                new_texture.texture = retro::renderer::texture_loader::load_texture_from_file(file_path);
-                m_material->set_texture(new_texture);
-                RT_TRACE("Loaded material texture image '{}'", file_path);
-            }
-        }
-        ImGuiNodeEditor::EndNode();
-    }
-
-
-    ImGuiNodeEditor::BeginNode(uniqueId++);
-    ImGui::Text("Material");
-
-    ImGui::Text("Parameters");
-	ImGui::PushItemWidth(175);
-    glm::vec3 albedo = m_material->get_data().albedo;
-    if (ImGui::ColorPicker3("Albedo", glm::value_ptr(albedo), ImGuiColorEditFlags_NoSidePreview)) {
-        m_material->set_albedo(albedo);
-    }
-    glm::vec3 emissive = m_material->get_data().emissive;
-	if (ImGui::ColorPicker3("Emissive",glm::value_ptr(emissive), ImGuiColorEditFlags_NoSidePreview)) {
-		m_material->set_emissive(emissive);
-	}
-    float roughness = m_material->get_data().roughness;
-    if (ImGui::SliderFloat("Roughness", &roughness, 0.0f, 1.0f, "%.3f")) {
-        m_material->set_roughness(roughness);
-    }
-	float metallic = m_material->get_data().metallic;
-	if (ImGui::SliderFloat("Metallic", &metallic, 0.0f, 1.0f)) {
-		m_material->set_metallic(metallic);
-	}
-	float ambient_occlusion = m_material->get_data().ambient_occlusion;
-	if (ImGui::SliderFloat("Ambient Occlusion", &ambient_occlusion, 0.0f, 1.0f)) {
-		m_material->set_ambient_occlusion(ambient_occlusion);
-	}
-	float emissive_strength = m_material->get_data().emissive_strength;
-	if (ImGui::SliderFloat("Emissive Strength", &emissive_strength, 0.0f, 30.0f)) {
-		m_material->set_emissive_strength(emissive_strength);
-	}
-	float tilling = m_material->get_data().tilling;
-	if (ImGui::SliderFloat("Tilling", &tilling, 0.0f, 10.0f)) {
-		m_material->set_tilling(tilling);
-	}
-    ImGui::PopItemWidth();
-
-    ImGui::Text("Textures");
-    for (auto& material_texture_type : material_texture_types_array)
-    {
-        ImGuiNodeEditor::BeginPin(uniqueId++, ImGuiNodeEditor::PinKind::Input);
-        ImGui::Text("-> %s", retro::renderer::material::get_material_texture_type_to_string(material_texture_type).c_str());
-        ImGuiNodeEditor::EndPin();
-    }
-
-    ImGuiNodeEditor::EndNode();
-
-	for (auto& linkInfo : m_editor_links)
-        ImGuiNodeEditor::Link(linkInfo.id, linkInfo.input_id, linkInfo.output_id);
-
-	// ==================================================================================================
-	// Interaction Handling Section
-	// This was coppied from BasicInteration.cpp. See that file for commented code.
-
-	// Handle creation action ---------------------------------------------------------------------------
-	if (ImGuiNodeEditor::BeginCreate())
-	{
-        ImGuiNodeEditor::PinId inputPinId, outputPinId;
-		if (ImGuiNodeEditor::QueryNewLink(&inputPinId, &outputPinId))
-		{
-			if (inputPinId && outputPinId)
-			{
-				if (ImGuiNodeEditor::AcceptNewItem())
-				{
-					m_editor_links.push_back({ ImGuiNodeEditor::LinkId(m_editor_next_link_id++), inputPinId, outputPinId });
-                    ImGuiNodeEditor::Link(m_editor_links.back().id, m_editor_links.back().input_id, m_editor_links.back().output_id);
-				}
-			}
-		}
-	}
-    ImGuiNodeEditor::EndCreate();
-
-	// Handle deletion action ---------------------------------------------------------------------------
-	if (ImGuiNodeEditor::BeginDelete())
-	{
-        ImGuiNodeEditor::LinkId deletedLinkId;
-		while (ImGuiNodeEditor::QueryDeletedLink(&deletedLinkId))
-		{
-			if (ImGuiNodeEditor::AcceptDeletedItem())
-			{
-				for (auto& link : m_editor_links)
-				{
-					if (link.id == deletedLinkId)
-					{
-						m_editor_links.erase(&link);
-						break;
-					}
-				}
-			}
-		}
-	}
-    ImGuiNodeEditor::EndDelete();
-
-    ImGuiNodeEditor::End();
-    ImGuiNodeEditor::SetCurrentEditor(nullptr);
-}
 
 void bloom_app::on_handle_event(retro::events::base_event &event)
 {

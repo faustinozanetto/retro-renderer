@@ -4,10 +4,6 @@
 
 #include <imgui.h>
 
-#include <imgui_node_editor.h>
-
-namespace ImGuiNodeEditor = ax::NodeEditor;
-
 retro::renderer::material_texture_type material_texture_types_array[] = {
     retro::renderer::material_texture_type::albedo,
     retro::renderer::material_texture_type::normal,
@@ -22,14 +18,6 @@ struct bloom_mip_data
     glm::ivec2 size;
     std::shared_ptr<retro::renderer::texture> texture;
 };
-
-struct editor_link_info
-{
-    ImGuiNodeEditor::LinkId id;
-    ImGuiNodeEditor::PinId  input_id;
-    ImGuiNodeEditor::PinId  output_id;
-};
-
 
 class bloom_app : public retro::core::application
 {
@@ -46,8 +34,6 @@ public:
     void setup_frame_buffers();
     void setup_bloom();
 
-    void draw_editor();
-
     void on_handle_event(retro::events::base_event &event) override;
     bool on_window_resize(retro::events::window_resize_event &resize_event) override;
     bool on_key_pressed(retro::events::key_pressed_event &key_pressed_event);
@@ -55,10 +41,6 @@ public:
 private:
     /* Common Variables */
     std::shared_ptr<retro::camera::camera> m_camera;
-
-    ImGuiNodeEditor::EditorContext *m_editor_context = nullptr;
-    ImVector<editor_link_info>   m_editor_links;
-    int                  m_editor_next_link_id = 100;
 
     /* Bloom */
     int m_bloom_sample_count;
