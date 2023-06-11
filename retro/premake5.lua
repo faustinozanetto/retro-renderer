@@ -32,6 +32,7 @@ project "retro"
         "%{include_dirs.dr_libs}",
         "%{include_dirs.entt}",
         "%{include_dirs.physx}",
+        "%{include_dirs.physx_omnipvd}",
     }
 
     links

@@ -13,6 +13,7 @@ include_dirs["openal"] = "%{wks.location}/third_party/openal/include"
 include_dirs["dr_libs"] = "%{wks.location}/third_party/dr_libs"
 include_dirs["entt"] = "%{wks.location}/third_party/entt/single_include"
 include_dirs["physx"] = "%{wks.location}/third_party/physx/physx/include"
+include_dirs["physx_omnipvd"] = "%{wks.location}/third_party/physx/physx/pvdruntime/include"
 
 library_dirs = {}
 
