@@ -1,6 +1,6 @@
 #pragma once
 
-#include "physics/physics_collision_shape.h"
+#include "physics/collision_shapes/physics_collision_shape.h"
 
 namespace retro::physics
 {

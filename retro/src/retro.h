@@ -70,6 +70,8 @@
 #include "physics/collision_shapes/physics_box_collision.h"
 #include "physics/collision_shapes/physics_plane_collision.h"
 #include "physics/collision_shapes/physics_capsule_collision.h"
+#include "physics/actors/physics_actor.h"
+#include "physics/actors/physics_dynamic_actor.h"
 
 // Input Include
 #include "input/input.h"
