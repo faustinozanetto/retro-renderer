@@ -60,7 +60,7 @@ project "retro"
         }
 
     filter "configurations:release"
-        defines "RT_RELEASE"
+        defines "RT_RELEASE;NDEBUG"
         runtime "Release"
         optimize "on"
 

@@ -11,6 +11,10 @@ namespace retro::physics
 		physics_world();
 		~physics_world();
 
+		/* Getters */
+		physx::PxPhysics* get_physics() { return m_physics; }
+		physx::PxScene* get_scene() { return m_scene; }
+
 		/* Functions */
 		void initialize();
 

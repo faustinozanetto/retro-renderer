@@ -43,5 +43,6 @@ project "physx"
         symbols "on"
 
     filter "configurations:release"
+        defines "NDEBUG"
         runtime "Release"
         optimize "on"
