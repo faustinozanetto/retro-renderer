@@ -1,14 +1,13 @@
 #pragma once
 
 #include "physics/collision_shapes/physics_collision_shape.h"
-#include "physics/physics_world.h"
 
 namespace retro::physics
 {
     class physics_actor
     {
     public:
-        physics_actor(const std::shared_ptr<physics_world>& world) : m_initialized(false), m_physics_world(world), m_collision_shapes({}) {}
+        physics_actor() : m_initialized(false), m_collision_shapes({}) {}
         virtual ~physics_actor() = default;
 
         /* Getters */
@@ -22,7 +21,6 @@ namespace retro::physics
         virtual void attach_collision_shapes() = 0;
 
         bool m_initialized;
-        std::shared_ptr<physics_world> m_physics_world;
         std::vector<std::shared_ptr<physics_collision_shape>> m_collision_shapes;
     };
 }

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "physics/physics_world.h"
+
 #include <PxPhysicsAPI.h>
 
 namespace retro::physics

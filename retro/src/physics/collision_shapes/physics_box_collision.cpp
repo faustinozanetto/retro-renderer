@@ -5,10 +5,10 @@
 
 namespace retro::physics
 {
-    physics_box_collision::physics_box_collision(physx::PxPhysics *physics_world, physx::PxMaterial *material, const glm::vec3 &dimensions)
+    physics_box_collision::physics_box_collision(physx::PxMaterial *material, const glm::vec3 &half_extents)
     {
-        m_dimensions = dimensions;
-        m_shape = physics_world->createShape(physx::PxBoxGeometry(physics_utils::convert_glm_vec3_to_physx(dimensions)), *material);
+        m_half_extents = half_extents;
+        m_shape = physics_world::get().get_physics()->createShape(physx::PxBoxGeometry(physics_utils::convert_glm_vec3_to_physx(half_extents)), *material);
     }
 
     physics_box_collision::~physics_box_collision()

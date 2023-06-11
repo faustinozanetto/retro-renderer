@@ -22,7 +22,6 @@ public:
 private:
     /* Common Variables */
     std::shared_ptr<retro::camera::camera> m_camera;
-    std::shared_ptr<retro::physics::physics_world> m_physics_world;
     std::shared_ptr<retro::scene::scene> m_scene;
 
 	/* Rendering */

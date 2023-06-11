@@ -13,7 +13,7 @@ namespace retro::physics
 	physics_world::physics_world(const glm::vec3 &gravity)
 	{
 		m_gravity = gravity;
-		initialize();
+		initialize_physx();
 	}
 
 	physics_world::~physics_world()
@@ -27,7 +27,7 @@ namespace retro::physics
 		m_scene->setGravity(physics_utils::convert_glm_vec3_to_physx(gravity));
 	}
 
-	void physics_world::initialize()
+	void physics_world::initialize_physx()
 	{
 		// Create the foundation
 		m_foundation = PxCreateFoundation(PX_PHYSICS_VERSION, m_allocator, m_error_callback);

@@ -3,11 +3,11 @@
 
 namespace retro::physics
 {
-    physics_capsule_collision::physics_capsule_collision(physx::PxPhysics *physics_world, physx::PxMaterial *material, float radius, float half_height)
+    physics_capsule_collision::physics_capsule_collision(physx::PxMaterial *material, float radius, float half_height)
     {
         m_radius = radius;
         m_half_height = half_height;
-        m_shape = physics_world->createShape(physx::PxCapsuleGeometry(radius, half_height), *material);
+        m_shape = physics_world::get().get_physics()->createShape(physx::PxCapsuleGeometry(radius, half_height), *material);
     }
 
     physics_capsule_collision::~physics_capsule_collision()

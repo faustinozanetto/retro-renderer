@@ -9,7 +9,7 @@ namespace retro::physics
     class physics_dynamic_actor : public physics_actor
     {
     public:
-        physics_dynamic_actor(const std::shared_ptr<physics_world> & world, const glm::vec3 &location = glm::vec3(0.0f), const glm::vec3 &rotation = glm::vec3(0.0f), float mass = 1.0f);
+        physics_dynamic_actor(const glm::vec3 &location = glm::vec3(0.0f), const glm::vec3 &rotation = glm::vec3(0.0f), float mass = 1.0f);
         ~physics_dynamic_actor() override;
 
         /* Getters */

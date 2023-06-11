@@ -5,15 +5,15 @@
 
 namespace retro::physics
 {
-    physics_static_actor::physics_static_actor(const std::shared_ptr<physics_world>& world, physx::PxRigidStatic* rigid_static) : physics_actor(world)
+    physics_static_actor::physics_static_actor(physx::PxRigidStatic* rigid_static) : physics_actor()
     {
         m_rigid_static = rigid_static;
     }
 
-    physics_static_actor::physics_static_actor(const std::shared_ptr<physics_world> &world, const glm::vec3 &location, const glm::vec3 &rotation) : physics_actor(world)
+    physics_static_actor::physics_static_actor(const glm::vec3 &location, const glm::vec3 &rotation) : physics_actor()
     {
         const physx::PxTransform& transform = physics_utils::create_transform_from_glm(location, rotation);
-        m_rigid_static = m_physics_world->get_physics()->createRigidStatic(transform);
+        m_rigid_static = physics_world::get().get_physics()->createRigidStatic(transform);
     }
 
     physics_static_actor::~physics_static_actor()
@@ -28,7 +28,7 @@ namespace retro::physics
         attach_collision_shapes();
 
         // Add actor to physics world
-        m_physics_world->get_scene()->addActor(*m_rigid_static);
+        physics_world::get().get_scene()->addActor(*m_rigid_static);
 
         m_initialized = true;
     }

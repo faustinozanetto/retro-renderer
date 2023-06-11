@@ -3,9 +3,9 @@
 
 namespace retro::physics
 {
-    physics_plane_collision::physics_plane_collision(physx::PxPhysics *physics_world, physx::PxMaterial *material)
+    physics_plane_collision::physics_plane_collision(physx::PxMaterial *material)
     {
-        m_shape = physics_world->createShape(physx::PxPlaneGeometry(), *material);
+        m_shape = physics_world::get().get_physics()->createShape(physx::PxPlaneGeometry(), *material);
     }
 
     physics_plane_collision::~physics_plane_collision()

@@ -7,7 +7,7 @@ namespace retro::physics
     class physics_sphere_collision : public physics_collision_shape
     {
     public:
-        physics_sphere_collision(physx::PxPhysics *physics_world, physx::PxMaterial *material, float radius = 1.0f);
+        physics_sphere_collision(physx::PxMaterial *material, float radius = 1.0f);
         ~physics_sphere_collision() override;
 
         /* Getters */

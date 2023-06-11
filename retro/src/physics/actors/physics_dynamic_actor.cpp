@@ -5,10 +5,10 @@
 
 namespace retro::physics
 {
-    physics_dynamic_actor::physics_dynamic_actor(const std::shared_ptr<physics_world> & world, const glm::vec3 &location, const glm::vec3 &rotation, float mass) : physics_actor(world)
+    physics_dynamic_actor::physics_dynamic_actor(const glm::vec3 &location, const glm::vec3 &rotation, float mass) : physics_actor()
     {
         physx::PxTransform transform = physics_utils::create_transform_from_glm(location, rotation);
-        m_rigid_dynamic = m_physics_world->get_physics()->createRigidDynamic(transform);
+        m_rigid_dynamic = physics_world::get().get_physics()->createRigidDynamic(transform);
         m_mass = mass;
     }
 
@@ -63,7 +63,7 @@ namespace retro::physics
         physx::PxRigidBodyExt::updateMassAndInertia(*m_rigid_dynamic, m_mass);
 
         // Add actor to physics world
-        m_physics_world->get_scene()->addActor(*m_rigid_dynamic);
+        physics_world::get().get_scene()->addActor(*m_rigid_dynamic);
 
         m_initialized = true;
     }

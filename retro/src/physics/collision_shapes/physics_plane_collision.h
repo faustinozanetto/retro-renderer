@@ -7,7 +7,7 @@ namespace retro::physics
     class physics_plane_collision : public physics_collision_shape
     {
     public:
-        physics_plane_collision(physx::PxPhysics *physics_world, physx::PxMaterial *material);
+        physics_plane_collision(physx::PxMaterial *material);
         ~physics_plane_collision() override;
 
         /* Getters */

@@ -1,0 +1,13 @@
+# Material storage file
+# Parameters section
+[parameters]
+# Albedo color
+albedo: 0.15 0.15 0.15
+emissive: 0.1 0.25 0.05
+emissive_strength: 0.0
+roughness: 1.0
+metallic: 1.0
+ambient_occlusion: 1.0
+tilling: 1.0
+# Textures section
+[textures]

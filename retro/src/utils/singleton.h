@@ -1,5 +1,8 @@
 ﻿#pragma once
 
+#include "core/assert.h"
+#include "logging/logger.h"
+
 #include <iostream>
 
 namespace retro

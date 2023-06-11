@@ -9,8 +9,8 @@ namespace retro::physics
     class physics_static_actor : public physics_actor
     {
     public:
-        physics_static_actor(const std::shared_ptr<physics_world>& world, physx::PxRigidStatic* rigid_static);
-        physics_static_actor(const std::shared_ptr<physics_world> &world, const glm::vec3 &location = glm::vec3(0.0f), const glm::vec3 &rotation = glm::vec3(0.0f));
+        physics_static_actor(physx::PxRigidStatic* rigid_static);
+        physics_static_actor(const glm::vec3 &location = glm::vec3(0.0f), const glm::vec3 &rotation = glm::vec3(0.0f));
         ~physics_static_actor() override;
 
         /* Getters */
