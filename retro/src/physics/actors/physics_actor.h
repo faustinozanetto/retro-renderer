@@ -8,7 +8,7 @@ namespace retro::physics
     class physics_actor
     {
     public:
-        physics_actor(const std::shared_ptr<physics_world>& world) : m_physics_world(world) {}
+        physics_actor(const std::shared_ptr<physics_world>& world) : m_initialized(false), m_physics_world(world), m_collision_shapes({}) {}
         virtual ~physics_actor() = default;
 
         /* Getters */

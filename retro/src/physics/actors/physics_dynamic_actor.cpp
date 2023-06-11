@@ -7,7 +7,8 @@ namespace retro::physics
 {
     physics_dynamic_actor::physics_dynamic_actor(const std::shared_ptr<physics_world> & world, const glm::vec3 &location, const glm::vec3 &rotation, float mass) : physics_actor(world)
     {
-        m_rigid_dynamic = m_physics_world->get_physics()->createRigidDynamic(physics_utils::create_transform_from_glm(location, rotation));
+        physx::PxTransform transform = physics_utils::create_transform_from_glm(location, rotation);
+        m_rigid_dynamic = m_physics_world->get_physics()->createRigidDynamic(transform);
         m_mass = mass;
     }
 
@@ -15,6 +16,42 @@ namespace retro::physics
     {
         m_rigid_dynamic->release();
         m_rigid_dynamic = nullptr;
+    }
+
+    glm::vec3 physics_dynamic_actor::get_linear_velocity() const
+    {
+		return physics_utils::convert_physx_vec3_to_glm(m_rigid_dynamic->getLinearVelocity());
+    }
+
+    glm::vec3 physics_dynamic_actor::get_angular_velocity() const
+    {
+        return physics_utils::convert_physx_vec3_to_glm(m_rigid_dynamic->getAngularVelocity());
+    }
+
+    glm::vec3 physics_dynamic_actor::get_center_of_mass() const
+    {
+        return physics_utils::convert_physx_vec3_to_glm(m_rigid_dynamic->getCMassLocalPose().p);
+    }
+
+    void physics_dynamic_actor::set_mass(float mass)
+    {
+		m_mass = mass;
+		m_rigid_dynamic->setMass(m_mass);
+    }
+
+    void physics_dynamic_actor::set_linear_velocity(const glm::vec3& linear_velocity)
+	{
+		m_rigid_dynamic->setLinearVelocity(physics_utils::convert_glm_vec3_to_physx(linear_velocity));
+    }
+
+    void physics_dynamic_actor::set_angular_velocity(const glm::vec3& angular_velocity)
+    {
+        m_rigid_dynamic->setAngularVelocity(physics_utils::convert_glm_vec3_to_physx(angular_velocity));
+    }
+
+    void physics_dynamic_actor::set_center_of_mass(const glm::vec3& center_of_mass)
+    {
+		m_rigid_dynamic->setCMassLocalPose(physics_utils::create_transform_from_glm(center_of_mass));
     }
 
     void physics_dynamic_actor::initialize()

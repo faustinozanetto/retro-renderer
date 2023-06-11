@@ -9,11 +9,6 @@
 #include <retro.h>
 #include <imgui.h>
 
-struct physx_comp
-{
-    physx::PxRigidDynamic* body;
-};
-
 physx_app::physx_app() : application("./")
 {
     load_shaders();
@@ -28,14 +23,30 @@ physx_app::physx_app() : application("./")
 
     m_physics_world = std::make_shared<retro::physics::physics_world>();
 
-    auto* material = m_physics_world->get_physics()->createMaterial(0.5f, 0.5f, 0.6f);
-    physx::PxRigidStatic* groundPlane = PxCreatePlane(*m_physics_world->get_physics(), physx::PxPlane(0, 1, 0, 50),
-                                                      *material);
-    m_physics_world->get_scene()->addActor(*groundPlane);
+	const auto& model = retro::renderer::model_loader::load_model_from_file("../resources/models/cube.obj");
+	const auto& model_material = retro::renderer::material_loader::load_material_from_file(
+		"../resources/materials/test.rrm");
 
-    const auto& model = retro::renderer::model_loader::load_model_from_file("../resources/models/cube.obj");
-    const auto& model_material = retro::renderer::material_loader::load_material_from_file(
-        "../resources/materials/test.rrm");
+    auto* material = m_physics_world->get_physics()->createMaterial(0.5f, 0.5f, 0.6f);
+
+    auto plane_actor_transform = physx::PxTransformFromPlaneEquation(physx::PxPlane(0, 1, 0, 50));
+    glm::vec3 plane_actor_location = retro::physics::physics_utils::convert_physx_vec3_to_glm(plane_actor_transform.p);
+    glm::vec3 player_actor_rotation = glm::eulerAngles(retro::physics::physics_utils::convert_physx_quat_to_glm(plane_actor_transform.q));
+
+	const std::shared_ptr<retro::physics::physics_plane_collision>& plane_collision_shape = std::make_shared<
+		retro::physics::physics_plane_collision>(m_physics_world->get_physics(), material);
+	physx::PxRigidActor* plane_static_actor = PxCreatePlane(*m_physics_world->get_physics(), physx::PxPlane(0, 1, 0, 50), *material);
+
+	const std::shared_ptr< retro::physics::physics_static_actor>& floor_physics_static_actor = std::make_shared<retro::physics::physics_static_actor>(m_physics_world, plane_static_actor);
+    floor_physics_static_actor->add_collision_shape(plane_collision_shape);
+    floor_physics_static_actor->initialize();
+
+	auto plane_actor = m_scene->create_actor("physx actor");
+    plane_actor->add_component<retro::scene::transform_component>(plane_actor_location, player_actor_rotation, glm::vec3(50.0f, 1.0f, 50.0f));
+    plane_actor->add_component<retro::scene::model_renderer_component>(model);
+    plane_actor->add_component<retro::scene::material_renderer_component>(model_material);
+    plane_actor->add_component<retro::scene::physics_static_actor_component>(floor_physics_static_actor);
+
 
     float halfExtent = .2f;
     const std::shared_ptr<retro::physics::physics_box_collision>& collision_shape = std::make_shared<
@@ -46,7 +57,7 @@ physx_app::physx_app() : application("./")
     {
         for (int j = 0; j < size - i; j++)
         {
-            glm::vec3 location = glm::vec3(j * 2 - size - i, i * 2 + 1, 0) * halfExtent;
+            glm::vec3 location = glm::vec3((j * 2) - size - i, i * 2 + 1, 0) * halfExtent;
             glm::vec3 rotation = glm::vec3(0);
             
             auto dynamic_actor = std::make_shared<retro::physics::physics_dynamic_actor>(
@@ -61,7 +72,7 @@ physx_app::physx_app() : application("./")
             actor->add_component<retro::scene::model_renderer_component>(model);
             actor->add_component<retro::scene::material_renderer_component>(model_material);
 
-            actor->add_component<physx_comp>().body = dynamic_actor->get_physx_rigid_dynamic();
+            actor->add_component<retro::scene::physics_dynamic_actor_component>(dynamic_actor);
         }
     }
 }
@@ -88,26 +99,36 @@ void physx_app::on_update()
     m_geometry_shader->set_mat4("u_projection", projectionMatrix);
 
     const auto& view = m_scene->get_actors_registry()->view<
-        retro::scene::transform_component, physx_comp, retro::scene::model_renderer_component,
+        retro::scene::transform_component, retro::scene::model_renderer_component,
         retro::scene::material_renderer_component>();
-    for (auto&& [actor, transform_component, physx_component, model_renderer_component, material_renderer_component] :
+    for (auto&& [actor, transform_comp, model_renderer_comp, material_renderer_comp] :
          view.each())
     {
+        glm::vec3 updated_location;
+        glm::vec3 updated_rotation;
+        // 1. Static physics actors
+        if (m_scene->get_actors_registry()->any_of<retro::scene::physics_static_actor_component>(actor)) {
+            auto& physics_static_actor_comp = m_scene->get_actors_registry()->get<retro::scene::physics_static_actor_component>(actor);
+
+            updated_location = retro::physics::physics_utils::convert_physx_vec3_to_glm(physics_static_actor_comp.get_static_actor()->get_physx_rigid_static()->getGlobalPose().p);
+            updated_rotation = glm::eulerAngles(retro::physics::physics_utils::convert_physx_quat_to_glm(physics_static_actor_comp.get_static_actor()->get_physx_rigid_static()->getGlobalPose().q));
+        }
+		else if (m_scene->get_actors_registry()->any_of<retro::scene::physics_dynamic_actor_component>(actor)) {
+			auto& physics_dynamic_actor_comp = m_scene->get_actors_registry()->get<retro::scene::physics_dynamic_actor_component>(actor);
+
+			updated_location = retro::physics::physics_utils::convert_physx_vec3_to_glm(physics_dynamic_actor_comp.get_dynamic_actor()->get_physx_rigid_dynamic()->getGlobalPose().p);
+			updated_rotation = glm::eulerAngles(retro::physics::physics_utils::convert_physx_quat_to_glm(physics_dynamic_actor_comp.get_dynamic_actor()->get_physx_rigid_dynamic()->getGlobalPose().q));
+		}
+
         // Update the cube's position and rotation
-        const physx::PxTransform& actorTransform = physx_component.body->getGlobalPose();
-        const physx::PxVec3& actorPosition = actorTransform.p;
-        const physx::PxQuat& actorRotation = actorTransform.q;
+        transform_comp.set_location(updated_location);
+        transform_comp.set_rotation(updated_rotation);
 
-        transform_component.set_location(glm::vec3(actorPosition.x, actorPosition.y, actorPosition.z));
-        transform_component.set_rotation(
-            glm::eulerAngles(glm::quat(actorRotation.w, actorRotation.x, actorRotation.y, actorRotation.z)));
-
-        const glm::mat4& transformMatrix = transform_component.get_transform();
+        // Render
+        const glm::mat4& transformMatrix = transform_comp.get_transform();
         m_geometry_shader->set_mat4("u_transform", transformMatrix);
-        material_renderer_component.get_material()->set_albedo(
-            physx_component.body->isSleeping() ? glm::vec3(1.0f, 0.0f, 0.f) : glm::vec3(0.0f, 1.0f, 0.0f));
-        material_renderer_component.get_material()->bind(m_geometry_shader);
-        retro::renderer::renderer::submit_model(model_renderer_component.get_model());
+        material_renderer_comp.get_material()->bind(m_geometry_shader);
+        retro::renderer::renderer::submit_model(model_renderer_comp.get_model());
     }
 
     m_geometry_shader->un_bind();

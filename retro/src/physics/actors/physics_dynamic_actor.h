@@ -15,6 +15,15 @@ namespace retro::physics
         /* Getters */
         physx::PxRigidDynamic *get_physx_rigid_dynamic() const { return m_rigid_dynamic; }
         float get_mass() const { return m_mass; }
+		glm::vec3 get_linear_velocity() const;
+		glm::vec3 get_angular_velocity() const;
+        glm::vec3 get_center_of_mass() const;
+
+        /* Setters */
+        void set_mass(float mass);
+		void set_linear_velocity(const glm::vec3& linear_velocity);
+		void set_angular_velocity(const glm::vec3& angular_velocity);
+		void set_center_of_mass(const glm::vec3& center_of_mass);
 
         /* Functions */
         void initialize() override;

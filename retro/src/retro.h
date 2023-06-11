@@ -61,6 +61,8 @@
 #include "scene/actors/components/model_renderer_component.h"
 #include "scene/actors/components/material_renderer_component.h"
 #include "scene/actors/components/text_renderer_component.h"
+#include "scene/actors/components/physics_dynamic_actor_component.h"
+#include "scene/actors/components/physics_static_actor_component.h"
 
 // Physics Include
 #include "physics/physics_world.h"
@@ -72,6 +74,7 @@
 #include "physics/collision_shapes/physics_capsule_collision.h"
 #include "physics/actors/physics_actor.h"
 #include "physics/actors/physics_dynamic_actor.h"
+#include "physics/actors/physics_static_actor.h"
 
 // Input Include
 #include "input/input.h"
