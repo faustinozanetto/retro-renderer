@@ -64,6 +64,12 @@
 
 // Physics Include
 #include "physics/physics_world.h"
+#include "physics/physics_utils.h"
+#include "physics/collision_shapes/physics_sphere_collision.h"
+#include "physics/collision_shapes/physics_collision_shape.h"
+#include "physics/collision_shapes/physics_box_collision.h"
+#include "physics/collision_shapes/physics_plane_collision.h"
+#include "physics/collision_shapes/physics_capsule_collision.h"
 
 // Input Include
 #include "input/input.h"

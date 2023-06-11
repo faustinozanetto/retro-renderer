@@ -36,8 +36,8 @@ physx_app::physx_app() : application("./")
     const auto &model_material = retro::renderer::material_loader::load_material_from_file("../resources/materials/test.rrm");
 
     float halfExtent = .2f;
-    physx::PxShape *shape = m_physics_world->get_physics()->createShape(physx::PxBoxGeometry(halfExtent, halfExtent, halfExtent), *material);
-   // physx::PxShape* shape = m_physics_world->get_physics()->createShape(physx::PxSphereGeometry(halfExtent), *material);
+    const std::shared_ptr<retro::physics::physics_box_collision>& collision_shape = std::make_shared<retro::physics::physics_box_collision>(m_physics_world->get_physics(),
+        material, glm::vec3(halfExtent));
     physx::PxU32 size = 10;
     physx::PxTransform t(physx::PxVec3(0));
     for (physx::PxU32 i = 0; i < size; i++)
@@ -46,7 +46,7 @@ physx_app::physx_app() : application("./")
         {
             physx::PxTransform localTm(physx::PxVec3(physx::PxReal(j * 2) - physx::PxReal(size - i), physx::PxReal(i * 2 + 1), 0) * halfExtent);
             physx::PxRigidDynamic *body = m_physics_world->get_physics()->createRigidDynamic(t.transform(localTm));
-            body->attachShape(*shape);
+            body->attachShape(*collision_shape->get_physx_shape());
             physx::PxRigidBodyExt::updateMassAndInertia(*body, 15.0f);
             m_physics_world->get_scene()->addActor(*body);
 
@@ -63,7 +63,6 @@ physx_app::physx_app() : application("./")
             actor->add_component<physx_comp>().body = body;
         }
     }
-    shape->release();
 }
 
 physx_app::~physx_app()
@@ -87,7 +86,6 @@ void physx_app::on_update()
 	m_geometry_shader->set_mat4("u_view", viewMatrix);
 	m_geometry_shader->set_mat4("u_projection", projectionMatrix);
 
-    bool material_bound = false;
 	const auto& view = m_scene->get_actors_registry()->view<retro::scene::transform_component, physx_comp, retro::scene::model_renderer_component, retro::scene::material_renderer_component>();
 	for (auto&& [actor, transform_component, physx_component, model_renderer_component, material_renderer_component] : view.each())
 	{
@@ -102,10 +100,7 @@ void physx_app::on_update()
 		const glm::mat4& transformMatrix = transform_component.get_transform();
 		m_geometry_shader->set_mat4("u_transform", transformMatrix);
         material_renderer_component.get_material()->set_albedo(physx_component.body->isSleeping() ? glm::vec3(1.0f, 0.0f, 0.f ) : glm::vec3(0.0f, 1.0f, 0.0f ));
-        if (!material_bound) {
-            material_renderer_component.get_material()->bind(m_geometry_shader);
-            material_bound = true;
-        }
+        material_renderer_component.get_material()->bind(m_geometry_shader);
 		retro::renderer::renderer::submit_model(model_renderer_component.get_model());
 	}
 
