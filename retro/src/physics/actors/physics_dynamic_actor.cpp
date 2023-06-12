@@ -5,6 +5,11 @@
 
 namespace retro::physics
 {
+    physics_dynamic_actor::physics_dynamic_actor(physx::PxRigidDynamic* rigid_dynamic)
+    {
+        m_rigid_dynamic = rigid_dynamic;
+    }
+
     physics_dynamic_actor::physics_dynamic_actor(const glm::vec3 &location, const glm::vec3 &rotation, float mass) : physics_actor()
     {
         physx::PxTransform transform = physics_utils::create_transform_from_glm(location, rotation);
@@ -56,6 +61,7 @@ namespace retro::physics
 
     void physics_dynamic_actor::initialize()
     {
+        RT_ASSERT_MSG(!m_collision_shapes.empty(), "Physics dynamic actor does not have a collision shape!");
         // Attach collision shapes.
         attach_collision_shapes();
 

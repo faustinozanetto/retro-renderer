@@ -1,6 +1,7 @@
 #pragma once
 
 #include "physics/actors/physics_actor.h"
+#include "physics/physics_material.h"
 
 #include <PxPhysicsAPI.h>
 
@@ -9,11 +10,13 @@ namespace retro::physics
     class physics_dynamic_actor : public physics_actor
     {
     public:
+        physics_dynamic_actor(physx::PxRigidDynamic* rigid_dynamic);
         physics_dynamic_actor(const glm::vec3 &location = glm::vec3(0.0f), const glm::vec3 &rotation = glm::vec3(0.0f), float mass = 1.0f);
         ~physics_dynamic_actor() override;
 
         /* Getters */
-        physx::PxRigidDynamic *get_physx_rigid_dynamic() const { return m_rigid_dynamic; }
+        physx::PxRigidDynamic *get_physx_rigid_dynamic_actor() const { return m_rigid_dynamic; }
+        physx::PxRigidActor* get_physx_rigid_actor() override { return m_rigid_dynamic; }
         float get_mass() const { return m_mass; }
 		glm::vec3 get_linear_velocity() const;
 		glm::vec3 get_angular_velocity() const;

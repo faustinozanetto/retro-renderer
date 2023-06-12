@@ -8,6 +8,8 @@
 #include <OmniPvdWriter.h>
 #include <OmniPvdFileWriteStream.h>
 
+#include <gpu/PxGpu.h>
+
 namespace retro::physics
 {
 	physics_world::physics_world(const glm::vec3 &gravity)
@@ -44,11 +46,32 @@ namespace retro::physics
 		OmniPvdFileWriteStream *omni_file_write_stream = m_omni_pvd->getFileWriteStream();
 		RT_ASSERT_MSG(omni_file_write_stream, "An error occurred while creating PhysX Omni File Writer!");
 		omni_writer->setWriteStream(omni_file_write_stream);
+
+		m_pvd = PxCreatePvd(*m_foundation);
+		RT_ASSERT_MSG(m_pvd, "An error occurred while creating PhysX PVD!");
+
+		physx::PxPvdTransport* transport = physx::PxDefaultPvdSocketTransportCreate("127.0.0.1", 5425, 10);
+		m_pvd->connect(*transport, physx::PxPvdInstrumentationFlag::eALL);
 #endif
 
 		// Create the physics instance
 		m_physics = PxCreatePhysics(PX_PHYSICS_VERSION, *m_foundation, physx::PxTolerancesScale(), true, nullptr, m_omni_pvd);
 		RT_ASSERT_MSG(m_physics, "An error occurred while creating PhysX Instance!");
+
+		PxInitExtensions(*m_physics, m_pvd);
+
+		// Enable GPU acceleration
+		physx::PxCudaContextManagerDesc cudaDesc;
+		cudaDesc.interopMode = physx::PxCudaInteropMode::OGL_INTEROP;  // Specify the desired interop mode
+		physx::PxCudaContextManager* cudaContextManager = PxCreateCudaContextManager(*m_foundation, cudaDesc, nullptr);
+		if (cudaContextManager)
+		{
+			if (!cudaContextManager->contextIsValid())
+			{
+				cudaContextManager->release();
+				cudaContextManager = nullptr;
+			}
+		}
 
 #ifdef RT_DEBUG
 		omni_file_write_stream->setFileName("myoutpufile.ovd");
@@ -62,10 +85,21 @@ namespace retro::physics
 		// Create the scene
 		physx::PxSceneDesc sceneDesc(m_physics->getTolerancesScale());
 		sceneDesc.cpuDispatcher = m_dispatcher;
+		sceneDesc.cudaContextManager = cudaContextManager;
 		sceneDesc.filterShader = physx::PxDefaultSimulationFilterShader;
 		sceneDesc.gravity = physics_utils::convert_glm_vec3_to_physx(m_gravity);
 		m_scene = m_physics->createScene(sceneDesc);
 		RT_ASSERT_MSG(m_scene, "An error occurred while creating PhysX Scene!");
+
+#ifdef RT_DEBUG
+		physx::PxPvdSceneClient* pvd_client = m_scene->getScenePvdClient();
+		if (pvd_client)
+		{
+			pvd_client->setScenePvdFlag(physx::PxPvdSceneFlag::eTRANSMIT_CONSTRAINTS, true);
+			pvd_client->setScenePvdFlag(physx::PxPvdSceneFlag::eTRANSMIT_CONTACTS, true);
+			pvd_client->setScenePvdFlag(physx::PxPvdSceneFlag::eTRANSMIT_SCENEQUERIES, true);
+		}
+#endif
 	}
 
 	void physics_world::cleanup()
@@ -104,5 +138,10 @@ namespace retro::physics
 			m_scene->simulate(core::time::get_delta_time());
 			m_scene->fetchResults(true);
 		}
+	}
+
+	void physics_world::sync_transforms()
+	{
+		
 	}
 }

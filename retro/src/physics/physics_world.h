@@ -27,6 +27,7 @@ namespace retro::physics
 
 		/* Functions */
 		void on_update();
+		void sync_transforms();
 
 	private:
 		void initialize_physx();
@@ -39,6 +40,7 @@ namespace retro::physics
 		physx::PxFoundation *m_foundation;
 		physx::PxScene *m_scene;
 		physx::PxOmniPvd *m_omni_pvd;
+		physx::PxPvd *m_pvd;
 		physx::PxDefaultCpuDispatcher *m_dispatcher;
 
 		/* Common Variables */

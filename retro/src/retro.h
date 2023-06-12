@@ -77,6 +77,8 @@
 #include "physics/actors/physics_dynamic_actor.h"
 #include "physics/actors/physics_static_actor.h"
 #include "physics/physics_material.h"
+#include "physics/constraints/physics_joint.h"
+#include "physics/constraints/physics_fixed_joint.h"
 
 // Input Include
 #include "input/input_manager.h"

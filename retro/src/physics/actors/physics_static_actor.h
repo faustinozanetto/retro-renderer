@@ -15,6 +15,7 @@ namespace retro::physics
 
         /* Getters */
         physx::PxRigidStatic *get_physx_rigid_static() const { return m_rigid_static; }
+        physx::PxRigidActor* get_physx_rigid_actor() override { return m_rigid_static; }
 
         /* Functions */
         void initialize() override;
