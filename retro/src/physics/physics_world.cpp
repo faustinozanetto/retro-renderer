@@ -34,6 +34,7 @@ namespace retro::physics
 		RT_ASSERT_MSG(m_foundation, "An error occurred while creating PhysX Foundation!");
 
 		// Create the OmniPVD
+#ifdef RT_DEBUG
 		m_omni_pvd = PxCreateOmniPvd(*m_foundation);
 		RT_ASSERT_MSG(m_omni_pvd, "An error occurred while creating PhysX Omni PVD!");
 
@@ -43,13 +44,16 @@ namespace retro::physics
 		OmniPvdFileWriteStream *omni_file_write_stream = m_omni_pvd->getFileWriteStream();
 		RT_ASSERT_MSG(omni_file_write_stream, "An error occurred while creating PhysX Omni File Writer!");
 		omni_writer->setWriteStream(omni_file_write_stream);
+#endif
 
 		// Create the physics instance
 		m_physics = PxCreatePhysics(PX_PHYSICS_VERSION, *m_foundation, physx::PxTolerancesScale(), true, nullptr, m_omni_pvd);
 		RT_ASSERT_MSG(m_physics, "An error occurred while creating PhysX Instance!");
 
+#ifdef RT_DEBUG
 		omni_file_write_stream->setFileName("myoutpufile.ovd");
 		m_omni_pvd->startSampling();
+#endif
 
 		// Create the default CPU dispatcher
 		m_dispatcher = physx::PxDefaultCpuDispatcherCreate(2);

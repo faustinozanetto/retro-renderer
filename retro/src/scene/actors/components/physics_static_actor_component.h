@@ -6,7 +6,7 @@
 
 namespace retro::scene
 {
-    class physics_static_actor_component : public base_component
+    struct physics_static_actor_component : public base_component
     {
     public:
         physics_static_actor_component(const std::shared_ptr<physics::physics_static_actor> &static_actor);

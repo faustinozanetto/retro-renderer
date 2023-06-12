@@ -6,7 +6,7 @@
 
 namespace retro::scene
 {
-    class material_renderer_component : public base_component
+    struct material_renderer_component : public base_component
     {
     public:
         material_renderer_component(const std::shared_ptr<renderer::material> &material);

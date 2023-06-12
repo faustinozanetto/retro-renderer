@@ -7,6 +7,10 @@ namespace retro::events
         window_resize,
         key_pressed,
         key_released,
+        mouse_moved,
+        mouse_scrolled,
+        mouse_button_pressed,
+        mouse_button_released
     };
 
     class base_event

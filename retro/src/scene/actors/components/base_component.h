@@ -4,10 +4,10 @@
 
 namespace retro::scene
 {
-    class base_component
+    struct base_component
     {
     public:
-        virtual ~base_component() = default;
+		virtual ~base_component() = default;
 
         /* Getters */
         const uuid &get_uuid() const { return m_uuid; }

@@ -36,13 +36,15 @@ namespace retro::camera
         void set_far_plane(float far_plane);
         void set_position(const glm::vec3 &position);
         void set_yaw(float yaw);
+        void set_pitch(float pitch);
+
+        /* Functions */
+        void update_vectors();
+        void construct_matrices();
 
         static std::string get_camera_type_to_string(camera_type type);
 
     private:
-        void update_vectors();
-        void construct_matrices();
-
         camera_type m_type;
 
         float m_fov;

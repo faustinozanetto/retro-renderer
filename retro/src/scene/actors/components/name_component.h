@@ -4,7 +4,7 @@
 
 namespace retro::scene
 {
-    class name_component : public base_component
+    struct name_component : public base_component
     {
     public:
         name_component(const std::string &name);

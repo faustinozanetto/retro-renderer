@@ -79,13 +79,16 @@ namespace retro::camera
     void camera::set_position(const glm::vec3 &position)
     {
         m_position = position;
-        construct_matrices();
     }
 
     void camera::set_yaw(float yaw)
     {
         m_yaw = yaw;
-        construct_matrices();
+    }
+
+    void camera::set_pitch(float pitch)
+    {
+        m_pitch = pitch;
     }
 
     std::string camera::get_camera_type_to_string(camera_type type)

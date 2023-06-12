@@ -6,7 +6,7 @@
 
 namespace retro::scene
 {
-    class model_renderer_component : public base_component
+    struct model_renderer_component : public base_component
     {
     public:
         model_renderer_component(const std::shared_ptr<renderer::model> &model);

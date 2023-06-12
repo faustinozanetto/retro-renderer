@@ -48,6 +48,8 @@ The project is being developed with the latest technlogoies used in the industry
   - Text rendering using custom loaded font file.
   - Textures system with lots of customization and options to load the data.
   - Simple but powerful windowing system.
+- Physics
+  - Implemented physics system using NVIDIA PhysX.
 
 ## 🎛️ Project Structure
 

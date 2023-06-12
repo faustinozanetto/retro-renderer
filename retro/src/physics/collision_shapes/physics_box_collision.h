@@ -9,7 +9,7 @@ namespace retro::physics
     class physics_box_collision : public physics_collision_shape
     {
     public:
-        physics_box_collision(physx::PxMaterial *material, const glm::vec3 & half_extents = glm::vec3(1.0f));
+        physics_box_collision(const std::shared_ptr<retro::physics::physics_material>& physics_material, const glm::vec3 & half_extents = glm::vec3(1.0f));
         ~physics_box_collision() override;
 
         /* Getters */

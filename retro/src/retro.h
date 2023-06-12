@@ -6,6 +6,7 @@
 
 // Camera Includes
 #include "camera/camera.h"
+#include "camera/camera_controller.h"
 
 // Renderer Includes
 #include "renderer/window/window.h"
@@ -75,15 +76,18 @@
 #include "physics/actors/physics_actor.h"
 #include "physics/actors/physics_dynamic_actor.h"
 #include "physics/actors/physics_static_actor.h"
+#include "physics/physics_material.h"
 
 // Input Include
-#include "input/input.h"
+#include "input/input_manager.h"
+#include "input/mouse_codes.h"
 #include "input/key_codes.h"
 
 // Events Include
 #include "events/base_event.h"
 #include "events/window_events.h"
 #include "events/key_events.h"
+#include "events/mouse_events.h"
 #include "events/event_dispatcher.h"
 
 // Interface Includes

@@ -7,7 +7,7 @@ namespace retro::physics
     class physics_capsule_collision : public physics_collision_shape
     {
     public:
-        physics_capsule_collision(physx::PxMaterial *material, float radius = 1.0f, float half_height = 0.5f);
+        physics_capsule_collision(const std::shared_ptr<retro::physics::physics_material>& physics_material, float radius = 1.0f, float half_height = 0.5f);
         ~physics_capsule_collision() override;
 
         /* Getters */

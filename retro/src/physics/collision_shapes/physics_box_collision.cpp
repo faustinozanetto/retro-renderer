@@ -5,10 +5,10 @@
 
 namespace retro::physics
 {
-    physics_box_collision::physics_box_collision(physx::PxMaterial *material, const glm::vec3 &half_extents)
+    physics_box_collision::physics_box_collision(const std::shared_ptr<retro::physics::physics_material>& physics_material, const glm::vec3 &half_extents) : physics_collision_shape(physics_material)
     {
         m_half_extents = half_extents;
-        m_shape = physics_world::get().get_physics()->createShape(physx::PxBoxGeometry(physics_utils::convert_glm_vec3_to_physx(half_extents)), *material);
+        m_shape = physics_world::get().get_physics()->createShape(physx::PxBoxGeometry(physics_utils::convert_glm_vec3_to_physx(half_extents)), *m_physics_material->get_physx_material());
     }
 
     physics_box_collision::~physics_box_collision()

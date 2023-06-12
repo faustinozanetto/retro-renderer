@@ -7,7 +7,7 @@ namespace retro::physics
     class physics_material
     {
     public:
-        physics_material(float staticFriction, float dynamicFriction, float restitution);
+        physics_material(float static_friction = 0.5f, float dynamic_friction = 0.5f, float restitution = 0.6f);
         ~physics_material();
 
         /* Getters */
