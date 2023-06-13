@@ -1,6 +1,7 @@
 #pragma once
 
 #include "physics/physics_utils.h"
+#include "physics/physics_error_callback.h"
 #include "utils/singleton.h"
 
 #include <PxPhysicsAPI.h>
@@ -35,7 +36,7 @@ namespace retro::physics
 
 		/* NVIDIA PhysX Variables */
 		physx::PxDefaultAllocator m_allocator;
-		physx::PxDefaultErrorCallback m_error_callback;
+		physics_error_callback m_error_callback;
 		physx::PxPhysics *m_physics;
 		physx::PxFoundation *m_foundation;
 		physx::PxScene *m_scene;

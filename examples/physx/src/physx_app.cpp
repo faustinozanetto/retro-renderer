@@ -21,9 +21,6 @@ physx_app::physx_app() : application("./")
     m_scene = std::make_shared<retro::scene::scene>("physx scene");
     retro::scene::scene_manager::get().set_active_scene(m_scene);
 
-    // Initialize physics
-    retro::physics::physics_world::initialize();
-
     auto model = retro::renderer::model_loader::load_model_from_file("../resources/models/cube.obj");
     auto sphere_model = retro::renderer::model_loader::load_model_from_file("../resources/models/sphere.obj");
     auto model_material = retro::renderer::material_loader::load_material_from_file(
@@ -53,39 +50,44 @@ physx_app::physx_app() : application("./")
     plane_actor->add_component<retro::scene::physics_static_actor_component>(floor_physics_static_actor);
 
     const std::shared_ptr<retro::physics::physics_box_collision> &collision_shape = std::make_shared<
-        retro::physics::physics_box_collision>(physics_material);
+        retro::physics::physics_box_collision>(physics_material, glm::vec3(2.0f, 0.5f, 0.5f));
 
     // Create chain with fixed joints
     {
+        std::shared_ptr<retro::physics::physics_dynamic_actor> prev = nullptr;
 		std::vector<std::shared_ptr<retro::physics::physics_dynamic_actor>> actors;
 		std::vector<std::shared_ptr<retro::physics::physics_fixed_joint>> joints;
 
-		const float separation = 3.0f; // Separation between actors
-		glm::vec3 position(0.0f, 0.0f, 0.0f); // Initial position of the chain
+		const float separation = 5.0f; // Separation between actors
+        physx::PxVec3 offset(separation / 2, 0, 0);
+        physx::PxTransform start_position(physx::PxVec3(0.0f, 20.0f, -10.0f)); // Initial position of the chain
 
-		for (int i = 0; i < 5; ++i)
+        physx::PxTransform localTm = physx::PxTransform(offset);
+
+		for (int i = 0; i < 15; ++i)
 		{
+			const std::shared_ptr<retro::physics::physics_box_collision>& box_collision_shape = std::make_shared<retro::physics::physics_box_collision>(physics_material, glm::vec3(2.0f, 0.5f, 0.5f));
 			// Create a dynamic actor
-			auto actor = std::make_shared<retro::physics::physics_dynamic_actor>(position);
-            actor->add_collision_shape(collision_shape);
+            physx::PxTransform curr_trans = start_position * localTm;
+			auto actor = std::make_shared<retro::physics::physics_dynamic_actor>(retro::physics::physics_utils::convert_physx_vec3_to_glm(curr_trans.p));
+            actor->add_collision_shape(box_collision_shape);
 			actor->initialize();
 
 			actors.push_back(actor);
 
-			// Create a fixed joint to connect this actor to the previous one
-			if (i > 0)
-			{
-				auto joint = std::make_shared<retro::physics::physics_fixed_joint>(actors[i - 1], nullptr, actors[i], nullptr);
-				joint->get_physx_joint()->setBreakForce(1000, 100000);
-                joint->get_physx_joint()->setConstraintFlag(physx::PxConstraintFlag::eDRIVE_LIMITS_ARE_FORCES, true);
-                joint->get_physx_joint()->setConstraintFlag(physx::PxConstraintFlag::eDISABLE_PREPROCESSING, true);
+			// Create a fixed joint to connect prev actor to this one.
+           	const auto& joint = std::make_shared<retro::physics::physics_fixed_joint>(prev,
+				prev ? physx::PxTransform(offset) : start_position,
+				actor, physx::PxTransform(-offset));
 
-				joints.push_back(joint);
-			}
+			m_fixed_joints.push_back(joint);
+
+			prev = actor;
 
 			// Update the position for the next actor
-			position.x += separation;
+			localTm.p.x += separation;
 		}
+
 
         // Create the render side actors
 		for (const auto& actor : actors)
@@ -94,7 +96,7 @@ physx_app::physx_app() : application("./")
 			glm::vec3 rotation = glm::eulerAngles(retro::physics::physics_utils::convert_physx_quat_to_glm(actor->get_physx_rigid_dynamic_actor()->getGlobalPose().q));
 
 			auto scene_actor = m_scene->create_actor("joint actor");
-            scene_actor->add_component<retro::scene::transform_component>(location, rotation);
+            scene_actor->add_component<retro::scene::transform_component>(location, rotation, glm::vec3(2.0f, 0.5f, 0.5f));
 
             scene_actor->add_component<retro::scene::model_renderer_component>(model);
             scene_actor->add_component<retro::scene::material_renderer_component>(model_material);
@@ -102,7 +104,6 @@ physx_app::physx_app() : application("./")
             scene_actor->add_component<retro::scene::physics_dynamic_actor_component>(actor);
 		}
     }
-
 
     /*
     std::random_device rd;

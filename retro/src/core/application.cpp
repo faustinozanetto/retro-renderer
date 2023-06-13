@@ -5,6 +5,7 @@
 #include "scene/scene_manager.h"
 #include "assets/asset_manager.h"
 #include "renderer/renderer/renderer.h"
+#include "physics/physics_world.h"
 #include "ui/engine_ui.h"
 
 #include <filesystem>
@@ -25,6 +26,8 @@ namespace retro::core
         m_window->set_event_function(BIND_EVENT_FN(application::on_event));
         /* Assets */
         assets::asset_manager::initialize();
+		/* Physics */
+		physics::physics_world::initialize();
         /* Renderer */
         renderer::renderer::initialize();
         /* UI */

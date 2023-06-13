@@ -15,7 +15,6 @@ namespace retro::physics
         const std::shared_ptr<physics_actor> &get_physics_actor_b() const { return m_physics_actor_b; }
 
     protected:
-        virtual void initialize_joint() = 0;
         virtual void release_joint() = 0;
 
         std::shared_ptr<physics_actor> m_physics_actor_a;

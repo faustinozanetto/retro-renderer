@@ -9,6 +9,7 @@
 #include <OmniPvdFileWriteStream.h>
 
 #include <gpu/PxGpu.h>
+#include "physics_error_callback.h"
 
 namespace retro::physics
 {
@@ -31,6 +32,9 @@ namespace retro::physics
 
 	void physics_world::initialize_physx()
 	{
+		RT_SEPARATOR();
+
+		RT_TRACE("Retro Renderer | Started initializing PhysX World.");
 		// Create the foundation
 		m_foundation = PxCreateFoundation(PX_PHYSICS_VERSION, m_allocator, m_error_callback);
 		RT_ASSERT_MSG(m_foundation, "An error occurred while creating PhysX Foundation!");
@@ -55,7 +59,7 @@ namespace retro::physics
 #endif
 
 		// Create the physics instance
-		m_physics = PxCreatePhysics(PX_PHYSICS_VERSION, *m_foundation, physx::PxTolerancesScale(), true, nullptr, m_omni_pvd);
+		m_physics = PxCreatePhysics(PX_PHYSICS_VERSION, *m_foundation, physx::PxTolerancesScale(), true, m_pvd, m_omni_pvd);
 		RT_ASSERT_MSG(m_physics, "An error occurred while creating PhysX Instance!");
 
 		PxInitExtensions(*m_physics, m_pvd);
@@ -91,6 +95,9 @@ namespace retro::physics
 		m_scene = m_physics->createScene(sceneDesc);
 		RT_ASSERT_MSG(m_scene, "An error occurred while creating PhysX Scene!");
 
+		m_scene->setVisualizationParameter(physx::PxVisualizationParameter::eJOINT_LOCAL_FRAMES, 1.0f);
+		m_scene->setVisualizationParameter(physx::PxVisualizationParameter::eJOINT_LIMITS, 1.0f);
+
 #ifdef RT_DEBUG
 		physx::PxPvdSceneClient* pvd_client = m_scene->getScenePvdClient();
 		if (pvd_client)
@@ -100,6 +107,8 @@ namespace retro::physics
 			pvd_client->setScenePvdFlag(physx::PxPvdSceneFlag::eTRANSMIT_SCENEQUERIES, true);
 		}
 #endif
+		RT_TRACE("Retro Renderer | PhysX world initialized successfully!");
+		RT_SEPARATOR();
 	}
 
 	void physics_world::cleanup()
@@ -114,6 +123,7 @@ namespace retro::physics
 			m_dispatcher->release();
 			m_dispatcher = nullptr;
 		}
+		PxCloseExtensions();
 		if (m_physics)
 		{
 			m_physics->release();

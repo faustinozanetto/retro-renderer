@@ -28,6 +28,8 @@ private:
     std::shared_ptr<retro::scene::scene> m_scene;
     bool m_move_camera;
 
+    std::vector<std::shared_ptr<retro::physics::physics_fixed_joint>> m_fixed_joints;
+
     /* Rendering */
     std::shared_ptr<retro::renderer::shader> m_physics_shader;
     std::shared_ptr<retro::renderer::vertex_array_object> m_cube_vao;

@@ -79,6 +79,8 @@
 #include "physics/physics_material.h"
 #include "physics/constraints/physics_joint.h"
 #include "physics/constraints/physics_fixed_joint.h"
+#include "physics/constraints/physics_distance_joint.h"
+#include "physics/constraints/physics_joint.h"
 
 // Input Include
 #include "input/input_manager.h"
