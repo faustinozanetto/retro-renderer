@@ -56,9 +56,9 @@ physx_app::physx_app() : application("./")
 	std::uniform_real_distribution<> rand_float(0.0f, 1.0f);
 
     // Create chain with fixed joints
-    for (int x = 0; x < 20; x++)
+    for (int x = 0; x < 3; x++)
     {
-        for (int z = 0; z < 20; z++) {
+        for (int z = 0; z < 3; z++) {
             {
                 std::shared_ptr<retro::physics::physics_dynamic_actor> prev = nullptr;
                 std::vector<std::shared_ptr<retro::physics::physics_dynamic_actor>> actors;

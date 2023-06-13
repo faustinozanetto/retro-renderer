@@ -29,3 +29,6 @@
 [submodule "third_party/physx"]
 	path = third_party/physx
 	url = https://github.com/NVIDIA-Omniverse/PhysX
+[submodule "third_party/tracy"]
+	path = third_party/tracy
+	url = https://github.com/wolfpld/tracy

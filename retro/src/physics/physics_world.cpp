@@ -64,6 +64,7 @@ namespace retro::physics
 
 		PxInitExtensions(*m_physics, m_pvd);
 
+		/*
 		// Enable GPU acceleration
 		physx::PxCudaContextManagerDesc cudaDesc;
 		cudaDesc.interopMode = physx::PxCudaInteropMode::OGL_INTEROP;  // Specify the desired interop mode
@@ -76,7 +77,7 @@ namespace retro::physics
 				cudaContextManager = nullptr;
 			}
 		}
-
+		*/
 #ifdef RT_DEBUG
 		omni_file_write_stream->setFileName("myoutpufile.ovd");
 		m_omni_pvd->startSampling();
@@ -89,7 +90,7 @@ namespace retro::physics
 		// Create the scene
 		physx::PxSceneDesc sceneDesc(m_physics->getTolerancesScale());
 		sceneDesc.cpuDispatcher = m_dispatcher;
-		sceneDesc.cudaContextManager = cudaContextManager;
+		//sceneDesc.cudaContextManager = cudaContextManager;
 		sceneDesc.filterShader = physx::PxDefaultSimulationFilterShader;
 		sceneDesc.gravity = physics_utils::convert_glm_vec3_to_physx(m_gravity);
 		m_scene = m_physics->createScene(sceneDesc);

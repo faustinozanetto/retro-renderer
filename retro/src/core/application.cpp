@@ -89,6 +89,8 @@ namespace retro::core
             renderer::renderer::poll_input();
             renderer::renderer::swap_buffers();
         }
+
+        RT_PROFILE_FRAME();
     }
 
     void application::execute_main_thread()

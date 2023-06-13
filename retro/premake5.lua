@@ -14,6 +14,7 @@ project "retro"
         "src/**.cpp",
         "%{wks.location}/third_party/stb/**.h",
         "%{wks.location}/third_party/stb/**.cpp",
+        "%{wks.location}/third_party/tracy/public/TracyClient.cpp"
     }
 
     includedirs
@@ -32,6 +33,7 @@ project "retro"
         "%{include_dirs.entt}",
         "%{include_dirs.physx}",
         "%{include_dirs.physx_omnipvd}",
+        "%{include_dirs.tracy}",
     }
 
     links
@@ -41,8 +43,11 @@ project "retro"
         "imgui",
     }
 
+    filter 'files:third_party/tracy/public/TracyClient.cpp'
+        flags  { 'NoPCH' }
+
     filter "configurations:debug"
-        defines "RT_DEBUG"
+        defines "RT_DEBUG;TRACY_ENABLE"
         runtime "Debug"
         symbols "on"
 

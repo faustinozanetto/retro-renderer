@@ -18,5 +18,6 @@
 
 #include "logging/logger.h"
 #include "core/assert.h"
+#include "profiling/profiling.h"
 
 #include <Windows.h>
