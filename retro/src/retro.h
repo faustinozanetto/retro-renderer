@@ -80,6 +80,7 @@
 #include "physics/constraints/physics_joint.h"
 #include "physics/constraints/physics_fixed_joint.h"
 #include "physics/constraints/physics_distance_joint.h"
+#include "physics/constraints/physics_spherical_joint.h"
 #include "physics/constraints/physics_joint.h"
 
 // Input Include

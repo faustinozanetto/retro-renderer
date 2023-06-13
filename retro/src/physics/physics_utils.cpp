@@ -16,7 +16,7 @@ namespace retro::physics
 
     glm::quat physics_utils::convert_physx_quat_to_glm(const physx::PxQuat& physx_quat)
     {
-        return glm::quat(physx_quat.x, physx_quat.x, physx_quat.y, physx_quat.w);
+        return glm::quat(physx_quat.w, physx_quat.x, physx_quat.y, physx_quat.z);
     }
 
     physx::PxVec2 physics_utils::convert_glm_vec2_to_physx(const glm::vec2 &glm_vec2)

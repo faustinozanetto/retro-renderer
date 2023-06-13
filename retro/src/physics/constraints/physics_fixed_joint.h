@@ -9,7 +9,6 @@ namespace retro::physics
     class physics_fixed_joint : public physics_joint
     {
     public:
-        physics_fixed_joint(physx::PxFixedJoint* fixed_joint);
 		physics_fixed_joint(const std::shared_ptr<physics_actor>& physics_actor_a, const physx::PxTransform& t0,
 			const std::shared_ptr<physics_actor>& physics_actor_b, const physx::PxTransform& t1);
         ~physics_fixed_joint() override;
