@@ -114,7 +114,7 @@ physx_app::physx_app() : application("./")
                     joint->set_motion(physx::PxD6Axis::eSWING1, physx::PxD6Motion::eFREE);
                     joint->set_motion(physx::PxD6Axis::eSWING2, physx::PxD6Motion::eFREE);
                     joint->set_motion(physx::PxD6Axis::eTWIST, physx::PxD6Motion::eFREE);
-                    joint->set_drive(physx::PxD6Drive::eSLERP, physx::PxD6JointDrive(0, 1000, FLT_MAX, true));
+                    joint->set_drive(physx::PxD6Drive::eSLERP, physx::PxD6JointDrive(10.0f, 350.0f, FLT_MAX, true));
 
 
                     m_joints.push_back(joint);
