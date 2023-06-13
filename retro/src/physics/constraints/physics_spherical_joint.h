@@ -14,7 +14,17 @@ namespace retro::physics
     ~physics_spherical_joint() override;
 
     /* Getters */
-    physx::PxSphericalJoint *get_physx_joint() const { return m_physx_spherical_joint; }
+    physx::PxJointLimitCone get_limit_cone() const;
+    float get_swing_y_angle() const;
+    float get_swing_z_angle() const;
+    float get_projection_linear_tolerance() const;
+    physx::PxSphericalJointFlags get_spherical_joint_flags() const;
+
+    /* Setters */
+    void set_limit_cone(const physx::PxJointLimitCone &limit);
+    void set_projection_linear_tolerance(float tolerance);
+    void set_spherical_joint_flags(physx::PxSphericalJointFlags flags);
+    void set_spherical_joint_flag(physx::PxSphericalJointFlag::Enum flag, bool value);
 
   protected:
     void release_joint() override;

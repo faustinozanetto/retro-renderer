@@ -56,7 +56,7 @@ physx_app::physx_app() : application("./")
 	std::uniform_real_distribution<> rand_float(0.0f, 1.0f);
 
     // Create chain with fixed joints
-    for (int k = 0; k < 15; k++)
+    for (int k = 0; k < 5; k++)
     {
         {
             std::shared_ptr<retro::physics::physics_dynamic_actor> prev = nullptr;
@@ -81,12 +81,20 @@ physx_app::physx_app() : application("./")
                 actors.push_back(actor);
 
                 // Create a fixed joint to connect prev actor to this one.
-                const auto &joint = std::make_shared<retro::physics::physics_spherical_joint>(prev,
+                auto joint = std::make_shared<retro::physics::physics_distance_joint>(prev,
                                                                                               prev ? physx::PxTransform(offset) : start_position,
                                                                                               actor, physx::PxTransform(-offset));
-
-                joint->get_physx_joint()->setLimitCone(physx::PxJointLimitCone(physx::PxPi / 4, physx::PxPi / 4, 0.05f));
-                joint->get_physx_joint()->setSphericalJointFlag(physx::PxSphericalJointFlag::eLIMIT_ENABLED, true);
+             //   joint->set_limit(true, -glm::pi<float>(), glm::pi<float>());
+           //     joint->set_drive_velocity(true, 1.75f);
+                /*
+                joint->set_limit_cone(physx::PxJointLimitCone(physx::PxPi / 4, physx::PxPi / 4, 0.05f));
+                joint->set_spherical_joint_flag(physx::PxSphericalJointFlag::eLIMIT_ENABLED, true);
+                */
+                joint->set_min_distance(1.0f);
+                joint->set_max_distance(2.0f);
+                joint->set_distance_joint_flag(physx::PxDistanceJointFlag::eMIN_DISTANCE_ENABLED, true);
+                joint->set_distance_joint_flag(physx::PxDistanceJointFlag::eMAX_DISTANCE_ENABLED, true);
+                
 
                 m_joints.push_back(joint);
 
