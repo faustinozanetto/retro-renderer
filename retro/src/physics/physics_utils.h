@@ -2,6 +2,7 @@
 
 #include <PxPhysicsAPI.h>
 #include <glm/glm.hpp>
+#include "glm/ext/quaternion_float.hpp"
 
 namespace retro::physics
 {
@@ -17,6 +18,6 @@ namespace retro::physics
         static physx::PxQuat convert_glm_quat_to_physx(const glm::quat &glm_quat);
         static physx::PxQuat convert_glm_vec3_to_physx_quat(const glm::vec3 &glm_vec3);
 
-        static physx::PxTransform create_transform_from_glm(const glm::vec3 &position = glm::vec3(0.0f), const glm::vec3& rotation = glm::vec3(0.0f));
+        static physx::PxTransform create_transform_from_glm(const glm::vec3 &position = glm::vec3(0.0f), const glm::quat& rotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f));
     };
 }

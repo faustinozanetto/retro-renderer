@@ -16,9 +16,8 @@ public:
 
     void on_handle_event(retro::events::base_event &event) override;
     bool on_window_resize(retro::events::window_resize_event &resize_event) override;
-    bool on_key_pressed(retro::events::key_pressed_event &key_pressed_event);
-    bool on_mouse_button_pressed(retro::events::mouse_button_pressed_event &mouse_button_pressed_event);
-    bool on_mouse_button_released(retro::events::mouse_button_released_event &mouse_button_released_event);
+    bool on_key_pressed_event(retro::events::key_pressed_event &key_pressed_event);
+    bool on_key_released_event(retro::events::key_released_event & key_released_event);
     bool on_mouse_moved_event(retro::events::mouse_moved_event &mouse_moved_event);
 
 private:

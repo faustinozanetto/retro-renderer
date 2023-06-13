@@ -21,8 +21,8 @@ namespace retro::physics
     float get_drive_gear_ratio() const;
     float get_projection_linear_tolerance() const;
     float get_projection_angular_tolerance() const;
-	physx::PxRevoluteJointFlags get_joint_flags() const;
-	physx::PxJointAngularLimitPair get_limit() const;
+    physx::PxRevoluteJointFlags get_joint_flags() const;
+    physx::PxJointAngularLimitPair get_limit() const;
 
     /* Setters */
     void set_limit(float lower, float upper);

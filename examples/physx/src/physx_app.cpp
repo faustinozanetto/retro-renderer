@@ -56,71 +56,93 @@ physx_app::physx_app() : application("./")
 	std::uniform_real_distribution<> rand_float(0.0f, 1.0f);
 
     // Create chain with fixed joints
-    for (int k = 0; k < 5; k++)
+    for (int x = 0; x < 20; x++)
     {
-        {
-            std::shared_ptr<retro::physics::physics_dynamic_actor> prev = nullptr;
-            std::vector<std::shared_ptr<retro::physics::physics_dynamic_actor>> actors;
-            std::vector<std::shared_ptr<retro::physics::physics_fixed_joint>> joints;
-
-            const float separation = 4.5f; // Separation between actors
-            physx::PxVec3 offset(separation / 2, 0, 0);
-            physx::PxTransform start_position(physx::PxVec3(k * 10.0f, 15.0f, k * 5.0f)); // Initial position of the chain
-
-            physx::PxTransform localTm = physx::PxTransform(offset);
-
-            for (int i = 0; i < 10; ++i)
+        for (int z = 0; z < 20; z++) {
             {
-                const std::shared_ptr<retro::physics::physics_box_collision> &box_collision_shape = std::make_shared<retro::physics::physics_box_collision>(physics_material, glm::vec3(2.0f, 0.5f, 0.5f));
-                // Create a dynamic actor
-                physx::PxTransform curr_trans = start_position * localTm;
-                auto actor = std::make_shared<retro::physics::physics_dynamic_actor>(retro::physics::physics_utils::convert_physx_vec3_to_glm(curr_trans.p));
-                actor->add_collision_shape(box_collision_shape);
-                actor->initialize();
+                std::shared_ptr<retro::physics::physics_dynamic_actor> prev = nullptr;
+                std::vector<std::shared_ptr<retro::physics::physics_dynamic_actor>> actors;
+                std::vector<std::shared_ptr<retro::physics::physics_fixed_joint>> joints;
 
-                actors.push_back(actor);
+                const float separation = 4.5f; // Separation between actors
+                physx::PxVec3 offset(separation / 2, 0, 0);
+                physx::PxTransform start_position(physx::PxVec3(x * 10.0f, 15.0f, z * 10.0f)); // Initial position of the chain
 
-                // Create a fixed joint to connect prev actor to this one.
-                auto joint = std::make_shared<retro::physics::physics_distance_joint>(prev,
-                                                                                              prev ? physx::PxTransform(offset) : start_position,
-                                                                                              actor, physx::PxTransform(-offset));
-             //   joint->set_limit(true, -glm::pi<float>(), glm::pi<float>());
-           //     joint->set_drive_velocity(true, 1.75f);
-                /*
-                joint->set_limit_cone(physx::PxJointLimitCone(physx::PxPi / 4, physx::PxPi / 4, 0.05f));
-                joint->set_spherical_joint_flag(physx::PxSphericalJointFlag::eLIMIT_ENABLED, true);
-                */
-                joint->set_min_distance(1.0f);
-                joint->set_max_distance(2.0f);
-                joint->set_distance_joint_flag(physx::PxDistanceJointFlag::eMIN_DISTANCE_ENABLED, true);
-                joint->set_distance_joint_flag(physx::PxDistanceJointFlag::eMAX_DISTANCE_ENABLED, true);
-                
+                physx::PxTransform localTm = physx::PxTransform(offset);
 
-                m_joints.push_back(joint);
+                for (int i = 0; i < 10; ++i)
+                {
+                    const std::shared_ptr<retro::physics::physics_box_collision>& box_collision_shape = std::make_shared<retro::physics::physics_box_collision>(physics_material, glm::vec3(2.0f, 0.5f, 0.5f));
+                    // Create a dynamic actor
+                    physx::PxTransform curr_trans = start_position * localTm;
+                    auto actor = std::make_shared<retro::physics::physics_dynamic_actor>(retro::physics::physics_utils::convert_physx_vec3_to_glm(curr_trans.p),
+                        retro::physics::physics_utils::convert_physx_quat_to_glm(curr_trans.q));
+                    actor->add_collision_shape(box_collision_shape);
+                    actor->initialize();
 
-                prev = actor;
+                    actors.push_back(actor);
 
-                // Update the position for the next actor
-                localTm.p.x += separation;
-            }
+                    // Create a fixed joint to connect prev actor to this one.
+                    auto joint = std::make_shared<retro::physics::physics_d6_joint>(prev,
+                        prev ? physx::PxTransform(offset) : start_position,
+                        actor, physx::PxTransform(-offset));
+                    //   joint->set_limit(true, -glm::pi<float>(), glm::pi<float>());
+                  //     joint->set_drive_velocity(true, 1.75f);
+                       /*
+                       // Spherical Joint
+                       /*
+                       joint->set_limit_cone(physx::PxJointLimitCone(physx::PxPi / 4, physx::PxPi / 4, 0.05f));
+                       joint->set_spherical_joint_flag(physx::PxSphericalJointFlag::eLIMIT_ENABLED, true);
+                       */
 
-            // Create the render side actors
-            for (const auto &actor : actors)
-            {
-                glm::vec3 color = glm::vec3(rand_float(rd), rand_float(rd), rand_float(rd));
+                       // Distance Joint
+                       /*
+                       joint->set_min_distance(1.0f);
+                       joint->set_max_distance(2.0f);
+                       joint->set_distance_joint_flag(physx::PxDistanceJointFlag::eMIN_DISTANCE_ENABLED, true);
+                       joint->set_distance_joint_flag(physx::PxDistanceJointFlag::eMAX_DISTANCE_ENABLED, true);
+                       */
 
-                glm::vec3 location = retro::physics::physics_utils::convert_physx_vec3_to_glm(actor->get_physx_rigid_dynamic_actor()->getGlobalPose().p);
-                glm::quat rotation = retro::physics::physics_utils::convert_physx_quat_to_glm(actor->get_physx_rigid_dynamic_actor()->getGlobalPose().q);
+                       // Prismatic Joint
+                       /*
+                          physx::PxJointLinearLimitPair limit(physx::PxTolerancesScale(), 0.0f, 1.0f);
+                          joint->set_limit(limit);
+                          joint->set_prismatic_joint_flag(physx::PxPrismaticJointFlag::eLIMIT_ENABLED, true);
+                          */
 
-                auto scene_actor = m_scene->create_actor("joint actor");
-                scene_actor->add_component<retro::scene::transform_component>(location, rotation, glm::vec3(2.0f, 0.5f, 0.5f));
+                          // D6
+                    joint->set_motion(physx::PxD6Axis::eSWING1, physx::PxD6Motion::eFREE);
+                    joint->set_motion(physx::PxD6Axis::eSWING2, physx::PxD6Motion::eFREE);
+                    joint->set_motion(physx::PxD6Axis::eTWIST, physx::PxD6Motion::eFREE);
+                    joint->set_drive(physx::PxD6Drive::eSLERP, physx::PxD6JointDrive(0, 1000, FLT_MAX, true));
 
-                scene_actor->add_component<retro::scene::model_renderer_component>(model);
-                auto own_mat = std::make_shared<retro::renderer::material>(*model_material);
-                own_mat->set_albedo(color);
-                scene_actor->add_component<retro::scene::material_renderer_component>(own_mat);
 
-                scene_actor->add_component<retro::scene::physics_dynamic_actor_component>(actor);
+                    m_joints.push_back(joint);
+
+                    prev = actor;
+
+                    // Update the position for the next actor
+                    localTm.p.x += separation;
+                }
+
+                // Create the render side actors
+                for (const auto& actor : actors)
+                {
+                    glm::vec3 color = glm::vec3(rand_float(rd), rand_float(rd), rand_float(rd));
+
+                    glm::vec3 location = retro::physics::physics_utils::convert_physx_vec3_to_glm(actor->get_physx_rigid_dynamic_actor()->getGlobalPose().p);
+                    glm::quat rotation = retro::physics::physics_utils::convert_physx_quat_to_glm(actor->get_physx_rigid_dynamic_actor()->getGlobalPose().q);
+
+                    auto scene_actor = m_scene->create_actor("joint actor");
+                    scene_actor->add_component<retro::scene::transform_component>(location, rotation, glm::vec3(2.0f, 0.5f, 0.5f));
+
+                    scene_actor->add_component<retro::scene::model_renderer_component>(model);
+                    auto own_mat = std::make_shared<retro::renderer::material>(*model_material);
+                    own_mat->set_albedo(color);
+                    scene_actor->add_component<retro::scene::material_renderer_component>(own_mat);
+
+                    scene_actor->add_component<retro::scene::physics_dynamic_actor_component>(actor);
+                }
             }
         }
     }
@@ -359,10 +381,9 @@ void physx_app::setup_cube_vao()
 void physx_app::on_handle_event(retro::events::base_event &event)
 {
     retro::events::event_dispatcher dispatcher(event);
-    dispatcher.dispatch<retro::events::key_pressed_event>(BIND_EVENT_FN(physx_app::on_key_pressed));
-    // dispatcher.dispatch<retro::events::mouse_button_pressed_event>(BIND_EVENT_FN(physx_app::on_mouse_button_pressed));
-    // dispatcher.dispatch<retro::events::mouse_button_released_event>(BIND_EVENT_FN(physx_app::on_mouse_button_released));
-    // dispatcher.dispatch<retro::events::mouse_moved_event>(BIND_EVENT_FN(physx_app::on_mouse_moved_event));
+    dispatcher.dispatch<retro::events::key_pressed_event>(BIND_EVENT_FN(physx_app::on_key_pressed_event));
+    dispatcher.dispatch<retro::events::key_released_event>(BIND_EVENT_FN(physx_app::on_key_released_event));
+     dispatcher.dispatch<retro::events::mouse_moved_event>(BIND_EVENT_FN(physx_app::on_mouse_moved_event));
     dispatcher.dispatch<retro::events::window_resize_event>(BIND_EVENT_FN(physx_app::on_window_resize));
 }
 
@@ -371,7 +392,7 @@ bool physx_app::on_window_resize(retro::events::window_resize_event &resize_even
     return application::on_window_resize(resize_event);
 }
 
-bool physx_app::on_key_pressed(retro::events::key_pressed_event &key_pressed_event)
+bool physx_app::on_key_pressed_event(retro::events::key_pressed_event &key_pressed_event)
 {
     if (key_pressed_event.get_key_code() == retro::input::key::W)
     {
@@ -409,20 +430,15 @@ bool physx_app::on_key_pressed(retro::events::key_pressed_event &key_pressed_eve
             retro::camera::camera_keyboard_direction::up);
         return true;
     }
-    return false;
-}
-
-bool physx_app::on_mouse_button_pressed(retro::events::mouse_button_pressed_event &mouse_button_pressed_event)
-{
-    if (mouse_button_pressed_event.get_buton_code() == retro::input::Button1)
-    {
+    else if (key_pressed_event.get_key_code() == retro::input::key::LeftAlt) {
         m_move_camera = true;
         return true;
     }
     return false;
 }
 
-bool physx_app::on_mouse_button_released(retro::events::mouse_button_released_event &mouse_button_released_event)
+
+bool physx_app::on_key_released_event(retro::events::key_released_event& key_released_event)
 {
     m_move_camera = false;
     return false;

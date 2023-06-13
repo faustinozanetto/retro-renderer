@@ -82,6 +82,8 @@
 #include "physics/constraints/physics_distance_joint.h"
 #include "physics/constraints/physics_spherical_joint.h"
 #include "physics/constraints/physics_revolute_joint.h"
+#include "physics/constraints/physics_prismatic_joint.h"
+#include "physics/constraints/physics_d6_joint.h"
 #include "physics/constraints/physics_joint.h"
 
 // Input Include

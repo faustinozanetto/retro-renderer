@@ -11,7 +11,7 @@ namespace retro::physics
     {
     public:
         physics_dynamic_actor(physx::PxRigidDynamic* rigid_dynamic);
-        physics_dynamic_actor(const glm::vec3 &location = glm::vec3(0.0f), const glm::vec3 &rotation = glm::vec3(0.0f), float mass = 1.0f);
+        physics_dynamic_actor(const glm::vec3 &location = glm::vec3(0.0f), const glm::quat &rotation = glm::quat(1.0, 0.0f, 0.0f, 0.0f), float mass = 1.0f);
         ~physics_dynamic_actor() override;
 
         /* Getters */

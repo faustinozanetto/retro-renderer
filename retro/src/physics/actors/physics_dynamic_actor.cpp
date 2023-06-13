@@ -10,7 +10,7 @@ namespace retro::physics
         m_rigid_dynamic = rigid_dynamic;
     }
 
-    physics_dynamic_actor::physics_dynamic_actor(const glm::vec3 &location, const glm::vec3 &rotation, float mass) : physics_actor()
+    physics_dynamic_actor::physics_dynamic_actor(const glm::vec3 &location, const glm::quat &rotation, float mass) : physics_actor()
     {
         physx::PxTransform transform = physics_utils::create_transform_from_glm(location, rotation);
         m_rigid_dynamic = physics_world::get().get_physics()->createRigidDynamic(transform);

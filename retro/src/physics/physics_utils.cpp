@@ -41,8 +41,8 @@ namespace retro::physics
         return convert_glm_quat_to_physx(glm_rotation);
     }
 
-    physx::PxTransform physics_utils::create_transform_from_glm(const glm::vec3 &position, const glm::vec3 &rotation)
+    physx::PxTransform physics_utils::create_transform_from_glm(const glm::vec3 &position, const glm::quat &rotation)
     {
-        return physx::PxTransform(convert_glm_vec3_to_physx(position), convert_glm_vec3_to_physx_quat(rotation));
+        return physx::PxTransform(convert_glm_vec3_to_physx(position), convert_glm_quat_to_physx(rotation));
     }
 }
