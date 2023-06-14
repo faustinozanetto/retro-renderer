@@ -41,7 +41,9 @@ namespace retro::renderer
         int glad_result = gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress));
         RT_ASSERT_MSG(glad_result, "An error ocurred when initializing GLAD!");
 
+#ifdef TRACY_ENABLE
         TracyGpuContext;
+#endif
 
         glEnable(GL_DEBUG_OUTPUT);
         glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);

@@ -64,6 +64,12 @@
 #include "scene/actors/components/rendering/text_renderer_component.h"
 #include "scene/actors/components/physics/physics_dynamic_actor_component.h"
 #include "scene/actors/components/physics/physics_static_actor_component.h"
+#include "scene/actors/components/physics/joints/physics_distance_joint_component.h"
+#include "scene/actors/components/physics/joints/physics_fixed_joint_component.h"
+#include "scene/actors/components/physics/joints/physics_d6_joint_component.h"
+#include "scene/actors/components/physics/joints/physics_prismatic_joint_component.h"
+#include "scene/actors/components/physics/joints/physics_spherical_joint_component.h"
+#include "scene/actors/components/physics/joints/physics_revolute_joint_component.h"
 
 // Physics Include
 #include "physics/physics_world.h"

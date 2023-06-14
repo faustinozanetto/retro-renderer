@@ -55,7 +55,9 @@ namespace retro::renderer
     {
         RT_PROFILE_SECTION("renderer::swap_buffers");
         glfwSwapBuffers(s_data.window->get_handle());
+#ifdef TRACY_ENABLE
         TracyGpuCollect;
+#endif
     }
 
     void renderer::set_clear_color(const glm::vec4 &clear_color)

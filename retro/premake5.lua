@@ -9,6 +9,8 @@ project "retro"
 	pchheader "rtpch.h"
 	pchsource "src/rtpch.cpp"
 
+    editandcontinue "Off"
+
     files {
         "src/**.h",
         "src/**.cpp",
@@ -43,8 +45,9 @@ project "retro"
         "imgui",
     }
 
-    filter 'files:third_party/tracy/public/TracyClient.cpp'
-        flags  { 'NoPCH' }
+    filter "system:windows"
+        files 'third_party/tracy/public/TracyClient.cpp'    
+            flags  { 'NoPCH' }
 
     filter "configurations:debug"
         defines "RT_DEBUG;TRACY_ENABLE"

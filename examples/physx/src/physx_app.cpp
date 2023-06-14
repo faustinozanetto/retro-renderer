@@ -82,7 +82,20 @@ physx_app::physx_app() : application("./")
                     actor->add_collision_shape(box_collision_shape);
                     actor->initialize();
 
-                    actors.push_back(actor);
+					glm::vec3 color = glm::vec3(rand_float(rd), rand_float(rd), rand_float(rd));
+
+					glm::vec3 location = retro::physics::physics_utils::convert_physx_vec3_to_glm(actor->get_physx_rigid_dynamic_actor()->getGlobalPose().p);
+					glm::quat rotation = retro::physics::physics_utils::convert_physx_quat_to_glm(actor->get_physx_rigid_dynamic_actor()->getGlobalPose().q);
+
+					auto scene_actor = m_scene->create_actor("joint actor");
+					scene_actor->add_component<retro::scene::transform_component>(location, rotation, glm::vec3(2.0f, 0.5f, 0.5f));
+
+					scene_actor->add_component<retro::scene::model_renderer_component>(model);
+					auto own_mat = std::make_shared<retro::renderer::material>(*model_material);
+					own_mat->set_albedo(color);
+					scene_actor->add_component<retro::scene::material_renderer_component>(own_mat);
+
+					scene_actor->add_component<retro::scene::physics_dynamic_actor_component>(actor);
 
                     // Create a fixed joint to connect prev actor to this one.
                     auto joint = std::make_shared<retro::physics::physics_d6_joint>(prev,
@@ -118,6 +131,7 @@ physx_app::physx_app() : application("./")
                     joint->set_motion(physx::PxD6Axis::eTWIST, physx::PxD6Motion::eFREE);
                     joint->set_drive(physx::PxD6Drive::eSLERP, physx::PxD6JointDrive(10.0f, 350.0f, FLT_MAX, true));
 
+                    scene_actor->add_component<retro::scene::physics_d6_joint_component>(joint);
 
                     m_joints.push_back(joint);
 
@@ -125,25 +139,6 @@ physx_app::physx_app() : application("./")
 
                     // Update the position for the next actor
                     localTm.p.x += separation;
-                }
-
-                // Create the render side actors
-                for (const auto& actor : actors)
-                {
-                    glm::vec3 color = glm::vec3(rand_float(rd), rand_float(rd), rand_float(rd));
-
-                    glm::vec3 location = retro::physics::physics_utils::convert_physx_vec3_to_glm(actor->get_physx_rigid_dynamic_actor()->getGlobalPose().p);
-                    glm::quat rotation = retro::physics::physics_utils::convert_physx_quat_to_glm(actor->get_physx_rigid_dynamic_actor()->getGlobalPose().q);
-
-                    auto scene_actor = m_scene->create_actor("joint actor");
-                    scene_actor->add_component<retro::scene::transform_component>(location, rotation, glm::vec3(2.0f, 0.5f, 0.5f));
-
-                    scene_actor->add_component<retro::scene::model_renderer_component>(model);
-                    auto own_mat = std::make_shared<retro::renderer::material>(*model_material);
-                    own_mat->set_albedo(color);
-                    scene_actor->add_component<retro::scene::material_renderer_component>(own_mat);
-
-                    scene_actor->add_component<retro::scene::physics_dynamic_actor_component>(actor);
                 }
             }
         }
