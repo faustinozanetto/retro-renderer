@@ -15,6 +15,7 @@ namespace retro::physics
 
     physx::PxShape *physics_plane_collision::get_physx_shape() const
     {
+        RT_PROFILE_SECTION("physics_plane_collision::get_physx_shape");
         return m_shape;
     }
 }

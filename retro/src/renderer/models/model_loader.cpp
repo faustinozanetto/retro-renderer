@@ -10,6 +10,7 @@ namespace retro::renderer
 {
     std::shared_ptr<model> model_loader::load_model_from_file(const std::string &file_path)
     {
+        RT_PROFILE_SECTION("model_loader::load_model_from_file");
         RT_SEPARATOR();
         RT_TRACE("Retro Renderer | Started loading model from file.");
         RT_TRACE("  - File Path: '{0}'", file_path);
@@ -33,6 +34,7 @@ namespace retro::renderer
 
     std::shared_ptr<model> model_loader::load_model_from_meshes(const std::vector<std::shared_ptr<mesh>> &meshes)
     {
+        RT_PROFILE_SECTION("model_loader::load_model_from_meshes");
         RT_SEPARATOR();
         RT_TRACE("Retro Renderer | Started loading model from meshes.");
         auto created_model = std::make_shared<model>("from_meshes", meshes);
@@ -43,6 +45,7 @@ namespace retro::renderer
 
     void model_loader::parse_assimp_node(aiNode *assimp_node, const aiScene *assimp_scene, std::vector<std::shared_ptr<mesh>> &model_meshes)
     {
+        RT_PROFILE_SECTION("model_loader::parse_assimp_node");
         // process all the node's meshes (if any)
         for (int i = 0; i < assimp_node->mNumMeshes; i++)
         {
@@ -58,6 +61,7 @@ namespace retro::renderer
 
     std::shared_ptr<mesh> model_loader::parse_assimp_mesh(aiMesh *assimp_mesh, const aiScene *assimp_scene)
     {
+        RT_PROFILE_SECTION("model_loader::parse_assimp_mesh");
         RT_TRACE("  - Mesh: '{0}'", assimp_mesh->mName.C_Str());
         RT_TRACE("      - Vertex Count: {0}", assimp_mesh->mNumVertices);
         // 1. Initialize vectors for storing the data.

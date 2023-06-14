@@ -13,6 +13,8 @@ public:
     void load_shaders();
     void setup_cube_vao();
     void setup_camera();
+	void setup_fbo();
+	void setup_screen_quad();
 
     void on_handle_event(retro::events::base_event &event) override;
     bool on_window_resize(retro::events::window_resize_event &resize_event) override;
@@ -32,4 +34,8 @@ private:
     /* Rendering */
     std::shared_ptr<retro::renderer::shader> m_physics_shader;
     std::shared_ptr<retro::renderer::vertex_array_object> m_cube_vao;
+	std::shared_ptr<retro::renderer::shader> m_geometry_shader;
+	std::shared_ptr<retro::renderer::shader> m_screen_shader;
+    std::shared_ptr<retro::renderer::vertex_array_object> m_screen_vao;
+	std::shared_ptr<retro::renderer::frame_buffer> m_geometry_fbo;
 };

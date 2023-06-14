@@ -61,13 +61,13 @@ typedef void* (* GLADloadproc)(const char *name);
 #    if defined(__GNUC__)
 #     define GLAPI __attribute__ ((dllexport)) extern
 #    else
-#     define GLAPI __declspec(dllexport) extern
+#     define GLAPI __declspec( dllexport ) extern
 #    endif
 #   else
 #    if defined(__GNUC__)
 #     define GLAPI __attribute__ ((dllimport)) extern
 #    else
-#     define GLAPI __declspec(dllimport) extern
+#     define GLAPI __declspec( dllimport ) extern
 #    endif
 #   endif
 #  elif defined(__GNUC__) && defined(GLAD_GLAPI_EXPORT_BUILD)

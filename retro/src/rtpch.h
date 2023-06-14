@@ -17,7 +17,7 @@
 #include <vector>
 
 #include "logging/logger.h"
-#include "core/assert.h"
 #include "profiling/profiling.h"
+#include "core/assert.h"
 
 #include <Windows.h>

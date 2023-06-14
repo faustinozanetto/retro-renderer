@@ -19,16 +19,19 @@ namespace retro::renderer
 
     void vertex_array_object::bind()
     {
+        RT_PROFILE_SECTION("vertex_array_object::bind");
         glBindVertexArray(m_handle_id);
     }
 
     void vertex_array_object::un_bind()
     {
+        RT_PROFILE_SECTION("vertex_array_object::un_bind");
         glBindVertexArray(0);
     }
 
     void vertex_array_object::add_vertex_buffer(const std::shared_ptr<vertex_buffer_object> &vertex_buffer)
     {
+        RT_PROFILE_SECTION("vertex_array_object::add_vertex_buffer");
         RT_ASSERT_MSG(vertex_buffer->get_target() == vertex_buffer_object_target::arrays, "Vertex buffer must be of target 'arrays'!");
 
         glBindVertexArray(m_handle_id);
@@ -96,6 +99,7 @@ namespace retro::renderer
 
     void vertex_array_object::set_index_buffer(const std::shared_ptr<vertex_buffer_object> &index_buffer)
     {
+        RT_PROFILE_SECTION("vertex_array_object::set_index_buffer");
         RT_ASSERT_MSG(index_buffer->get_target() == vertex_buffer_object_target::elements, "Index buffer must be of target 'elements'!");
         glBindVertexArray(m_handle_id);
         index_buffer->bind();

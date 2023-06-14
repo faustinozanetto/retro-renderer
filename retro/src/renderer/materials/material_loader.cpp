@@ -13,6 +13,7 @@ namespace retro::renderer
 {
     std::shared_ptr<material> material_loader::load_material_from_file(const std::string &file_path)
     {
+        RT_PROFILE_SECTION("material_loader::load_material_from_file");
         RT_SEPARATOR();
         RT_TRACE("Retro Renderer | Started loading material from file.");
         const material_data material_data = parse_material_data_from_file(file_path);
@@ -32,6 +33,7 @@ namespace retro::renderer
 
     material_data material_loader::parse_material_data_from_file(const std::string &file_path)
     {
+        RT_PROFILE_SECTION("material_loader::parse_material_data_from_file");
         std::string shader_contents;
         std::ifstream material_file(file_path, std::ios::in | std::ios::binary);
 
@@ -74,6 +76,7 @@ namespace retro::renderer
 
     void material_loader::parse_material_parameters_from_file(const std::string &line, material_data &material_data)
     {
+        RT_PROFILE_SECTION("material_loader::parse_material_parameters_from_file");
         std::istringstream iss(line);
         std::string param;
         if (iss >> param)
@@ -113,6 +116,7 @@ namespace retro::renderer
 
     void material_loader::parse_material_textures_from_file(const std::string &line, std::ifstream &material_file, material_data &material_data)
     {
+        RT_PROFILE_SECTION("material_loader::parse_material_textures_from_file");
         std::string texture_section_line;
         std::string current_texture_type;
 

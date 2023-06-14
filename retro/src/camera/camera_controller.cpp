@@ -17,11 +17,16 @@ namespace retro::camera
 
     }
 
-    void camera_controller::set_camera(const std::shared_ptr<camera> &camera) { m_camera = camera; }
+    void camera_controller::set_camera(const std::shared_ptr<camera> &camera) 
+    {
+        RT_PROFILE_SECTION("camera_controller::set_camera");
+        m_camera = camera;
+    }
 
     void camera_controller::proccess_keyboard_input(
         camera_keyboard_direction direction)
     {
+        RT_PROFILE_SECTION("camera_controller::proccess_keyboard_input");
         glm::vec3 updated_position = m_camera->get_position();
         if (direction == camera_keyboard_direction::forward)
         {
@@ -53,6 +58,7 @@ namespace retro::camera
 
     void camera_controller::process_mouse_input(float dx, float dy)
     {
+        RT_PROFILE_SECTION("camera_controller::process_mouse_input");
 		if (m_is_first_mouse)
 		{
 			m_last_mouse_x = dx;

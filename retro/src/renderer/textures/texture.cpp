@@ -43,6 +43,7 @@ namespace retro::renderer
 
     texture_format texture::get_texture_format_from_internal_format(texture_internal_format internal_format)
     {
+        RT_PROFILE_SECTION("texture::get_texture_format_from_internal_format");
         switch (internal_format)
         {
         case texture_internal_format::r8:
@@ -97,6 +98,7 @@ namespace retro::renderer
 
     std::string texture::get_texture_filtering_to_string(texture_filtering filtering)
     {
+        RT_PROFILE_SECTION("texture::get_texture_filtering_to_string");
         switch (filtering)
         {
         case texture_filtering::none:
@@ -119,6 +121,7 @@ namespace retro::renderer
 
     std::string texture::get_texture_filtering_type_to_string(texture_filtering_type filtering_type)
     {
+        RT_PROFILE_SECTION("texture::get_texture_filtering_type_to_string");
         switch (filtering_type)
         {
         case texture_filtering_type::filter_min:
@@ -131,6 +134,7 @@ namespace retro::renderer
 
     std::string texture::get_texture_wrapping_to_string(texture_wrapping wrapping)
     {
+        RT_PROFILE_SECTION("texture::get_texture_wrapping_to_string");
         switch (wrapping)
         {
         case texture_wrapping::none:
@@ -149,6 +153,7 @@ namespace retro::renderer
 
     std::string texture::get_texture_wrapping_type_to_string(texture_wrapping_type wrapping_type)
     {
+        RT_PROFILE_SECTION("texture::get_texture_wrapping_type_to_string");
         switch (wrapping_type)
         {
         case texture_wrapping_type::wrap_r:
@@ -163,6 +168,7 @@ namespace retro::renderer
 
     int texture::get_texture_filtering_to_opengl(texture_filtering filtering)
     {
+        RT_PROFILE_SECTION("texture::get_texture_filtering_to_opengl");
         switch (filtering)
         {
         case texture_filtering::none:
@@ -185,6 +191,7 @@ namespace retro::renderer
 
     int texture::get_texture_filtering_type_to_opengl(texture_filtering_type filtering_type)
     {
+        RT_PROFILE_SECTION("texture::get_texture_filtering_type_to_opengl");
         switch (filtering_type)
         {
         case texture_filtering_type::filter_min:
@@ -197,6 +204,7 @@ namespace retro::renderer
 
     int texture::get_texture_wrapping_to_opengl(texture_wrapping wrapping)
     {
+        RT_PROFILE_SECTION("texture::get_texture_wrapping_to_opengl");
         switch (wrapping)
         {
         case texture_wrapping::none:
@@ -215,6 +223,7 @@ namespace retro::renderer
 
     int texture::get_texture_wrapping_type_to_opengl(texture_wrapping_type wrapping_type)
     {
+        RT_PROFILE_SECTION("texture::get_texture_wrapping_type_to_opengl");
         switch (wrapping_type)
         {
         case texture_wrapping_type::wrap_r:
@@ -229,6 +238,7 @@ namespace retro::renderer
 
     std::string texture::get_texture_format_to_string(texture_format format)
     {
+        RT_PROFILE_SECTION("texture::get_texture_format_to_string");
         switch (format)
         {
         case texture_format::rg:
@@ -255,6 +265,7 @@ namespace retro::renderer
 
     std::string texture::get_texture_internal_format_to_string(texture_internal_format internal_format)
     {
+        RT_PROFILE_SECTION("texture::get_texture_internal_format_to_string");
         switch (internal_format)
         {
         case texture_internal_format::r8:
@@ -307,6 +318,7 @@ namespace retro::renderer
 
     int texture::get_texture_format_to_opengl(texture_format format)
     {
+        RT_PROFILE_SECTION("texture::get_texture_format_to_opengl");
         switch (format)
         {
         case texture_format::rg:
@@ -333,6 +345,7 @@ namespace retro::renderer
 
     int texture::get_texture_internal_format_to_opengl(texture_internal_format internal_format)
     {
+        RT_PROFILE_SECTION("texture::get_texture_internal_format_to_opengl");
         switch (internal_format)
         {
         case texture_internal_format::r8:
@@ -385,6 +398,7 @@ namespace retro::renderer
 
     texture_formats texture::get_texture_formats_from_channel_count(int channel_count)
     {
+        RT_PROFILE_SECTION("texture::get_texture_formats_from_channel_count");
         RT_ASSERT_MSG(channel_count > 0 && channel_count < 5, "Invalid texture chnnaels count!");
         texture_formats formats;
         if (channel_count == 4)
@@ -412,6 +426,7 @@ namespace retro::renderer
 
     void texture::initialize()
     {
+        RT_PROFILE_SECTION("texture::initialize");
         if (m_data.type == texture_type::normal || m_data.type == texture_type::none)
         {
             // Create OpenGL texture
@@ -504,18 +519,21 @@ namespace retro::renderer
 
     void texture::set_filtering(texture_filtering_type filtering_type, texture_filtering filtering)
     {
+        RT_PROFILE_SECTION("texture::set_filtering");
         glTextureParameteri(m_handle_id, get_texture_filtering_type_to_opengl(filtering_type),
                             get_texture_filtering_to_opengl(filtering));
     }
 
     void texture::set_wrapping(texture_wrapping_type wrapping_type, texture_wrapping wrapping)
     {
+        RT_PROFILE_SECTION("texture::set_wrapping");
         glTextureParameteri(m_handle_id, get_texture_wrapping_type_to_opengl(wrapping_type),
                             get_texture_wrapping_to_opengl(wrapping));
     }
 
     void texture::serialize(std::ofstream &asset_pack_file)
     {
+        RT_PROFILE_SECTION("texture::serialize");
         // Read texture file.
         std::ifstream texture_file(m_metadata.file_path, std::ios::binary | std::ios::ate);
         RT_ASSERT_MSG(texture_file.is_open(), "Failed to open sound file while serializing asset!");
@@ -541,6 +559,7 @@ namespace retro::renderer
     std::shared_ptr<texture> texture::deserialize(const assets::asset_metadata &metadata,
                                                   std::ifstream &asset_pack_file)
     {
+        RT_PROFILE_SECTION("texture::deserialize");
         // Read the texture file size from the asset pack file
         size_t data_size;
         asset_pack_file.read(reinterpret_cast<char *>(&data_size), sizeof(data_size));

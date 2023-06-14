@@ -13,6 +13,7 @@ namespace retro::ui
 {
     void engine_ui::initialize()
     {
+        RT_PROFILE_SECTION("engine_ui::initialize");
         RT_TRACE("Retro Renderer | Interface initialization started.");
         initialize_imgui();
         RT_TRACE("Retro Renderer | Interface initializated successfully.");
@@ -20,6 +21,7 @@ namespace retro::ui
 
     void engine_ui::initialize_imgui()
     {
+        RT_PROFILE_SECTION("engine_ui::initialize_imgui");
         // Setup Dear ImGui context
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
@@ -41,7 +43,8 @@ namespace retro::ui
     }
 
     void engine_ui::begin_frame()
-    {
+	{
+		RT_PROFILE_SECTION("engine_ui::begin_frame");
         // Start the Dear ImGui frame
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
@@ -50,6 +53,7 @@ namespace retro::ui
 
     void engine_ui::end_frame()
     {
+        RT_PROFILE_SECTION("engine_ui::end_frame");
         // Rendering
         ImGuiIO &io = ImGui::GetIO();
         io.DisplaySize = ImVec2((float)retro::renderer::renderer::get_viewport_size().x, (float)retro::renderer::renderer::get_viewport_size().y);

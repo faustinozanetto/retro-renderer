@@ -25,42 +25,50 @@ namespace retro::physics
 
     glm::vec3 physics_dynamic_actor::get_linear_velocity() const
     {
+        RT_PROFILE_SECTION("physics_dynamic_actor::get_linear_velocity");
 		return physics_utils::convert_physx_vec3_to_glm(m_rigid_dynamic->getLinearVelocity());
     }
 
     glm::vec3 physics_dynamic_actor::get_angular_velocity() const
     {
+        RT_PROFILE_SECTION("physics_dynamic_actor::get_angular_velocity");
         return physics_utils::convert_physx_vec3_to_glm(m_rigid_dynamic->getAngularVelocity());
     }
 
     glm::vec3 physics_dynamic_actor::get_center_of_mass() const
     {
+        RT_PROFILE_SECTION("physics_dynamic_actor::get_center_of_mass");
         return physics_utils::convert_physx_vec3_to_glm(m_rigid_dynamic->getCMassLocalPose().p);
     }
 
     void physics_dynamic_actor::set_mass(float mass)
     {
+        RT_PROFILE_SECTION("physics_dynamic_actor::set_mass");
 		m_mass = mass;
 		m_rigid_dynamic->setMass(m_mass);
     }
 
     void physics_dynamic_actor::set_linear_velocity(const glm::vec3& linear_velocity)
 	{
+        RT_PROFILE_SECTION("physics_dynamic_actor::set_linear_velocity");
 		m_rigid_dynamic->setLinearVelocity(physics_utils::convert_glm_vec3_to_physx(linear_velocity));
     }
 
     void physics_dynamic_actor::set_angular_velocity(const glm::vec3& angular_velocity)
     {
+        RT_PROFILE_SECTION("physics_dynamic_actor::set_angular_velocity");
         m_rigid_dynamic->setAngularVelocity(physics_utils::convert_glm_vec3_to_physx(angular_velocity));
     }
 
     void physics_dynamic_actor::set_center_of_mass(const glm::vec3& center_of_mass)
     {
+        RT_PROFILE_SECTION("physics_dynamic_actor::set_center_of_mass");
 		m_rigid_dynamic->setCMassLocalPose(physics_utils::create_transform_from_glm(center_of_mass));
     }
 
     void physics_dynamic_actor::initialize()
     {
+        RT_PROFILE_SECTION("physics_dynamic_actor::initialize");
         RT_ASSERT_MSG(!m_collision_shapes.empty(), "Physics dynamic actor does not have a collision shape!");
         // Attach collision shapes.
         attach_collision_shapes();
@@ -76,6 +84,7 @@ namespace retro::physics
 
     void physics_dynamic_actor::attach_collision_shapes()
     {
+        RT_PROFILE_SECTION("physics_dynamic_actor::attach_collision_shapes");
         for (const auto& collision_shape : m_collision_shapes)
         {
             m_rigid_dynamic->attachShape(*collision_shape->get_physx_shape());

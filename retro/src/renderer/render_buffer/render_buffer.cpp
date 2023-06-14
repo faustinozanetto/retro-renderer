@@ -25,6 +25,7 @@ namespace retro::renderer
 
     void render_buffer::set_storage_parameters(int width, int height, texture_internal_format internal_format)
     {
+        RT_PROFILE_SECTION("render_buffer::set_storage_parameters");
         m_width = width;
         m_height = height;
         m_internal_format = internal_format;
@@ -34,25 +35,30 @@ namespace retro::renderer
 
     void render_buffer::bind()
     {
+        RT_PROFILE_SECTION("render_buffer::bind");
         glBindRenderbuffer(GL_RENDERBUFFER, m_handle_id);
     }
 
     void render_buffer::un_bind()
     {
+        RT_PROFILE_SECTION("render_buffer::un_bind");
         glBindRenderbuffer(GL_RENDERBUFFER, 0);
     }
 
     void render_buffer::attach_to_frame_buffer(render_buffer_attachment_type attachment_type)
     {
+        RT_PROFILE_SECTION("render_buffer::attach_to_frame_buffer");
         glFramebufferRenderbuffer(GL_FRAMEBUFFER, get_render_buffer_attachment_type_to_opengl(attachment_type), GL_RENDERBUFFER, m_handle_id);
     }
 
     void render_buffer::resize(const glm::ivec2 &dimensions)
     {
+        RT_PROFILE_SECTION("render_buffer::resize");
     }
 
     uint32_t render_buffer::get_render_buffer_attachment_type_to_opengl(render_buffer_attachment_type attachment_type)
     {
+        RT_PROFILE_SECTION("render_buffer::get_render_buffer_attachment_type_to_opengl");
         switch (attachment_type)
         {
         case render_buffer_attachment_type::color:
@@ -69,6 +75,7 @@ namespace retro::renderer
 
     std::string render_buffer::get_render_buffer_attachment_type_to_string(render_buffer_attachment_type attachment_type)
     {
+        RT_PROFILE_SECTION("render_buffer::get_render_buffer_attachment_type_to_string");
         switch (attachment_type)
         {
         case render_buffer_attachment_type::color:

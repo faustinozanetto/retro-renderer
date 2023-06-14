@@ -71,6 +71,7 @@ namespace retro::renderer
 
     void frame_buffer::initialize()
     {
+        RT_PROFILE_SECTION("frame_buffer::initialize");
         bind(false);
         // Draw buffers.
         if (!m_attachments.empty())
@@ -99,6 +100,7 @@ namespace retro::renderer
 
     void frame_buffer::pre_initialize()
     {
+        RT_PROFILE_SECTION("frame_buffer::pre_initialize");
         m_initialized = false;
         // Delete old data
         if (m_handle_id)
@@ -138,6 +140,7 @@ namespace retro::renderer
 
     void frame_buffer::bind(bool set_viewport_size)
     {
+        RT_PROFILE_SECTION("frame_buffer::bind");
         if (set_viewport_size)
             renderer::set_viewport_size({m_width, m_height});
         glBindFramebuffer(GL_FRAMEBUFFER, m_handle_id);
@@ -145,11 +148,13 @@ namespace retro::renderer
 
     void frame_buffer::un_bind()
     {
+        RT_PROFILE_SECTION("frame_buffer::un_bind");
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
 
     void frame_buffer::attach_color_texture(frame_buffer_attachment attachment, uint32_t handle_id, int index) const
     {
+        RT_PROFILE_SECTION("frame_buffer::attach_color_texture");
         glBindTexture(GL_TEXTURE_2D, handle_id);
         texture_format format = texture::get_texture_format_from_internal_format(attachment.internal_format);
         glTexImage2D(GL_TEXTURE_2D, 0, texture::get_texture_internal_format_to_opengl(attachment.internal_format), attachment.size.x, attachment.size.y, 0,
@@ -182,6 +187,7 @@ namespace retro::renderer
 
     void frame_buffer::attach_depth_texture(frame_buffer_attachment attachment, uint32_t handle_id)
     {
+        RT_PROFILE_SECTION("frame_buffer::attach_depth_texture");
         glBindTexture(GL_TEXTURE_2D, handle_id);
         glTexStorage2D(GL_TEXTURE_2D, 1, GL_DEPTH_COMPONENT32F, m_width, m_height);
 
@@ -212,6 +218,7 @@ namespace retro::renderer
 
     void frame_buffer::resize(const glm::ivec2 &dimensions, bool update_attachments)
     {
+        RT_PROFILE_SECTION("frame_buffer::resize");
         m_width = dimensions.x;
         m_height = dimensions.y;
         if (update_attachments)
@@ -229,6 +236,7 @@ namespace retro::renderer
                                       render_buffer_attachment_type attachment, uint32_t texture_target,
                                       int mipmaps_level)
     {
+        RT_PROFILE_SECTION("frame_buffer::attach_texture");
         glFramebufferTexture2D(target, render_buffer::get_render_buffer_attachment_type_to_opengl(attachment),
                                texture_target, texture->get_handle_id(), mipmaps_level);
      

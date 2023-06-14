@@ -34,6 +34,7 @@ namespace retro::camera
 
     void camera::update_vectors()
     {
+        RT_PROFILE_SECTION("camera::update_vectors");
         glm::vec3 updated_front;
         updated_front.x = cos(glm::radians(m_yaw)) * cos(glm::radians(m_pitch));
         updated_front.y = sin(glm::radians(m_pitch));
@@ -45,6 +46,7 @@ namespace retro::camera
 
     void camera::construct_matrices()
     {
+        RT_PROFILE_SECTION("camera::construct_matrices");
         if (m_type == camera_type::perspective)
         {
             float aspect_ratio = (float)renderer::renderer::get_viewport_size().x / renderer::renderer::get_viewport_size().y;
@@ -60,39 +62,46 @@ namespace retro::camera
 
     void camera::set_fov(float fov)
     {
+        RT_PROFILE_SECTION("camera::set_fov");
         m_fov = fov;
         construct_matrices();
     }
 
     void camera::set_near_plane(float near_plane)
     {
+        RT_PROFILE_SECTION("camera::set_near_plane");
         m_near_plane = near_plane;
         construct_matrices();
     }
 
     void camera::set_far_plane(float far_plane)
     {
+        RT_PROFILE_SECTION("camera::set_far_plane");
         m_far_plane = far_plane;
         construct_matrices();
     }
 
     void camera::set_position(const glm::vec3 &position)
     {
+        RT_PROFILE_SECTION("camera::set_position");
         m_position = position;
     }
 
     void camera::set_yaw(float yaw)
     {
+        RT_PROFILE_SECTION("camera::set_yaw");
         m_yaw = yaw;
     }
 
     void camera::set_pitch(float pitch)
     {
+        RT_PROFILE_SECTION("camera::set_pitch");
         m_pitch = pitch;
     }
 
     std::string camera::get_camera_type_to_string(camera_type type)
     {
+        RT_PROFILE_SECTION("camera::get_camera_type_to_string");
         switch (type)
         {
         case camera_type::perspective:

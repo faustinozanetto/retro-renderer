@@ -9,6 +9,7 @@ namespace retro::scene
 
     void scene_manager::set_active_scene(const std::shared_ptr<scene> &scene)
     {
+        RT_PROFILE_SECTION("scene_manager::set_active_scene");
         m_active_scene = scene;
         RT_TRACE("Retro Renderer | Active scene changed to '{}'!", scene->get_name());
     }

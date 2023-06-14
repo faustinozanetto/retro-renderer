@@ -37,6 +37,7 @@ namespace retro::audio
 
     void audio_context::print_debug_info()
     {
+        RT_PROFILE_SECTION("audio_context::print_debug_info");
         // Available device names
         const ALCchar* deviceNames = alcGetString(m_audio_device, ALC_ALL_DEVICES_SPECIFIER);
         RT_TRACE("  - Available Devices: {}", deviceNames);

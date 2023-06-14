@@ -16,6 +16,7 @@ namespace retro::renderer
 
     void model::serialize(std::ofstream& asset_pack_file)
     {
+        RT_PROFILE_SECTION("model::serialize");
         // Serialize the model's mesh count
         const uint32_t mesh_count = m_meshes.size();
         asset_pack_file.write(reinterpret_cast<const char*>(&mesh_count), sizeof(mesh_count));
@@ -43,6 +44,7 @@ namespace retro::renderer
 
     std::shared_ptr<model> model::deserialize(const assets::asset_metadata& metadata, std::ifstream& asset_pack_file)
     {
+        RT_PROFILE_SECTION("model::deserialize");
         // Deserialize the model's mesh count
         uint32_t mesh_count;
         asset_pack_file.read(reinterpret_cast<char*>(&mesh_count), sizeof(mesh_count));

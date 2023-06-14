@@ -13,6 +13,7 @@ namespace retro::renderer
 
     void mesh::construct_buffers()
     {
+        RT_PROFILE_SECTION("mesh::construct_buffers");
         size_t vertex_buffer_size = m_vertices.size() * sizeof(mesh_vertex);
         size_t index_buffer_size = m_indices.size() * sizeof(mesh_index);
 

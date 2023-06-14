@@ -11,7 +11,6 @@
 
 namespace retro
 {
-
     std::string files::open_file_dialog(const std::string &title, const std::vector<std::string> &filters)
     {
         std::string file_path;

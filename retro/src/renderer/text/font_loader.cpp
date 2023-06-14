@@ -9,6 +9,7 @@ namespace retro::renderer
 {
     std::shared_ptr<font> font_loader::load_font_from_file(const std::string& file_path)
     {
+        RT_PROFILE_SECTION("font_loader::load_font_from_file");
         RT_SEPARATOR();
         RT_TRACE("Retro Renderer | Started loading font from file '{0}'", file_path);
         FT_Library font_library;
@@ -37,6 +38,7 @@ namespace retro::renderer
 
     std::shared_ptr<font> font_loader::load_font_from_memory(const char* data, int size)
     {
+        RT_PROFILE_SECTION("font_loader::load_font_from_memory");
         RT_SEPARATOR();
         RT_TRACE("Retro Renderer | Started loading font from memory");
         FT_Library font_library;

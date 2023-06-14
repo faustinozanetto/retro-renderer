@@ -24,6 +24,7 @@ namespace retro::physics
 
     void physics_static_actor::initialize()
     {
+        RT_PROFILE_SECTION("physics_static_actor::initialize");
         // Attach collision shapes.
         attach_collision_shapes();
 
@@ -35,6 +36,7 @@ namespace retro::physics
 
     void physics_static_actor::attach_collision_shapes()
     {
+        RT_PROFILE_SECTION("physics_static_actor::attach_collision_shapes");
         for (const auto &collision_shape : m_collision_shapes)
         {
             m_rigid_static->attachShape(*collision_shape->get_physx_shape());

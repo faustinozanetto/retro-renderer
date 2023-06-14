@@ -35,6 +35,7 @@ namespace retro::audio
 
     void sound::serialize(std::ofstream& asset_pack_file)
     {
+        RT_PROFILE_SECTION("sound::serialize");
         // Reaad sound file
         std::ifstream sound_file(m_metadata.file_path, std::ios::binary | std::ios::ate);
         RT_ASSERT_MSG(sound_file.is_open(), "Failed to open sound file while serializing asset!");
@@ -60,6 +61,7 @@ namespace retro::audio
     std::shared_ptr<sound> sound::deserialize(const assets::asset_metadata& metadata,
                                                      std::ifstream& asset_pack_file)
     {
+        RT_PROFILE_SECTION("sound::deserialize");
         // Read the sound file size from the asset pack file
         size_t data_size;
         asset_pack_file.read(reinterpret_cast<char*>(&data_size), sizeof(data_size));

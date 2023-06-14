@@ -33,6 +33,7 @@ namespace retro::renderer
 
     void material::bind(const std::shared_ptr<shader> &shader)
     {
+        RT_PROFILE_SECTION("material::bind");
         shader->set_vec_float3("u_material.albedo", m_data.albedo);
         shader->set_vec_float3("u_material.emissive", m_data.emissive);
         shader->set_float("u_material.roughness", m_data.roughness);
@@ -54,6 +55,7 @@ namespace retro::renderer
 
     void material::save_textures(const std::shared_ptr<assets::asset_pack> &asset_pack)
     {
+        RT_PROFILE_SECTION("material::save_textures");
         for (auto &texture : m_data.textures)
         {
             if (!texture.second.texture)
@@ -65,16 +67,19 @@ namespace retro::renderer
 
 	void material::set_texture(const material_texture& material_texture)
 	{
+        RT_PROFILE_SECTION("material::set_texture");
         m_data.textures[material_texture.type] = material_texture;
 	}
 
 	void material::set_texture_enabled(material_texture_type texture_type, bool is_enabled)
 	{
+        RT_PROFILE_SECTION("material::set_texture_enabled");
         m_data.textures[texture_type].is_enabled = is_enabled;
 	}
 
     void material::serialize(std::ofstream &asset_pack_file)
     {
+        RT_PROFILE_SECTION("material::serialize");
         // Serialize material data excluding the textures map
         material_data_serialize data_serialize;
         data_serialize.albedo = m_data.albedo;
@@ -126,6 +131,7 @@ namespace retro::renderer
 
     std::shared_ptr<material> material::deserialize(const assets::asset_metadata &metadata, std::ifstream &asset_pack_file)
     {
+        RT_PROFILE_SECTION("material::deserialize");
         // Deserialize material data excluding the textures map
         material_data_serialize data_serialize;
         asset_pack_file.read(reinterpret_cast<char *>(&data_serialize), sizeof(material_data_serialize));
@@ -213,6 +219,7 @@ namespace retro::renderer
 
     material_texture_type material::get_material_texture_type_from_string(const std::string &texture_type)
     {
+        RT_PROFILE_SECTION("material::get_material_texture_type_from_string");
         if (texture_type == "albedo")
             return material_texture_type::albedo;
         else if (texture_type == "normal")
@@ -232,6 +239,7 @@ namespace retro::renderer
 
     std::string material::get_material_texture_type_to_string(material_texture_type texture_type)
     {
+        RT_PROFILE_SECTION("material::get_material_texture_type_to_string");
         switch (texture_type)
         {
         case material_texture_type::albedo:
@@ -254,6 +262,7 @@ namespace retro::renderer
 
     std::string material::get_material_enabled_uniform_location(material_texture_type texture_type)
     {
+        RT_PROFILE_SECTION("material::get_material_enabled_uniform_location");
         switch (texture_type)
         {
         case material_texture_type::albedo:

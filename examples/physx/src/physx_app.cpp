@@ -15,6 +15,8 @@ physx_app::physx_app() : application("./")
     load_shaders();
     setup_camera();
     setup_cube_vao();
+    setup_fbo();
+    setup_screen_quad();
 
     retro::renderer::renderer::set_vsync_enabled(false);
 
@@ -191,16 +193,17 @@ void physx_app::on_update()
     retro::physics::physics_world::get().on_update();
 
     // 1. Render to geometry fbo
+    m_geometry_fbo->bind();
     retro::renderer::renderer::set_state(retro::renderer::renderer_state::blend, false);
     retro::renderer::renderer::set_state(retro::renderer::renderer_state::depth, true);
     retro::renderer::renderer::clear_screen();
-    m_physics_shader->bind();
+    m_geometry_shader->bind();
 
     const glm::mat4 &viewMatrix = m_camera->get_view_matrix();
     const glm::mat4 &projectionMatrix = m_camera->get_projection_matrix();
 
-    m_physics_shader->set_mat4("u_view", viewMatrix);
-    m_physics_shader->set_mat4("u_projection", projectionMatrix);
+    m_geometry_shader->set_mat4("u_view", viewMatrix);
+    m_geometry_shader->set_mat4("u_projection", projectionMatrix);
 
     const auto &view = m_scene->get_actors_registry()->view<retro::scene::transform_component, retro::scene::model_renderer_component, retro::scene::material_renderer_component>();
     for (auto &&[actor, transform_comp, model_renderer_comp, material_renderer_comp] :
@@ -222,8 +225,9 @@ void physx_app::on_update()
 
         // Render
         const glm::mat4 &transformMatrix = transform_comp.get_transform();
-        m_physics_shader->set_mat4("u_transform", transformMatrix);
-        m_physics_shader->set_vec_float3("u_color", material_renderer_comp.get_material()->get_data().albedo);
+        m_geometry_shader->set_mat4("u_transform", transformMatrix);
+        material_renderer_comp.get_material()->bind(m_geometry_shader);
+        //m_physics_shader->set_vec_float3("u_color", material_renderer_comp.get_material()->get_data().albedo);
         retro::renderer::renderer::submit_model(model_renderer_comp.get_model());
         /*
         m_cube_vao->bind();
@@ -232,7 +236,18 @@ void physx_app::on_update()
         */
     }
 
-    m_physics_shader->un_bind();
+    m_geometry_shader->un_bind();
+    m_geometry_fbo->un_bind();
+
+	// 5. Render final result to screen
+	retro::renderer::renderer::clear_screen();
+	retro::renderer::renderer::set_viewport_size(retro::renderer::renderer::get_viewport_size());
+	m_screen_shader->bind();
+	retro::renderer::renderer::bind_texture(0, m_geometry_fbo->get_attachment_id(1));
+	m_screen_vao->bind();
+	retro::renderer::renderer::submit_elements(GL_TRIANGLES, 6);
+	m_screen_vao->un_bind();
+    m_screen_shader->un_bind();
 
     retro::ui::engine_ui::begin_frame();
     ImGui::ShowMetricsWindow();
@@ -243,6 +258,10 @@ void physx_app::load_shaders()
 {
     m_physics_shader = retro::renderer::shader_loader::load_shader_from_file(
         "resources/shaders/physics.rrs");
+	m_geometry_shader = retro::renderer::shader_loader::load_shader_from_file(
+		"../resources/shaders/geometry.rrs");
+	m_screen_shader = retro::renderer::shader_loader::load_shader_from_file(
+		"../resources/shaders/screen.rrs");
 }
 
 void physx_app::setup_camera()
@@ -254,6 +273,95 @@ void physx_app::setup_camera()
     m_camera->construct_matrices();
 
     m_camera_controller = std::make_shared<retro::camera::camera_controller>(m_camera);
+}
+
+void physx_app::setup_fbo()
+{
+	// 1. Create geometry fbo.
+	glm::ivec2 viewport_size = retro::renderer::renderer::get_viewport_size();
+	{
+		std::vector<retro::renderer::frame_buffer_attachment> attachments = {
+			//  Position
+			{
+				retro::renderer::texture_internal_format::rgba16f,
+				retro::renderer::texture_filtering::linear,
+				retro::renderer::texture_wrapping::clamp_to_edge, viewport_size},
+				// Albedo
+				{
+					retro::renderer::texture_internal_format::rgba16f,
+					retro::renderer::texture_filtering::linear,
+					retro::renderer::texture_wrapping::clamp_to_edge, viewport_size},
+					// Normals
+					{
+						retro::renderer::texture_internal_format::rgba16f,
+						retro::renderer::texture_filtering::linear,
+						retro::renderer::texture_wrapping::clamp_to_edge, viewport_size},
+						// Roughness Metallic AO
+						{
+							retro::renderer::texture_internal_format::rgba16f,
+							retro::renderer::texture_filtering::linear,
+							retro::renderer::texture_wrapping::clamp_to_edge, viewport_size},
+							// Emissive
+							{
+								retro::renderer::texture_internal_format::rgba16f,
+								retro::renderer::texture_filtering::linear,
+								retro::renderer::texture_wrapping::clamp_to_edge, viewport_size} };
+		retro::renderer::frame_buffer_attachment depth_attachment = {
+			retro::renderer::texture_internal_format::depth_component32f,
+			retro::renderer::texture_filtering::linear,
+			retro::renderer::texture_wrapping::clamp_to_edge, viewport_size };
+		m_geometry_fbo = std::make_shared<retro::renderer::frame_buffer>(
+			attachments, viewport_size.x, viewport_size.y, depth_attachment);
+		m_geometry_fbo->initialize();
+	}
+}
+
+void physx_app::setup_screen_quad()
+{
+	const std::vector<float> quad_vertices = {
+	   1.0f, 1.0f, 0.0f, 1.0f, 1.0f,   // top right
+	   1.0f, -1.0f, 0.0f, 1.0f, 0.0f,  // bottom right
+	   -1.0f, -1.0f, 0.0f, 0.0f, 0.0f, // bottom left
+	   -1.0f, 1.0f, 0.0f, 0.0f, 1.0f   // top left
+	};
+
+	const std::vector<uint32_t> indices = {
+		0, 3, 1, // first triangle
+		1, 3, 2, // second triangle
+	};
+
+	size_t vertex_buffer_size = quad_vertices.size() * sizeof(&quad_vertices[0]);
+	size_t index_buffer_size = indices.size() * sizeof(&indices[0]);
+
+    m_screen_vao = std::make_shared<retro::renderer::vertex_array_object>();
+	std::shared_ptr<retro::renderer::vertex_buffer_object> vertices_vbo = std::make_shared<
+		retro::renderer::vertex_buffer_object>(retro::renderer::vertex_buffer_object_target::arrays);
+
+	std::shared_ptr<retro::renderer::vertex_buffer_object> index_buffer = std::make_shared<
+		retro::renderer::vertex_buffer_object>(retro::renderer::vertex_buffer_object_target::elements, indices.size());
+
+	m_screen_vao->bind();
+	vertices_vbo->bind();
+	vertices_vbo->set_data(retro::renderer::vertex_buffer_object_usage::static_draw, vertex_buffer_size,
+		quad_vertices.data());
+
+	index_buffer->bind();
+	index_buffer->set_data(retro::renderer::vertex_buffer_object_usage::static_draw, index_buffer_size, indices.data());
+
+	std::initializer_list<retro::renderer::vertex_buffer_layout_entry>
+		layout_elements = {
+			{"a_pos", retro::renderer::vertex_buffer_entry_type::vec_float3, false},
+			{"a_tex_coord", retro::renderer::vertex_buffer_entry_type::vec_float2, false},
+	};
+
+	std::shared_ptr<retro::renderer::vertex_buffer_layout_descriptor>
+		vertices_vbo_layout_descriptor = std::make_shared<retro::renderer::vertex_buffer_layout_descriptor>(
+			layout_elements);
+	vertices_vbo->set_layout_descriptor(vertices_vbo_layout_descriptor);
+
+    m_screen_vao->add_vertex_buffer(vertices_vbo);
+    m_screen_vao->set_index_buffer(index_buffer);
+	m_screen_vao->un_bind();
 }
 
 void physx_app::setup_cube_vao()
@@ -389,6 +497,7 @@ void physx_app::on_handle_event(retro::events::base_event &event)
 
 bool physx_app::on_window_resize(retro::events::window_resize_event &resize_event)
 {
+    m_geometry_fbo->resize(resize_event.get_size());
     return application::on_window_resize(resize_event);
 }
 

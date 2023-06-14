@@ -14,6 +14,7 @@ namespace retro::renderer
 
     uint32_t vertex_buffer_layout_entry::get_vertex_buffer_entry_type_size(vertex_buffer_entry_type type)
     {
+        RT_PROFILE_SECTION("vertex_buffer_layout_entry::get_vertex_buffer_entry_type_size");
         switch (type)
         {
         case vertex_buffer_entry_type::sfloat:
@@ -45,6 +46,7 @@ namespace retro::renderer
 
     uint32_t vertex_buffer_layout_entry::get_vertex_buffer_entry_count(vertex_buffer_entry_type type)
     {
+        RT_PROFILE_SECTION("vertex_buffer_layout_entry::get_vertex_buffer_entry_count");
         switch (type)
         {
         case vertex_buffer_entry_type::sfloat:
@@ -76,6 +78,7 @@ namespace retro::renderer
 
     uint32_t vertex_buffer_layout_entry::get_vertex_buffer_entry_to_opengl(vertex_buffer_entry_type type)
     {
+        RT_PROFILE_SECTION("vertex_buffer_layout_entry::get_vertex_buffer_entry_to_opengl");
         switch (type)
         {
         case vertex_buffer_entry_type::sfloat:
