@@ -14,6 +14,7 @@ namespace retro::scene
         const std::shared_ptr<scene> &get_active_scene() const { return m_active_scene; }
 
         /* Functions */
+        void create_scene(const std::string& name);
         void set_active_scene(const std::shared_ptr<scene> &scene);
 
     private:

@@ -13,4 +13,9 @@ namespace retro::scene
         m_active_scene = scene;
         RT_TRACE("Retro Renderer | Active scene changed to '{}'!", scene->get_name());
     }
+
+	void scene_manager::create_scene(const std::string& name)
+	{
+        m_active_scene = std::make_shared<scene>(name);
+	}
 }

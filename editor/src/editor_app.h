@@ -12,6 +12,9 @@ namespace retro::editor
         editor_app();
         ~editor_app() override;
 
+        /* Getters */
+        const std::shared_ptr<editor_main_layer> &get_main_layer() const { return m_main_layer; }
+
         void initialize();
 
         void on_update() override;
