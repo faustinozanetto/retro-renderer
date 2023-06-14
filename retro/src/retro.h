@@ -70,6 +70,8 @@
 #include "scene/actors/components/physics/joints/physics_prismatic_joint_component.h"
 #include "scene/actors/components/physics/joints/physics_spherical_joint_component.h"
 #include "scene/actors/components/physics/joints/physics_revolute_joint_component.h"
+#include "scene/actors/components/physics/physics_material_component.h"
+#include "scene/actors/components/physics/collision_shapes/physics_box_collision_shape_component.h"
 
 // Physics Include
 #include "physics/physics_world.h"

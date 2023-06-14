@@ -45,14 +45,12 @@ physx_app::physx_app() : application("./")
     floor_physics_static_actor->add_collision_shape(plane_collision_shape);
     floor_physics_static_actor->initialize();
 
+    /* Setup plane actor */
     auto plane_actor = m_scene->create_actor("physx plane");
     plane_actor->add_component<retro::scene::transform_component>(plane_actor_location, glm::quat(1.0f, 0.0f, 0.0f, 0.0f), glm::vec3(300.0f, 1.0f, 300.0f));
     plane_actor->add_component<retro::scene::model_renderer_component>(model);
     plane_actor->add_component<retro::scene::material_renderer_component>(model_material2);
     plane_actor->add_component<retro::scene::physics_static_actor_component>(floor_physics_static_actor);
-
-    const std::shared_ptr<retro::physics::physics_box_collision> &collision_shape = std::make_shared<
-        retro::physics::physics_box_collision>(physics_material, glm::vec3(2.0f, 0.5f, 0.5f));
 
 	std::random_device rd;
 	std::uniform_real_distribution<> rand_float(0.0f, 1.0f);
@@ -62,45 +60,51 @@ physx_app::physx_app() : application("./")
     {
         for (int z = 0; z < 3; z++) {
             {
+                /* Prev actor used in chain creation */
                 std::shared_ptr<retro::physics::physics_dynamic_actor> prev = nullptr;
-                std::vector<std::shared_ptr<retro::physics::physics_dynamic_actor>> actors;
-                std::vector<std::shared_ptr<retro::physics::physics_fixed_joint>> joints;
-
                 const float separation = 4.5f; // Separation between actors
                 physx::PxVec3 offset(separation / 2, 0, 0);
                 physx::PxTransform start_position(physx::PxVec3(x * 10.0f, 15.0f, z * 10.0f)); // Initial position of the chain
-
                 physx::PxTransform localTm = physx::PxTransform(offset);
 
                 for (int i = 0; i < 10; ++i)
                 {
+                    /* Box collision shape */
                     const std::shared_ptr<retro::physics::physics_box_collision>& box_collision_shape = std::make_shared<retro::physics::physics_box_collision>(physics_material, glm::vec3(2.0f, 0.5f, 0.5f));
-                    // Create a dynamic actor
+                    
+                    /* Setup physics dynamic actor */
                     physx::PxTransform curr_trans = start_position * localTm;
-                    auto actor = std::make_shared<retro::physics::physics_dynamic_actor>(retro::physics::physics_utils::convert_physx_vec3_to_glm(curr_trans.p),
+                    const std::shared_ptr<retro::physics::physics_dynamic_actor>& physics_dynamic_actor = std::make_shared<retro::physics::physics_dynamic_actor>(retro::physics::physics_utils::convert_physx_vec3_to_glm(curr_trans.p),
                         retro::physics::physics_utils::convert_physx_quat_to_glm(curr_trans.q));
-                    actor->add_collision_shape(box_collision_shape);
-                    actor->initialize();
+                    physics_dynamic_actor->add_collision_shape(box_collision_shape);
+                    physics_dynamic_actor->initialize();
 
-					glm::vec3 color = glm::vec3(rand_float(rd), rand_float(rd), rand_float(rd));
+                    /* Create the scene actor */
+					const std::shared_ptr<retro::scene::scene_actor>& scene_actor = m_scene->create_actor("joint actor");
 
-					glm::vec3 location = retro::physics::physics_utils::convert_physx_vec3_to_glm(actor->get_physx_rigid_dynamic_actor()->getGlobalPose().p);
-					glm::quat rotation = retro::physics::physics_utils::convert_physx_quat_to_glm(actor->get_physx_rigid_dynamic_actor()->getGlobalPose().q);
-
-					auto scene_actor = m_scene->create_actor("joint actor");
+                    /* Setup transform */
+					glm::vec3 location = retro::physics::physics_utils::convert_physx_vec3_to_glm(physics_dynamic_actor->get_physx_rigid_dynamic_actor()->getGlobalPose().p);
+					glm::quat rotation = retro::physics::physics_utils::convert_physx_quat_to_glm(physics_dynamic_actor->get_physx_rigid_dynamic_actor()->getGlobalPose().q);
 					scene_actor->add_component<retro::scene::transform_component>(location, rotation, glm::vec3(2.0f, 0.5f, 0.5f));
 
+                    /* Setup model renderer */
 					scene_actor->add_component<retro::scene::model_renderer_component>(model);
-					auto own_mat = std::make_shared<retro::renderer::material>(*model_material);
-					own_mat->set_albedo(color);
-					scene_actor->add_component<retro::scene::material_renderer_component>(own_mat);
 
-					scene_actor->add_component<retro::scene::physics_dynamic_actor_component>(actor);
+                    /* Setup material renderer */
+					glm::vec3 color = glm::vec3(rand_float(rd), rand_float(rd), rand_float(rd));
+					const std::shared_ptr<retro::renderer::material>& actor_material = std::make_shared<retro::renderer::material>(*model_material);
+                    actor_material->set_albedo(color);
+					scene_actor->add_component<retro::scene::material_renderer_component>(actor_material);
 
-                    // Create a fixed joint to connect prev actor to this one.
-                    auto joint = std::make_shared<retro::physics::physics_d6_joint>(prev,
+                    /* Setup physics components */
+					scene_actor->add_component<retro::scene::physics_dynamic_actor_component>(physics_dynamic_actor);
+                    scene_actor->add_component<retro::scene::physics_material_component>(physics_material);
+                    scene_actor->add_component<retro::scene::physics_box_collision_shape_component>(box_collision_shape);
+
+                    /* Joint creation */
+                    const std::shared_ptr<retro::physics::physics_d6_joint>& joint = std::make_shared<retro::physics::physics_d6_joint>(prev,
                         prev ? physx::PxTransform(offset) : start_position,
-                        actor, physx::PxTransform(-offset));
+                        physics_dynamic_actor, physx::PxTransform(-offset));
                     //   joint->set_limit(true, -glm::pi<float>(), glm::pi<float>());
                   //     joint->set_drive_velocity(true, 1.75f);
                        /*
@@ -131,13 +135,11 @@ physx_app::physx_app() : application("./")
                     joint->set_motion(physx::PxD6Axis::eTWIST, physx::PxD6Motion::eFREE);
                     joint->set_drive(physx::PxD6Drive::eSLERP, physx::PxD6JointDrive(10.0f, 350.0f, FLT_MAX, true));
 
+                    /* Setup joint component */
                     scene_actor->add_component<retro::scene::physics_d6_joint_component>(joint);
 
-                    m_joints.push_back(joint);
-
-                    prev = actor;
-
                     // Update the position for the next actor
+                    prev = physics_dynamic_actor;
                     localTm.p.x += separation;
                 }
             }
