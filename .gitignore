@@ -7,6 +7,8 @@
 
 *.log
 
+*.ovd
+
 **/models
 **/textures
 
