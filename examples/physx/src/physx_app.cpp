@@ -17,6 +17,7 @@ physx_app::physx_app() : application("./")
     setup_cube_vao();
     setup_fbo();
     setup_screen_quad();
+    m_move_camera = false;
 
     retro::renderer::renderer::set_vsync_enabled(false);
 
@@ -210,7 +211,7 @@ void physx_app::on_update()
         if (m_scene->get_actors_registry()->any_of<retro::scene::physics_dynamic_actor_component>(actor))
         {
             auto &physics_dynamic_actor_comp = m_scene->get_actors_registry()->get<retro::scene::physics_dynamic_actor_component>(actor);
-            //   if (physics_dynamic_actor_comp.get_dynamic_actor()->get_physx_rigid_dynamic()->isSleeping()) continue;
+            if (physics_dynamic_actor_comp.get_dynamic_actor()->get_physx_rigid_dynamic_actor()->isSleeping()) continue;
 
             glm::vec3 updated_location = retro::physics::physics_utils::convert_physx_vec3_to_glm(physics_dynamic_actor_comp.get_dynamic_actor()->get_physx_rigid_dynamic_actor()->getGlobalPose().p);
             glm::quat updated_rotation = retro::physics::physics_utils::convert_physx_quat_to_glm(physics_dynamic_actor_comp.get_dynamic_actor()->get_physx_rigid_dynamic_actor()->getGlobalPose().q);
@@ -224,13 +225,7 @@ void physx_app::on_update()
         const glm::mat4 &transformMatrix = transform_comp.get_transform();
         m_geometry_shader->set_mat4("u_transform", transformMatrix);
         material_renderer_comp.get_material()->bind(m_geometry_shader);
-        //m_physics_shader->set_vec_float3("u_color", material_renderer_comp.get_material()->get_data().albedo);
         retro::renderer::renderer::submit_model(model_renderer_comp.get_model());
-        /*
-        m_cube_vao->bind();
-        retro::renderer::renderer::submit_elements(GL_TRIANGLES, 36);
-        m_cube_vao->un_bind();
-        */
     }
 
     m_geometry_shader->un_bind();

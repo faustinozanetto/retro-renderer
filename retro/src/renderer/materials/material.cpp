@@ -25,6 +25,12 @@ namespace retro::renderer
             texture.texture = nullptr;
             m_data.textures[type] = texture;
         }
+
+        // Populate the material enabled locations map
+        for (material_texture_type type : material_texture_types_array) {
+            std::string location = std::format("u_material.{}_map_enabled", get_material_texture_type_to_string(type));
+            m_material_texture_enabled_locations.insert(std::make_pair(type, location));
+        }
     }
 
     material::~material()
@@ -44,8 +50,7 @@ namespace retro::renderer
 
         for (auto &[type, texture] : m_data.textures)
         {
-            std::string enabled_uniform_location = get_material_enabled_uniform_location(type);
-            shader->set_int(enabled_uniform_location, texture.is_enabled ? 1 : 0);
+            shader->set_int(m_material_texture_enabled_locations[type], texture.is_enabled ? 1 : 0);
             if (!texture.is_enabled)
                 continue;
             int bind_slot = m_material_texture_bindings[type];
@@ -256,29 +261,6 @@ namespace retro::renderer
             return "emissive";
         case material_texture_type::opacity:
             return "opacity";
-        }
-        RT_ASSERT_MSG(false, "Invalid material texture type!");
-    }
-
-    std::string material::get_material_enabled_uniform_location(material_texture_type texture_type)
-    {
-        RT_PROFILE_SECTION("material::get_material_enabled_uniform_location");
-        switch (texture_type)
-        {
-        case material_texture_type::albedo:
-            return "u_material.albedo_map_enabled";
-        case material_texture_type::normal:
-            return "u_material.normal_map_enabled";
-        case material_texture_type::roughness:
-            return "u_material.roughness_map_enabled";
-        case material_texture_type::metallic:
-            return "u_material.metallic_map_enabled";
-        case material_texture_type::ambient_occlusion:
-            return "u_material.ambient_occlusion_map_enabled";
-        case material_texture_type::emissive:
-            return "u_material.emissive_map_enabled";
-        case material_texture_type::opacity:
-            return "u_material.opacity_map_enabled";
         }
         RT_ASSERT_MSG(false, "Invalid material texture type!");
     }
