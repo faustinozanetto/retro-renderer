@@ -15,9 +15,9 @@ namespace retro::scene
         ~transform_component() override;
 
         /* Getters */
-        glm::vec3 &get_location() { return m_location; }
-        glm::quat&get_rotation() { return m_rotation; }
-        glm::vec3 &get_scale() { return m_scale; }
+        const glm::vec3 &get_location() const { return m_location; }
+        const glm::quat &get_rotation() const { return m_rotation; }
+        const glm::vec3 &get_scale() const { return m_scale; }
         glm::mat4 get_transform();
 
         /* Setters */

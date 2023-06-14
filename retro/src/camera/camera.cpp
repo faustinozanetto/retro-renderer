@@ -50,7 +50,7 @@ namespace retro::camera
         if (m_type == camera_type::perspective)
         {
             float aspect_ratio = (float)renderer::renderer::get_viewport_size().x / renderer::renderer::get_viewport_size().y;
-            m_projection_matrix = glm::perspective(m_fov, aspect_ratio, m_near_plane, m_far_plane);
+            m_projection_matrix = glm::perspective(glm::radians(m_fov), aspect_ratio, m_near_plane, m_far_plane);
             m_view_matrix = glm::lookAt(m_position, m_position + m_front, m_up);
         }
         else

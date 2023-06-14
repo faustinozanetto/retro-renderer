@@ -18,7 +18,7 @@ namespace retro::editor
 
         /* Getters */
         uint32_t get_main_render_target() const { return m_geometry_fbo->get_attachment_id(1); }
-        const std::shared_ptr<camera::camera>& get_camera() const { return m_camera; }
+        const std::shared_ptr<camera::camera> &get_camera() const { return m_camera; }
 
         /* Initialization */
         void initialize();
@@ -31,17 +31,17 @@ namespace retro::editor
         void begin_dockspace();
         void end_dockspace();
 
+        /* Scene */
+        static entt::entity s_selected_actor;
+
     private:
         /* Rendering */
         uint32_t m_main_render_target;
 
-		/* Model Variables */
-		std::shared_ptr<retro::renderer::material> m_material;
-		std::shared_ptr<retro::renderer::model> m_model;
+        /* Model Variables */
         std::shared_ptr<retro::renderer::shader> m_shader;
         std::shared_ptr<retro::renderer::frame_buffer> m_geometry_fbo;
-
-        /* Scene */
+        std::shared_ptr<retro::scene::scene_actor> m_demo_actor;
 
         /* Camera */
         std::shared_ptr<camera::camera> m_camera;
