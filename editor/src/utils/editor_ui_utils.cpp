@@ -56,7 +56,7 @@ namespace retro::editor
         return modified;
     }
 
-    bool editor_ui_utils::draw_property(const std::string &name, int &value, int min, int max)
+    bool editor_ui_utils::draw_property(const std::string &name, int &value, int min, int max, int reset_value)
     {
         bool modified = false;
         ImGui::PushID(name.c_str());
@@ -80,7 +80,7 @@ namespace retro::editor
         return modified;
     }
 
-    bool editor_ui_utils::draw_property(const std::string &name, float &value, float min, float max, float step)
+    bool editor_ui_utils::draw_property(const std::string &name, float &value, float min, float max, float step, float reset_value)
     {
         bool modified = false;
         ImGui::PushID(name.c_str());
@@ -105,7 +105,7 @@ namespace retro::editor
     }
 
     bool editor_ui_utils::draw_property(const std::string &name, glm::vec2 &value, float min, float max,
-                                        float step)
+                                        float step, float reset_value)
     {
         bool modified = false;
         ImGui::PushID(name.c_str());
@@ -128,7 +128,7 @@ namespace retro::editor
         ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{0.8f, 0.1f, 0.15f, 1.0f});
         if (ImGui::Button("X", buttonSize))
         {
-            value.x = 0.0f;
+            value.x = reset_value;
             modified = true;
         }
         ImGui::PopStyleColor(3);
@@ -144,7 +144,7 @@ namespace retro::editor
         ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{0.2f, 0.7f, 0.2f, 1.0f});
         if (ImGui::Button("Y", buttonSize))
         {
-            value.y = 0.0f;
+            value.y = reset_value;
             modified = true;
         }
         ImGui::PopStyleColor(3);
@@ -164,7 +164,7 @@ namespace retro::editor
     }
 
     bool editor_ui_utils::draw_property(const std::string &name, glm::vec3 &value, float min, float max,
-                                        float step)
+                                        float step, float reset_value)
     {
         bool modified = false;
         ImGui::PushID(name.c_str());
@@ -185,14 +185,16 @@ namespace retro::editor
         ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{0.8f, 0.1f, 0.15f, 1.0f});
         ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{0.9f, 0.2f, 0.2f, 1.0f});
         ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{0.8f, 0.1f, 0.15f, 1.0f});
-        if (ImGui::Button("X", buttonSize)) {
-            value.x = 0.0f;
+        if (ImGui::Button("X", buttonSize))
+        {
+            value.x = reset_value;
             modified = true;
         }
         ImGui::PopStyleColor(3);
 
         ImGui::SameLine();
-        if (ImGui::DragFloat("##X", &value.x, step, min, max, "%.2f")) {
+        if (ImGui::DragFloat("##X", &value.x, step, min, max, "%.2f"))
+        {
             modified = true;
         }
         ImGui::PopItemWidth();
@@ -201,14 +203,16 @@ namespace retro::editor
         ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{0.2f, 0.7f, 0.2f, 1.0f});
         ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{0.3f, 0.8f, 0.3f, 1.0f});
         ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{0.2f, 0.7f, 0.2f, 1.0f});
-        if (ImGui::Button("Y", buttonSize)) {
-            value.y = 0.0f;
+        if (ImGui::Button("Y", buttonSize))
+        {
+            value.y = reset_value;
             modified = true;
         }
         ImGui::PopStyleColor(3);
 
         ImGui::SameLine();
-        if (ImGui::DragFloat("##Y", &value.y, step, min, max, "%.2f")) {
+        if (ImGui::DragFloat("##Y", &value.y, step, min, max, "%.2f"))
+        {
             modified = true;
         }
         ImGui::PopItemWidth();
@@ -217,14 +221,16 @@ namespace retro::editor
         ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{0.1f, 0.25f, 0.8f, 1.0f});
         ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{0.2f, 0.35f, 0.9f, 1.0f});
         ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{0.1f, 0.25f, 0.8f, 1.0f});
-        if (ImGui::Button("Z", buttonSize)) {
-            value.z = 0.0f;
+        if (ImGui::Button("Z", buttonSize))
+        {
+            value.z = reset_value;
             modified = true;
         }
         ImGui::PopStyleColor(3);
 
         ImGui::SameLine();
-        if (ImGui::DragFloat("##Z", &value.z, step, min, max, "%.2f")) {
+        if (ImGui::DragFloat("##Z", &value.z, step, min, max, "%.2f"))
+        {
             modified = true;
         }
         ImGui::PopItemWidth();
