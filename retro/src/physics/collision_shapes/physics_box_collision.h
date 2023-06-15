@@ -16,6 +16,9 @@ namespace retro::physics
         const glm::vec3 &get_half_extents() const { return m_half_extents; }
         physx::PxShape *get_physx_shape() const override;
 
+        /* Setters */
+        void set_half_extents(const glm::vec3& half_extents);
+
     private:
         glm::vec3 m_half_extents;
         physx::PxShape *m_shape;
