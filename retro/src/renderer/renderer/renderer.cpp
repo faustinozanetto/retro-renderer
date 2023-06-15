@@ -15,7 +15,7 @@ namespace retro::renderer
 
     void renderer::initialize()
     {
-        RT_PROFILE_SECTION("renderer::initialize");
+        RT_PROFILE;
         RT_TRACE("Retro Renderer | Renderer initialization started.");
         core::application &application = core::application::get();
         s_data.window = application.get_window();
@@ -29,31 +29,31 @@ namespace retro::renderer
 
     glm::ivec2 renderer::get_viewport_size()
     {
-        RT_PROFILE_SECTION("renderer::get_viewport_size");
+        RT_PROFILE;
         return glm::ivec2(s_data.window->get_width(), s_data.window->get_height());
     }
 
     bool renderer::get_window_should_close()
     {
-        RT_PROFILE_SECTION("renderer::get_window_should_close");
+        RT_PROFILE;
         return glfwWindowShouldClose(s_data.window->get_handle());
     }
 
     void renderer::clear_screen()
     {
-        RT_PROFILE_SECTION("renderer::clear_screen");
+        RT_PROFILE;
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     }
 
     void renderer::poll_input()
     {
-        RT_PROFILE_SECTION("renderer::poll_input");
+        RT_PROFILE;
         glfwPollEvents();
     }
 
     void renderer::swap_buffers()
     {
-        RT_PROFILE_SECTION("renderer::swap_buffers");
+        RT_PROFILE;
         glfwSwapBuffers(s_data.window->get_handle());
 #ifdef TRACY_ENABLE
         TracyGpuCollect;
@@ -62,28 +62,28 @@ namespace retro::renderer
 
     void renderer::set_clear_color(const glm::vec4 &clear_color)
     {
-        RT_PROFILE_SECTION("renderer::set_clear_color");
+        RT_PROFILE;
         s_data.clear_color = clear_color;
         glClearColor(s_data.clear_color.r, s_data.clear_color.g, s_data.clear_color.b, s_data.clear_color.a);
     }
 
     void renderer::set_vsync_enabled(bool is_vsync_enabled)
     {
-        RT_PROFILE_SECTION("renderer::set_vsync_enabled");
+        RT_PROFILE;
         s_data.vsync_enabled = is_vsync_enabled;
         glfwSwapInterval(s_data.vsync_enabled ? 1 : 0);
     }
 
     void renderer::set_viewport_size(const glm::ivec2 &viewport_size)
     {
-        RT_PROFILE_SECTION("renderer::set_viewport_size");
+        RT_PROFILE;
         glViewport(0, 0, viewport_size.x, viewport_size.y);
         set_text_projection();
     }
 
     void renderer::set_state(renderer_state state, bool is_enabled)
     {
-        RT_PROFILE_SECTION("renderer::set_state");
+        RT_PROFILE;
         if (is_enabled)
         {
             glEnable(get_renderer_state_to_opengl(state));
@@ -94,13 +94,13 @@ namespace retro::renderer
 
     void renderer::bind_texture(uint32_t slot, uint32_t handle_id)
     {
-        RT_PROFILE_SECTION("renderer::bind_texture");
+        RT_PROFILE;
         glBindTextureUnit(slot, handle_id);
     }
 
     void renderer::submit_text(const std::shared_ptr<shader> &shader, const std::shared_ptr<font> &font, const std::shared_ptr<text> &text)
     {
-        RT_PROFILE_SECTION("renderer::submit_text");
+        RT_PROFILE;
         shader->set_vec_float3("u_color", text->get_color());
         shader->set_mat4("u_projection", s_data.text_projection);
 
@@ -153,19 +153,19 @@ namespace retro::renderer
 
     void renderer::submit_arrays(uint32_t draw_mode, int count)
     {
-        RT_PROFILE_SECTION("renderer::submit_arrays");
+        RT_PROFILE;
         glDrawArrays(draw_mode, 0, count);
     }
 
     void renderer::submit_elements(uint32_t draw_mode, int count)
     {
-        RT_PROFILE_SECTION("renderer::submit_elements");
+        RT_PROFILE;
         glDrawElements(draw_mode, count, GL_UNSIGNED_INT, 0);
     }
 
     void renderer::submit_vao(const std::shared_ptr<vertex_array_object> &vao, int count)
     {
-        RT_PROFILE_SECTION("renderer::submit_vao");
+        RT_PROFILE;
         vao->bind();
         submit_arrays(GL_TRIANGLES, count);
         vao->un_bind();
@@ -173,7 +173,7 @@ namespace retro::renderer
 
     void renderer::submit_vao_instanced(const std::shared_ptr<vertex_array_object> &vao, int count, int instance_count)
     {
-        RT_PROFILE_SECTION("renderer::submit_vao_instanced");
+        RT_PROFILE;
         vao->bind();
         glDrawArraysInstanced(GL_TRIANGLES, 0, count, instance_count);
         vao->un_bind();
@@ -181,7 +181,7 @@ namespace retro::renderer
 
     void renderer::submit_model(const std::shared_ptr<model> &model)
     {
-        RT_PROFILE_SECTION("renderer::submit_model");
+        RT_PROFILE;
         for (const auto &mesh : model->get_meshes())
         {
             mesh->get_vao()->bind();
@@ -192,7 +192,7 @@ namespace retro::renderer
 
     void renderer::submit_model_instanced(const std::shared_ptr<model> &model, int instance_count)
     {
-        RT_PROFILE_SECTION("renderer::submit_model_instanced");
+        RT_PROFILE;
         for (const auto &mesh : model->get_meshes())
         {
             submit_vao_instanced(mesh->get_vao(), mesh->get_vao()->get_index_buffer()->get_count(), instance_count);
@@ -201,13 +201,13 @@ namespace retro::renderer
 
     void renderer::set_text_projection()
     {
-        RT_PROFILE_SECTION("renderer::set_text_projection");
+        RT_PROFILE;
         s_data.text_projection = glm::ortho(0.0f, static_cast<float>(s_data.window->get_width()), 0.0f,
                                             static_cast<float>(s_data.window->get_height()));
     }
     uint32_t renderer::get_renderer_state_to_opengl(renderer_state state)
     {
-        RT_PROFILE_SECTION("renderer::get_renderer_state_to_opengl");
+        RT_PROFILE;
         switch (state)
         {
         case renderer_state::depth:

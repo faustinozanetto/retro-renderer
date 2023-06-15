@@ -18,13 +18,13 @@ namespace retro::renderer
 
     void vertex_buffer_object::bind()
     {
-        RT_PROFILE_SECTION("vertex_buffer_object::bind");
+        RT_PROFILE;
         glBindBuffer(get_buffer_target_to_opengl(m_buffer_target), m_handle_id);
     }
 
     void vertex_buffer_object::un_bind()
     {
-        RT_PROFILE_SECTION("vertex_buffer_object::un_bind");
+        RT_PROFILE;
         glBindBuffer(get_buffer_target_to_opengl(m_buffer_target), 0);
     }
 
@@ -32,21 +32,21 @@ namespace retro::renderer
         vertex_buffer_object_usage buffer_usage, int size,
         const void *data) const
     {
-        RT_PROFILE_SECTION("vertex_buffer_object::set_data");
+        RT_PROFILE;
         glBindBuffer(get_buffer_target_to_opengl(m_buffer_target), m_handle_id);
         glBufferData(get_buffer_target_to_opengl(m_buffer_target), size, data, get_buffer_usage_to_opengl(buffer_usage));
     }
 
     void vertex_buffer_object::set_attribute(uint32_t index, int size, uint32_t type, int stride, const void *data)
     {
-        RT_PROFILE_SECTION("vertex_buffer_object::set_attribute");
+        RT_PROFILE;
         glEnableVertexAttribArray(index);
         glVertexAttribPointer(index, size, type, GL_FALSE, stride, data);
     }
 
     uint32_t vertex_buffer_object::get_buffer_target_to_opengl(vertex_buffer_object_target buffer_target)
     {
-        RT_PROFILE_SECTION("vertex_buffer_object::get_buffer_target_to_opengl");
+        RT_PROFILE;
         switch (buffer_target)
         {
         case vertex_buffer_object_target::arrays:
@@ -60,7 +60,7 @@ namespace retro::renderer
 
     uint32_t vertex_buffer_object::get_buffer_usage_to_opengl(vertex_buffer_object_usage buffer_usage)
     {
-        RT_PROFILE_SECTION("vertex_buffer_object::get_buffer_usage_to_opengl");
+        RT_PROFILE;
         switch (buffer_usage)
         {
         case (vertex_buffer_object_usage::static_draw):

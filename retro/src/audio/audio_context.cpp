@@ -37,13 +37,13 @@ namespace retro::audio
 
     void audio_context::print_debug_info()
     {
-        RT_PROFILE_SECTION("audio_context::print_debug_info");
+        RT_PROFILE;
         // Available device names
-        const ALCchar* deviceNames = alcGetString(m_audio_device, ALC_ALL_DEVICES_SPECIFIER);
+        const ALCchar *deviceNames = alcGetString(m_audio_device, ALC_ALL_DEVICES_SPECIFIER);
         RT_TRACE("  - Available Devices: {}", deviceNames);
 
         // Default device name
-        const ALCchar* defaultDeviceName = alcGetString(nullptr, ALC_DEFAULT_DEVICE_SPECIFIER);
+        const ALCchar *defaultDeviceName = alcGetString(nullptr, ALC_DEFAULT_DEVICE_SPECIFIER);
         RT_TRACE("  - Default Device: {}", defaultDeviceName);
 
         // Context attributes
@@ -68,7 +68,7 @@ namespace retro::audio
         RT_TRACE("  - Stereo Sources: {}", stereoSources);
 
         // OpenAL extensions
-        const ALCchar* extensions = alcGetString(m_audio_device, ALC_EXTENSIONS);
+        const ALCchar *extensions = alcGetString(m_audio_device, ALC_EXTENSIONS);
         RT_TRACE("  - OpenAL Extensions: {}", extensions);
     }
 }

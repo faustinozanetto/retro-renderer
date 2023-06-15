@@ -21,7 +21,7 @@ namespace retro::physics
 
     physx::PxShape *physics_sphere_collision::get_physx_shape() const
     {
-        RT_PROFILE_SECTION("physics_sphere_collision::get_physx_shape");
+        RT_PROFILE;
         return m_shape;
     }
 

@@ -12,7 +12,7 @@ namespace retro::renderer
 
     void shader_file_watcher::create_shader_file_watcher(const std::shared_ptr<shader>& shader)
     {
-        RT_PROFILE_SECTION("shader_file_watcher::create_shader_file_watcher");
+        RT_PROFILE;
         auto shader_file_watcher = std::make_shared<FileWatch<
             std::string>>(
             shader->get_metadata().file_path.c_str(), BIND_EVENT_FN(on_shader_asset_file_update));
@@ -21,7 +21,7 @@ namespace retro::renderer
 
     void shader_file_watcher::on_shader_asset_file_update(const std::string& path, file_watcher_event change_type)
     {
-        RT_PROFILE_SECTION("shader_file_watcher::on_shader_asset_file_update");
+        RT_PROFILE;
         // If shader file was modified, perform hot reload
         if (change_type == file_watcher_event::modified)
         {

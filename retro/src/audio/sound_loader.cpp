@@ -15,7 +15,7 @@ namespace retro::audio
 {
     std::shared_ptr<sound> sound_loader::load_sound_from_file(const std::string& file_path)
     {
-        RT_PROFILE_SECTION("sound_loader::load_sound_from_file");
+        RT_PROFILE;
         RT_SEPARATOR();
         RT_TRACE("Retro Renderer | Started loading sound from file.");
         sound_data data;
@@ -38,7 +38,7 @@ namespace retro::audio
 
     std::shared_ptr<sound> sound_loader::load_ogg_sound_from_memory(const char* data, size_t size)
     {
-        RT_PROFILE_SECTION("sound_loader::load_ogg_sound_from_memory");
+        RT_PROFILE;
         RT_SEPARATOR();
         RT_TRACE("Retro Renderer | Started loading ogg sound from memory.");
         int error = 0;
@@ -67,7 +67,7 @@ namespace retro::audio
 
     std::shared_ptr<sound> sound_loader::load_wav_sound_from_memory(const char* data, size_t size)
     {
-        RT_PROFILE_SECTION("sound_loader::load_wav_sound_from_memory");
+        RT_PROFILE;
         RT_SEPARATOR();
         RT_TRACE("Retro Renderer | Started loading wav sound from memory.");
         // Use dr_wav library to load the WAV file
@@ -98,7 +98,7 @@ namespace retro::audio
 
     sound_data sound_loader::parse_ogg_sound(const std::string& file_path)
     {
-        RT_PROFILE_SECTION("sound_loader::parse_ogg_sound");
+        RT_PROFILE;
         FILE* file_handle = fopen(file_path.c_str(), "rb");
         if (!file_handle)
         {
@@ -137,7 +137,7 @@ namespace retro::audio
 
     sound_data sound_loader::parse_wav_sound(const std::string& file_path)
     {
-        RT_PROFILE_SECTION("sound_loader::parse_wav_sound");
+        RT_PROFILE;
         sound_data data;
 
         // Use dr_wav library to load the WAV file

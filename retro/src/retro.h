@@ -56,6 +56,7 @@
 #include "scene/scene.h"
 #include "scene/scene_manager.h"
 #include "scene/actors/scene_actor.h"
+#include "scene/transform/transform.h"
 #include "scene/actors/components/base_component.h"
 #include "scene/actors/components/transform_component.h"
 #include "scene/actors/components/name_component.h"

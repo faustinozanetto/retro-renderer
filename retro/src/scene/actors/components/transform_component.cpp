@@ -1,30 +1,19 @@
 #include "rtpch.h"
 #include "transform_component.h"
 
-
-
 namespace retro::scene
 {
-    transform_component::transform_component(const glm::vec3 &location, const glm::quat &rotation, const glm::vec3 &scale)
+    transform_component::transform_component(const std::shared_ptr<transform>& transform)
     {
-        m_location = location;
-        m_rotation = rotation;
-        m_scale = scale;
+        m_transform = transform;
     }
+
+	transform_component::transform_component(const glm::vec3& location /*= glm::vec3(0.0f)*/, const glm::quat& rotation /*= glm::quat(1.0f, 0.0f, 0.0, 0.0f)*/, const glm::vec3& scale /*= glm::vec3(1.0f)*/)
+	{
+        m_transform = std::make_shared<transform>(location, rotation, scale);
+	}
 
     transform_component::~transform_component()
     {
-    }
-
-    glm::mat4 transform_component::get_transform()
-    {
-        // Convert rotation
-        glm::mat4 transform = glm::mat4(1.0f);
-
-        transform = glm::translate(transform, m_location);
-        transform *= glm::toMat4(m_rotation);
-        transform = glm::scale(transform, m_scale);
-
-        return transform;
     }
 }

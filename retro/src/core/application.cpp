@@ -45,7 +45,7 @@ namespace retro::core
 
     void application::on_event(events::base_event &event)
     {
-        RT_PROFILE_SECTION("application::on_event");
+        RT_PROFILE;
         events::event_dispatcher dispatcher(event);
         dispatcher.dispatch<events::window_resize_event>(BIND_EVENT_FN(application::on_window_resize));
         // Call event handle to child application classes
@@ -54,14 +54,14 @@ namespace retro::core
 
     void application::submit_to_main_thread(const std::function<void()> &function)
     {
-        RT_PROFILE_SECTION("application::submit_to_main_thread");
+        RT_PROFILE;
         std::scoped_lock<std::mutex> lock(m_main_thread_queue_mutex);
         m_main_thread_queue.emplace_back(function);
     }
 
     void application::main_loop()
     {
-        RT_PROFILE_SECTION("application::main_loop");
+        RT_PROFILE;
         float frame_time = 0;
         float accumulated_time = 0;
         while (!renderer::renderer::get_window_should_close())
@@ -99,7 +99,7 @@ namespace retro::core
 
     void application::execute_main_thread()
     {
-        RT_PROFILE_SECTION("application::execute_main_thread");
+        RT_PROFILE;
         std::scoped_lock<std::mutex> lock(m_main_thread_queue_mutex);
 
         for (auto &func : m_main_thread_queue)
@@ -110,7 +110,7 @@ namespace retro::core
 
     bool application::on_window_resize(events::window_resize_event &resize_event)
     {
-        RT_PROFILE_SECTION("application::on_window_resize");
+        RT_PROFILE;
         RT_TRACE("Retro Renderer | Window resized to: {0}x{1}", resize_event.get_size().x, resize_event.get_size().y);
         renderer::renderer::set_viewport_size(resize_event.get_size());
         return false;

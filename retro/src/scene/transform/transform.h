@@ -16,12 +16,15 @@ namespace retro::scene
         const glm::vec3 &get_location() const { return m_location; }
         const glm::quat &get_rotation() const { return m_rotation; }
         const glm::vec3 &get_scale() const { return m_scale; }
-        glm::mat4 get_transform();
+        const glm::mat4& get_transform();
+        const std::shared_ptr<transform>& get_parent() const { return m_parent; }
+		bool has_parent() const { return m_parent != nullptr; }
 
         /* Setters */
         void set_location(const glm::vec3 &location);
         void set_rotation(const glm::quat &rotation);
         void set_scale(const glm::vec3 &scale);
+        void set_parent(const std::shared_ptr<transform>& parent) { m_parent = parent; };
 
     private:
         void recalculate_transform();
@@ -29,6 +32,8 @@ namespace retro::scene
         glm::vec3 m_location;
         glm::quat m_rotation;
         glm::vec3 m_scale;
+
+        std::shared_ptr<transform> m_parent;
 
         bool m_transform_dirty;
         glm::mat4 m_transform;

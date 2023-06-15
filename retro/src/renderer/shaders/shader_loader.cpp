@@ -11,7 +11,7 @@ namespace retro::renderer
 {
     std::shared_ptr<shader> shader_loader::load_shader_from_file(const std::string &file_path)
     {
-        RT_PROFILE_SECTION("shader_loader::load_shader_from_file");
+        RT_PROFILE;
         RT_SEPARATOR();
         RT_TRACE("Retro Renderer | Started loading shader from file '{0}'", file_path);
         const std::string &shader_source = read_shader_from_file(file_path);
@@ -27,7 +27,7 @@ namespace retro::renderer
     std::shared_ptr<shader> shader_loader::load_shader_from_contents(
         const std::unordered_map<shader_type, std::string>& contents)
     {
-        RT_PROFILE_SECTION("shader_loader::load_shader_from_contents");
+        RT_PROFILE;
         RT_SEPARATOR();
         RT_TRACE("Retro Renderer | Started loading shader from contents");
         auto created_shader = std::make_shared<shader>("from_contents", contents);
@@ -38,7 +38,7 @@ namespace retro::renderer
 
     std::string shader_loader::read_shader_from_file(const std::string &file_path)
     {
-        RT_PROFILE_SECTION("shader_loader::read_shader_from_file");
+        RT_PROFILE;
         RT_TRACE("Retro Renderer | Started reading shader from file '{0}'", file_path);
         std::string shader_contents;
         std::ifstream in(file_path, std::ios::in | std::ios::binary);
@@ -60,7 +60,7 @@ namespace retro::renderer
 
     std::unordered_map<shader_type, std::string> shader_loader::parse_shader_source(const std::string &shader_source)
     {
-        RT_PROFILE_SECTION("shader_loader::parse_shader_source");
+        RT_PROFILE;
         std::unordered_map<shader_type, std::string> shader_contents;
 
         const size_t shader_type_token_len = strlen(SHADER_TYPE_TOKEN);

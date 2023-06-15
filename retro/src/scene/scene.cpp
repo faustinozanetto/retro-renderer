@@ -30,7 +30,7 @@ namespace retro::scene
 
     std::shared_ptr<scene_actor> scene::create_actor()
     {
-        RT_PROFILE_SECTION("scene::create_actor");
+        RT_PROFILE;
         entt::entity actor_handle = m_actors_registry->create();
         const auto &actor = std::make_shared<scene_actor>(actor_handle);
         actor->set_scene(this);
@@ -39,7 +39,7 @@ namespace retro::scene
 
     std::shared_ptr<scene_actor> scene::create_actor(const std::string &name)
     {
-        RT_PROFILE_SECTION("scene::create_actor");
+        RT_PROFILE;
         entt::entity actor_handle = m_actors_registry->create();
         const auto &actor = std::make_shared<scene_actor>(actor_handle);
         actor->set_scene(this);

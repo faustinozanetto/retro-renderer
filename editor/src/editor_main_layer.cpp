@@ -123,6 +123,7 @@ namespace retro::editor
         for (auto &&[actor, transform_comp, model_renderer_comp, material_renderer_comp] :
              view.each())
         {
+            auto& transform = transform_comp.get_transform();
 			// 1. Update dynamic physics actors
 			if (scene::scene_manager::get().get_active_scene()->get_actors_registry()->any_of<retro::scene::physics_dynamic_actor_component>(actor))
 			{
@@ -134,13 +135,12 @@ namespace retro::editor
 				glm::quat updated_rotation = retro::physics::physics_utils::convert_physx_quat_to_glm(physics_dynamic_actor_comp.get_dynamic_actor()->get_physx_rigid_dynamic_actor()->getGlobalPose().q);
 
 				// Update the cube's position and rotation
-				transform_comp.set_location(updated_location);
-				transform_comp.set_rotation(updated_rotation);
+                transform->set_location(updated_location);
+                transform->set_rotation(updated_rotation);
 			}
 
             // Render
-            const glm::mat4 &transformMatrix = transform_comp.get_transform();
-            m_shader->set_mat4("u_transform", transformMatrix);
+            m_shader->set_mat4("u_transform", transform->get_transform());
             material_renderer_comp.get_material()->bind(m_shader);
             renderer::renderer::submit_model(model_renderer_comp.get_model());
         }

@@ -9,6 +9,7 @@ namespace retro::scene
 		m_rotation = rotation;
 		m_scale = scale;
 		m_transform_dirty = false;
+		m_parent = nullptr;
 		recalculate_transform();
 	}
 
@@ -16,9 +17,9 @@ namespace retro::scene
 	{
 	}
 
-	glm::mat4 transform::get_transform()
+	const glm::mat4& transform::get_transform()
 	{
-		RT_PROFILE_SECTION("transform::get_transform");
+		RT_PROFILE;
 		if (!m_transform_dirty) return m_transform;
 
 		recalculate_transform();
@@ -27,29 +28,35 @@ namespace retro::scene
 
 	void transform::set_location(const glm::vec3& location)
 	{
+		RT_PROFILE;
 		m_location = location;
 		m_transform_dirty = true;
 	}
 
 	void transform::set_rotation(const glm::quat& rotation)
 	{
+		RT_PROFILE;
 		m_rotation = rotation;
 		m_transform_dirty = true;
 	}
 
 	void transform::set_scale(const glm::vec3& scale)
 	{
+		RT_PROFILE;
 		m_scale = scale;
 		m_transform_dirty = true;
 	}
 
 	void transform::recalculate_transform()
 	{
-		RT_PROFILE_SECTION("transform::recalculate_transform");
-		glm::mat4 updated_transform = glm::mat4(1.0f);
-		updated_transform = glm::translate(updated_transform, m_location);
-		updated_transform *= glm::toMat4(m_rotation);
-		updated_transform = glm::scale(updated_transform, m_scale);
-		m_transform = updated_transform;
+		RT_PROFILE;
+		if (m_parent)
+			m_transform = m_parent->get_transform();
+		else
+			m_transform = glm::mat4(1.0f);
+
+		m_transform = glm::translate(m_transform, m_location);
+		m_transform *= glm::toMat4(m_rotation);
+		m_transform = glm::scale(m_transform, m_scale);
 	}
 }

@@ -26,13 +26,13 @@ namespace retro::assets
 
     void asset_pack::save_asset(const std::shared_ptr<asset> &asset)
     {
-        RT_PROFILE_SECTION("asset_pack::save_asset");
+        RT_PROFILE;
         m_assets.insert(std::make_pair(asset->get_metadata().uuid, asset));
     }
 
     void asset_pack::serialize_pack()
     {
-        RT_PROFILE_SECTION("asset_pack::serialize_pack");
+        RT_PROFILE;
         RT_SEPARATOR();
         RT_TRACE("Retro Renderer | Started serializing asset pack.");
         RT_TRACE("  - File Path: '{}'", m_file_path);
@@ -62,7 +62,7 @@ namespace retro::assets
 
     void asset_pack::deserialize_pack()
     {
-        RT_PROFILE_SECTION("asset_pack::deserialize_pack");
+        RT_PROFILE;
         RT_SEPARATOR();
         RT_TRACE("Retro Renderer | Started deserializing asset pack.");
         RT_TRACE("  - File Path: '{}'", m_file_path);
@@ -137,7 +137,7 @@ namespace retro::assets
 
     void asset_pack::write_string(const std::string &string, std::ofstream &asset_pack)
     {
-        RT_PROFILE_SECTION("asset_pack::write_string");
+        RT_PROFILE;
         size_t size = string.size();
         asset_pack.write(reinterpret_cast<const char *>(&size), sizeof(size));
         asset_pack.write(string.c_str(), size);
@@ -145,7 +145,7 @@ namespace retro::assets
 
     std::string asset_pack::read_string(std::ifstream &asset_pack)
     {
-        RT_PROFILE_SECTION("asset_pack::read_string");
+        RT_PROFILE;
         size_t size;
         asset_pack.read(reinterpret_cast<char *>(&size), sizeof(size));
         std::string str(size, '\0');
@@ -155,7 +155,7 @@ namespace retro::assets
 
     void asset_pack::serialize_asset_metadata(const asset_metadata &asset_metadata, std::ofstream &asset_pack_file)
     {
-        RT_PROFILE_SECTION("asset_pack::serialize_asset_metadata");
+        RT_PROFILE;
         RT_ASSERT_MSG(asset_metadata.file_name.c_str(), "Invalid asset metadata!");
         // Serialize the asset's type
         asset_pack_file.write(reinterpret_cast<const char *>(&asset_metadata.type), sizeof(asset_metadata.type));

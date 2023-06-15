@@ -144,7 +144,7 @@ namespace retro::physics
 
 	void physics_world::on_update()
 	{
-		RT_PROFILE_SECTION("physics_world::on_update");
+		RT_PROFILE;
 		if (m_scene)
 		{
 			m_scene->simulate(core::time::get_delta_time());

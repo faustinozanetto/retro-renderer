@@ -34,7 +34,7 @@ namespace retro::renderer
 
     void font::serialize(std::ofstream& asset_pack_file)
     {
-        RT_PROFILE_SECTION("font::serialize");
+        RT_PROFILE;
         // Read font file.
         std::ifstream font_file(m_metadata.file_path, std::ios::binary | std::ios::ate);
         RT_ASSERT_MSG(font_file.is_open(), "Failed to open sound file while serializing asset!")
@@ -59,7 +59,7 @@ namespace retro::renderer
 
     std::shared_ptr<font> font::deserialize(const assets::asset_metadata& metadata, std::ifstream& asset_pack_file)
     {
-        RT_PROFILE_SECTION("font::deserialize");
+        RT_PROFILE;
         // Read the font file size from the asset pack file
         std::streamsize data_size;
         asset_pack_file.read(reinterpret_cast<char*>(&data_size), sizeof(data_size));
@@ -77,7 +77,7 @@ namespace retro::renderer
 
     void font::setup_buffers()
     {
-        RT_PROFILE_SECTION("font::setup_buffers");
+        RT_PROFILE;
         m_font_vao = std::make_shared<vertex_array_object>();
         m_font_vao->bind();
         const std::shared_ptr<vertex_buffer_object> vbo = std::make_shared<
@@ -98,7 +98,7 @@ namespace retro::renderer
 
     void font::construct_atlas()
     {
-        RT_PROFILE_SECTION("font::construct_atlas");
+        RT_PROFILE;
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
         const int atlas_width = MAX_FONT_GLYPHS * m_data.glyph_size;

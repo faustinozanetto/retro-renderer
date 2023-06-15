@@ -33,7 +33,7 @@ namespace retro::renderer
 
     void renderer_context::initialize(const std::shared_ptr<window> &window)
     {
-        RT_PROFILE_SECTION("renderer_context::initialize");
+        RT_PROFILE;
         RT_TRACE("Retro Renderer | Renderer context initialization started.");
         // Set glfw context
         glfwMakeContextCurrent(window->get_handle());

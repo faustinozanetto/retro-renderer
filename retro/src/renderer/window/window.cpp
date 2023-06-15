@@ -25,7 +25,7 @@ namespace retro::renderer
 
     void window::initialize()
     {
-        RT_PROFILE_SECTION("window::initialize");
+        RT_PROFILE;
         const int glfwInitializeState = glfwInit();
         RT_ASSERT_MSG(glfwInitializeState != GLFW_FALSE, "Could not initialize GLFW!");
 
@@ -48,7 +48,7 @@ namespace retro::renderer
 
     void window::setup_callbacks()
     {
-        RT_PROFILE_SECTION("window::setup_callbacks");
+        RT_PROFILE;
         // 1. Resize callback
         glfwSetWindowSizeCallback(m_handle, [](GLFWwindow *native_window, int width, int height)
                                   {
@@ -127,7 +127,7 @@ namespace retro::renderer
 
     void window::set_event_function(const std::function<void(events::base_event &)> func)
     {
-        RT_PROFILE_SECTION("window::set_event_function");
+        RT_PROFILE;
         m_data.event_func = func;
     }
 }
