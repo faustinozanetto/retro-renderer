@@ -72,7 +72,16 @@ namespace retro::renderer
         void bind(const std::shared_ptr<shader> &shader);
 
         /* Getters */
-        const material_data &get_data() const { return m_data; }
+        const material_texture& get_material_texture(material_texture_type texture_type) const { return m_data.textures.at(texture_type); }
+        const std::map<material_texture_type, material_texture>& get_material_textures() const { return m_data.textures; }
+		const glm::vec3& get_albedo() const { return m_data.albedo; }
+		const glm::vec3& get_emissive() const { return m_data.emissive; }
+		float get_ambient_occlusion() const { return m_data.ambient_occlusion; }
+		float get_emissive_strength() const { return m_data.emissive_strength; }
+		float get_tilling() const { return m_data.tilling; }
+		float get_roughness() const { return m_data.roughness; }
+		float get_metallic() const { return m_data.metallic; }
+
 
         /* Setters */
         void set_texture(const material_texture& material_texture);

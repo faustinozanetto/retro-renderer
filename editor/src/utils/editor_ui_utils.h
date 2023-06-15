@@ -1,7 +1,10 @@
 #pragma once
 
-#include <string>
+#include <renderer/textures/texture.h>
+
 #include <glm/glm.hpp>
+#include <memory>
+#include <string>
 
 namespace retro::editor
 {
@@ -17,5 +20,6 @@ namespace retro::editor
         static bool draw_property(const std::string &name, glm::vec3 &value, float min, float max, float step = 0.1f, float reset_value = 1.0f);
         static bool draw_property(const std::string &name, glm::vec3 &value, bool color = true);
         static bool draw_property(const std::string &name, glm::vec4 &value, bool color = true);
+        static bool draw_property(const std::string &name, const std::shared_ptr<renderer::texture>& texture);
     };
 }

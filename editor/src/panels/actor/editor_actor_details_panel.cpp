@@ -2,6 +2,8 @@
 
 #include "components/editor_actor_name_component_panel.h"
 #include "components/editor_actor_transform_component_panel.h"
+#include "components/editor_actor_model_renderer_component_panel.h"
+#include "components/editor_actor_material_renderer_component_panel.h"
 
 #include "../../utils/editor_ui_utils.h"
 
@@ -23,6 +25,8 @@ namespace retro::editor
 	{
 		m_component_panels.push_back(std::make_shared<editor_actor_name_component_panel>());
 		m_component_panels.push_back(std::make_shared<editor_actor_transform_component_panel>());
+		m_component_panels.push_back(std::make_shared<editor_actor_model_renderer_component_panel>());
+		m_component_panels.push_back(std::make_shared<editor_actor_material_renderer_component_panel>());
 	}
 
 	void editor_actor_details_panel::on_render_panel()
@@ -33,7 +37,8 @@ namespace retro::editor
 		if (editor_main_layer::s_selected_actor != entt::null)
 		{
 			// Draw all the component panels
-			for (const auto& component_panel : m_component_panels) {
+			for (const auto &component_panel : m_component_panels)
+			{
 				component_panel->on_render_panel();
 			}
 		}

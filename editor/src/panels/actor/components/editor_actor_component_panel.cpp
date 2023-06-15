@@ -35,9 +35,18 @@ namespace retro::editor
 		bool open = ImGui::TreeNodeEx(reinterpret_cast<void*>(component_hash), component_flags, m_component_name.c_str());
 		ImGui::PopStyleVar();
 		ImGui::SameLine(available_region.x - line_height  * 0.5f);
+		// Settings
 		if (ImGui::Button("+", ImVec2{line_height, line_height}))
 		{
 			ImGui::OpenPopup("Settings");
+		}
+		if (ImGui::BeginPopup("Settings"))
+		{
+			if (ImGui::MenuItem("Remove component")) {
+
+			}
+
+			ImGui::EndPopup();
 		}
 
 		// Render actual component details

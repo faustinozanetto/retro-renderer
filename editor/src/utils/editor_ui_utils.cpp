@@ -285,4 +285,48 @@ namespace retro::editor
 
         return modified;
     }
+
+    bool editor_ui_utils::draw_property(const std::string& name, const std::shared_ptr<renderer::texture>& texture)
+    {
+        bool modified = false;
+		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2{ 0, 5 });
+		if (texture) {
+			ImGui::Columns(2);
+			ImGui::Text("Size %dx%d", texture->get_data().width, texture->get_data().height);
+			ImGui::Text("Mip Maps: %d", texture->get_data().mip_map_levels);
+			ImGui::Text("Channels: %d", texture->get_data().channels);
+			ImGui::Text("Path: %s", texture->get_metadata().file_path.c_str());
+
+			ImGui::NextColumn();
+
+			if (ImGui::ImageButton(
+				reinterpret_cast<ImTextureID>(texture->get_handle_id()),
+				{ 64.0f, 64.0f },
+				ImVec2(0.0f, 1.0f),
+				ImVec2(1.0f, 0.0f)))
+			{
+				modified = true;
+			}
+			if (ImGui::IsItemHovered())
+			{
+				ImGui::BeginTooltip();
+				ImGui::Image(
+					reinterpret_cast<ImTextureID>(texture->get_handle_id()),
+					{ 256.0f, 256.0f },
+					ImVec2(0.0f, 1.0f),
+					ImVec2(1.0f, 0.0f));
+				ImGui::EndTooltip();
+			}
+			ImGui::Columns(1);
+		}
+		else
+		{
+			if (ImGui::Button("Load Texture"))
+			{
+				modified = true;
+			}
+		}
+		ImGui::PopStyleVar();
+        return modified;
+    }
 }
