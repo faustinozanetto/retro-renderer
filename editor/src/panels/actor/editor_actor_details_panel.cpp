@@ -12,6 +12,8 @@
 #include "components/physics/collision_shapes/editor_actor_physics_sphere_collision_component_panel.h"
 #include "components/physics/collision_shapes/editor_actor_physics_capsule_collision_component_panel.h"
 #include "components/physics/joints/editor_actor_physics_fixed_joint_component_panel.h"
+#include "components/physics/joints/editor_actor_physics_revolute_joint_component_panel.h"
+#include "components/physics/joints/editor_actor_physics_prismatic_joint_component_panel.h"
 
 #include "../../utils/editor_ui_utils.h"
 
@@ -31,10 +33,13 @@ namespace retro::editor
 
 	void editor_actor_details_panel::initialize()
 	{
+		/* Common Components*/
 		m_component_panels.push_back(std::make_shared<editor_actor_name_component_panel>());
 		m_component_panels.push_back(std::make_shared<editor_actor_transform_component_panel>());
+		/*  Renderer Components */
 		m_component_panels.push_back(std::make_shared<editor_actor_model_renderer_component_panel>());
 		m_component_panels.push_back(std::make_shared<editor_actor_material_renderer_component_panel>());
+		/* Physics Components */
 		m_component_panels.push_back(std::make_shared<editor_actor_physics_material_component_panel>());
 		m_component_panels.push_back(std::make_shared<editor_actor_physics_static_actor_component_panel>());
 		m_component_panels.push_back(std::make_shared<editor_actor_physics_dynamic_actor_component_panel>());
@@ -43,6 +48,8 @@ namespace retro::editor
 		m_component_panels.push_back(std::make_shared<editor_actor_physics_sphere_collision_component_panel>());
 		m_component_panels.push_back(std::make_shared<editor_actor_physics_capsule_collision_component_panel>());
 		m_component_panels.push_back(std::make_shared<editor_actor_physics_fixed_joint_component_panel>());
+		m_component_panels.push_back(std::make_shared<editor_actor_physics_revolute_joint_component_panel>());
+		m_component_panels.push_back(std::make_shared<editor_actor_physics_prismatic_joint_component_panel>());
 	}
 
 	void editor_actor_details_panel::on_render_panel()

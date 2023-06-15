@@ -31,14 +31,15 @@ namespace retro::physics
         }
     }
 
-    void physics_prismatic_joint::set_limit(const physx::PxJointLinearLimitPair &limit)
-    {
-        m_physx_prismatic_joint->setLimit(limit);
-    }
-
     physx::PxJointLinearLimitPair physics_prismatic_joint::get_limit() const
     {
         return m_physx_prismatic_joint->getLimit();
+    }
+
+    void physics_prismatic_joint::set_limit(float lower, float upper)
+    {
+        physx::PxJointLinearLimitPair limit = physx::PxJointLinearLimitPair(physics_world::get().get_physics()->getTolerancesScale(), lower, upper);
+        m_physx_prismatic_joint->setLimit(limit);
     }
 
     void physics_prismatic_joint::set_prismatic_joint_flags(physx::PxPrismaticJointFlags flags)

@@ -12,11 +12,14 @@
 #include "scene/actors/components/physics/physics_material_component.h"
 #include "scene/actors/components/physics/collision_shapes/physics_box_collision_shape_component.h"
 #include "scene/actors/components/physics/joints/physics_d6_joint_component.h"
+#include "scene/actors/components/physics/joints/physics_revolute_joint_component.h"
+#include "scene/actors/components/physics/joints/physics_prismatic_joint_component.h"
 #include "renderer/models/model_loader.h"
 #include "renderer/materials/material.h"
 #include "renderer/materials/material_loader.h"
 #include "physics_material.h"
 #include "constraints/physics_d6_joint.h"
+#include "constraints/physics_prismatic_joint.h"
 
 #include <glm/ext/quaternion_float.hpp>
 #include <random>
@@ -116,16 +119,20 @@ namespace retro::physics
 			scene_actor->add_component<scene::physics_box_collision_shape_component>(box_collision_shape);
 
             /* Joint creation */
-			const std::shared_ptr<physics_d6_joint>& joint = std::make_shared<physics_d6_joint>(previous_actor,
+			const std::shared_ptr<physics_prismatic_joint>& joint = std::make_shared<physics_prismatic_joint>(previous_actor,
                 previous_actor ? physx::PxTransform(offset) : start_position,
                 dynamic_actor, physx::PxTransform(-offset));
+			joint->set_limit(0.0f, 1.0f);
+			joint->set_prismatic_joint_flag(physx::PxPrismaticJointFlag::eLIMIT_ENABLED, true);
+            /*
 			joint->set_motion(physx::PxD6Axis::eSWING1, physx::PxD6Motion::eFREE);
 			joint->set_motion(physx::PxD6Axis::eSWING2, physx::PxD6Motion::eFREE);
 			joint->set_motion(physx::PxD6Axis::eTWIST, physx::PxD6Motion::eFREE);
 			joint->set_drive(physx::PxD6Drive::eSLERP, physx::PxD6JointDrive(10.0f, 350.0f, FLT_MAX, true));
+            */
 
 			/* Setup joint component */
-			scene_actor->add_component<scene::physics_d6_joint_component>(joint);
+			scene_actor->add_component<scene::physics_prismatic_joint_component>(joint);
 
 			// Update the position for the next actor
             previous_actor = dynamic_actor;

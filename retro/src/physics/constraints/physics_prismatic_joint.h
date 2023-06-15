@@ -22,7 +22,7 @@ namespace retro::physics
     physx::PxPrismaticJointFlags get_prismatic_joint_flags() const;
 
     /* Setters */
-    void set_limit(const physx::PxJointLinearLimitPair &limit);
+    void set_limit(float lower, float upper);
     void set_prismatic_joint_flags(physx::PxPrismaticJointFlags flags);
     void set_prismatic_joint_flag(physx::PxPrismaticJointFlag::Enum flag, bool value);
     void set_projection_linear_tolerance(float tolerance);
