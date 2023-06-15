@@ -43,73 +43,77 @@ namespace retro::editor
         auto material = renderer::material_loader::load_material_from_file("../resources/materials/radio.rrm");
         m_shader = renderer::shader_loader::load_shader_from_file("../resources/shaders/geometry.rrs");
 
+		const std::shared_ptr<physics::physics_material>& physics_material = std::make_shared<physics::physics_material>(0.5f, 0.5f, 0.6f);
+
+		const std::shared_ptr<physics::physics_box_collision>& box_collision_shape = std::make_shared<physics::physics_box_collision>(physics_material);
+
         m_demo_actor = scene::scene_manager::get().get_active_scene()->create_actor("test actor");
         m_demo_actor->add_component<scene::transform_component>();
         m_demo_actor->add_component<scene::model_renderer_component>(model);
         m_demo_actor->add_component<scene::material_renderer_component>(material);
+        m_demo_actor->add_component<scene::physics_box_collision_shape_component>(box_collision_shape);
 
         {
-            const std::shared_ptr<retro::physics::physics_material> &physics_material = std::make_shared<retro::physics::physics_material>(0.5f, 0.5f, 0.6f);
 
-            const std::shared_ptr<retro::physics::physics_plane_collision> &plane_collision_shape = std::make_shared<retro::physics::physics_plane_collision>(physics_material);
+            const std::shared_ptr<physics::physics_plane_collision> &plane_collision_shape = std::make_shared<physics::physics_plane_collision>(physics_material);
 
-            /*
-                physx::PxRigidStatic* plane_static_actor = PxCreatePlane(*retro::physics::physics_world::get().get_physics(), physx::PxPlane(0, 1, 0, 50), *physics_material->get_physx_material());
+            
+                physx::PxRigidStatic* plane_static_actor = PxCreatePlane(*physics::physics_world::get().get_physics(), physx::PxPlane(0, 1, 0, 50), *physics_material->get_physx_material());
 
 
             physx::PxTransform plane_transform = plane_static_actor->getGlobalPose();
 
-            glm::vec3 plane_actor_location = retro::physics::physics_utils::convert_physx_vec3_to_glm(plane_transform.p);
+            glm::vec3 plane_actor_location = physics::physics_utils::convert_physx_vec3_to_glm(plane_transform.p);
             plane_actor_location.y -= 1.0f;
-            glm::quat player_actor_rotation = retro::physics::physics_utils::convert_physx_quat_to_glm(plane_transform.q);
-            */
+            glm::quat player_actor_rotation = physics::physics_utils::convert_physx_quat_to_glm(plane_transform.q);
 
-            const std::shared_ptr<retro::physics::physics_static_actor> &floor_physics_static_actor = std::make_shared<retro::physics::physics_static_actor>(glm::vec3(0.0f, -15.0f, 0.0f));
+            const std::shared_ptr<physics::physics_static_actor> &floor_physics_static_actor = std::make_shared<physics::physics_static_actor>(plane_static_actor);
             floor_physics_static_actor->add_collision_shape(plane_collision_shape);
             floor_physics_static_actor->initialize();
 
             /* Setup plane actor */
             auto plane_actor = scene::scene_manager::get().get_active_scene()->create_actor("physx plane");
-            plane_actor->add_component<retro::scene::transform_component>(plane_actor_location, glm::quat(1.0f, 0.0f, 0.0f, 0.0f), glm::vec3(300.0f, 1.0f, 300.0f));
-            plane_actor->add_component<retro::scene::model_renderer_component>(model);
-            plane_actor->add_component<retro::scene::material_renderer_component>(material);
-            plane_actor->add_component<retro::scene::physics_static_actor_component>(floor_physics_static_actor);
+            plane_actor->add_component<scene::transform_component>(plane_actor_location, glm::quat(1.0f, 0.0f, 0.0f, 0.0f), glm::vec3(300.0f, 1.0f, 300.0f));
+            plane_actor->add_component<scene::model_renderer_component>(model);
+            plane_actor->add_component<scene::material_renderer_component>(material);
+            plane_actor->add_component<scene::physics_static_actor_component>(floor_physics_static_actor);
             plane_actor->add_component<scene::physics_material_component>(physics_material);
+            plane_actor->add_component<scene::physics_plane_collision_shape_component>(plane_collision_shape);
         }
 
-        glm::ivec2 viewport_size = retro::renderer::renderer::get_viewport_size();
+        glm::ivec2 viewport_size = renderer::renderer::get_viewport_size();
         {
-            std::vector<retro::renderer::frame_buffer_attachment> attachments = {
+            std::vector<renderer::frame_buffer_attachment> attachments = {
                 //  Position
                 {
-                    retro::renderer::texture_internal_format::rgba16f,
-                    retro::renderer::texture_filtering::linear,
-                    retro::renderer::texture_wrapping::clamp_to_edge, viewport_size},
+                    renderer::texture_internal_format::rgba16f,
+                    renderer::texture_filtering::linear,
+                    renderer::texture_wrapping::clamp_to_edge, viewport_size},
                 // Albedo
                 {
-                    retro::renderer::texture_internal_format::rgba16f,
-                    retro::renderer::texture_filtering::linear,
-                    retro::renderer::texture_wrapping::clamp_to_edge, viewport_size},
+                    renderer::texture_internal_format::rgba16f,
+                    renderer::texture_filtering::linear,
+                    renderer::texture_wrapping::clamp_to_edge, viewport_size},
                 // Normals
                 {
-                    retro::renderer::texture_internal_format::rgba16f,
-                    retro::renderer::texture_filtering::linear,
-                    retro::renderer::texture_wrapping::clamp_to_edge, viewport_size},
+                    renderer::texture_internal_format::rgba16f,
+                    renderer::texture_filtering::linear,
+                    renderer::texture_wrapping::clamp_to_edge, viewport_size},
                 // Roughness Metallic AO
                 {
-                    retro::renderer::texture_internal_format::rgba16f,
-                    retro::renderer::texture_filtering::linear,
-                    retro::renderer::texture_wrapping::clamp_to_edge, viewport_size},
+                    renderer::texture_internal_format::rgba16f,
+                    renderer::texture_filtering::linear,
+                    renderer::texture_wrapping::clamp_to_edge, viewport_size},
                 // Emissive
                 {
-                    retro::renderer::texture_internal_format::rgba16f,
-                    retro::renderer::texture_filtering::linear,
-                    retro::renderer::texture_wrapping::clamp_to_edge, viewport_size}};
-            retro::renderer::frame_buffer_attachment depth_attachment = {
-                retro::renderer::texture_internal_format::depth_component32f,
-                retro::renderer::texture_filtering::linear,
-                retro::renderer::texture_wrapping::clamp_to_edge, viewport_size};
-            m_geometry_fbo = std::make_shared<retro::renderer::frame_buffer>(
+                    renderer::texture_internal_format::rgba16f,
+                    renderer::texture_filtering::linear,
+                    renderer::texture_wrapping::clamp_to_edge, viewport_size}};
+            renderer::frame_buffer_attachment depth_attachment = {
+                renderer::texture_internal_format::depth_component32f,
+                renderer::texture_filtering::linear,
+                renderer::texture_wrapping::clamp_to_edge, viewport_size};
+            m_geometry_fbo = std::make_shared<renderer::frame_buffer>(
                 attachments, viewport_size.x, viewport_size.y, depth_attachment);
             m_geometry_fbo->initialize();
         }
@@ -131,7 +135,7 @@ namespace retro::editor
         renderer::renderer::set_state(renderer::renderer_state::blend, false);
         renderer::renderer::set_state(renderer::renderer_state::depth, true);
         m_geometry_fbo->bind();
-        retro::renderer::renderer::clear_screen();
+        renderer::renderer::clear_screen();
         m_shader->bind();
         m_shader->set_mat4("u_view", m_camera->get_view_matrix());
         m_shader->set_mat4("u_projection", m_camera->get_projection_matrix());
@@ -144,7 +148,7 @@ namespace retro::editor
             const glm::mat4 &transformMatrix = transform_comp.get_transform();
             m_shader->set_mat4("u_transform", transformMatrix);
             material_renderer_comp.get_material()->bind(m_shader);
-            retro::renderer::renderer::submit_model(model_renderer_comp.get_model());
+            renderer::renderer::submit_model(model_renderer_comp.get_model());
         }
 
         m_shader->un_bind();
