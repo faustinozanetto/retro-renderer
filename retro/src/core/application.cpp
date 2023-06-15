@@ -12,9 +12,9 @@
 
 namespace retro::core
 {
-    application* application::s_instance = nullptr;
+    application *application::s_instance = nullptr;
 
-    application::application(const std::string& working_directory, const renderer::window_specification& window_specification)
+    application::application(const std::string &working_directory, const renderer::window_specification &window_specification)
     {
         logging::logger::initialize();
         std::filesystem::current_path(working_directory);
@@ -26,8 +26,8 @@ namespace retro::core
         m_window->set_event_function(BIND_EVENT_FN(application::on_event));
         /* Assets */
         assets::asset_manager::initialize();
-		/* Physics */
-		physics::physics_world::initialize();
+        /* Physics */
+        physics::physics_world::initialize();
         /* Renderer */
         renderer::renderer::initialize();
         /* UI */
@@ -43,7 +43,7 @@ namespace retro::core
     {
     }
 
-    void application::on_event(events::base_event& event)
+    void application::on_event(events::base_event &event)
     {
         RT_PROFILE_SECTION("application::on_event");
         events::event_dispatcher dispatcher(event);
@@ -52,7 +52,7 @@ namespace retro::core
         on_handle_event(event);
     }
 
-    void application::submit_to_main_thread(const std::function<void()>& function)
+    void application::submit_to_main_thread(const std::function<void()> &function)
     {
         RT_PROFILE_SECTION("application::submit_to_main_thread");
         std::scoped_lock<std::mutex> lock(m_main_thread_queue_mutex);
@@ -102,13 +102,13 @@ namespace retro::core
         RT_PROFILE_SECTION("application::execute_main_thread");
         std::scoped_lock<std::mutex> lock(m_main_thread_queue_mutex);
 
-        for (auto& func : m_main_thread_queue)
+        for (auto &func : m_main_thread_queue)
             func();
 
         m_main_thread_queue.clear();
     }
 
-    bool application::on_window_resize(events::window_resize_event& resize_event)
+    bool application::on_window_resize(events::window_resize_event &resize_event)
     {
         RT_PROFILE_SECTION("application::on_window_resize");
         RT_TRACE("Retro Renderer | Window resized to: {0}x{1}", resize_event.get_size().x, resize_event.get_size().y);

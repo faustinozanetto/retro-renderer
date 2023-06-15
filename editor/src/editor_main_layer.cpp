@@ -26,6 +26,7 @@ namespace retro::editor
 
     void editor_main_layer::initialize()
     {
+        m_initialized = false;
         // Create editor panels
         m_panels.push_back(std::make_shared<editor_viewport_panel>());
         m_panels.push_back(std::make_shared<editor_toolbar_panel>());
@@ -38,10 +39,11 @@ namespace retro::editor
         setup_camera();
 
         ImGui::StyleColorsLight();
+        m_shader = renderer::shader_loader::load_shader_from_file("../resources/shaders/geometry.rrs");
 
+        /*
         auto model = renderer::model_loader::load_model_from_file("../resources/models/radio/radio.obj");
         auto material = renderer::material_loader::load_material_from_file("../resources/materials/radio.rrm");
-        m_shader = renderer::shader_loader::load_shader_from_file("../resources/shaders/geometry.rrs");
 
 		const std::shared_ptr<physics::physics_material>& physics_material = std::make_shared<physics::physics_material>(0.5f, 0.5f, 0.6f);
 
@@ -52,34 +54,10 @@ namespace retro::editor
         m_demo_actor->add_component<scene::model_renderer_component>(model);
         m_demo_actor->add_component<scene::material_renderer_component>(material);
         m_demo_actor->add_component<scene::physics_box_collision_shape_component>(box_collision_shape);
+        */
 
-        {
-
-            const std::shared_ptr<physics::physics_plane_collision> &plane_collision_shape = std::make_shared<physics::physics_plane_collision>(physics_material);
-
-            
-                physx::PxRigidStatic* plane_static_actor = PxCreatePlane(*physics::physics_world::get().get_physics(), physx::PxPlane(0, 1, 0, 50), *physics_material->get_physx_material());
-
-
-            physx::PxTransform plane_transform = plane_static_actor->getGlobalPose();
-
-            glm::vec3 plane_actor_location = physics::physics_utils::convert_physx_vec3_to_glm(plane_transform.p);
-            plane_actor_location.y -= 1.0f;
-            glm::quat player_actor_rotation = physics::physics_utils::convert_physx_quat_to_glm(plane_transform.q);
-
-            const std::shared_ptr<physics::physics_static_actor> &floor_physics_static_actor = std::make_shared<physics::physics_static_actor>(plane_static_actor);
-            floor_physics_static_actor->add_collision_shape(plane_collision_shape);
-            floor_physics_static_actor->initialize();
-
-            /* Setup plane actor */
-            auto plane_actor = scene::scene_manager::get().get_active_scene()->create_actor("physx plane");
-            plane_actor->add_component<scene::transform_component>(plane_actor_location, glm::quat(1.0f, 0.0f, 0.0f, 0.0f), glm::vec3(300.0f, 1.0f, 300.0f));
-            plane_actor->add_component<scene::model_renderer_component>(model);
-            plane_actor->add_component<scene::material_renderer_component>(material);
-            plane_actor->add_component<scene::physics_static_actor_component>(floor_physics_static_actor);
-            plane_actor->add_component<scene::physics_material_component>(physics_material);
-            plane_actor->add_component<scene::physics_plane_collision_shape_component>(plane_collision_shape);
-        }
+        // Create test chain
+        physics::physics_utils::create_chain({ 0.0f, 20.0f, 0.0f }, {0.5f, 0.125f, 0.125f}, 1.1f);
 
         glm::ivec2 viewport_size = renderer::renderer::get_viewport_size();
         {
@@ -117,12 +95,13 @@ namespace retro::editor
                 attachments, viewport_size.x, viewport_size.y, depth_attachment);
             m_geometry_fbo->initialize();
         }
+        m_initialized = true;
     }
 
     void editor_main_layer::setup_camera()
     {
-        m_camera = std::make_shared<camera::camera>(camera::camera_type::perspective, 45.0f, 0.01f, 1000.0f);
-        m_camera->set_position({0.0f, 0.5f, 12.0f});
+        m_camera = std::make_shared<camera::camera>(camera::camera_type::perspective, 55.0f, 0.01f, 1000.0f);
+        m_camera->set_position({ 0.0f, 15.0f, 15.0f });
     }
 
     void editor_main_layer::setup_scene()
@@ -144,6 +123,21 @@ namespace retro::editor
         for (auto &&[actor, transform_comp, model_renderer_comp, material_renderer_comp] :
              view.each())
         {
+			// 1. Update dynamic physics actors
+			if (scene::scene_manager::get().get_active_scene()->get_actors_registry()->any_of<retro::scene::physics_dynamic_actor_component>(actor))
+			{
+				auto& physics_dynamic_actor_comp = scene::scene_manager::get().get_active_scene()->get_actors_registry()->get<retro::scene::physics_dynamic_actor_component>(actor);
+				if (physics_dynamic_actor_comp.get_dynamic_actor()->get_physx_rigid_dynamic_actor()->isSleeping())
+					continue;
+
+				glm::vec3 updated_location = retro::physics::physics_utils::convert_physx_vec3_to_glm(physics_dynamic_actor_comp.get_dynamic_actor()->get_physx_rigid_dynamic_actor()->getGlobalPose().p);
+				glm::quat updated_rotation = retro::physics::physics_utils::convert_physx_quat_to_glm(physics_dynamic_actor_comp.get_dynamic_actor()->get_physx_rigid_dynamic_actor()->getGlobalPose().q);
+
+				// Update the cube's position and rotation
+				transform_comp.set_location(updated_location);
+				transform_comp.set_rotation(updated_rotation);
+			}
+
             // Render
             const glm::mat4 &transformMatrix = transform_comp.get_transform();
             m_shader->set_mat4("u_transform", transformMatrix);
@@ -158,6 +152,10 @@ namespace retro::editor
 
     void editor_main_layer::on_update()
     {
+        if (!m_initialized) return;
+
+		physics::physics_world::get().on_update();
+
         on_render();
 
         ui::engine_ui::begin_frame();

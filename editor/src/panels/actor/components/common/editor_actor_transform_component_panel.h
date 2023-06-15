@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../editor_actor_component_panel.h"
-#include "scene/actors/components/transform_component.h"
 
 namespace retro::editor
 {

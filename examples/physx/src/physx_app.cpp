@@ -54,13 +54,14 @@ physx_app::physx_app() : application("./")
     plane_actor->add_component<retro::scene::material_renderer_component>(model_material2);
     plane_actor->add_component<retro::scene::physics_static_actor_component>(floor_physics_static_actor);
 
-	std::random_device rd;
-	std::uniform_real_distribution<> rand_float(0.0f, 1.0f);
+    std::random_device rd;
+    std::uniform_real_distribution<> rand_float(0.0f, 1.0f);
 
     // Create chain with fixed joints
     for (int x = 0; x < 3; x++)
     {
-        for (int z = 0; z < 3; z++) {
+        for (int z = 0; z < 3; z++)
+        {
             {
                 /* Prev actor used in chain creation */
                 std::shared_ptr<retro::physics::physics_dynamic_actor> prev = nullptr;
@@ -72,66 +73,66 @@ physx_app::physx_app() : application("./")
                 for (int i = 0; i < 10; ++i)
                 {
                     /* Box collision shape */
-                    const std::shared_ptr<retro::physics::physics_box_collision>& box_collision_shape = std::make_shared<retro::physics::physics_box_collision>(physics_material, glm::vec3(2.0f, 0.5f, 0.5f));
-                    
+                    const std::shared_ptr<retro::physics::physics_box_collision> &box_collision_shape = std::make_shared<retro::physics::physics_box_collision>(physics_material, glm::vec3(2.0f, 0.5f, 0.5f));
+
                     /* Setup physics dynamic actor */
                     physx::PxTransform curr_trans = start_position * localTm;
-                    const std::shared_ptr<retro::physics::physics_dynamic_actor>& physics_dynamic_actor = std::make_shared<retro::physics::physics_dynamic_actor>(retro::physics::physics_utils::convert_physx_vec3_to_glm(curr_trans.p),
-                        retro::physics::physics_utils::convert_physx_quat_to_glm(curr_trans.q));
+                    const std::shared_ptr<retro::physics::physics_dynamic_actor> &physics_dynamic_actor = std::make_shared<retro::physics::physics_dynamic_actor>(retro::physics::physics_utils::convert_physx_vec3_to_glm(curr_trans.p),
+                                                                                                                                                                  retro::physics::physics_utils::convert_physx_quat_to_glm(curr_trans.q));
                     physics_dynamic_actor->add_collision_shape(box_collision_shape);
                     physics_dynamic_actor->initialize();
 
                     /* Create the scene actor */
-					const std::shared_ptr<retro::scene::scene_actor>& scene_actor = m_scene->create_actor("joint actor");
+                    const std::shared_ptr<retro::scene::scene_actor> &scene_actor = m_scene->create_actor("joint actor");
 
                     /* Setup transform */
-					glm::vec3 location = retro::physics::physics_utils::convert_physx_vec3_to_glm(physics_dynamic_actor->get_physx_rigid_dynamic_actor()->getGlobalPose().p);
-					glm::quat rotation = retro::physics::physics_utils::convert_physx_quat_to_glm(physics_dynamic_actor->get_physx_rigid_dynamic_actor()->getGlobalPose().q);
-					scene_actor->add_component<retro::scene::transform_component>(location, rotation, glm::vec3(2.0f, 0.5f, 0.5f));
+                    glm::vec3 location = retro::physics::physics_utils::convert_physx_vec3_to_glm(physics_dynamic_actor->get_physx_rigid_dynamic_actor()->getGlobalPose().p);
+                    glm::quat rotation = retro::physics::physics_utils::convert_physx_quat_to_glm(physics_dynamic_actor->get_physx_rigid_dynamic_actor()->getGlobalPose().q);
+                    scene_actor->add_component<retro::scene::transform_component>(location, rotation, glm::vec3(2.0f, 0.5f, 0.5f));
 
                     /* Setup model renderer */
-					scene_actor->add_component<retro::scene::model_renderer_component>(model);
+                    scene_actor->add_component<retro::scene::model_renderer_component>(model);
 
                     /* Setup material renderer */
-					glm::vec3 color = glm::vec3(rand_float(rd), rand_float(rd), rand_float(rd));
-					const std::shared_ptr<retro::renderer::material>& actor_material = std::make_shared<retro::renderer::material>(*model_material);
+                    glm::vec3 color = glm::vec3(rand_float(rd), rand_float(rd), rand_float(rd));
+                    const std::shared_ptr<retro::renderer::material> &actor_material = std::make_shared<retro::renderer::material>(*model_material);
                     actor_material->set_albedo(color);
-					scene_actor->add_component<retro::scene::material_renderer_component>(actor_material);
+                    scene_actor->add_component<retro::scene::material_renderer_component>(actor_material);
 
                     /* Setup physics components */
-					scene_actor->add_component<retro::scene::physics_dynamic_actor_component>(physics_dynamic_actor);
+                    scene_actor->add_component<retro::scene::physics_dynamic_actor_component>(physics_dynamic_actor);
                     scene_actor->add_component<retro::scene::physics_material_component>(physics_material);
                     scene_actor->add_component<retro::scene::physics_box_collision_shape_component>(box_collision_shape);
 
                     /* Joint creation */
-                    const std::shared_ptr<retro::physics::physics_d6_joint>& joint = std::make_shared<retro::physics::physics_d6_joint>(prev,
-                        prev ? physx::PxTransform(offset) : start_position,
-                        physics_dynamic_actor, physx::PxTransform(-offset));
+                    const std::shared_ptr<retro::physics::physics_d6_joint> &joint = std::make_shared<retro::physics::physics_d6_joint>(prev,
+                                                                                                                                        prev ? physx::PxTransform(offset) : start_position,
+                                                                                                                                        physics_dynamic_actor, physx::PxTransform(-offset));
                     //   joint->set_limit(true, -glm::pi<float>(), glm::pi<float>());
-                  //     joint->set_drive_velocity(true, 1.75f);
-                       /*
-                       // Spherical Joint
-                       /*
-                       joint->set_limit_cone(physx::PxJointLimitCone(physx::PxPi / 4, physx::PxPi / 4, 0.05f));
-                       joint->set_spherical_joint_flag(physx::PxSphericalJointFlag::eLIMIT_ENABLED, true);
+                    //     joint->set_drive_velocity(true, 1.75f);
+                    /*
+                    // Spherical Joint
+                    /*
+                    joint->set_limit_cone(physx::PxJointLimitCone(physx::PxPi / 4, physx::PxPi / 4, 0.05f));
+                    joint->set_spherical_joint_flag(physx::PxSphericalJointFlag::eLIMIT_ENABLED, true);
+                    */
+
+                    // Distance Joint
+                    /*
+                    joint->set_min_distance(1.0f);
+                    joint->set_max_distance(2.0f);
+                    joint->set_distance_joint_flag(physx::PxDistanceJointFlag::eMIN_DISTANCE_ENABLED, true);
+                    joint->set_distance_joint_flag(physx::PxDistanceJointFlag::eMAX_DISTANCE_ENABLED, true);
+                    */
+
+                    // Prismatic Joint
+                    /*
+                       physx::PxJointLinearLimitPair limit(physx::PxTolerancesScale(), 0.0f, 1.0f);
+                       joint->set_limit(limit);
+                       joint->set_prismatic_joint_flag(physx::PxPrismaticJointFlag::eLIMIT_ENABLED, true);
                        */
 
-                       // Distance Joint
-                       /*
-                       joint->set_min_distance(1.0f);
-                       joint->set_max_distance(2.0f);
-                       joint->set_distance_joint_flag(physx::PxDistanceJointFlag::eMIN_DISTANCE_ENABLED, true);
-                       joint->set_distance_joint_flag(physx::PxDistanceJointFlag::eMAX_DISTANCE_ENABLED, true);
-                       */
-
-                       // Prismatic Joint
-                       /*
-                          physx::PxJointLinearLimitPair limit(physx::PxTolerancesScale(), 0.0f, 1.0f);
-                          joint->set_limit(limit);
-                          joint->set_prismatic_joint_flag(physx::PxPrismaticJointFlag::eLIMIT_ENABLED, true);
-                          */
-
-                          // D6
+                    // D6
                     joint->set_motion(physx::PxD6Axis::eSWING1, physx::PxD6Motion::eFREE);
                     joint->set_motion(physx::PxD6Axis::eSWING2, physx::PxD6Motion::eFREE);
                     joint->set_motion(physx::PxD6Axis::eTWIST, physx::PxD6Motion::eFREE);
@@ -189,7 +190,6 @@ physx_app::~physx_app()
 
 void physx_app::on_update()
 {
-    retro::physics::physics_world::get().on_update();
 
     // 1. Render to geometry fbo
     m_geometry_fbo->bind();
@@ -212,7 +212,8 @@ void physx_app::on_update()
         if (m_scene->get_actors_registry()->any_of<retro::scene::physics_dynamic_actor_component>(actor))
         {
             auto &physics_dynamic_actor_comp = m_scene->get_actors_registry()->get<retro::scene::physics_dynamic_actor_component>(actor);
-            if (physics_dynamic_actor_comp.get_dynamic_actor()->get_physx_rigid_dynamic_actor()->isSleeping()) continue;
+            if (physics_dynamic_actor_comp.get_dynamic_actor()->get_physx_rigid_dynamic_actor()->isSleeping())
+                continue;
 
             glm::vec3 updated_location = retro::physics::physics_utils::convert_physx_vec3_to_glm(physics_dynamic_actor_comp.get_dynamic_actor()->get_physx_rigid_dynamic_actor()->getGlobalPose().p);
             glm::quat updated_rotation = retro::physics::physics_utils::convert_physx_quat_to_glm(physics_dynamic_actor_comp.get_dynamic_actor()->get_physx_rigid_dynamic_actor()->getGlobalPose().q);
@@ -232,14 +233,14 @@ void physx_app::on_update()
     m_geometry_shader->un_bind();
     m_geometry_fbo->un_bind();
 
-	// 5. Render final result to screen
-	retro::renderer::renderer::clear_screen();
-	retro::renderer::renderer::set_viewport_size(retro::renderer::renderer::get_viewport_size());
-	m_screen_shader->bind();
-	retro::renderer::renderer::bind_texture(0, m_geometry_fbo->get_attachment_id(1));
-	m_screen_vao->bind();
-	retro::renderer::renderer::submit_elements(GL_TRIANGLES, 6);
-	m_screen_vao->un_bind();
+    // 5. Render final result to screen
+    retro::renderer::renderer::clear_screen();
+    retro::renderer::renderer::set_viewport_size(retro::renderer::renderer::get_viewport_size());
+    m_screen_shader->bind();
+    retro::renderer::renderer::bind_texture(0, m_geometry_fbo->get_attachment_id(1));
+    m_screen_vao->bind();
+    retro::renderer::renderer::submit_elements(GL_TRIANGLES, 6);
+    m_screen_vao->un_bind();
     m_screen_shader->un_bind();
 
     retro::ui::engine_ui::begin_frame();
@@ -251,10 +252,10 @@ void physx_app::load_shaders()
 {
     m_physics_shader = retro::renderer::shader_loader::load_shader_from_file(
         "resources/shaders/physics.rrs");
-	m_geometry_shader = retro::renderer::shader_loader::load_shader_from_file(
-		"../resources/shaders/geometry.rrs");
-	m_screen_shader = retro::renderer::shader_loader::load_shader_from_file(
-		"../resources/shaders/screen.rrs");
+    m_geometry_shader = retro::renderer::shader_loader::load_shader_from_file(
+        "../resources/shaders/geometry.rrs");
+    m_screen_shader = retro::renderer::shader_loader::load_shader_from_file(
+        "../resources/shaders/screen.rrs");
 }
 
 void physx_app::setup_camera()
@@ -270,91 +271,91 @@ void physx_app::setup_camera()
 
 void physx_app::setup_fbo()
 {
-	// 1. Create geometry fbo.
-	glm::ivec2 viewport_size = retro::renderer::renderer::get_viewport_size();
-	{
-		std::vector<retro::renderer::frame_buffer_attachment> attachments = {
-			//  Position
-			{
-				retro::renderer::texture_internal_format::rgba16f,
-				retro::renderer::texture_filtering::linear,
-				retro::renderer::texture_wrapping::clamp_to_edge, viewport_size},
-				// Albedo
-				{
-					retro::renderer::texture_internal_format::rgba16f,
-					retro::renderer::texture_filtering::linear,
-					retro::renderer::texture_wrapping::clamp_to_edge, viewport_size},
-					// Normals
-					{
-						retro::renderer::texture_internal_format::rgba16f,
-						retro::renderer::texture_filtering::linear,
-						retro::renderer::texture_wrapping::clamp_to_edge, viewport_size},
-						// Roughness Metallic AO
-						{
-							retro::renderer::texture_internal_format::rgba16f,
-							retro::renderer::texture_filtering::linear,
-							retro::renderer::texture_wrapping::clamp_to_edge, viewport_size},
-							// Emissive
-							{
-								retro::renderer::texture_internal_format::rgba16f,
-								retro::renderer::texture_filtering::linear,
-								retro::renderer::texture_wrapping::clamp_to_edge, viewport_size} };
-		retro::renderer::frame_buffer_attachment depth_attachment = {
-			retro::renderer::texture_internal_format::depth_component32f,
-			retro::renderer::texture_filtering::linear,
-			retro::renderer::texture_wrapping::clamp_to_edge, viewport_size };
-		m_geometry_fbo = std::make_shared<retro::renderer::frame_buffer>(
-			attachments, viewport_size.x, viewport_size.y, depth_attachment);
-		m_geometry_fbo->initialize();
-	}
+    // 1. Create geometry fbo.
+    glm::ivec2 viewport_size = retro::renderer::renderer::get_viewport_size();
+    {
+        std::vector<retro::renderer::frame_buffer_attachment> attachments = {
+            //  Position
+            {
+                retro::renderer::texture_internal_format::rgba16f,
+                retro::renderer::texture_filtering::linear,
+                retro::renderer::texture_wrapping::clamp_to_edge, viewport_size},
+            // Albedo
+            {
+                retro::renderer::texture_internal_format::rgba16f,
+                retro::renderer::texture_filtering::linear,
+                retro::renderer::texture_wrapping::clamp_to_edge, viewport_size},
+            // Normals
+            {
+                retro::renderer::texture_internal_format::rgba16f,
+                retro::renderer::texture_filtering::linear,
+                retro::renderer::texture_wrapping::clamp_to_edge, viewport_size},
+            // Roughness Metallic AO
+            {
+                retro::renderer::texture_internal_format::rgba16f,
+                retro::renderer::texture_filtering::linear,
+                retro::renderer::texture_wrapping::clamp_to_edge, viewport_size},
+            // Emissive
+            {
+                retro::renderer::texture_internal_format::rgba16f,
+                retro::renderer::texture_filtering::linear,
+                retro::renderer::texture_wrapping::clamp_to_edge, viewport_size}};
+        retro::renderer::frame_buffer_attachment depth_attachment = {
+            retro::renderer::texture_internal_format::depth_component32f,
+            retro::renderer::texture_filtering::linear,
+            retro::renderer::texture_wrapping::clamp_to_edge, viewport_size};
+        m_geometry_fbo = std::make_shared<retro::renderer::frame_buffer>(
+            attachments, viewport_size.x, viewport_size.y, depth_attachment);
+        m_geometry_fbo->initialize();
+    }
 }
 
 void physx_app::setup_screen_quad()
 {
-	const std::vector<float> quad_vertices = {
-	   1.0f, 1.0f, 0.0f, 1.0f, 1.0f,   // top right
-	   1.0f, -1.0f, 0.0f, 1.0f, 0.0f,  // bottom right
-	   -1.0f, -1.0f, 0.0f, 0.0f, 0.0f, // bottom left
-	   -1.0f, 1.0f, 0.0f, 0.0f, 1.0f   // top left
-	};
+    const std::vector<float> quad_vertices = {
+        1.0f, 1.0f, 0.0f, 1.0f, 1.0f,   // top right
+        1.0f, -1.0f, 0.0f, 1.0f, 0.0f,  // bottom right
+        -1.0f, -1.0f, 0.0f, 0.0f, 0.0f, // bottom left
+        -1.0f, 1.0f, 0.0f, 0.0f, 1.0f   // top left
+    };
 
-	const std::vector<uint32_t> indices = {
-		0, 3, 1, // first triangle
-		1, 3, 2, // second triangle
-	};
+    const std::vector<uint32_t> indices = {
+        0, 3, 1, // first triangle
+        1, 3, 2, // second triangle
+    };
 
-	size_t vertex_buffer_size = quad_vertices.size() * sizeof(&quad_vertices[0]);
-	size_t index_buffer_size = indices.size() * sizeof(&indices[0]);
+    size_t vertex_buffer_size = quad_vertices.size() * sizeof(&quad_vertices[0]);
+    size_t index_buffer_size = indices.size() * sizeof(&indices[0]);
 
     m_screen_vao = std::make_shared<retro::renderer::vertex_array_object>();
-	std::shared_ptr<retro::renderer::vertex_buffer_object> vertices_vbo = std::make_shared<
-		retro::renderer::vertex_buffer_object>(retro::renderer::vertex_buffer_object_target::arrays);
+    std::shared_ptr<retro::renderer::vertex_buffer_object> vertices_vbo = std::make_shared<
+        retro::renderer::vertex_buffer_object>(retro::renderer::vertex_buffer_object_target::arrays);
 
-	std::shared_ptr<retro::renderer::vertex_buffer_object> index_buffer = std::make_shared<
-		retro::renderer::vertex_buffer_object>(retro::renderer::vertex_buffer_object_target::elements, indices.size());
+    std::shared_ptr<retro::renderer::vertex_buffer_object> index_buffer = std::make_shared<
+        retro::renderer::vertex_buffer_object>(retro::renderer::vertex_buffer_object_target::elements, indices.size());
 
-	m_screen_vao->bind();
-	vertices_vbo->bind();
-	vertices_vbo->set_data(retro::renderer::vertex_buffer_object_usage::static_draw, vertex_buffer_size,
-		quad_vertices.data());
+    m_screen_vao->bind();
+    vertices_vbo->bind();
+    vertices_vbo->set_data(retro::renderer::vertex_buffer_object_usage::static_draw, vertex_buffer_size,
+                           quad_vertices.data());
 
-	index_buffer->bind();
-	index_buffer->set_data(retro::renderer::vertex_buffer_object_usage::static_draw, index_buffer_size, indices.data());
+    index_buffer->bind();
+    index_buffer->set_data(retro::renderer::vertex_buffer_object_usage::static_draw, index_buffer_size, indices.data());
 
-	std::initializer_list<retro::renderer::vertex_buffer_layout_entry>
-		layout_elements = {
-			{"a_pos", retro::renderer::vertex_buffer_entry_type::vec_float3, false},
-			{"a_tex_coord", retro::renderer::vertex_buffer_entry_type::vec_float2, false},
-	};
+    std::initializer_list<retro::renderer::vertex_buffer_layout_entry>
+        layout_elements = {
+            {"a_pos", retro::renderer::vertex_buffer_entry_type::vec_float3, false},
+            {"a_tex_coord", retro::renderer::vertex_buffer_entry_type::vec_float2, false},
+        };
 
-	std::shared_ptr<retro::renderer::vertex_buffer_layout_descriptor>
-		vertices_vbo_layout_descriptor = std::make_shared<retro::renderer::vertex_buffer_layout_descriptor>(
-			layout_elements);
-	vertices_vbo->set_layout_descriptor(vertices_vbo_layout_descriptor);
+    std::shared_ptr<retro::renderer::vertex_buffer_layout_descriptor>
+        vertices_vbo_layout_descriptor = std::make_shared<retro::renderer::vertex_buffer_layout_descriptor>(
+            layout_elements);
+    vertices_vbo->set_layout_descriptor(vertices_vbo_layout_descriptor);
 
     m_screen_vao->add_vertex_buffer(vertices_vbo);
     m_screen_vao->set_index_buffer(index_buffer);
-	m_screen_vao->un_bind();
+    m_screen_vao->un_bind();
 }
 
 void physx_app::setup_cube_vao()
@@ -484,7 +485,7 @@ void physx_app::on_handle_event(retro::events::base_event &event)
     retro::events::event_dispatcher dispatcher(event);
     dispatcher.dispatch<retro::events::key_pressed_event>(BIND_EVENT_FN(physx_app::on_key_pressed_event));
     dispatcher.dispatch<retro::events::key_released_event>(BIND_EVENT_FN(physx_app::on_key_released_event));
-     dispatcher.dispatch<retro::events::mouse_moved_event>(BIND_EVENT_FN(physx_app::on_mouse_moved_event));
+    dispatcher.dispatch<retro::events::mouse_moved_event>(BIND_EVENT_FN(physx_app::on_mouse_moved_event));
     dispatcher.dispatch<retro::events::window_resize_event>(BIND_EVENT_FN(physx_app::on_window_resize));
 }
 
@@ -532,15 +533,15 @@ bool physx_app::on_key_pressed_event(retro::events::key_pressed_event &key_press
             retro::camera::camera_keyboard_direction::up);
         return true;
     }
-    else if (key_pressed_event.get_key_code() == retro::input::key::LeftAlt) {
+    else if (key_pressed_event.get_key_code() == retro::input::key::LeftAlt)
+    {
         m_move_camera = true;
         return true;
     }
     return false;
 }
 
-
-bool physx_app::on_key_released_event(retro::events::key_released_event& key_released_event)
+bool physx_app::on_key_released_event(retro::events::key_released_event &key_released_event)
 {
     m_move_camera = false;
     return false;

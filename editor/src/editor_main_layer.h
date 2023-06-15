@@ -48,5 +48,7 @@ namespace retro::editor
 
         /* UI */
         std::vector<std::shared_ptr<editor_panel>> m_panels;
+
+        bool m_initialized;
     };
 }

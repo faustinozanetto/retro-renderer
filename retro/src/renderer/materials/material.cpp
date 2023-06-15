@@ -51,7 +51,7 @@ namespace retro::renderer
         for (auto &[type, texture] : m_data.textures)
         {
             shader->set_int(m_material_texture_enabled_locations[type], texture.is_enabled ? 1 : 0);
-            if (!texture.is_enabled)
+            if (!texture.is_enabled || !texture.texture)
                 continue;
             int bind_slot = m_material_texture_bindings[type];
             renderer::bind_texture(bind_slot, texture.texture->get_handle_id());

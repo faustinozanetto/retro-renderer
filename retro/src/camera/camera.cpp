@@ -85,6 +85,7 @@ namespace retro::camera
     {
         RT_PROFILE_SECTION("camera::set_position");
         m_position = position;
+        construct_matrices();
     }
 
     void camera::set_yaw(float yaw)

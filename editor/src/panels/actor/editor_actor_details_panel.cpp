@@ -11,6 +11,7 @@
 #include "components/physics/collision_shapes/editor_actor_physics_plane_collision_component_panel.h"
 #include "components/physics/collision_shapes/editor_actor_physics_sphere_collision_component_panel.h"
 #include "components/physics/collision_shapes/editor_actor_physics_capsule_collision_component_panel.h"
+#include "components/physics/joints/editor_actor_physics_fixed_joint_component_panel.h"
 
 #include "../../utils/editor_ui_utils.h"
 
@@ -41,6 +42,7 @@ namespace retro::editor
 		m_component_panels.push_back(std::make_shared<editor_actor_physics_plane_collision_component_panel>());
 		m_component_panels.push_back(std::make_shared<editor_actor_physics_sphere_collision_component_panel>());
 		m_component_panels.push_back(std::make_shared<editor_actor_physics_capsule_collision_component_panel>());
+		m_component_panels.push_back(std::make_shared<editor_actor_physics_fixed_joint_component_panel>());
 	}
 
 	void editor_actor_details_panel::on_render_panel()

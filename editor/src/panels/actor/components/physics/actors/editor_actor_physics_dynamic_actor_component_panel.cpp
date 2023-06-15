@@ -28,7 +28,7 @@ namespace retro::editor
 			editor_main_layer::s_selected_actor);
 
 		float mass = physics_dynamic_actor_component.get_dynamic_actor()->get_mass();
-		if (editor_ui_utils::draw_property("Mass", mass, 0.0f, 100.0f, 0.01f)) {
+		if (editor_ui_utils::draw_property("Mass", mass, 0.01f, 100.0f, 0.01f)) {
 			physics_dynamic_actor_component.get_dynamic_actor()->set_mass(mass);
 		}
 

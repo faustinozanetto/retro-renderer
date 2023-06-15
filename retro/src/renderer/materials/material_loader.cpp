@@ -11,6 +11,25 @@
 
 namespace retro::renderer
 {
+    std::shared_ptr<material> material_loader::load_material_from_data(const material_data& data)
+    {
+		RT_PROFILE_SECTION("material_loader::load_material_from_data");
+		RT_SEPARATOR();
+		RT_TRACE("Retro Renderer | Started loading material from data.");
+		std::map<retro::renderer::material_texture_type, int> material_bindings;
+		material_bindings[retro::renderer::material_texture_type::albedo] = 0;
+		material_bindings[retro::renderer::material_texture_type::normal] = 1;
+		material_bindings[retro::renderer::material_texture_type::roughness] = 2;
+		material_bindings[retro::renderer::material_texture_type::metallic] = 3;
+		material_bindings[retro::renderer::material_texture_type::ambient_occlusion] = 4;
+		material_bindings[retro::renderer::material_texture_type::emissive] = 5;
+		material_bindings[retro::renderer::material_texture_type::opacity] = 6;
+		auto created_material = std::make_shared<material>("from_data", data, material_bindings);
+		RT_TRACE("Retro Renderer | Material loaded from data successfully!");
+		RT_SEPARATOR();
+		return created_material;
+    }
+
     std::shared_ptr<material> material_loader::load_material_from_file(const std::string &file_path)
     {
         RT_PROFILE_SECTION("material_loader::load_material_from_file");
