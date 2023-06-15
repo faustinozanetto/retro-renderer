@@ -1,8 +1,5 @@
 #include "editor_actor_transform_component_panel.h"
 
-#include "../../../editor_main_layer.h"
-#include "../../../utils/editor_ui_utils.h"
-
 #include <scene/scene_manager.h>
 
 namespace retro::editor

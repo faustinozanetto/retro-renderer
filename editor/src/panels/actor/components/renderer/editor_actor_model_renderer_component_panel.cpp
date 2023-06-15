@@ -1,8 +1,5 @@
 #include "editor_actor_model_renderer_component_panel.h"
 
-#include "../../../editor_main_layer.h"
-#include "../../../utils/editor_ui_utils.h"
-
 #include <scene/scene_manager.h>
 #include <renderer/models/model_loader.h>
 #include <utils/files.h>
@@ -19,7 +16,7 @@ namespace retro::editor
 	{
 		const auto current_scene = scene::scene_manager::get().get_active_scene();
 		bool has_component = current_scene->get_actors_registry()->any_of<scene::model_renderer_component>(editor_main_layer::s_selected_actor);
-		auto component_hash = typeid(scene::name_component).hash_code();
+		auto component_hash = typeid(scene::model_renderer_component).hash_code();
 		return std::make_pair(has_component, component_hash);
 	}
 

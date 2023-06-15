@@ -11,7 +11,15 @@ namespace retro::physics
         ~physics_material();
 
         /* Getters */
-        physx::PxMaterial *get_physx_material() const { return m_material; }
+        float get_static_friction() const;
+        float get_dynamic_friction() const;
+        float get_restitution() const;
+        physx::PxMaterial* get_physx_material() const { return m_material; }
+
+        /* Setters */
+        void set_static_friction(float static_friction);
+        void set_dynamic_friction(float dynamic_friction);
+        void set_restitution(float restitution);
 
     private:
         physx::PxMaterial *m_material;

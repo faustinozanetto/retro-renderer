@@ -23,6 +23,16 @@ namespace retro::physics
         m_rigid_dynamic = nullptr;
     }
 
+	float physics_dynamic_actor::get_linear_damping() const
+	{
+        return m_rigid_dynamic->getLinearDamping();
+	}
+
+    float physics_dynamic_actor::get_angular_damping() const
+    {
+        return m_rigid_dynamic->getAngularDamping();
+    }
+
     glm::vec3 physics_dynamic_actor::get_linear_velocity() const
     {
         RT_PROFILE_SECTION("physics_dynamic_actor::get_linear_velocity");
@@ -46,6 +56,16 @@ namespace retro::physics
         RT_PROFILE_SECTION("physics_dynamic_actor::set_mass");
 		m_mass = mass;
 		m_rigid_dynamic->setMass(m_mass);
+    }
+
+    void physics_dynamic_actor::set_linear_damping(float linear_damping)
+    {
+        m_rigid_dynamic->setLinearDamping(linear_damping);
+    }
+
+    void physics_dynamic_actor::set_angular_damping(float angular_damping)
+    {
+        m_rigid_dynamic->setAngularDamping(angular_damping);
     }
 
     void physics_dynamic_actor::set_linear_velocity(const glm::vec3& linear_velocity)
