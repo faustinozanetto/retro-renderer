@@ -39,38 +39,41 @@ namespace retro::editor
 
         ImGui::StyleColorsLight();
 
-		auto model = renderer::model_loader::load_model_from_file("../resources/models/radio/radio.obj");
-		auto material = renderer::material_loader::load_material_from_file("../resources/materials/radio.rrm");
-		m_shader = renderer::shader_loader::load_shader_from_file("../resources/shaders/geometry.rrs");
+        auto model = renderer::model_loader::load_model_from_file("../resources/models/radio/radio.obj");
+        auto material = renderer::material_loader::load_material_from_file("../resources/materials/radio.rrm");
+        m_shader = renderer::shader_loader::load_shader_from_file("../resources/shaders/geometry.rrs");
 
         m_demo_actor = scene::scene_manager::get().get_active_scene()->create_actor("test actor");
         m_demo_actor->add_component<scene::transform_component>();
         m_demo_actor->add_component<scene::model_renderer_component>(model);
         m_demo_actor->add_component<scene::material_renderer_component>(material);
 
-
         {
-			const std::shared_ptr<retro::physics::physics_material>& physics_material = std::make_shared<retro::physics::physics_material>(0.5f, 0.5f, 0.6f);
+            const std::shared_ptr<retro::physics::physics_material> &physics_material = std::make_shared<retro::physics::physics_material>(0.5f, 0.5f, 0.6f);
 
-			const std::shared_ptr<retro::physics::physics_plane_collision>& plane_collision_shape = std::make_shared<retro::physics::physics_plane_collision>(physics_material);
-			physx::PxRigidStatic* plane_static_actor = PxCreatePlane(*retro::physics::physics_world::get().get_physics(), physx::PxPlane(0, 1, 0, 50), *physics_material->get_physx_material());
+            const std::shared_ptr<retro::physics::physics_plane_collision> &plane_collision_shape = std::make_shared<retro::physics::physics_plane_collision>(physics_material);
 
-			physx::PxTransform plane_transform = plane_static_actor->getGlobalPose();
+            /*
+                physx::PxRigidStatic* plane_static_actor = PxCreatePlane(*retro::physics::physics_world::get().get_physics(), physx::PxPlane(0, 1, 0, 50), *physics_material->get_physx_material());
 
-			glm::vec3 plane_actor_location = retro::physics::physics_utils::convert_physx_vec3_to_glm(plane_transform.p);
-			plane_actor_location.y -= 1.0f;
-			glm::quat player_actor_rotation = retro::physics::physics_utils::convert_physx_quat_to_glm(plane_transform.q);
 
-			const std::shared_ptr<retro::physics::physics_static_actor>& floor_physics_static_actor = std::make_shared<retro::physics::physics_static_actor>(plane_static_actor);
-			floor_physics_static_actor->add_collision_shape(plane_collision_shape);
-			floor_physics_static_actor->initialize();
+            physx::PxTransform plane_transform = plane_static_actor->getGlobalPose();
 
-			/* Setup plane actor */
-			auto plane_actor = scene::scene_manager::get().get_active_scene()->create_actor("physx plane");
-			plane_actor->add_component<retro::scene::transform_component>(plane_actor_location, glm::quat(1.0f, 0.0f, 0.0f, 0.0f), glm::vec3(300.0f, 1.0f, 300.0f));
-			plane_actor->add_component<retro::scene::model_renderer_component>(model);
-			plane_actor->add_component<retro::scene::material_renderer_component>(material);
-			plane_actor->add_component<retro::scene::physics_static_actor_component>(floor_physics_static_actor);
+            glm::vec3 plane_actor_location = retro::physics::physics_utils::convert_physx_vec3_to_glm(plane_transform.p);
+            plane_actor_location.y -= 1.0f;
+            glm::quat player_actor_rotation = retro::physics::physics_utils::convert_physx_quat_to_glm(plane_transform.q);
+            */
+
+            const std::shared_ptr<retro::physics::physics_static_actor> &floor_physics_static_actor = std::make_shared<retro::physics::physics_static_actor>(glm::vec3(0.0f, -15.0f, 0.0f));
+            floor_physics_static_actor->add_collision_shape(plane_collision_shape);
+            floor_physics_static_actor->initialize();
+
+            /* Setup plane actor */
+            auto plane_actor = scene::scene_manager::get().get_active_scene()->create_actor("physx plane");
+            plane_actor->add_component<retro::scene::transform_component>(plane_actor_location, glm::quat(1.0f, 0.0f, 0.0f, 0.0f), glm::vec3(300.0f, 1.0f, 300.0f));
+            plane_actor->add_component<retro::scene::model_renderer_component>(model);
+            plane_actor->add_component<retro::scene::material_renderer_component>(material);
+            plane_actor->add_component<retro::scene::physics_static_actor_component>(floor_physics_static_actor);
             plane_actor->add_component<scene::physics_material_component>(physics_material);
         }
 
@@ -130,20 +133,19 @@ namespace retro::editor
         m_geometry_fbo->bind();
         retro::renderer::renderer::clear_screen();
         m_shader->bind();
-		m_shader->set_mat4("u_view", m_camera->get_view_matrix());
-		m_shader->set_mat4("u_projection", m_camera->get_projection_matrix());
+        m_shader->set_mat4("u_view", m_camera->get_view_matrix());
+        m_shader->set_mat4("u_projection", m_camera->get_projection_matrix());
 
-		const auto& view = scene::scene_manager::get().get_active_scene()->get_actors_registry()->view<scene::transform_component, scene::model_renderer_component,
-            scene::material_renderer_component>();
-		for (auto&& [actor, transform_comp, model_renderer_comp, material_renderer_comp] :
-			view.each())
-		{
-			// Render
-			const glm::mat4& transformMatrix = transform_comp.get_transform();
+        const auto &view = scene::scene_manager::get().get_active_scene()->get_actors_registry()->view<scene::transform_component, scene::model_renderer_component, scene::material_renderer_component>();
+        for (auto &&[actor, transform_comp, model_renderer_comp, material_renderer_comp] :
+             view.each())
+        {
+            // Render
+            const glm::mat4 &transformMatrix = transform_comp.get_transform();
             m_shader->set_mat4("u_transform", transformMatrix);
-			material_renderer_comp.get_material()->bind(m_shader);
-			retro::renderer::renderer::submit_model(model_renderer_comp.get_model());
-		}
+            material_renderer_comp.get_material()->bind(m_shader);
+            retro::renderer::renderer::submit_model(model_renderer_comp.get_model());
+        }
 
         m_shader->un_bind();
         m_geometry_fbo->un_bind();

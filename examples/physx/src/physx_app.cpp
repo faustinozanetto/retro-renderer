@@ -34,6 +34,7 @@ physx_app::physx_app() : application("./")
     const std::shared_ptr<retro::physics::physics_material> &physics_material = std::make_shared<retro::physics::physics_material>(0.5f, 0.5f, 0.6f);
 
     const std::shared_ptr<retro::physics::physics_plane_collision> &plane_collision_shape = std::make_shared<retro::physics::physics_plane_collision>(physics_material);
+
     physx::PxRigidStatic *plane_static_actor = PxCreatePlane(*retro::physics::physics_world::get().get_physics(), physx::PxPlane(0, 1, 0, 50), *physics_material->get_physx_material());
 
     physx::PxTransform plane_transform = plane_static_actor->getGlobalPose();

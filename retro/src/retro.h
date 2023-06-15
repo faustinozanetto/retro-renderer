@@ -72,6 +72,8 @@
 #include "scene/actors/components/physics/joints/physics_revolute_joint_component.h"
 #include "scene/actors/components/physics/physics_material_component.h"
 #include "scene/actors/components/physics/collision_shapes/physics_box_collision_shape_component.h"
+#include "scene/actors/components/physics/collision_shapes/physics_plane_collision_shape_component.h"
+#include "scene/actors/components/physics/collision_shapes/physics_sphere_collision_shape_component.h"
 
 // Physics Include
 #include "physics/physics_world.h"
