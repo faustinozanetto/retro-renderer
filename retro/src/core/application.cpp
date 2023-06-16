@@ -16,7 +16,6 @@ namespace retro::core
 
     application::application(const std::string &working_directory, const renderer::window_specification &window_specification)
     {
-        logging::logger::initialize();
         std::filesystem::current_path(working_directory);
         RT_TRACE("Retro Renderer | Application initialization started.");
         s_instance = this;

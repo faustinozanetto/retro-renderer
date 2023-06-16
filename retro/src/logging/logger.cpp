@@ -1,7 +1,7 @@
 ﻿#include "rtpch.h"
 #include "logger.h"
 
-#include <spdlog/sinks/basic_file_sink.h>
+#include <spdlog/sinks/rotating_file_sink.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
 
 namespace retro::logging
@@ -13,7 +13,7 @@ namespace retro::logging
     {
         RT_PROFILE;
         const auto& console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
-        const auto& file_sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>("logs/retro.log", true);
+        const auto& file_sink = std::make_shared<spdlog::sinks::rotating_file_sink_mt>("logs/retro.log", 1048576 * 5, 3);
 
         console_sink->set_pattern("[%H:%M:%S %z] [%n] [thread %t] %v");
         /*
@@ -32,15 +32,15 @@ namespace retro::logging
 
         s_logger_instance = std::make_shared<spdlog::logger>("RETRO", begin(sinks), end(sinks));
         spdlog::register_logger(s_logger_instance);
+        spdlog::set_pattern("%^[%T] %n: %v%$");
         s_logger_instance->set_level(spdlog::level::trace);
-        s_logger_instance->set_pattern("%^[%T] %n: %v%$");
-        s_logger_instance->flush_on(spdlog::level::trace);
+        //s_logger_instance->flush_on(spdlog::level::trace);
     }
 
     void logger::add_sink(spdlog::sink_ptr& sink)
     {
         RT_PROFILE;
         s_logger_instance->sinks().push_back(sink);
-        s_logger_instance->set_pattern("%^[%T] %n: %v%$");
+        spdlog::set_pattern("%^[%T] %n: %v%$");
     }
 }

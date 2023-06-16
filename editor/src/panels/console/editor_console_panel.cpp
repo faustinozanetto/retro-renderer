@@ -23,6 +23,21 @@ namespace retro::editor
 
         static bool console_open = true;
         ImGui::Begin("Console", &console_open, console_flags);
+
+        // Render header
+		ImGuiStyle& style = ImGui::GetStyle();
+		ImGui::AlignTextToFramePadding();
+        if (ImGui::Button("Settings"))
+            ImGui::OpenPopup("ConsoleSettings");
+
+        if (ImGui::BeginPopup("ConsoleSettings")) {
+            if (ImGui::Button("Clear")) {
+                m_messages.clear();
+            }
+
+            ImGui::EndPopup();
+        }
+
      //   ImGui::BeginChild("ScrollRegion", ImVec2(0, 0), false, ImGuiWindowFlags_NoScrollbar);
         for (const auto& message : m_messages) {
             ImGui::Text(message->get_message().c_str());

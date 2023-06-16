@@ -44,20 +44,23 @@ namespace retro::editor
         ImGui::StyleColorsLight();
         m_shader = renderer::shader_loader::load_shader_from_file("../resources/shaders/geometry.rrs");
 
-        /*
-        auto model = renderer::model_loader::load_model_from_file("../resources/models/radio/radio.obj");
-        auto material = renderer::material_loader::load_material_from_file("../resources/materials/radio.rrm");
+        
+            std::shared_ptr<renderer::model> model;
+            std::shared_ptr<renderer::material> material;
 
-		const std::shared_ptr<physics::physics_material>& physics_material = std::make_shared<physics::physics_material>(0.5f, 0.5f, 0.6f);
+            material = renderer::material_loader::load_material_from_file("../resources/materials/radio.rrm");
+            model = renderer::model_loader::load_model_from_file("../resources/models/radio/radio.obj");
 
-		const std::shared_ptr<physics::physics_box_collision>& box_collision_shape = std::make_shared<physics::physics_box_collision>(physics_material);
+            const std::shared_ptr<physics::physics_material>& physics_material = std::make_shared<physics::physics_material>(0.5f, 0.5f, 0.6f);
 
-        m_demo_actor = scene::scene_manager::get().get_active_scene()->create_actor("test actor");
-        m_demo_actor->add_component<scene::transform_component>();
-        m_demo_actor->add_component<scene::model_renderer_component>(model);
-        m_demo_actor->add_component<scene::material_renderer_component>(material);
-        m_demo_actor->add_component<scene::physics_box_collision_shape_component>(box_collision_shape);
-        */
+            const std::shared_ptr<physics::physics_box_collision>& box_collision_shape = std::make_shared<physics::physics_box_collision>(physics_material);
+
+            auto demo_actor = scene::scene_manager::get().get_active_scene()->create_actor("test actor");
+            demo_actor->add_component<scene::transform_component>();
+            demo_actor->add_component<scene::model_renderer_component>(model);
+            demo_actor->add_component<scene::material_renderer_component>(material);
+     
+
 
         // Create test chain
         physics::physics_utils::create_chain({ 0.0f, 20.0f, 0.0f }, {0.5f, 0.125f, 0.125f}, 1.1f);

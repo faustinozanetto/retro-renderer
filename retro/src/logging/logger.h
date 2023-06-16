@@ -22,9 +22,9 @@ namespace retro::logging
 }
 
 // Logging macros
-#define RT_SEPARATOR(...) ::retro::logging::logger::get_logger()->trace("==========================================================================================")
-#define RT_INFO(...) ::retro::logging::logger::get_logger()->info(__VA_ARGS__)
-#define RT_TRACE(...) ::retro::logging::logger::get_logger()->trace(__VA_ARGS__)
-#define RT_WARN(...) ::retro::logging::logger::get_logger()->warn(__VA_ARGS__)
-#define RT_ERROR(...) ::retro::logging::logger::get_logger()->error(__VA_ARGS__)
-#define RT_CRITICAL(...) ::retro::logging::logger::get_logger()->critical(__VA_ARGS__)
+#define RT_SEPARATOR(...) SPDLOG_LOGGER_CALL(::retro::logging::logger::get_logger(), spdlog::level::level_enum::trace, "==========================================================================================")
+#define RT_INFO(...) SPDLOG_LOGGER_CALL(::retro::logging::logger::get_logger(), spdlog::level::level_enum::info, __VA_ARGS__)
+#define RT_TRACE(...) SPDLOG_LOGGER_CALL(::retro::logging::logger::get_logger(), spdlog::level::level_enum::trace, __VA_ARGS__)
+#define RT_WARN(...) SPDLOG_LOGGER_CALL(::retro::logging::logger::get_logger(), spdlog::level::level_enum::warn, __VA_ARGS__)
+#define RT_ERROR(...) SPDLOG_LOGGER_CALL(::retro::logging::logger::get_logger(), spdlog::level::level_enum::err, __VA_ARGS__)
+#define RT_CRITICAL(...) SPDLOG_LOGGER_CALL(::retro::logging::logger::get_logger(), spdlog::level::level_enum::critical, __VA_ARGS__)

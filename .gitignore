@@ -9,8 +9,8 @@
 
 *.ovd
 
-**/models
-**/textures
+**/resources/models
+**/resources/textures
 
 # IntelliJ
 *.idea/

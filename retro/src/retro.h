@@ -3,6 +3,7 @@
 // Core Includes
 #include "core/application.h"
 #include "core/engine_time.h"
+#include "core/job_system.h"
 
 // Camera Includes
 #include "camera/camera.h"
