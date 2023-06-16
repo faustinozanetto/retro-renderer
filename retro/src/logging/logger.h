@@ -1,7 +1,9 @@
 ﻿#pragma once
 
+#pragma warning(push, 0)
 #include <spdlog/spdlog.h>
 #include <spdlog/fmt/ostr.h>
+#pragma warning(pop)
 
 namespace retro::logging
 {
@@ -11,7 +13,8 @@ namespace retro::logging
         static void initialize();
 
         /* Getters */
-        static std::shared_ptr<spdlog::logger> &get_logger() { return s_logger_instance; }
+        inline static std::shared_ptr<spdlog::logger> &get_logger() { return s_logger_instance; }
+        static void add_sink(spdlog::sink_ptr& sink);
 
     private:
         static std::shared_ptr<spdlog::logger> s_logger_instance;

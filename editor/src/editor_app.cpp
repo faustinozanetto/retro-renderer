@@ -1,6 +1,10 @@
 ﻿#include "editor_app.h"
 
+#include "logging/imgui_log_sink.h"
+
 #include <core/entry_point.h>
+#include <spdlog/spdlog.h>
+#include <mutex>
 
 namespace retro::editor
 {
@@ -16,6 +20,8 @@ namespace retro::editor
     void editor_app::initialize()
     {
         m_main_layer = std::make_shared<editor_main_layer>();
+        spdlog::sink_ptr imgui_sink = std::make_shared<imgui_log_sink<std::mutex>>();
+        logging::logger::add_sink(imgui_sink);
     }
 
     void editor_app::on_update()

@@ -7,6 +7,7 @@
 #include "panels/editor_camera_panel.h"
 #include "panels/scene/editor_scene_hierarchy_panel.h"
 #include "panels/actor/editor_actor_details_panel.h"
+#include "panels/console/editor_console_panel.h"
 
 #include <imgui.h>
 #include <imgui_internal.h>
@@ -33,6 +34,8 @@ namespace retro::editor
         m_panels.push_back(std::make_shared<editor_camera_panel>());
         m_panels.push_back(std::make_shared<editor_scene_hierarchy_panel>());
         m_panels.push_back(std::make_shared<editor_actor_details_panel>());
+        m_console_panel = std::make_shared<editor_console_panel>();
+        m_panels.push_back(m_console_panel);
 
         // Initialization
         setup_scene();

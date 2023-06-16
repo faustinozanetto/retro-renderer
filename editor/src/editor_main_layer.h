@@ -1,6 +1,7 @@
 #pragma once
 
 #include "panels/editor_panel.h"
+#include "panels/console/editor_console_panel.h"
 
 #include <retro.h>
 
@@ -19,6 +20,7 @@ namespace retro::editor
         /* Getters */
         uint32_t get_main_render_target() const { return m_geometry_fbo->get_attachment_id(1); }
         const std::shared_ptr<camera::camera> &get_camera() const { return m_camera; }
+        const std::shared_ptr<editor_console_panel>& get_console_panel() const { return m_console_panel; }
 
         /* Initialization */
         void initialize();
@@ -48,6 +50,7 @@ namespace retro::editor
 
         /* UI */
         std::vector<std::shared_ptr<editor_panel>> m_panels;
+        std::shared_ptr<editor_console_panel> m_console_panel;
 
         bool m_initialized;
     };
