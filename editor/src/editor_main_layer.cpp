@@ -8,6 +8,8 @@
 #include "panels/scene/editor_scene_hierarchy_panel.h"
 #include "panels/actor/editor_actor_details_panel.h"
 #include "panels/console/editor_console_panel.h"
+#include "panels/editor_profiler_panel.h"
+#include "panels/editor_renderer_panel.h"
 
 #include <imgui.h>
 #include <imgui_internal.h>
@@ -34,6 +36,8 @@ namespace retro::editor
         m_panels.push_back(std::make_shared<editor_camera_panel>());
         m_panels.push_back(std::make_shared<editor_scene_hierarchy_panel>());
         m_panels.push_back(std::make_shared<editor_actor_details_panel>());
+        m_panels.push_back(std::make_shared<editor_profiler_panel>());
+        m_panels.push_back(std::make_shared<editor_renderer_panel>());
         m_console_panel = std::make_shared<editor_console_panel>();
         m_panels.push_back(m_console_panel);
 
@@ -44,26 +48,23 @@ namespace retro::editor
         ImGui::StyleColorsLight();
         m_shader = renderer::shader_loader::load_shader_from_file("../resources/shaders/geometry.rrs");
 
-        
-            std::shared_ptr<renderer::model> model;
-            std::shared_ptr<renderer::material> material;
+        std::shared_ptr<renderer::model> model;
+        std::shared_ptr<renderer::material> material;
 
-            material = renderer::material_loader::load_material_from_file("../resources/materials/radio.rrm");
-            model = renderer::model_loader::load_model_from_file("../resources/models/radio/radio.obj");
+        material = renderer::material_loader::load_material_from_file("../resources/materials/radio.rrm");
+        model = renderer::model_loader::load_model_from_file("../resources/models/radio/radio.obj");
 
-            const std::shared_ptr<physics::physics_material>& physics_material = std::make_shared<physics::physics_material>(0.5f, 0.5f, 0.6f);
+        const std::shared_ptr<physics::physics_material> &physics_material = std::make_shared<physics::physics_material>(0.5f, 0.5f, 0.6f);
 
-            const std::shared_ptr<physics::physics_box_collision>& box_collision_shape = std::make_shared<physics::physics_box_collision>(physics_material);
+        const std::shared_ptr<physics::physics_box_collision> &box_collision_shape = std::make_shared<physics::physics_box_collision>(physics_material);
 
-            auto demo_actor = scene::scene_manager::get().get_active_scene()->create_actor("test actor");
-            demo_actor->add_component<scene::transform_component>();
-            demo_actor->add_component<scene::model_renderer_component>(model);
-            demo_actor->add_component<scene::material_renderer_component>(material);
-     
-
+        auto demo_actor = scene::scene_manager::get().get_active_scene()->create_actor("test actor");
+        demo_actor->add_component<scene::transform_component>();
+        demo_actor->add_component<scene::model_renderer_component>(model);
+        demo_actor->add_component<scene::material_renderer_component>(material);
 
         // Create test chain
-        physics::physics_utils::create_chain({ 0.0f, 20.0f, 0.0f }, {0.5f, 0.125f, 0.125f}, 1.1f);
+        physics::physics_utils::create_chain({0.0f, 20.0f, 0.0f}, {0.5f, 0.125f, 0.125f}, 1.1f);
 
         glm::ivec2 viewport_size = renderer::renderer::get_viewport_size();
         {
@@ -107,7 +108,7 @@ namespace retro::editor
     void editor_main_layer::setup_camera()
     {
         m_camera = std::make_shared<camera::camera>(camera::camera_type::perspective, 55.0f, 0.01f, 1000.0f);
-        m_camera->set_position({ 0.0f, 15.0f, 15.0f });
+        m_camera->set_position({0.0f, 15.0f, 15.0f});
     }
 
     void editor_main_layer::setup_scene()
@@ -129,21 +130,21 @@ namespace retro::editor
         for (auto &&[actor, transform_comp, model_renderer_comp, material_renderer_comp] :
              view.each())
         {
-            auto& transform = transform_comp.get_transform();
-			// 1. Update dynamic physics actors
-			if (scene::scene_manager::get().get_active_scene()->get_actors_registry()->any_of<retro::scene::physics_dynamic_actor_component>(actor))
-			{
-				auto& physics_dynamic_actor_comp = scene::scene_manager::get().get_active_scene()->get_actors_registry()->get<retro::scene::physics_dynamic_actor_component>(actor);
-				if (physics_dynamic_actor_comp.get_dynamic_actor()->get_physx_rigid_dynamic_actor()->isSleeping())
-					continue;
+            auto &transform = transform_comp.get_transform();
+            // 1. Update dynamic physics actors
+            if (scene::scene_manager::get().get_active_scene()->get_actors_registry()->any_of<retro::scene::physics_dynamic_actor_component>(actor))
+            {
+                auto &physics_dynamic_actor_comp = scene::scene_manager::get().get_active_scene()->get_actors_registry()->get<retro::scene::physics_dynamic_actor_component>(actor);
+                if (physics_dynamic_actor_comp.get_dynamic_actor()->get_physx_rigid_dynamic_actor()->isSleeping())
+                    continue;
 
-				glm::vec3 updated_location = retro::physics::physics_utils::convert_physx_vec3_to_glm(physics_dynamic_actor_comp.get_dynamic_actor()->get_physx_rigid_dynamic_actor()->getGlobalPose().p);
-				glm::quat updated_rotation = retro::physics::physics_utils::convert_physx_quat_to_glm(physics_dynamic_actor_comp.get_dynamic_actor()->get_physx_rigid_dynamic_actor()->getGlobalPose().q);
+                glm::vec3 updated_location = retro::physics::physics_utils::convert_physx_vec3_to_glm(physics_dynamic_actor_comp.get_dynamic_actor()->get_physx_rigid_dynamic_actor()->getGlobalPose().p);
+                glm::quat updated_rotation = retro::physics::physics_utils::convert_physx_quat_to_glm(physics_dynamic_actor_comp.get_dynamic_actor()->get_physx_rigid_dynamic_actor()->getGlobalPose().q);
 
-				// Update the cube's position and rotation
+                // Update the cube's position and rotation
                 transform->set_location(updated_location);
                 transform->set_rotation(updated_rotation);
-			}
+            }
 
             // Render
             m_shader->set_mat4("u_transform", transform->get_transform());
@@ -158,9 +159,10 @@ namespace retro::editor
 
     void editor_main_layer::on_update()
     {
-        if (!m_initialized) return;
+        if (!m_initialized)
+            return;
 
-		physics::physics_world::get().on_update();
+        physics::physics_world::get().on_update();
 
         on_render();
 
@@ -171,6 +173,7 @@ namespace retro::editor
         {
             panel->on_render_panel();
         }
+        ImGui::ShowDemoWindow();
         end_dockspace();
         ui::engine_ui::end_frame();
     }

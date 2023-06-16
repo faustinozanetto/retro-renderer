@@ -35,6 +35,7 @@ namespace retro::renderer
 
         /* Getters */
         static glm::ivec2 get_viewport_size();
+        static bool get_is_vsync_enabled();
         static bool get_window_should_close();
 
         /* Functions */

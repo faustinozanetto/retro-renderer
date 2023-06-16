@@ -33,6 +33,11 @@ namespace retro::renderer
         return glm::ivec2(s_data.window->get_width(), s_data.window->get_height());
     }
 
+    bool renderer::get_is_vsync_enabled()
+    {
+        return s_data.vsync_enabled;
+    }
+
     bool renderer::get_window_should_close()
     {
         RT_PROFILE;

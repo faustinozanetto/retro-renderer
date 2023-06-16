@@ -4,14 +4,15 @@
 namespace retro::core::time
 {
     static time_point now = std::chrono::high_resolution_clock::now();
+    static time_point previous_time = std::chrono::high_resolution_clock::now();
     static duration delta_time = duration::zero();
     static size_t ticks = 0;
     static float time = 0.0f;
     static float time_scale = 1.0f;
 
-    static const int MAX_FRAME_SAMPLES = 100; // Maximum number of frame samples to store
-    static std::vector<float> frame_times;     // Store frame times for FPS calculation
-    
+    static const int MAX_FRAME_SAMPLES = 200; // Maximum number of frame samples to store
+    static std::vector<float> frame_times;    // Store frame times for FPS calculation
+
     void set_delta_time(float t)
     {
         RT_PROFILE;
@@ -28,8 +29,6 @@ namespace retro::core::time
     void update_time()
     {
         RT_PROFILE;
-        static time_point previous_time = std::chrono::high_resolution_clock::now();
-
         // Calculate the frame time
         time_point current_time = std::chrono::high_resolution_clock::now();
         duration delta = current_time - previous_time;
@@ -40,7 +39,7 @@ namespace retro::core::time
         frame_times.push_back(frame_time);
         if (frame_times.size() > MAX_FRAME_SAMPLES)
             frame_times.erase(frame_times.begin());
-        
+
         ticks++;
         time += get_delta_time();
         delta_time = std::chrono::high_resolution_clock::now() - now;
@@ -89,6 +88,11 @@ namespace retro::core::time
     {
         RT_PROFILE;
         return time;
+    }
+
+    std::vector<float> &get_frame_times()
+    {
+        return frame_times;
     }
 
     float get_time_scale()

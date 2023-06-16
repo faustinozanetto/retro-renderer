@@ -29,6 +29,7 @@ namespace retro::editor
 
 		glm::vec3 half_extents = physics_box_collision_shape_component.get_box_collision()->get_half_extents();
 		if (editor_ui_utils::draw_property("Half Extents", half_extents, 0.0f, 20.0f, 0.01f)) {
+
 			physics_box_collision_shape_component.get_box_collision()->set_half_extents(half_extents);
 		}
 	}

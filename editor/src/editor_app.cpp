@@ -11,6 +11,7 @@ namespace retro::editor
     editor_app::editor_app() : application("./", {"Retro Engine | Editor", 1920, 1080})
     {
         initialize();
+        renderer::renderer::set_vsync_enabled(false);
     }
 
     editor_app::~editor_app()
