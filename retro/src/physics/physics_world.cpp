@@ -26,12 +26,14 @@ namespace retro::physics
 
 	void physics_world::set_gravity(const glm::vec3 &gravity)
 	{
+		RT_PROFILE;
 		m_gravity = gravity;
 		m_scene->setGravity(physics_utils::convert_glm_vec3_to_physx(gravity));
 	}
 
 	void physics_world::initialize_physx()
 	{
+		RT_PROFILE;
 		RT_SEPARATOR();
 
 		RT_TRACE("Retro Renderer | Started initializing PhysX World.");
@@ -114,6 +116,7 @@ namespace retro::physics
 
 	void physics_world::cleanup()
 	{
+		RT_PROFILE;
 		if (m_scene)
 		{
 			m_scene->release();

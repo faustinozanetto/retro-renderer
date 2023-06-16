@@ -28,6 +28,7 @@ namespace retro::physics
 
     void physics_capsule_collision::set_radius(float radius)
     {
+        RT_PROFILE;
         m_radius = radius;
 
         // Recreate the PxShape with the new radius
@@ -45,6 +46,7 @@ namespace retro::physics
 
     void physics_capsule_collision::set_half_height(float half_height)
     {
+        RT_PROFILE;
         m_half_height = half_height;
 
         // Recreate the PxShape with the new half height

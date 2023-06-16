@@ -11,6 +11,7 @@ namespace retro::logging
 
     void logger::initialize()
     {
+        RT_PROFILE;
         const auto& console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
         const auto& file_sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>("logs/retro.log", true);
 
@@ -33,11 +34,12 @@ namespace retro::logging
         spdlog::register_logger(s_logger_instance);
         s_logger_instance->set_level(spdlog::level::trace);
         s_logger_instance->set_pattern("%^[%T] %n: %v%$");
-    //    s_logger_instance->flush_on(spdlog::level::trace);
+        s_logger_instance->flush_on(spdlog::level::trace);
     }
 
     void logger::add_sink(spdlog::sink_ptr& sink)
     {
+        RT_PROFILE;
         s_logger_instance->sinks().push_back(sink);
         s_logger_instance->set_pattern("%^[%T] %n: %v%$");
     }

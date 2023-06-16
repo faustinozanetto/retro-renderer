@@ -24,6 +24,7 @@ namespace retro::physics
 
     void physics_d6_joint::release_joint()
     {
+        RT_PROFILE;
         if (m_physx_d6_joint)
         {
             m_physx_d6_joint->release();
@@ -33,133 +34,159 @@ namespace retro::physics
 
     void physics_d6_joint::set_motion(physx::PxD6Axis::Enum axis, physx::PxD6Motion::Enum type)
     {
+        RT_PROFILE;
         m_physx_d6_joint->setMotion(axis, type);
     }
 
     physx::PxD6Motion::Enum physics_d6_joint::get_motion(physx::PxD6Axis::Enum axis) const
     {
+        RT_PROFILE;
         return m_physx_d6_joint->getMotion(axis);
     }
 
     float physics_d6_joint::get_twist_angle() const
     {
+        RT_PROFILE;
         return m_physx_d6_joint->getTwistAngle();
     }
 
     float physics_d6_joint::get_twist() const
     {
+        RT_PROFILE;
         return m_physx_d6_joint->getTwistAngle();
     }
 
     float physics_d6_joint::get_swing_y_angle() const
     {
+        RT_PROFILE;
         return m_physx_d6_joint->getSwingYAngle();
     }
 
     float physics_d6_joint::get_swing_z_angle() const
     {
+        RT_PROFILE;
         return m_physx_d6_joint->getSwingZAngle();
     }
 
     void physics_d6_joint::set_distance_limit(const physx::PxJointLinearLimit &limit)
     {
+        RT_PROFILE;
         m_physx_d6_joint->setDistanceLimit(limit);
     }
 
     physx::PxJointLinearLimit physics_d6_joint::get_distance_limit() const
     {
+        RT_PROFILE;
         return m_physx_d6_joint->getDistanceLimit();
     }
 
     void physics_d6_joint::set_linear_limit(physx::PxD6Axis::Enum axis, float lower_limit, float upper_limit)
     {
+        RT_PROFILE;
         physx::PxJointLinearLimitPair limit_pair = physx::PxJointLinearLimitPair(lower_limit, upper_limit);
         m_physx_d6_joint->setLinearLimit(axis, limit_pair);
     }
 
     physx::PxJointLinearLimitPair physics_d6_joint::get_linear_limit(physx::PxD6Axis::Enum axis) const
     {
+        RT_PROFILE;
         return m_physx_d6_joint->getLinearLimit(axis);
     }
 
     void physics_d6_joint::set_twist_limit(float lower_limit, float upper_limit)
     {
+        RT_PROFILE;
         physx::PxJointAngularLimitPair limit_pair = physx::PxJointAngularLimitPair(lower_limit, upper_limit);
         m_physx_d6_joint->setTwistLimit(limit_pair);
     }
 
     physx::PxJointAngularLimitPair physics_d6_joint::get_twist_limit() const
     {
+        RT_PROFILE;
         return m_physx_d6_joint->getTwistLimit();
     }
 
     void physics_d6_joint::set_swing_limit(const physx::PxJointLimitCone &limit)
     {
+        RT_PROFILE;
         m_physx_d6_joint->setSwingLimit(limit);
     }
 
     physx::PxJointLimitCone physics_d6_joint::get_swing_limit() const
     {
+        RT_PROFILE;
         return m_physx_d6_joint->getSwingLimit();
     }
 
     void physics_d6_joint::set_pyramid_swing_limit(const physx::PxJointLimitPyramid &limit)
     {
+        RT_PROFILE;
         m_physx_d6_joint->setPyramidSwingLimit(limit);
     }
 
     physx::PxJointLimitPyramid physics_d6_joint::get_pyramid_swing_limit() const
     {
+        RT_PROFILE;
         return m_physx_d6_joint->getPyramidSwingLimit();
     }
 
     void physics_d6_joint::set_drive(physx::PxD6Drive::Enum index, const physx::PxD6JointDrive &drive)
     {
+        RT_PROFILE;
         m_physx_d6_joint->setDrive(index, drive);
     }
 
     physx::PxD6JointDrive physics_d6_joint::get_drive(physx::PxD6Drive::Enum index) const
     {
+        RT_PROFILE;
         return m_physx_d6_joint->getDrive(index);
     }
 
     void physics_d6_joint::set_drive_position(const physx::PxTransform &pose, bool autowake)
     {
+        RT_PROFILE;
         m_physx_d6_joint->setDrivePosition(pose, autowake);
     }
 
     physx::PxTransform physics_d6_joint::get_drive_position() const
     {
+        RT_PROFILE;
         return m_physx_d6_joint->getDrivePosition();
     }
 
     void physics_d6_joint::set_drive_velocity(const physx::PxVec3 &linear, const physx::PxVec3 &angular, bool autowake)
     {
+        RT_PROFILE;
         m_physx_d6_joint->setDriveVelocity(linear, angular, autowake);
     }
 
     void physics_d6_joint::get_drive_velocity(physx::PxVec3 &linear, physx::PxVec3 &angular) const
     {
+        RT_PROFILE;
         m_physx_d6_joint->getDriveVelocity(linear, angular);
     }
 
     void physics_d6_joint::set_projection_linear_tolerance(float tolerance)
     {
+        RT_PROFILE;
         m_physx_d6_joint->setProjectionLinearTolerance(tolerance);
     }
 
     float physics_d6_joint::get_projection_linear_tolerance() const
     {
+        RT_PROFILE;
         return m_physx_d6_joint->getProjectionLinearTolerance();
     }
 
     void physics_d6_joint::set_projection_angular_tolerance(float tolerance)
     {
+        RT_PROFILE;
         m_physx_d6_joint->setProjectionAngularTolerance(tolerance);
     }
 
     float physics_d6_joint::get_projection_angular_tolerance() const
     {
+        RT_PROFILE;
         return m_physx_d6_joint->getProjectionAngularTolerance();
     }
 }

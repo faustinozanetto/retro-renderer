@@ -24,6 +24,7 @@ namespace retro::physics
 
     void physics_prismatic_joint::release_joint()
     {
+        RT_PROFILE;
         if (m_physx_prismatic_joint)
         {
             m_physx_prismatic_joint->release();
@@ -33,57 +34,68 @@ namespace retro::physics
 
     physx::PxJointLinearLimitPair physics_prismatic_joint::get_limit() const
     {
+        RT_PROFILE;
         return m_physx_prismatic_joint->getLimit();
     }
 
     void physics_prismatic_joint::set_limit(float lower, float upper)
     {
+        RT_PROFILE;
         physx::PxJointLinearLimitPair limit = physx::PxJointLinearLimitPair(physics_world::get().get_physics()->getTolerancesScale(), lower, upper);
         m_physx_prismatic_joint->setLimit(limit);
     }
 
     void physics_prismatic_joint::set_prismatic_joint_flags(physx::PxPrismaticJointFlags flags)
     {
+        RT_PROFILE;
         m_physx_prismatic_joint->setPrismaticJointFlags(flags);
     }
 
     void physics_prismatic_joint::set_prismatic_joint_flag(physx::PxPrismaticJointFlag::Enum flag, bool value)
     {
+        RT_PROFILE;
         m_physx_prismatic_joint->setPrismaticJointFlag(flag, value);
     }
 
     physx::PxPrismaticJointFlags physics_prismatic_joint::get_prismatic_joint_flags() const
     {
+        RT_PROFILE;
         return m_physx_prismatic_joint->getPrismaticJointFlags();
     }
 
     void physics_prismatic_joint::set_projection_linear_tolerance(float tolerance)
     {
+        RT_PROFILE;
         m_physx_prismatic_joint->setProjectionLinearTolerance(tolerance);
     }
 
     float physics_prismatic_joint::get_projection_linear_tolerance() const
     {
+        RT_PROFILE;
         return m_physx_prismatic_joint->getProjectionLinearTolerance();
     }
 
     void physics_prismatic_joint::set_projection_angular_tolerance(float tolerance)
     {
+        RT_PROFILE;
         m_physx_prismatic_joint->setProjectionAngularTolerance(tolerance);
     }
 
     float physics_prismatic_joint::get_projection_angular_tolerance() const
     {
+        RT_PROFILE;
         return m_physx_prismatic_joint->getProjectionAngularTolerance();
     }
 
     float physics_prismatic_joint::get_position() const
     {
+        RT_PROFILE;
         return m_physx_prismatic_joint->getPosition();
     }
 
     float physics_prismatic_joint::get_velocity() const
     {
+        RT_PROFILE;
         return m_physx_prismatic_joint->getVelocity();
     }
 }

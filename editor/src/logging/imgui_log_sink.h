@@ -19,11 +19,11 @@ namespace retro::editor
 			spdlog::memory_buf_t formatted_buffer;
 			spdlog::sinks::base_sink<Mutex>::formatter_->format(msg, formatted_buffer);
 
-			std::string str = fmt::to_string(formatted_buffer);
+			std::string source = fmt::format("File: {0} | Function: {1} | Line: {2}", msg.source.filename, msg.source.funcname, msg.source.line);
 
 			auto app = dynamic_cast<editor_app*>(&core::application::get());
 			auto console_panel = app->get_main_layer()->get_console_panel();
-			console_panel->add_message(std::make_shared<editor_console_message>(str));
+			console_panel->add_message(std::make_shared<editor_console_message>(fmt::to_string(formatted_buffer), source));
         }
 
         void flush_() override {

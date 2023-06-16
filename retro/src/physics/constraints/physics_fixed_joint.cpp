@@ -24,6 +24,7 @@ namespace retro::physics
 
     void physics_fixed_joint::release_joint()
     {
+        RT_PROFILE;
         if (m_physx_fixed_joint)
         {
             m_physx_fixed_joint->release();
@@ -33,21 +34,25 @@ namespace retro::physics
 
     void physics_fixed_joint::set_projection_linear_tolerance(float distance)
     {
+        RT_PROFILE;
         m_physx_fixed_joint->setProjectionLinearTolerance(distance);
     }
 
     float physics_fixed_joint::get_projection_linear_tolerance() const
     {
+        RT_PROFILE;
         return m_physx_fixed_joint->getProjectionLinearTolerance();
     }
 
     void physics_fixed_joint::set_projection_angular_tolerance(float tolerance)
     {
+        RT_PROFILE;
         m_physx_fixed_joint->setProjectionAngularTolerance(tolerance);
     }
 
     float physics_fixed_joint::get_projection_angular_tolerance() const
     {
+        RT_PROFILE;
         return m_physx_fixed_joint->getProjectionAngularTolerance();
     }
 }

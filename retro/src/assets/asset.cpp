@@ -13,6 +13,7 @@ namespace retro::assets
 
     std::string asset::get_asset_type_to_string(asset_type asset_type)
     {
+        RT_PROFILE;
         switch (asset_type)
         {
         case asset_type::shader: return "shader";

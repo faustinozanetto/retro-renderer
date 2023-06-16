@@ -14,17 +14,20 @@ namespace retro::core::time
     
     void set_delta_time(float t)
     {
+        RT_PROFILE;
         delta_time = std::chrono::duration_cast<std::chrono::nanoseconds>(
             std::chrono::duration<float, std::ratio<1, 1>>(t));
     }
 
     void set_time_scale(float t)
     {
+        RT_PROFILE;
         time_scale = t;
     }
 
     void update_time()
     {
+        RT_PROFILE;
         static time_point previous_time = std::chrono::high_resolution_clock::now();
 
         // Calculate the frame time
@@ -46,16 +49,19 @@ namespace retro::core::time
 
     float get_raw_delta_time()
     {
+        RT_PROFILE;
         return delta_time.count() / 1000000000.0f;
     }
 
     float get_delta_time()
     {
+        RT_PROFILE;
         return get_raw_delta_time() * get_time_scale();
     }
 
     float get_frame_time()
     {
+        RT_PROFILE;
         if (frame_times.empty())
             return 0.0f;
 
@@ -64,6 +70,7 @@ namespace retro::core::time
 
     float get_fps()
     {
+        RT_PROFILE;
         if (frame_times.empty())
             return 0.0f;
 
@@ -80,11 +87,13 @@ namespace retro::core::time
 
     float get_time()
     {
+        RT_PROFILE;
         return time;
     }
 
     float get_time_scale()
     {
+        RT_PROFILE;
         return time_scale;
     }
 }

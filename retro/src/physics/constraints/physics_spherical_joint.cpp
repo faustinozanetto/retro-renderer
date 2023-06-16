@@ -24,6 +24,7 @@ namespace retro::physics
 
     void physics_spherical_joint::release_joint()
     {
+        RT_PROFILE;
         if (m_physx_spherical_joint)
         {
             m_physx_spherical_joint->release();
@@ -33,47 +34,56 @@ namespace retro::physics
 
     physx::PxJointLimitCone physics_spherical_joint::get_limit_cone() const
     {
+        RT_PROFILE;
         return m_physx_spherical_joint->getLimitCone();
     }
 
     void physics_spherical_joint::set_limit_cone(float y_limit, float z_limit)
     {
+        RT_PROFILE;
         physx::PxJointLimitCone limit = physx::PxJointLimitCone(y_limit, z_limit);
         m_physx_spherical_joint->setLimitCone(limit);
     }
 
     float physics_spherical_joint::get_swing_y_angle() const
     {
+        RT_PROFILE;
         return m_physx_spherical_joint->getSwingYAngle();
     }
 
     float physics_spherical_joint::get_swing_z_angle() const
     {
+        RT_PROFILE;
         return m_physx_spherical_joint->getSwingZAngle();
     }
 
     void physics_spherical_joint::set_spherical_joint_flags(physx::PxSphericalJointFlags flags)
     {
+        RT_PROFILE;
         m_physx_spherical_joint->setSphericalJointFlags(flags);
     }
 
     void physics_spherical_joint::set_spherical_joint_flag(physx::PxSphericalJointFlag::Enum flag, bool value)
     {
+        RT_PROFILE;
         m_physx_spherical_joint->setSphericalJointFlag(flag, value);
     }
 
     physx::PxSphericalJointFlags physics_spherical_joint::get_spherical_joint_flags() const
     {
+        RT_PROFILE;
         return m_physx_spherical_joint->getSphericalJointFlags();
     }
 
     void physics_spherical_joint::set_projection_linear_tolerance(float tolerance)
     {
+        RT_PROFILE;
         m_physx_spherical_joint->setProjectionLinearTolerance(tolerance);
     }
 
     float physics_spherical_joint::get_projection_linear_tolerance() const
     {
+        RT_PROFILE;
         return m_physx_spherical_joint->getProjectionLinearTolerance();
     }
 }

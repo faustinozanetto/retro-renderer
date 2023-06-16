@@ -25,11 +25,13 @@ namespace retro::physics
 
 	float physics_dynamic_actor::get_linear_damping() const
 	{
+        RT_PROFILE;
         return m_rigid_dynamic->getLinearDamping();
 	}
 
     float physics_dynamic_actor::get_angular_damping() const
     {
+        RT_PROFILE;
         return m_rigid_dynamic->getAngularDamping();
     }
 
@@ -60,11 +62,13 @@ namespace retro::physics
 
     void physics_dynamic_actor::set_linear_damping(float linear_damping)
     {
+        RT_PROFILE;
         m_rigid_dynamic->setLinearDamping(linear_damping);
     }
 
     void physics_dynamic_actor::set_angular_damping(float angular_damping)
     {
+        RT_PROFILE;
         m_rigid_dynamic->setAngularDamping(angular_damping);
     }
 

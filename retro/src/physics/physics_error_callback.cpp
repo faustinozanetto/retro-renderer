@@ -13,6 +13,7 @@ namespace retro::physics
 
     void physics_error_callback::reportError(physx::PxErrorCode::Enum code, const char *message, const char *file, int line)
     {
+        RT_PROFILE;
         RT_ERROR("Retro Renderer | PhysX error reported!");
         RT_ERROR("  - Code: {}", (int)code);
         RT_ERROR("  - Message: {}", message);

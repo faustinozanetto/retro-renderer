@@ -30,6 +30,7 @@ namespace retro::physics
 
     void physics_box_collision::set_half_extents(const glm::vec3 &half_extents)
     {
+        RT_PROFILE;
         m_half_extents = half_extents;
 
         // Recreate the PxShape with the new half extents

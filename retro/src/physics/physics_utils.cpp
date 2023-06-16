@@ -30,36 +30,43 @@ namespace retro::physics
 {
     glm::vec2 physics_utils::convert_physx_vec2_to_glm(const physx::PxVec2 &physx_vec2)
     {
+        RT_PROFILE;
         return glm::vec2(physx_vec2.x, physx_vec2.y);
     }
 
     glm::vec3 physics_utils::convert_physx_vec3_to_glm(const physx::PxVec3 &physx_vec3)
     {
+        RT_PROFILE;
         return glm::vec3(physx_vec3.x, physx_vec3.y, physx_vec3.z);
     }
 
     glm::quat physics_utils::convert_physx_quat_to_glm(const physx::PxQuat &physx_quat)
     {
+        RT_PROFILE;
         return glm::quat(physx_quat.w, physx_quat.x, physx_quat.y, physx_quat.z);
     }
 
     physx::PxVec2 physics_utils::convert_glm_vec2_to_physx(const glm::vec2 &glm_vec2)
     {
+        RT_PROFILE;
         return physx::PxVec2(glm_vec2.x, glm_vec2.y);
     }
 
     physx::PxVec3 physics_utils::convert_glm_vec3_to_physx(const glm::vec3 &glm_vec3)
     {
+        RT_PROFILE;
         return physx::PxVec3(glm_vec3.x, glm_vec3.y, glm_vec3.z);
     }
 
     physx::PxQuat physics_utils::convert_glm_quat_to_physx(const glm::quat &glm_quat)
     {
+        RT_PROFILE;
         return physx::PxQuat(glm_quat.x, glm_quat.y, glm_quat.z, glm_quat.w);
     }
 
     physx::PxQuat physics_utils::convert_glm_vec3_to_physx_quat(const glm::vec3 &glm_vec3)
     {
+        RT_PROFILE;
         glm::quat glm_rotation = glm::quat(glm::radians(glm_vec3));
 
         return convert_glm_quat_to_physx(glm_rotation);
@@ -67,11 +74,13 @@ namespace retro::physics
 
     physx::PxTransform physics_utils::create_transform_from_glm(const glm::vec3 &position, const glm::quat &rotation)
     {
+        RT_PROFILE;
         return physx::PxTransform(convert_glm_vec3_to_physx(position), convert_glm_quat_to_physx(rotation));
     }
 
     const char* physics_utils::get_physx_d6_axis_to_string(physx::PxD6Axis::Enum axis)
     {
+        RT_PROFILE;
 		switch (axis) {
 		case physx::PxD6Axis::eX:
 			return "X Axis";
@@ -92,6 +101,7 @@ namespace retro::physics
 
     void physics_utils::create_chain(const glm::vec3 &start_location, const glm::vec3& link_scale, float separation, int length)
     {
+        RT_PROFILE;
 		std::random_device rd;
 		std::uniform_real_distribution<> rand_float(0.0f, 1.0f);
 

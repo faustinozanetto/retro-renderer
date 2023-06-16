@@ -27,6 +27,7 @@ namespace retro::physics
 
     void physics_sphere_collision::set_radius(float radius)
     {
+        RT_PROFILE;
         m_radius = radius;
 
         // Recreate the PxShape with the new radius
