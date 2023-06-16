@@ -329,4 +329,25 @@ namespace retro::editor
 		ImGui::PopStyleVar();
         return modified;
     }
+
+    void editor_ui_utils::draw_combo_box(const std::string& name, int& selection_index, const std::vector<std::string>& items, std::function<void(int)> on_selected)
+    {
+		if (ImGui::BeginCombo(name.c_str(), items[selection_index].c_str()))
+		{
+			for (int i = 0; i < items.size(); ++i)
+			{
+				bool is_selected = (selection_index == i);
+				if (ImGui::Selectable(items[i].c_str(), is_selected))
+				{
+                    selection_index = i;
+                    on_selected(i); // Call the provided callback function
+				}
+				if (is_selected)
+				{
+					ImGui::SetItemDefaultFocus();
+				}
+			}
+			ImGui::EndCombo();
+		}
+    }
 }

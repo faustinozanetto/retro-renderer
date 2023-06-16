@@ -31,8 +31,8 @@ namespace retro::physics
     /* Setters */
     void set_motion(physx::PxD6Axis::Enum axis, physx::PxD6Motion::Enum type);
     void set_distance_limit(const physx::PxJointLinearLimit &limit);
-    void set_linear_limit(physx::PxD6Axis::Enum axis, const physx::PxJointLinearLimitPair &limit);
-    void set_twist_limit(const physx::PxJointAngularLimitPair &limit);
+    void set_linear_limit(physx::PxD6Axis::Enum axis, float lower_limit, float upper_limit);
+    void set_twist_limit(float lower_limit = glm::pi<float>() / 2, float upper_limit = glm::pi<float>() / 2);
     void set_swing_limit(const physx::PxJointLimitCone &limit);
     void set_pyramid_swing_limit(const physx::PxJointLimitPyramid &limit);
     void set_drive(physx::PxD6Drive::Enum index, const physx::PxD6JointDrive &drive);

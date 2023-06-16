@@ -21,6 +21,8 @@ namespace retro::physics
 
         static physx::PxTransform create_transform_from_glm(const glm::vec3 &position = glm::vec3(0.0f), const glm::quat &rotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f));
 
+        static const char* get_physx_d6_axis_to_string(physx::PxD6Axis::Enum axis);
+
         /* Actors Creation Utilities */
         static void create_chain(const glm::vec3 &start_location, const glm::vec3& link_scale = glm::vec3(2.0f, 0.5f, 0.5f), float separation = 4.5f, int length = 10);
     };

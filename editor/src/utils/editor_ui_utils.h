@@ -5,6 +5,8 @@
 #include <glm/glm.hpp>
 #include <memory>
 #include <string>
+#include <vector>
+#include <functional>
 
 namespace retro::editor
 {
@@ -21,5 +23,7 @@ namespace retro::editor
         static bool draw_property(const std::string &name, glm::vec3 &value, bool color = true);
         static bool draw_property(const std::string &name, glm::vec4 &value, bool color = true);
         static bool draw_property(const std::string &name, const std::shared_ptr<renderer::texture>& texture);
+
+        static void draw_combo_box(const std::string& name, int& selection_index, const std::vector<std::string>& items, std::function<void(int)> on_selected);
     };
 }

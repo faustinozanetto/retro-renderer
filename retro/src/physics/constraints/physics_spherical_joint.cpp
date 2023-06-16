@@ -36,8 +36,9 @@ namespace retro::physics
         return m_physx_spherical_joint->getLimitCone();
     }
 
-    void physics_spherical_joint::set_limit_cone(const physx::PxJointLimitCone &limit)
+    void physics_spherical_joint::set_limit_cone(float y_limit, float z_limit)
     {
+        physx::PxJointLimitCone limit = physx::PxJointLimitCone(y_limit, z_limit);
         m_physx_spherical_joint->setLimitCone(limit);
     }
 

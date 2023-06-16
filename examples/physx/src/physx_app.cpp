@@ -3,15 +3,18 @@
 #include <glm/ext/matrix_transform.hpp>
 #include <core/entry_point.h>
 #include <glm/gtc/type_ptr.hpp>
+#include "physics/physics_utils.h"
 
 #include <utils/files.h>
 
 #include <retro.h>
 #include <imgui.h>
 #include <random>
+#include "physics/physics_world.h"
 
 physx_app::physx_app() : application("./")
 {
+    m_initialized = false;
     load_shaders();
     setup_camera();
     setup_cube_vao();
@@ -54,134 +57,15 @@ physx_app::physx_app() : application("./")
     plane_actor->add_component<retro::scene::material_renderer_component>(model_material2);
     plane_actor->add_component<retro::scene::physics_static_actor_component>(floor_physics_static_actor);
 
-    std::random_device rd;
-    std::uniform_real_distribution<> rand_float(0.0f, 1.0f);
-
     // Create chain with fixed joints
-    for (int x = 0; x < 3; x++)
+    for (int x = 0; x < 10; x++)
     {
-        for (int z = 0; z < 3; z++)
+        for (int z = 0; z < 10; z++)
         {
-            {
-                /* Prev actor used in chain creation */
-                std::shared_ptr<retro::physics::physics_dynamic_actor> prev = nullptr;
-                const float separation = 4.5f; // Separation between actors
-                physx::PxVec3 offset(separation / 2, 0, 0);
-                physx::PxTransform start_position(physx::PxVec3(x * 10.0f, 15.0f, z * 10.0f)); // Initial position of the chain
-                physx::PxTransform localTm = physx::PxTransform(offset);
-
-                for (int i = 0; i < 10; ++i)
-                {
-                    /* Box collision shape */
-                    const std::shared_ptr<retro::physics::physics_box_collision> &box_collision_shape = std::make_shared<retro::physics::physics_box_collision>(physics_material, glm::vec3(2.0f, 0.5f, 0.5f));
-
-                    /* Setup physics dynamic actor */
-                    physx::PxTransform curr_trans = start_position * localTm;
-                    const std::shared_ptr<retro::physics::physics_dynamic_actor> &physics_dynamic_actor = std::make_shared<retro::physics::physics_dynamic_actor>(retro::physics::physics_utils::convert_physx_vec3_to_glm(curr_trans.p),
-                                                                                                                                                                  retro::physics::physics_utils::convert_physx_quat_to_glm(curr_trans.q));
-                    physics_dynamic_actor->add_collision_shape(box_collision_shape);
-                    physics_dynamic_actor->initialize();
-
-                    /* Create the scene actor */
-                    const std::shared_ptr<retro::scene::scene_actor> &scene_actor = m_scene->create_actor("joint actor");
-
-                    /* Setup transform */
-                    glm::vec3 location = retro::physics::physics_utils::convert_physx_vec3_to_glm(physics_dynamic_actor->get_physx_rigid_dynamic_actor()->getGlobalPose().p);
-                    glm::quat rotation = retro::physics::physics_utils::convert_physx_quat_to_glm(physics_dynamic_actor->get_physx_rigid_dynamic_actor()->getGlobalPose().q);
-                    scene_actor->add_component<retro::scene::transform_component>(location, rotation, glm::vec3(2.0f, 0.5f, 0.5f));
-
-                    /* Setup model renderer */
-                    scene_actor->add_component<retro::scene::model_renderer_component>(model);
-
-                    /* Setup material renderer */
-                    glm::vec3 color = glm::vec3(rand_float(rd), rand_float(rd), rand_float(rd));
-                    const std::shared_ptr<retro::renderer::material> &actor_material = std::make_shared<retro::renderer::material>(*model_material);
-                    actor_material->set_albedo(color);
-                    scene_actor->add_component<retro::scene::material_renderer_component>(actor_material);
-
-                    /* Setup physics components */
-                    scene_actor->add_component<retro::scene::physics_dynamic_actor_component>(physics_dynamic_actor);
-                    scene_actor->add_component<retro::scene::physics_material_component>(physics_material);
-                    scene_actor->add_component<retro::scene::physics_box_collision_shape_component>(box_collision_shape);
-
-                    /* Joint creation */
-                    const std::shared_ptr<retro::physics::physics_d6_joint> &joint = std::make_shared<retro::physics::physics_d6_joint>(prev,
-                                                                                                                                        prev ? physx::PxTransform(offset) : start_position,
-                                                                                                                                        physics_dynamic_actor, physx::PxTransform(-offset));
-                    //   joint->set_limit(true, -glm::pi<float>(), glm::pi<float>());
-                    //     joint->set_drive_velocity(true, 1.75f);
-                    /*
-                    // Spherical Joint
-                    /*
-                    joint->set_limit_cone(physx::PxJointLimitCone(physx::PxPi / 4, physx::PxPi / 4, 0.05f));
-                    joint->set_spherical_joint_flag(physx::PxSphericalJointFlag::eLIMIT_ENABLED, true);
-                    */
-
-                    // Distance Joint
-                    /*
-                    joint->set_min_distance(1.0f);
-                    joint->set_max_distance(2.0f);
-                    joint->set_distance_joint_flag(physx::PxDistanceJointFlag::eMIN_DISTANCE_ENABLED, true);
-                    joint->set_distance_joint_flag(physx::PxDistanceJointFlag::eMAX_DISTANCE_ENABLED, true);
-                    */
-
-                    // Prismatic Joint
-                    /*
-                       physx::PxJointLinearLimitPair limit(physx::PxTolerancesScale(), 0.0f, 1.0f);
-                       joint->set_limit(limit);
-                       joint->set_prismatic_joint_flag(physx::PxPrismaticJointFlag::eLIMIT_ENABLED, true);
-                       */
-
-                    // D6
-                    joint->set_motion(physx::PxD6Axis::eSWING1, physx::PxD6Motion::eFREE);
-                    joint->set_motion(physx::PxD6Axis::eSWING2, physx::PxD6Motion::eFREE);
-                    joint->set_motion(physx::PxD6Axis::eTWIST, physx::PxD6Motion::eFREE);
-                    joint->set_drive(physx::PxD6Drive::eSLERP, physx::PxD6JointDrive(10.0f, 350.0f, FLT_MAX, true));
-
-                    /* Setup joint component */
-                    scene_actor->add_component<retro::scene::physics_d6_joint_component>(joint);
-
-                    // Update the position for the next actor
-                    prev = physics_dynamic_actor;
-                    localTm.p.x += separation;
-                }
-            }
+            retro::physics::physics_utils::create_chain({ x * 10.0f, 15.0f, z * 10.0f }, {2.0f, 0.5f, 0.5f}, 4.0f);
         }
     }
-
-    /*
-    std::random_device rd;
-    std::uniform_real_distribution<> rand_float(0.0f, 1.0f);
-
-    int size = 10;
-    for (int k = 0; k < 10; k++) {
-        for (int i = 0; i < size; i++)
-        {
-            for (int j = 0; j < size - i; j++)
-            {
-                glm::vec3 location = glm::vec3(physx::PxReal(j * 2) - physx::PxReal(size - i), physx::PxReal(i * 2 + 1), k * 3.0f);
-                glm::vec3 rotation = glm::vec3(0);
-
-                glm::vec3 color = glm::vec3(rand_float(rd), rand_float(rd), rand_float(rd));
-
-                auto dynamic_actor = std::make_shared<retro::physics::physics_dynamic_actor>(location, rotation, 15.0f);
-                dynamic_actor->add_collision_shape(collision_shape);
-                dynamic_actor->initialize();
-
-                // Add actor in the render side.
-                auto actor = m_scene->create_actor("physx actor");
-                actor->add_component<retro::scene::transform_component>(location, rotation, glm::vec3(1.0f));
-
-                actor->add_component<retro::scene::model_renderer_component>(sphere_model);
-                auto own_mat = std::make_shared<retro::renderer::material>(*model_material);
-                own_mat->set_albedo(color);
-                actor->add_component<retro::scene::material_renderer_component>(own_mat);
-
-                actor->add_component<retro::scene::physics_dynamic_actor_component>(dynamic_actor);
-            }
-        }
-    }
-    */
+    m_initialized = true;
 }
 
 physx_app::~physx_app()
@@ -190,6 +74,9 @@ physx_app::~physx_app()
 
 void physx_app::on_update()
 {
+    if (!m_initialized) return; 
+
+    retro::physics::physics_world::get().on_update();
 
     // 1. Render to geometry fbo
     m_geometry_fbo->bind();
@@ -219,12 +106,12 @@ void physx_app::on_update()
             glm::quat updated_rotation = retro::physics::physics_utils::convert_physx_quat_to_glm(physics_dynamic_actor_comp.get_dynamic_actor()->get_physx_rigid_dynamic_actor()->getGlobalPose().q);
 
             // Update the cube's position and rotation
-            transform_comp.set_location(updated_location);
-            transform_comp.set_rotation(updated_rotation);
+            transform_comp.get_transform()->set_location(updated_location);
+            transform_comp.get_transform()->set_rotation(updated_rotation);
         }
 
         // Render
-        const glm::mat4 &transformMatrix = transform_comp.get_transform();
+        const glm::mat4 &transformMatrix = transform_comp.get_transform()->get_transform();
         m_geometry_shader->set_mat4("u_transform", transformMatrix);
         material_renderer_comp.get_material()->bind(m_geometry_shader);
         retro::renderer::renderer::submit_model(model_renderer_comp.get_model());

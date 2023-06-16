@@ -3,6 +3,7 @@
 #include "physics/constraints/physics_joint.h"
 
 #include <extensions/PxFixedJoint.h>
+#include <glm/glm.hpp>
 
 namespace retro::physics
 {
@@ -21,7 +22,7 @@ namespace retro::physics
     physx::PxSphericalJointFlags get_spherical_joint_flags() const;
 
     /* Setters */
-    void set_limit_cone(const physx::PxJointLimitCone &limit);
+    void set_limit_cone(float y_limit = glm::pi<float>() / 2, float z_limit = glm::pi<float>() / 2);
     void set_projection_linear_tolerance(float tolerance);
     void set_spherical_joint_flags(physx::PxSphericalJointFlags flags);
     void set_spherical_joint_flag(physx::PxSphericalJointFlag::Enum flag, bool value);

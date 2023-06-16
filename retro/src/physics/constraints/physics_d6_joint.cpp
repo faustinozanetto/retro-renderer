@@ -71,9 +71,10 @@ namespace retro::physics
         return m_physx_d6_joint->getDistanceLimit();
     }
 
-    void physics_d6_joint::set_linear_limit(physx::PxD6Axis::Enum axis, const physx::PxJointLinearLimitPair &limit)
+    void physics_d6_joint::set_linear_limit(physx::PxD6Axis::Enum axis, float lower_limit, float upper_limit)
     {
-        m_physx_d6_joint->setLinearLimit(axis, limit);
+        physx::PxJointLinearLimitPair limit_pair = physx::PxJointLinearLimitPair(lower_limit, upper_limit);
+        m_physx_d6_joint->setLinearLimit(axis, limit_pair);
     }
 
     physx::PxJointLinearLimitPair physics_d6_joint::get_linear_limit(physx::PxD6Axis::Enum axis) const
@@ -81,9 +82,10 @@ namespace retro::physics
         return m_physx_d6_joint->getLinearLimit(axis);
     }
 
-    void physics_d6_joint::set_twist_limit(const physx::PxJointAngularLimitPair &limit)
+    void physics_d6_joint::set_twist_limit(float lower_limit, float upper_limit)
     {
-        m_physx_d6_joint->setTwistLimit(limit);
+        physx::PxJointAngularLimitPair limit_pair = physx::PxJointAngularLimitPair(lower_limit, upper_limit);
+        m_physx_d6_joint->setTwistLimit(limit_pair);
     }
 
     physx::PxJointAngularLimitPair physics_d6_joint::get_twist_limit() const
