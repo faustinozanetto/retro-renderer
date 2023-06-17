@@ -2,6 +2,9 @@
 #include "physics_world.h"
 
 #include "core/engine_time.h"
+#include "scene/scene_manager.h"
+#include "scene/actors/components/transform_component.h"
+#include "scene/actors/components/physics/physics_dynamic_actor_component.h"
 
 #include <omnipvd/PxOmniPvd.h>
 #include <OmniPvdLoader.h>
@@ -144,5 +147,18 @@ namespace retro::physics
 
 	void physics_world::sync_transforms()
 	{
+		RT_PROFILE;
+		const auto& scene_view = scene::scene_manager::get().get_active_scene()->get_actors_registry()->view<scene::transform_component, scene::physics_dynamic_actor_component>();
+		for (auto&& [actor, transform_comp, physics_dynamic_actor_comp] : scene_view.each())
+		{
+			const std::shared_ptr<math::transform>& transform = transform_comp.get_transform();
+			const std::shared_ptr<physics_dynamic_actor>& physics_dynamic_actor = physics_dynamic_actor_comp.get_dynamic_actor();
+
+			if (physics_dynamic_actor->get_physx_rigid_dynamic_actor()->isSleeping())
+				continue;
+
+			transform->set_location(retro::physics::physics_utils::convert_physx_vec3_to_glm(physics_dynamic_actor->get_physx_rigid_dynamic_actor()->getGlobalPose().p));
+			transform->set_rotation(retro::physics::physics_utils::convert_physx_quat_to_glm(physics_dynamic_actor->get_physx_rigid_dynamic_actor()->getGlobalPose().q));
+		}
 	}
 }

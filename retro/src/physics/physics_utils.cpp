@@ -158,7 +158,7 @@ namespace retro::physics
 			joint->set_motion(physx::PxD6Axis::eSWING1, physx::PxD6Motion::eFREE);
 			joint->set_motion(physx::PxD6Axis::eSWING2, physx::PxD6Motion::eFREE);
 			joint->set_motion(physx::PxD6Axis::eTWIST, physx::PxD6Motion::eFREE);
-			joint->set_drive(physx::PxD6Drive::eSLERP, physx::PxD6JointDrive(10.0f, 300.0f, FLT_MAX, true));
+			joint->set_drive(physx::PxD6Drive::eSLERP, physx::PxD6JointDrive(10.0f, 300.0f, 100.0f, true));
 
 			/* Setup joint component */
 			scene_actor->add_component<scene::physics_d6_joint_component>(joint);

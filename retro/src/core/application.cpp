@@ -98,6 +98,8 @@ namespace retro::core
 
             execute_main_thread();
 
+            physics::physics_world::get().sync_transforms();
+
             on_update();
 
             renderer::renderer::poll_input();
