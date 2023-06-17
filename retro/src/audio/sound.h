@@ -27,6 +27,8 @@ namespace retro::audio
         uint32_t get_channels() const { return m_data.channels; }
         uint32_t get_sound_buffer() const { return m_sound_buffer; }
 
+        /* Functions */
+
         /* Asset */
         void serialize(std::ofstream& asset_pack_file) override;
         static std::shared_ptr<sound> deserialize(const assets::asset_metadata &metadata, std::ifstream& asset_pack_file);

@@ -31,6 +31,11 @@ namespace retro::physics
 		m_scene->setGravity(physics_utils::convert_glm_vec3_to_physx(gravity));
 	}
 
+	void physics_world::set_is_simulating(bool is_simulating)
+	{
+		set_gravity(glm::vec3(0.0f));
+	}
+
 	void physics_world::initialize_physx()
 	{
 		RT_PROFILE;
@@ -41,8 +46,8 @@ namespace retro::physics
 		m_foundation = PxCreateFoundation(PX_PHYSICS_VERSION, m_allocator, m_error_callback);
 		RT_ASSERT_MSG(m_foundation, "An error occurred while creating PhysX Foundation!");
 
-		// Create the OmniPVD
 #ifdef RT_DEBUG
+		// Create the OmniPVD
 		m_omni_pvd = PxCreateOmniPvd(*m_foundation);
 		RT_ASSERT_MSG(m_omni_pvd, "An error occurred while creating PhysX Omni PVD!");
 
@@ -56,35 +61,18 @@ namespace retro::physics
 		m_pvd = PxCreatePvd(*m_foundation);
 		RT_ASSERT_MSG(m_pvd, "An error occurred while creating PhysX PVD!");
 
-		physx::PxPvdTransport* transport = physx::PxDefaultPvdSocketTransportCreate("127.0.0.1", 5425, 10);
+		physx::PxPvdTransport *transport = physx::PxDefaultPvdSocketTransportCreate("127.0.0.1", 5425, 10);
 		m_pvd->connect(*transport, physx::PxPvdInstrumentationFlag::eALL);
 #endif
-
 		// Create the physics instance
 		m_physics = PxCreatePhysics(PX_PHYSICS_VERSION, *m_foundation, physx::PxTolerancesScale(), true, m_pvd, m_omni_pvd);
 		RT_ASSERT_MSG(m_physics, "An error occurred while creating PhysX Instance!");
 
 		PxInitExtensions(*m_physics, m_pvd);
-
-		/*
-		// Enable GPU acceleration
-		physx::PxCudaContextManagerDesc cudaDesc;
-		cudaDesc.interopMode = physx::PxCudaInteropMode::OGL_INTEROP;  // Specify the desired interop mode
-		physx::PxCudaContextManager* cudaContextManager = PxCreateCudaContextManager(*m_foundation, cudaDesc, nullptr);
-		if (cudaContextManager)
-		{
-			if (!cudaContextManager->contextIsValid())
-			{
-				cudaContextManager->release();
-				cudaContextManager = nullptr;
-			}
-		}
-		*/
 #ifdef RT_DEBUG
 		omni_file_write_stream->setFileName("myoutpufile.ovd");
 		m_omni_pvd->startSampling();
 #endif
-
 		// Create the default CPU dispatcher
 		m_dispatcher = physx::PxDefaultCpuDispatcherCreate(2);
 		RT_ASSERT_MSG(m_dispatcher, "An error occurred while creating PhysX Dispatcher!");
@@ -92,7 +80,6 @@ namespace retro::physics
 		// Create the scene
 		physx::PxSceneDesc sceneDesc(m_physics->getTolerancesScale());
 		sceneDesc.cpuDispatcher = m_dispatcher;
-		//sceneDesc.cudaContextManager = cudaContextManager;
 		sceneDesc.filterShader = physx::PxDefaultSimulationFilterShader;
 		sceneDesc.gravity = physics_utils::convert_glm_vec3_to_physx(m_gravity);
 		m_scene = m_physics->createScene(sceneDesc);
@@ -102,7 +89,7 @@ namespace retro::physics
 		m_scene->setVisualizationParameter(physx::PxVisualizationParameter::eJOINT_LIMITS, 1.0f);
 
 #ifdef RT_DEBUG
-		physx::PxPvdSceneClient* pvd_client = m_scene->getScenePvdClient();
+		physx::PxPvdSceneClient *pvd_client = m_scene->getScenePvdClient();
 		if (pvd_client)
 		{
 			pvd_client->setScenePvdFlag(physx::PxPvdSceneFlag::eTRANSMIT_CONSTRAINTS, true);
@@ -157,6 +144,5 @@ namespace retro::physics
 
 	void physics_world::sync_transforms()
 	{
-		
 	}
 }

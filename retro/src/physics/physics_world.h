@@ -20,11 +20,13 @@ namespace retro::physics
 		/* Getters */
 		physx::PxPhysics *get_physics() { return m_physics; }
 		physx::PxScene *get_scene() { return m_scene; }
+		bool get_is_simulating() const { return m_gravity == glm::vec3(0.0f); }
 
 		const glm::vec3 &get_gravity() const { return m_gravity; }
 
 		/* Setters */
 		void set_gravity(const glm::vec3 &gravity);
+		void set_is_simulating(bool is_simulating);
 
 		/* Functions */
 		void on_update();

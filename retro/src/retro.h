@@ -13,6 +13,8 @@
 #include "renderer/window/window.h"
 #include "renderer/renderer/renderer.h"
 
+#include "renderer/scene/scene_renderer.h"
+
 #include "renderer/debug/debug_renderer.h"
 
 #include "renderer/shaders/shader.h"
@@ -57,12 +59,12 @@
 
 // Math Include
 #include "math/bounding_box.h"
+#include "math/transform/transform.h"
 
 // Scene Include
 #include "scene/scene.h"
 #include "scene/scene_manager.h"
 #include "scene/actors/scene_actor.h"
-#include "scene/transform/transform.h"
 #include "scene/actors/components/base_component.h"
 #include "scene/actors/components/transform_component.h"
 #include "scene/actors/components/name_component.h"

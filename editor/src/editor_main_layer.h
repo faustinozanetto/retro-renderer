@@ -43,8 +43,6 @@ namespace retro::editor
 		std::shared_ptr<renderer::model> m_model;
 
         /* Model Variables */
-        std::shared_ptr<retro::renderer::shader> m_shader;
-        std::shared_ptr<retro::renderer::frame_buffer> m_geometry_fbo;
         std::shared_ptr<retro::scene::scene_actor> m_demo_actor;
 
         /* Camera */

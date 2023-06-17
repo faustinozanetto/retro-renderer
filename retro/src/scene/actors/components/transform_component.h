@@ -1,7 +1,7 @@
 #pragma once
 
 #include "scene/actors/components/base_component.h"
-#include <scene/transform/transform.h>
+#include "math/transform/transform.h"
 
 namespace retro::scene
 {

@@ -13,9 +13,12 @@ namespace retro
     public:
         static T& get()
         {
-            if (!s_instance)
-                s_instance = new T();
+            RT_ASSERT_MSG(s_instance, "Singleton instance is invalid!");
             return *s_instance;
+        }
+
+        static bool get_initialized() {
+            return s_initialized;
         }
 
         template <typename... TArgs>
@@ -23,6 +26,7 @@ namespace retro
         {
             RT_ASSERT_MSG(s_instance == nullptr, "Singleton already initialized!");
             s_instance = new T(std::forward<TArgs>(args)...);
+            s_initialized = true;
         }
 
         static void release()
@@ -30,6 +34,7 @@ namespace retro
             if (s_instance)
             {
                 delete s_instance;
+                s_initialized = false;
                 s_instance = nullptr;
             }
         }
@@ -41,8 +46,12 @@ namespace retro
         virtual ~singleton() = default;
 
         static T* s_instance;
+        static bool s_initialized;
     };
 
     template <class T>
     T* singleton<T>::s_instance = nullptr;
+
+    template <class T>
+    bool singleton<T>::s_initialized = false;
 }

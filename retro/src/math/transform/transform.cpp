@@ -3,7 +3,7 @@
 
 namespace retro::scene
 {
-	transform::transform(const glm::vec3& location, const glm::quat& rotation, const glm::vec3& scale)
+	transform::transform(const glm::vec3 &location, const glm::quat &rotation, const glm::vec3 &scale)
 	{
 		m_location = location;
 		m_rotation = rotation;
@@ -17,30 +17,31 @@ namespace retro::scene
 	{
 	}
 
-	const glm::mat4& transform::get_transform()
+	const glm::mat4 &transform::get_transform()
 	{
 		RT_PROFILE;
-		if (!m_transform_dirty) return m_transform;
+		if (!m_transform_dirty)
+			return m_transform;
 
 		recalculate_transform();
 		return m_transform;
 	}
 
-	void transform::set_location(const glm::vec3& location)
+	void transform::set_location(const glm::vec3 &location)
 	{
 		RT_PROFILE;
 		m_location = location;
 		m_transform_dirty = true;
 	}
 
-	void transform::set_rotation(const glm::quat& rotation)
+	void transform::set_rotation(const glm::quat &rotation)
 	{
 		RT_PROFILE;
 		m_rotation = rotation;
 		m_transform_dirty = true;
 	}
 
-	void transform::set_scale(const glm::vec3& scale)
+	void transform::set_scale(const glm::vec3 &scale)
 	{
 		RT_PROFILE;
 		m_scale = scale;

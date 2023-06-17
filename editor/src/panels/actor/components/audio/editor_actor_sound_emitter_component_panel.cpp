@@ -45,15 +45,15 @@ namespace retro::editor
 
 		// Sound controls
 		if (ImGui::Button("Play")) {
-
+			sound_emitter_component.get_sound_emitter()->play();
 		}
 		ImGui::SameLine();
 		if (ImGui::Button("Pause")) {
-
+			sound_emitter_component.get_sound_emitter()->pause();
 		}
 		ImGui::SameLine();
 		if (ImGui::Button("Stop")) {
-
+			sound_emitter_component.get_sound_emitter()->stop();
 		}
 		ImGui::SameLine();
 	}

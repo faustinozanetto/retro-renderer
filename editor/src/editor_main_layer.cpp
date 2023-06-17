@@ -10,6 +10,7 @@
 #include "panels/console/editor_console_panel.h"
 #include "panels/editor_profiler_panel.h"
 #include "panels/editor_renderer_panel.h"
+#include "panels/editor_physics_panel.h"
 #include "audio/sound_loader.h"
 
 #include <imgui.h>
@@ -22,6 +23,7 @@ namespace retro::editor
 
     editor_main_layer::editor_main_layer()
     {
+        m_initialized = false;
         initialize();
     }
 
@@ -32,7 +34,6 @@ namespace retro::editor
     void editor_main_layer::initialize()
     {
         RT_PROFILE;
-        m_initialized = false;
         // Create editor panels
         m_panels.push_back(std::make_shared<editor_viewport_panel>());
         m_panels.push_back(std::make_shared<editor_toolbar_panel>());
@@ -41,14 +42,14 @@ namespace retro::editor
         m_panels.push_back(std::make_shared<editor_actor_details_panel>());
         m_panels.push_back(std::make_shared<editor_profiler_panel>());
         m_panels.push_back(std::make_shared<editor_renderer_panel>());
+        m_panels.push_back(std::make_shared<editor_physics_panel>());
         m_console_panel = std::make_shared<editor_console_panel>();
         m_panels.push_back(m_console_panel);
 
         // Initialization
+        renderer::scene_renderer::initialize();
         setup_scene();
         setup_camera();
-
-        m_shader = renderer::shader_loader::load_shader_from_file("resources/shaders/geometry.rrs");
 
         std::shared_ptr<renderer::material> material;
 
@@ -63,49 +64,14 @@ namespace retro::editor
         m_demo_actor->add_component<scene::transform_component>();
         m_demo_actor->add_component<scene::model_renderer_component>(m_model);
         m_demo_actor->add_component<scene::material_renderer_component>(material);
-        m_demo_actor->add_component<scene::sound_emitter_component>();
+        auto sound_emitter_comp = m_demo_actor->add_component<scene::sound_emitter_component>();
         auto sound = audio::sound_loader::load_sound_from_file("resources/sounds/player_shoot.ogg");
         m_demo_actor->add_component<scene::sound_source_component>(sound);
+        sound_emitter_comp.get_sound_emitter()->set_sound(sound);
 
         // Create test chain
         physics::physics_utils::create_chain({0.0f, 20.0f, 0.0f}, {0.5f, 0.125f, 0.125f}, 1.1f);
 
-        glm::ivec2 viewport_size = renderer::renderer::get_viewport_size();
-        {
-            std::vector<renderer::frame_buffer_attachment> attachments = {
-                //  Position
-                {
-                    renderer::texture_internal_format::rgba16f,
-                    renderer::texture_filtering::linear,
-                    renderer::texture_wrapping::clamp_to_edge, viewport_size},
-                // Albedo
-                {
-                    renderer::texture_internal_format::rgba16f,
-                    renderer::texture_filtering::linear,
-                    renderer::texture_wrapping::clamp_to_edge, viewport_size},
-                // Normals
-                {
-                    renderer::texture_internal_format::rgba16f,
-                    renderer::texture_filtering::linear,
-                    renderer::texture_wrapping::clamp_to_edge, viewport_size},
-                // Roughness Metallic AO
-                {
-                    renderer::texture_internal_format::rgba16f,
-                    renderer::texture_filtering::linear,
-                    renderer::texture_wrapping::clamp_to_edge, viewport_size},
-                // Emissive
-                {
-                    renderer::texture_internal_format::rgba16f,
-                    renderer::texture_filtering::linear,
-                    renderer::texture_wrapping::clamp_to_edge, viewport_size}};
-            renderer::frame_buffer_attachment depth_attachment = {
-                renderer::texture_internal_format::depth_component32f,
-                renderer::texture_filtering::linear,
-                renderer::texture_wrapping::clamp_to_edge, viewport_size};
-            m_geometry_fbo = std::make_shared<renderer::frame_buffer>(
-                attachments, viewport_size.x, viewport_size.y, depth_attachment);
-            m_geometry_fbo->initialize();
-        }
         m_initialized = true;
     }
 
@@ -142,6 +108,8 @@ namespace retro::editor
             if (scene::scene_manager::get().get_active_scene()->get_actors_registry()->any_of<retro::scene::physics_dynamic_actor_component>(actor))
             {
                 auto &physics_dynamic_actor_comp = scene::scene_manager::get().get_active_scene()->get_actors_registry()->get<retro::scene::physics_dynamic_actor_component>(actor);
+                if (!physics_dynamic_actor_comp.get_dynamic_actor()->get_physx_rigid_dynamic_actor())
+                    continue;
                 if (physics_dynamic_actor_comp.get_dynamic_actor()->get_physx_rigid_dynamic_actor()->isSleeping())
                     continue;
 
@@ -159,18 +127,15 @@ namespace retro::editor
             renderer::renderer::submit_model(model_renderer_comp.get_model());
         }
 
-
         m_shader->un_bind();
 
-		renderer::debug_renderer::begin_render(m_camera);
-		renderer::debug_renderer::submit_line({ 2.0f,2.0f,2.0f }, { 4.0f, 3.0f, -5.0f }, { 1.0f,0.85f,0.85f });
-        renderer::debug_renderer::submit_bounding_box(m_model->get_bounding_box(), { 1.0f, 0.85f, 0.65f });
-		renderer::debug_renderer::end_render();
+        renderer::debug_renderer::begin_render(m_camera);
+        renderer::debug_renderer::submit_line({2.0f, 2.0f, 2.0f}, {4.0f, 3.0f, -5.0f}, {1.0f, 0.85f, 0.85f});
+        renderer::debug_renderer::submit_bounding_box(m_model->get_bounding_box(), {1.0f, 0.85f, 0.65f});
+        renderer::debug_renderer::end_render();
 
         m_geometry_fbo->un_bind();
         renderer::renderer::set_state(renderer::renderer_state::depth, false);
-
-
     }
 
     void editor_main_layer::on_update()
