@@ -4,7 +4,7 @@
 #include <glm/ext/quaternion_float.hpp>
 #include <glm/gtx/quaternion.hpp>
 
-namespace retro::scene
+namespace retro::math
 {
     class transform
     {

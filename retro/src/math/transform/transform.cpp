@@ -1,7 +1,7 @@
 #include "rtpch.h"
 #include "transform.h"
 
-namespace retro::scene
+namespace retro::math
 {
 	transform::transform(const glm::vec3 &location, const glm::quat &rotation, const glm::vec3 &scale)
 	{
