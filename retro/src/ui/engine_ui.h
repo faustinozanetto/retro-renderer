@@ -7,6 +7,8 @@ namespace retro::ui
     public:
         static void initialize();
 
+        static void set_color_scheme();
+
         static void begin_frame();
         static void end_frame();
 

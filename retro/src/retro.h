@@ -83,6 +83,7 @@
 #include "scene/actors/components/physics/collision_shapes/physics_sphere_collision_shape_component.h"
 #include "scene/actors/components/physics/collision_shapes/physics_capsule_collision_shape_component.h"
 #include "scene/actors/components/audio/sound_emitter_component.h"
+#include "scene/actors/components/audio/sound_source_component.h"
 
 // Physics Include
 #include "physics/physics_world.h"

@@ -10,6 +10,7 @@
 #include "panels/console/editor_console_panel.h"
 #include "panels/editor_profiler_panel.h"
 #include "panels/editor_renderer_panel.h"
+#include "audio/sound_loader.h"
 
 #include <imgui.h>
 #include <imgui_internal.h>
@@ -63,6 +64,8 @@ namespace retro::editor
         m_demo_actor->add_component<scene::model_renderer_component>(m_model);
         m_demo_actor->add_component<scene::material_renderer_component>(material);
         m_demo_actor->add_component<scene::sound_emitter_component>();
+        auto sound = audio::sound_loader::load_sound_from_file("resources/sounds/player_shoot.ogg");
+        m_demo_actor->add_component<scene::sound_source_component>(sound);
 
         // Create test chain
         physics::physics_utils::create_chain({0.0f, 20.0f, 0.0f}, {0.5f, 0.125f, 0.125f}, 1.1f);

@@ -29,9 +29,9 @@ namespace retro::editor
 		}
 
 		ImGui::Begin("Profiler");
-		ImGui::Text("FPS %.3f", core::time::get_fps());
+		ImGui::Text("FPS %.6f", core::time::get_fps());
 		ImGui::PlotLines("Frame Times", frame_times.data(), static_cast<int>(core::time::get_frame_times().size()), 0, nullptr, 0.0f, 0.01f, ImVec2(0, 100));
-		ImGui::Text("Average Frame Time: %.3f ms", average_frame_time);
+		ImGui::Text("Average Frame Time: %.6f ms", average_frame_time);
 		ImGui::End();
 	}
 }
