@@ -25,7 +25,6 @@ layout (binding = 3) uniform sampler2D u_roughmetalao_map;
 layout (binding = 4) uniform sampler2D u_emissive_map;
 
 struct directional_light {
-    vec3 position;
     vec3 direction;
 	vec3 color;
 };
@@ -113,7 +112,6 @@ void main()
     vec3 normal = texture(u_normal_map, o_tex_coord).rgb;
     vec3 roughmetalao = texture(u_roughmetalao_map, o_tex_coord).rgb;
     vec3 emissive = texture(u_emissive_map, o_tex_coord).rgb;
-    float opacity = texture(u_albedo_map, o_tex_coord).a;
     float roughness = roughmetalao.r;
     float metallic = roughmetalao.g;
     float ambient_occlusion = roughmetalao.b;
@@ -131,6 +129,10 @@ void main()
     
     vec3 ambient = vec3(0.03) * albedo * ambient_occlusion;
     vec3 color = ambient + lighting + emissive;
+    // HDR tonemapping
+    color = color / (color + vec3(1.0));
+    // gamma correct
+    color = pow(color, vec3(1.0/2.2)); 
 
     frag_color = vec4(color, 1.0);
 }

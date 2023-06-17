@@ -21,6 +21,10 @@ namespace retro::renderer
         std::shared_ptr<frame_buffer> geometry_fbo;
         std::shared_ptr<shader> geometry_shader;
 
+        /* Lighting Pass */
+		std::shared_ptr<frame_buffer> lighting_fbo;
+		std::shared_ptr<shader> lighting_shader;
+
         /* Final Pass */
         std::shared_ptr<frame_buffer> final_fbo;
         std::shared_ptr<shader> final_shader;
@@ -39,11 +43,13 @@ namespace retro::renderer
         static void end_render();
 
         static void geometry_pass();
+        static void lighting_pass();
         static void final_pass();
 
     private:
         static void setup_screen_vao();
         static void setup_geometry_pass();
+        static void setup_lighting_pass();
         static void setup_final_pass();
 
         static scene_renderer_data s_data;
