@@ -46,7 +46,7 @@ namespace retro::renderer
 
         /* Utilities */
         static uint32_t get_shader_type_to_opengl(shader_type type);
-        static std::string get_shader_type_to_string(shader_type type);
+        static const char* get_shader_type_to_string(shader_type type);
 
     private:
         void compile_contents();

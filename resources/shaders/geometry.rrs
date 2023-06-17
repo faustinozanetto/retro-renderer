@@ -8,8 +8,13 @@ layout (location = 3) in vec3 a_tangent;
 layout (location = 4) in vec3 a_bitangent;
 
 layout (location = 0) uniform mat4 u_transform;
-layout (location = 1) uniform mat4 u_view;
-layout (location = 2) uniform mat4 u_projection;
+
+layout(set = 0, binding = 0) uniform camera_ubo 
+{    
+	mat4 view_matrix;
+    mat4 projection_matrix;
+    vec3 position;
+} camera;
 
 struct geometry_out {
     vec3 frag_pos;
@@ -21,7 +26,7 @@ struct geometry_out {
 layout (location = 0) out geometry_out o_geometry;
 
 void main() {
-    vec4 view_pos  = u_view * u_transform * vec4(a_pos, 1.0f);
+    vec4 view_pos  = camera.view_matrix * u_transform * vec4(a_pos, 1.0f);
     o_geometry.tex_coords = a_tex_coord;
     o_geometry.frag_pos = vec3(u_transform * vec4(a_pos, 1.0));
 
@@ -33,7 +38,7 @@ void main() {
     o_geometry.tbn =  mat3(T, B, N);
     o_geometry.normal = N;
 
-    gl_Position = u_projection * view_pos;
+    gl_Position = camera.projection_matrix * view_pos;
 }
 
 #shader fragment

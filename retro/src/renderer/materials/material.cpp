@@ -243,7 +243,7 @@ namespace retro::renderer
         RT_ASSERT_MSG(false, "Invalid material texture type!");
     }
 
-    std::string material::get_material_texture_type_to_string(material_texture_type texture_type)
+    const char* material::get_material_texture_type_to_string(material_texture_type texture_type)
     {
         RT_PROFILE;
         switch (texture_type)

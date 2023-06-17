@@ -100,7 +100,7 @@ namespace retro::camera
         m_pitch = pitch;
     }
 
-    std::string camera::get_camera_type_to_string(camera_type type)
+    const char* camera::get_camera_type_to_string(camera_type type)
     {
         RT_PROFILE;
         switch (type)

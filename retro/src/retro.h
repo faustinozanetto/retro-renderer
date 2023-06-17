@@ -25,6 +25,8 @@
 #include "renderer/buffers/vertex_buffer_object.h"
 #include "renderer/buffers/vertex_buffer_layout_descriptor.h"
 
+#include "renderer/buffers/uniform_buffer_object.h"
+
 #include "renderer/textures/texture.h"
 #include "renderer/textures/texture_loader.h"
 

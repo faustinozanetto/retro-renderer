@@ -10,7 +10,8 @@ namespace retro::editor
 
 	std::pair<bool, size_t> editor_actor_transform_component_panel::get_actor_component_details()
 	{
-		const auto current_scene = scene::scene_manager::get().get_active_scene();
+		RT_PROFILE;
+		const auto& current_scene = scene::scene_manager::get().get_active_scene();
 		bool has_component = current_scene->get_actors_registry()->any_of<scene::transform_component>(editor_main_layer::s_selected_actor);
 		auto component_hash = typeid(scene::transform_component).hash_code();
 		return std::make_pair(has_component, component_hash);
@@ -18,7 +19,8 @@ namespace retro::editor
 	
 	void editor_actor_transform_component_panel::on_render_component_details()
 	{
-		const auto current_scene = scene::scene_manager::get().get_active_scene();
+		RT_PROFILE;
+		const auto& current_scene = scene::scene_manager::get().get_active_scene();
 
 		auto &transform_component = current_scene->get_actors_registry()->get<scene::transform_component>(
 			editor_main_layer::s_selected_actor);
@@ -32,7 +34,7 @@ namespace retro::editor
 		}
 
 		glm::vec3 rotation = glm::vec3(glm::eulerAngles(transform->get_rotation()));
-		if (editor_ui_utils::draw_property("Rotation", rotation, -25.0f, 25.0f, 0.05f))
+		if (editor_ui_utils::draw_property("Rotation", rotation, -2 * glm::pi<float>(), 2 * glm::pi<float>(), 0.05f))
 		{
 			glm::quat pitch = glm::angleAxis(rotation.x, glm::vec3(1.0f, 0.0f, 0.0f));
 			glm::quat yaw = glm::angleAxis(rotation.y, glm::vec3(0.0f, 1.0f, 0.0f));

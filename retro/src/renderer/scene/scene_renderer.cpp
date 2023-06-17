@@ -16,6 +16,7 @@ namespace retro::renderer
 	{
 		RT_PROFILE;
 		setup_screen_vao();
+		setup_camera();
 		setup_geometry_pass();
 		setup_lighting_pass();
 		setup_final_pass();
@@ -32,6 +33,11 @@ namespace retro::renderer
 		RT_PROFILE;
 		s_data.camera = camera;
 
+		update_camera_data();
+		update_camera_buffer();
+
+		s_data.camera_ubo->bind(0);
+
 		geometry_pass();
 		lighting_pass();
 		final_pass();
@@ -42,28 +48,37 @@ namespace retro::renderer
 		RT_PROFILE;
 	}
 
+	void scene_renderer::update_camera_data()
+	{
+		s_data.camera_data.view_matrix = s_data.camera->get_view_matrix();
+		s_data.camera_data.projection_matrix = s_data.camera->get_projection_matrix();
+		s_data.camera_data.position = s_data.camera->get_position();
+	}
+
+	void scene_renderer::update_camera_buffer()
+	{
+		s_data.camera_ubo->set_data(sizeof(camera_data), &s_data.camera_data);
+	}
+
 	void scene_renderer::geometry_pass()
 	{
 		RT_PROFILE;
-		const auto& current_scene = scene::scene_manager::get().get_active_scene();
+		const auto &current_scene = scene::scene_manager::get().get_active_scene();
 
 		renderer::set_state(renderer_state::blend, false);
 		renderer::set_state(renderer_state::depth, true);
 		s_data.geometry_fbo->bind();
 		renderer::clear_screen();
 		s_data.geometry_shader->bind();
-		s_data.geometry_shader->set_mat4("u_view", s_data.camera->get_view_matrix());
-		s_data.geometry_shader->set_mat4("u_projection", s_data.camera->get_projection_matrix());
 
-		const auto& geometry_pass_view = current_scene->get_actors_registry()->view<scene::transform_component, scene::model_renderer_component,
-			scene::material_renderer_component>();
-		for (auto&& [actor, transform_comp, model_renderer_comp, material_renderer_comp] :
-			geometry_pass_view.each())
+		const auto &geometry_pass_view = current_scene->get_actors_registry()->view<scene::transform_component, scene::model_renderer_component, scene::material_renderer_component>();
+		for (auto &&[actor, transform_comp, model_renderer_comp, material_renderer_comp] :
+			 geometry_pass_view.each())
 		{
-			const std::shared_ptr<math::transform>& transform = transform_comp.get_transform();
-			const std::shared_ptr<material>& material = material_renderer_comp.get_material();
-			const std::shared_ptr<model>& model = model_renderer_comp.get_model();
-			
+			const std::shared_ptr<math::transform> &transform = transform_comp.get_transform();
+			const std::shared_ptr<material> &material = material_renderer_comp.get_material();
+			const std::shared_ptr<model> &model = model_renderer_comp.get_model();
+
 			// Submit to renderer
 			s_data.geometry_shader->set_mat4("u_transform", transform->get_transform());
 			material->bind(s_data.geometry_shader);
@@ -82,8 +97,8 @@ namespace retro::renderer
 		renderer::clear_screen();
 		s_data.lighting_shader->bind();
 		s_data.lighting_shader->set_vec_float3("u_cam_pos", s_data.camera->get_position());
-		s_data.lighting_shader->set_vec_float3("u_directional_light.direction", { 1.8f, -5.5f, -3.6f });
-		s_data.lighting_shader->set_vec_float3("u_directional_light.color", { 6.0f, 6.0f, 6.0f });
+		s_data.lighting_shader->set_vec_float3("u_directional_light.direction", {1.8f, -5.5f, -3.6f});
+		s_data.lighting_shader->set_vec_float3("u_directional_light.color", {6.0f, 6.0f, 6.0f});
 
 		renderer::bind_texture(0, s_data.geometry_fbo->get_attachment_id(0)); // Position
 		renderer::bind_texture(1, s_data.geometry_fbo->get_attachment_id(1)); // Albedo
@@ -117,14 +132,20 @@ namespace retro::renderer
 		s_data.final_fbo->un_bind();
 	}
 
+	void scene_renderer::setup_camera()
+	{
+		s_data.camera_ubo = std::make_shared<uniform_buffer_object>();
+		s_data.camera_ubo->initialize(sizeof(camera_data), nullptr);
+	}
+
 	void scene_renderer::setup_screen_vao()
 	{
 		RT_PROFILE;
 		std::vector<float> vertices = {
-		1.0f, 1.0f, 0.0f, 1.0f, 1.0f,   // top right
-		1.0f, -1.0f, 0.0f, 1.0f, 0.0f,  // bottom right
-		-1.0f, -1.0f, 0.0f, 0.0f, 0.0f, // bottom left
-		-1.0f, 1.0f, 0.0f, 0.0f, 1.0f   // top left
+			1.0f, 1.0f, 0.0f, 1.0f, 1.0f,	// top right
+			1.0f, -1.0f, 0.0f, 1.0f, 0.0f,	// bottom right
+			-1.0f, -1.0f, 0.0f, 0.0f, 0.0f, // bottom left
+			-1.0f, 1.0f, 0.0f, 0.0f, 1.0f	// top left
 		};
 
 		std::vector<uint32_t> indices = {
@@ -145,7 +166,7 @@ namespace retro::renderer
 		s_data.screen_vao->bind();
 		vertices_vbo->bind();
 		vertices_vbo->set_data(retro::renderer::vertex_buffer_object_usage::static_draw, vertex_buffer_size,
-			vertices.data());
+							   vertices.data());
 
 		index_buffer->bind();
 		index_buffer->set_data(retro::renderer::vertex_buffer_object_usage::static_draw, index_buffer_size, indices.data());
@@ -154,7 +175,7 @@ namespace retro::renderer
 			layout_elements = {
 				{"a_pos", retro::renderer::vertex_buffer_entry_type::vec_float3, false},
 				{"a_tex_coord", retro::renderer::vertex_buffer_entry_type::vec_float2, false},
-		};
+			};
 
 		std::shared_ptr<retro::renderer::vertex_buffer_layout_descriptor>
 			vertices_vbo_layout_descriptor = std::make_shared<retro::renderer::vertex_buffer_layout_descriptor>(
@@ -173,35 +194,33 @@ namespace retro::renderer
 		std::vector<frame_buffer_attachment> geometry_fbo_attachments = {
 			//  Position
 			{
-			texture_internal_format::rgba16f,
-			texture_filtering::linear,
-			texture_wrapping::clamp_to_edge, viewport_size},
+				texture_internal_format::rgba16f,
+				texture_filtering::linear,
+				texture_wrapping::clamp_to_edge, viewport_size},
 			// Albedo
 			{
-			texture_internal_format::rgba16f,
-			texture_filtering::linear,
-			texture_wrapping::clamp_to_edge, viewport_size},
+				texture_internal_format::rgba16f,
+				texture_filtering::linear,
+				texture_wrapping::clamp_to_edge, viewport_size},
 			// Normal
 			{
-			texture_internal_format::rgba16f,
-			texture_filtering::linear,
-			texture_wrapping::clamp_to_edge, viewport_size},
+				texture_internal_format::rgba16f,
+				texture_filtering::linear,
+				texture_wrapping::clamp_to_edge, viewport_size},
 			// Roughness Metallic AO
 			{
-			texture_internal_format::rgba16f,
-			texture_filtering::linear,
-			texture_wrapping::clamp_to_edge, viewport_size},
+				texture_internal_format::rgba16f,
+				texture_filtering::linear,
+				texture_wrapping::clamp_to_edge, viewport_size},
 			// Emissive
 			{
-			texture_internal_format::rgba16f,
-			texture_filtering::linear,
-			texture_wrapping::clamp_to_edge, viewport_size}
-		};
+				texture_internal_format::rgba16f,
+				texture_filtering::linear,
+				texture_wrapping::clamp_to_edge, viewport_size}};
 		frame_buffer_attachment geometry_fbo_depth_attachment = {
 			texture_internal_format::depth_component32f,
 			texture_filtering::linear,
-			texture_wrapping::clamp_to_edge, viewport_size
-		};
+			texture_wrapping::clamp_to_edge, viewport_size};
 		s_data.geometry_fbo = std::make_shared<frame_buffer>(
 			geometry_fbo_attachments, viewport_size.x, viewport_size.y, geometry_fbo_depth_attachment);
 		s_data.geometry_fbo->initialize();
@@ -213,10 +232,9 @@ namespace retro::renderer
 		RT_PROFILE;
 		glm::ivec2 viewport_size = renderer::get_viewport_size();
 		std::vector<frame_buffer_attachment> final_fbo_attachments = {
-			{
-			texture_internal_format::rgba16f,
-			texture_filtering::linear,
-			texture_wrapping::clamp_to_edge, viewport_size},
+			{texture_internal_format::rgba16f,
+			 texture_filtering::linear,
+			 texture_wrapping::clamp_to_edge, viewport_size},
 		};
 		s_data.lighting_fbo = std::make_shared<frame_buffer>(
 			final_fbo_attachments, viewport_size.x, viewport_size.y);
@@ -229,10 +247,9 @@ namespace retro::renderer
 		RT_PROFILE;
 		glm::ivec2 viewport_size = renderer::get_viewport_size();
 		std::vector<frame_buffer_attachment> final_fbo_attachments = {
-			{
-			texture_internal_format::rgba16f,
-			texture_filtering::linear,
-			texture_wrapping::clamp_to_edge, viewport_size},
+			{texture_internal_format::rgba16f,
+			 texture_filtering::linear,
+			 texture_wrapping::clamp_to_edge, viewport_size},
 		};
 		s_data.final_fbo = std::make_shared<frame_buffer>(
 			final_fbo_attachments, viewport_size.x, viewport_size.y);

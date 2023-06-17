@@ -102,7 +102,7 @@ namespace retro::renderer
         /* Utilities */
         static std::vector<material_texture_type> get_material_texture_types();
         static material_texture_type get_material_texture_type_from_string(const std::string &texture_type);
-        static std::string get_material_texture_type_to_string(material_texture_type texture_type);
+        static const char* get_material_texture_type_to_string(material_texture_type texture_type);
 
     private:
         std::map<material_texture_type, int> m_material_texture_bindings;

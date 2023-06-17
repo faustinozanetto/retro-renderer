@@ -25,7 +25,7 @@ namespace retro::renderer
         RT_ASSERT_MSG(false, "Invalid shader type!");
     }
 
-    std::string shader::get_shader_type_to_string(shader_type type)
+    const char* shader::get_shader_type_to_string(shader_type type)
     {
         RT_PROFILE;
         switch (type)

@@ -42,7 +42,7 @@ namespace retro::camera
         void update_vectors();
         void construct_matrices();
 
-        static std::string get_camera_type_to_string(camera_type type);
+        static const char* get_camera_type_to_string(camera_type type);
 
     private:
         camera_type m_type;

@@ -50,7 +50,7 @@ namespace retro::assets
         void set_metadata(const asset_metadata& metadata) { m_metadata = metadata; }
 
         /* Utilities */
-        static std::string get_asset_type_to_string(asset_type asset_type);
+        static const char* get_asset_type_to_string(asset_type asset_type);
 
     protected:
         asset_metadata m_metadata;

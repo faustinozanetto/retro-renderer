@@ -96,7 +96,7 @@ namespace retro::renderer
         RT_ASSERT_MSG(false, "Invalid texture internal format!");
     }
 
-    std::string texture::get_texture_filtering_to_string(texture_filtering filtering)
+    const char* texture::get_texture_filtering_to_string(texture_filtering filtering)
     {
         RT_PROFILE;
         switch (filtering)
@@ -119,7 +119,7 @@ namespace retro::renderer
         RT_ASSERT_MSG(false, "Invalid texture filtering!");
     }
 
-    std::string texture::get_texture_filtering_type_to_string(texture_filtering_type filtering_type)
+    const char* texture::get_texture_filtering_type_to_string(texture_filtering_type filtering_type)
     {
         RT_PROFILE;
         switch (filtering_type)
@@ -132,7 +132,7 @@ namespace retro::renderer
         RT_ASSERT_MSG(false, "Invalid texture filtering type!");
     }
 
-    std::string texture::get_texture_wrapping_to_string(texture_wrapping wrapping)
+    const char* texture::get_texture_wrapping_to_string(texture_wrapping wrapping)
     {
         RT_PROFILE;
         switch (wrapping)
@@ -151,7 +151,7 @@ namespace retro::renderer
         RT_ASSERT_MSG(false, "Invalid texture wrapping!");
     }
 
-    std::string texture::get_texture_wrapping_type_to_string(texture_wrapping_type wrapping_type)
+    const char* texture::get_texture_wrapping_type_to_string(texture_wrapping_type wrapping_type)
     {
         RT_PROFILE;
         switch (wrapping_type)
@@ -236,7 +236,7 @@ namespace retro::renderer
         RT_ASSERT_MSG(false, "Invalid texture wrapping type!");
     }
 
-    std::string texture::get_texture_format_to_string(texture_format format)
+    const char* texture::get_texture_format_to_string(texture_format format)
     {
         RT_PROFILE;
         switch (format)
@@ -263,7 +263,7 @@ namespace retro::renderer
         RT_ASSERT_MSG(false, "Invalid texture format!");
     }
 
-    std::string texture::get_texture_internal_format_to_string(texture_internal_format internal_format)
+    const char* texture::get_texture_internal_format_to_string(texture_internal_format internal_format)
     {
         RT_PROFILE;
         switch (internal_format)

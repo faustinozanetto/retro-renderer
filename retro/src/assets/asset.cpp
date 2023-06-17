@@ -11,7 +11,7 @@ namespace retro::assets
         asset_manager::get().register_asset(std::shared_ptr<asset>(this));
     }
 
-    std::string asset::get_asset_type_to_string(asset_type asset_type)
+    const char* asset::get_asset_type_to_string(asset_type asset_type)
     {
         RT_PROFILE;
         switch (asset_type)
