@@ -49,20 +49,20 @@ namespace retro::editor
 
         m_shader = renderer::shader_loader::load_shader_from_file("resources/shaders/geometry.rrs");
 
-        std::shared_ptr<renderer::model> model;
         std::shared_ptr<renderer::material> material;
 
         material = renderer::material_loader::load_material_from_file("resources/materials/radio.rrm");
-        model = renderer::model_loader::load_model_from_file("resources/models/radio/radio.obj");
+        m_model = renderer::model_loader::load_model_from_file("resources/models/radio/radio.obj");
 
         const std::shared_ptr<physics::physics_material> &physics_material = std::make_shared<physics::physics_material>(0.5f, 0.5f, 0.6f);
 
         const std::shared_ptr<physics::physics_box_collision> &box_collision_shape = std::make_shared<physics::physics_box_collision>(physics_material);
 
-        auto demo_actor = scene::scene_manager::get().get_active_scene()->create_actor("test actor");
-        demo_actor->add_component<scene::transform_component>();
-        demo_actor->add_component<scene::model_renderer_component>(model);
-        demo_actor->add_component<scene::material_renderer_component>(material);
+        auto m_demo_actor = scene::scene_manager::get().get_active_scene()->create_actor("test actor");
+        m_demo_actor->add_component<scene::transform_component>();
+        m_demo_actor->add_component<scene::model_renderer_component>(m_model);
+        m_demo_actor->add_component<scene::material_renderer_component>(material);
+        m_demo_actor->add_component<scene::sound_emitter_component>();
 
         // Create test chain
         physics::physics_utils::create_chain({0.0f, 20.0f, 0.0f}, {0.5f, 0.125f, 0.125f}, 1.1f);
@@ -160,8 +160,8 @@ namespace retro::editor
         m_shader->un_bind();
 
 		renderer::debug_renderer::begin_render(m_camera);
-        glLineWidth(3.0f);
 		renderer::debug_renderer::submit_line({ 2.0f,2.0f,2.0f }, { 4.0f, 3.0f, -5.0f }, { 1.0f,0.85f,0.85f });
+        renderer::debug_renderer::submit_bounding_box(m_model->get_bounding_box(), { 1.0f, 0.85f, 0.65f });
 		renderer::debug_renderer::end_render();
 
         m_geometry_fbo->un_bind();

@@ -8,6 +8,7 @@
 #include "renderer/debug/debug_renderer.h"
 #include "physics/physics_world.h"
 #include "ui/engine_ui.h"
+#include "job_system.h"
 
 #include <filesystem>
 
@@ -36,7 +37,16 @@ namespace retro::core
         /* Scene */
         scene::scene_manager::initialize();
         /* Audio */
-        m_audio_context = std::make_shared<audio::audio_context>();
+        std::vector<std::future<void>> audio_futures;
+        auto audio_promise = std::make_shared<std::promise<void>>();
+        job_data audio_context_job;
+        audio_context_job.task = [&]() {
+            m_audio_context = std::make_shared<audio::audio_context>();
+        };
+        audio_context_job.promise = audio_promise;
+        job_system::get().submit_job(audio_context_job);
+        audio_futures.push_back(audio_promise->get_future());
+        job_system::get().wait_for_jobs(audio_futures);
         time::update_time();
     }
 
@@ -49,7 +59,6 @@ namespace retro::core
         RT_PROFILE;
         events::event_dispatcher dispatcher(event);
         dispatcher.dispatch<events::window_resize_event>(BIND_EVENT_FN(application::on_window_resize));
-        // Call event handle to child application classes
         on_handle_event(event);
     }
 

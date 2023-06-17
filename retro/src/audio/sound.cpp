@@ -1,9 +1,9 @@
 ﻿#include "rtpch.h"
 #include "sound.h"
 
-#include <AL/al.h>
-
 #include "sound_loader.h"
+
+#include <AL/al.h>
 
 namespace retro::audio
 {
@@ -15,12 +15,12 @@ namespace retro::audio
         RT_TRACE("Sound Information:");
         RT_TRACE("    - File Name: {0}", file_name.c_str());
         RT_TRACE("    - Frequency: {0}", m_data.frequency);
-        RT_TRACE("    - Lenght: {0}", m_data.length);
+        RT_TRACE("    - Length: {0}", m_data.length);
         RT_TRACE("    - Bit Rate: {0}", m_data.bit_rate);
         RT_TRACE("    - Size: {0}", m_data.size);
         RT_TRACE("    - Channels: {0}", m_data.channels);
 
-        // Generate openal buffers
+        // Generate OpenAL buffers
         alGenBuffers(1, &m_sound_buffer);
         alBufferData(m_sound_buffer, AL_FORMAT_STEREO16, m_data.data,
                      m_data.size,

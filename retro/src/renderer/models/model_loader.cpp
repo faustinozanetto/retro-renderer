@@ -5,6 +5,7 @@
 #include <assimp/Importer.hpp>
 
 #include "utils/utils.h"
+#include <glm/gtc/type_ptr.hpp>
 
 namespace retro::renderer
 {
@@ -27,6 +28,15 @@ namespace retro::renderer
         std::vector<std::shared_ptr<mesh>> model_meshes;
         parse_assimp_node(scene->mRootNode, scene, model_meshes);
         auto created_model = std::make_shared<model>(file_path, model_meshes);
+
+        // Create bounding box
+		glm::vec3 min(FLT_MAX);
+		glm::vec3 max(-FLT_MAX);
+		calculate_bounding_box(scene, scene->mRootNode, min, max);
+
+        math::bounding_box bounding_box = math::bounding_box(min, max);
+        created_model->set_bounding_box(bounding_box);
+
         RT_TRACE("Retro Renderer | Model loaded from file successfully!");
         RT_SEPARATOR();
         return created_model;
@@ -127,5 +137,26 @@ namespace retro::renderer
 
         // 4. Create the mesh
         return std::make_shared<mesh>(vertices, indices);
+    }
+
+    void model_loader::calculate_bounding_box(const aiScene* scene, const aiNode* node, glm::vec3& min, glm::vec3& max)
+    {
+		for (unsigned int i = 0; i < node->mNumMeshes; ++i)
+		{
+			const aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
+			for (unsigned int j = 0; j < mesh->mNumVertices; ++j)
+			{
+				const aiVector3D& vertex = mesh->mVertices[j];
+				glm::vec3 position = glm::make_vec3(&vertex.x);
+
+				min = glm::min(min, position);
+				max = glm::max(max, position);
+			}
+		}
+
+		for (unsigned int i = 0; i < node->mNumChildren; ++i)
+		{
+			calculate_bounding_box(scene, node->mChildren[i], min, max);
+		}
     }
 }

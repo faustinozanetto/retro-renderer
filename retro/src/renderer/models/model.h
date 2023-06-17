@@ -2,6 +2,7 @@
 
 #include "assets/asset.h"
 #include "renderer/models/mesh.h"
+#include "math/bounding_box.h"
 
 namespace retro::renderer
 {
@@ -12,6 +13,10 @@ namespace retro::renderer
 
         /* Getters */
         const std::vector<std::shared_ptr<mesh>> &get_meshes() const { return m_meshes; }
+        const math::bounding_box& get_bounding_box() const { return m_bounding_box; }
+
+        /* Setters */
+        void set_bounding_box(const math::bounding_box& bounding_box) { m_bounding_box = bounding_box; }
 
         /* Asset */
         void serialize(std::ofstream &asset_pack_file) override;
@@ -19,5 +24,6 @@ namespace retro::renderer
 
     private:
         std::vector<std::shared_ptr<mesh>> m_meshes;
+        math::bounding_box m_bounding_box;
     };
 }

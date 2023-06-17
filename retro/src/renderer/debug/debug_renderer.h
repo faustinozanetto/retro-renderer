@@ -3,6 +3,7 @@
 #include <renderer/buffers/vertex_array_object.h>
 #include <renderer/shaders/shader.h>
 #include <camera/camera.h>
+#include "math/bounding_box.h"
 
 #include <glm/glm.hpp>
 
@@ -50,6 +51,7 @@ namespace retro::renderer
         static void end_render();
 
         static void submit_line(const glm::vec3& point_a, const glm::vec3& point_b, const glm::vec3& color);
+        static void submit_bounding_box(const math::bounding_box& bounding_box, const glm::vec3& color);
     private:
         static debug_renderer_data s_data;
     };

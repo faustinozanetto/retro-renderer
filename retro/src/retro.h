@@ -55,6 +55,9 @@
 #include "assets/asset_pack.h"
 #include "assets/asset_manager.h"
 
+// Math Include
+#include "math/bounding_box.h"
+
 // Scene Include
 #include "scene/scene.h"
 #include "scene/scene_manager.h"
@@ -79,6 +82,7 @@
 #include "scene/actors/components/physics/collision_shapes/physics_plane_collision_shape_component.h"
 #include "scene/actors/components/physics/collision_shapes/physics_sphere_collision_shape_component.h"
 #include "scene/actors/components/physics/collision_shapes/physics_capsule_collision_shape_component.h"
+#include "scene/actors/components/audio/sound_emitter_component.h"
 
 // Physics Include
 #include "physics/physics_world.h"

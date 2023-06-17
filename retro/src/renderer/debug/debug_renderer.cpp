@@ -73,4 +73,24 @@ namespace retro::renderer
 
 		s_data.line_vertex_count += 2;
 	}
+
+	void debug_renderer::submit_bounding_box(const math::bounding_box& bounding_box, const glm::vec3& color)
+	{
+		const glm::vec3& min = bounding_box.get_min_extents();
+		const glm::vec3& max = bounding_box.get_max_extents();
+
+		// Submit the lines that make up the bounding box
+		submit_line(glm::vec3(min.x, min.y, min.z), glm::vec3(max.x, min.y, min.z), color);
+		submit_line(glm::vec3(min.x, min.y, min.z), glm::vec3(min.x, max.y, min.z), color);
+		submit_line(glm::vec3(min.x, min.y, min.z), glm::vec3(min.x, min.y, max.z), color);
+		submit_line(glm::vec3(max.x, min.y, min.z), glm::vec3(max.x, max.y, min.z), color);
+		submit_line(glm::vec3(max.x, min.y, min.z), glm::vec3(max.x, min.y, max.z), color);
+		submit_line(glm::vec3(min.x, max.y, min.z), glm::vec3(max.x, max.y, min.z), color);
+		submit_line(glm::vec3(min.x, max.y, min.z), glm::vec3(min.x, max.y, max.z), color);
+		submit_line(glm::vec3(min.x, min.y, max.z), glm::vec3(max.x, min.y, max.z), color);
+		submit_line(glm::vec3(min.x, min.y, max.z), glm::vec3(min.x, max.y, max.z), color);
+		submit_line(glm::vec3(max.x, max.y, min.z), glm::vec3(max.x, max.y, max.z), color);
+		submit_line(glm::vec3(min.x, max.y, max.z), glm::vec3(max.x, max.y, max.z), color);
+		submit_line(glm::vec3(max.x, min.y, max.z), glm::vec3(max.x, max.y, max.z), color);
+	}
 }

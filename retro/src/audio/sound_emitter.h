@@ -13,18 +13,27 @@ namespace retro::audio
         sound_emitter();
         ~sound_emitter();
 
+        /* Getters */
+		glm::vec3 get_location() const { return m_location; }
+		const std::shared_ptr<sound>& get_sound() const { return m_sound; }
+        float get_volume() const { return m_volume; }
+        float get_pitch() const { return m_pitch; }
+        float get_range() const { return m_range; }
+        bool get_is_loop() const { return m_loop; }
+        bool get_is_paused() const { return m_paused; }
+
+        /* Setters */
+		void set_location(const glm::vec3& location);
+		void set_sound(const std::shared_ptr<sound>& sound);
+		void set_volume(float volume);
+        void set_pitch(float pitch);
+        void set_range(float range);
+        void set_is_loop(bool is_loop);
+
+        /* Functions */
         void play();
         void pause();
         void stop();
-
-        float get_volume() const { return m_volume; }
-        void set_volume(float volume);
-
-        glm::vec3 get_location() const { return m_location;}
-        void set_location(const glm::vec3&location);
-
-        void set_sound(const std::shared_ptr<sound>& sound);
-        std::shared_ptr<sound>& get_sound() { return m_sound; }
 
     private:
         ALuint m_source;

@@ -16,5 +16,6 @@ namespace retro::renderer
         static void parse_assimp_node(aiNode* assimp_node, const aiScene* assimp_scene,
                                       std::vector<std::shared_ptr<mesh>>& model_meshes);
         static std::shared_ptr<mesh> parse_assimp_mesh(aiMesh* assimp_mesh, const aiScene* assimp_scene);
+        static void calculate_bounding_box(const aiScene* scene, const aiNode* node, glm::vec3& min, glm::vec3& max);
     };
 }

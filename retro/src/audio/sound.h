@@ -21,6 +21,10 @@ namespace retro::audio
         ~sound();
 
         /* Getters */
+        float get_frequency() const { return m_data.frequency; }
+        float get_length() const { return m_data.length; }
+        uint32_t get_bit_rate() const { return m_data.bit_rate; }
+        uint32_t get_channels() const { return m_data.channels; }
         uint32_t get_sound_buffer() const { return m_sound_buffer; }
 
         /* Asset */

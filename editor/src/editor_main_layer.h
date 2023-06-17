@@ -40,6 +40,8 @@ namespace retro::editor
         /* Rendering */
         uint32_t m_main_render_target;
 
+		std::shared_ptr<renderer::model> m_model;
+
         /* Model Variables */
         std::shared_ptr<retro::renderer::shader> m_shader;
         std::shared_ptr<retro::renderer::frame_buffer> m_geometry_fbo;

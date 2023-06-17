@@ -44,7 +44,28 @@ namespace retro::audio
     {
         RT_PROFILE;
         m_volume = volume;
-        alSourcef(m_source, AL_GAIN, volume);
+        alSourcef(m_source, AL_GAIN, m_volume);
+    }
+
+    void sound_emitter::set_pitch(float pitch)
+    {
+		RT_PROFILE;
+		m_pitch = pitch;
+		alSourcef(m_source, AL_PITCH, m_pitch);
+    }
+
+    void sound_emitter::set_range(float range)
+    {
+		RT_PROFILE;
+		m_range = range;
+		alSourcef(m_source, AL_MAX_DISTANCE, m_range);
+    }
+
+    void sound_emitter::set_is_loop(bool is_loop)
+    {
+		RT_PROFILE;
+		m_loop = is_loop;
+        alSourcei(m_source, AL_LOOPING, m_loop ? 1 : 0);
     }
 
     void sound_emitter::set_location(const glm::vec3 &location)
