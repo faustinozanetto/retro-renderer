@@ -19,6 +19,7 @@ namespace retro::editor
 	
 	void editor_actor_component_panel::on_render_panel()
 	{
+		RT_PROFILE;
 		auto current_scene = scene::scene_manager::get().get_active_scene();
 
 		auto [has_component, component_hash] = get_actor_component_details();

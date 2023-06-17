@@ -43,11 +43,11 @@ namespace retro::renderer
         std::string shader_contents;
         std::ifstream in(file_path, std::ios::in | std::ios::binary);
 
-        RT_ASSERT_MSG(in, "Retro Renderer | An error ocurred while opening shader file '{0}'", file_path);
+        RT_ASSERT_MSG(in, "Retro Renderer | An error occurred while opening shader file '{0}'", file_path);
 
         in.seekg(0, std::ios::end);
         const size_t size = in.tellg();
-        RT_ASSERT_MSG(size != -1, "Retro Renderer | An error ocurred while reading shader file '{0}'", file_path);
+        RT_ASSERT_MSG(size != -1, "Retro Renderer | An error occurred while reading shader file '{0}'", file_path);
         shader_contents.resize(size);
         in.seekg(0, std::ios::beg);
         in.read(shader_contents.data(), size);

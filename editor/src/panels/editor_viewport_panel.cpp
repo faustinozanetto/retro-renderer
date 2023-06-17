@@ -14,6 +14,7 @@ namespace retro::editor
 
     void editor_viewport_panel::on_render_panel()
     {
+        RT_PROFILE;
         auto app = dynamic_cast<editor_app*>(&core::application::get());
         ImGui::Begin("Viewport");
         const ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();

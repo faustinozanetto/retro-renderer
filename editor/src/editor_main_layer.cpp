@@ -13,6 +13,7 @@
 
 #include <imgui.h>
 #include <imgui_internal.h>
+#include <profiling/profiling.h>
 
 namespace retro::editor
 {
@@ -29,6 +30,7 @@ namespace retro::editor
 
     void editor_main_layer::initialize()
     {
+        RT_PROFILE;
         m_initialized = false;
         // Create editor panels
         m_panels.push_back(std::make_shared<editor_viewport_panel>());
@@ -45,14 +47,13 @@ namespace retro::editor
         setup_scene();
         setup_camera();
 
-        ImGui::StyleColorsLight();
-        m_shader = renderer::shader_loader::load_shader_from_file("../resources/shaders/geometry.rrs");
+        m_shader = renderer::shader_loader::load_shader_from_file("resources/shaders/geometry.rrs");
 
         std::shared_ptr<renderer::model> model;
         std::shared_ptr<renderer::material> material;
 
-        material = renderer::material_loader::load_material_from_file("../resources/materials/radio.rrm");
-        model = renderer::model_loader::load_model_from_file("../resources/models/radio/radio.obj");
+        material = renderer::material_loader::load_material_from_file("resources/materials/radio.rrm");
+        model = renderer::model_loader::load_model_from_file("resources/models/radio/radio.obj");
 
         const std::shared_ptr<physics::physics_material> &physics_material = std::make_shared<physics::physics_material>(0.5f, 0.5f, 0.6f);
 
@@ -107,17 +108,20 @@ namespace retro::editor
 
     void editor_main_layer::setup_camera()
     {
+        RT_PROFILE;
         m_camera = std::make_shared<camera::camera>(camera::camera_type::perspective, 55.0f, 0.01f, 1000.0f);
         m_camera->set_position({0.0f, 15.0f, 15.0f});
     }
 
     void editor_main_layer::setup_scene()
     {
+        RT_PROFILE;
         scene::scene_manager::get().create_scene("editor scene");
     }
 
     void editor_main_layer::on_render()
     {
+        RT_PROFILE;
         renderer::renderer::set_state(renderer::renderer_state::blend, false);
         renderer::renderer::set_state(renderer::renderer_state::depth, true);
         m_geometry_fbo->bind();
@@ -152,13 +156,23 @@ namespace retro::editor
             renderer::renderer::submit_model(model_renderer_comp.get_model());
         }
 
+
         m_shader->un_bind();
+
+		renderer::debug_renderer::begin_render(m_camera);
+        glLineWidth(3.0f);
+		renderer::debug_renderer::submit_line({ 2.0f,2.0f,2.0f }, { 4.0f, 3.0f, -5.0f }, { 1.0f,0.85f,0.85f });
+		renderer::debug_renderer::end_render();
+
         m_geometry_fbo->un_bind();
         renderer::renderer::set_state(renderer::renderer_state::depth, false);
+
+
     }
 
     void editor_main_layer::on_update()
     {
+        RT_PROFILE;
         if (!m_initialized)
             return;
 
@@ -180,6 +194,7 @@ namespace retro::editor
 
     void editor_main_layer::begin_dockspace()
     {
+        RT_PROFILE;
         static bool open = true;
         static ImGuiDockNodeFlags opt_flags = ImGuiDockNodeFlags_NoWindowMenuButton | ImGuiDockNodeFlags_NoCloseButton;
         ImGuiViewport *viewport = ImGui::GetMainViewport();
@@ -208,6 +223,7 @@ namespace retro::editor
 
     void editor_main_layer::end_dockspace()
     {
+        RT_PROFILE;
         ImGui::End();
     }
 }

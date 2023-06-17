@@ -15,6 +15,7 @@ namespace retro::editor
 
     void editor_camera_panel::on_render_panel()
     {
+		RT_PROFILE;
         auto app = dynamic_cast<editor_app *>(&core::application::get());
         auto camera = app->get_main_layer()->get_camera();
 

@@ -113,7 +113,7 @@ namespace retro::physics
         auto current_scene = scene::scene_manager::get().get_active_scene();
 
         const std::shared_ptr<physics_material>& phys_material = std::make_shared<physics_material>(0.5f, 0.5f, 0.6f);
-        auto model = renderer::model_loader::load_model_from_file("../resources/models/cube.obj");
+        auto model = renderer::model_loader::load_model_from_file("resources/models/cube.obj");
 
         for (int i = 0; i < length; ++i)
         {

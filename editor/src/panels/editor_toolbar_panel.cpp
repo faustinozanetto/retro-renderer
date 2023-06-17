@@ -14,6 +14,7 @@ namespace retro::editor
 
     void editor_toolbar_panel::on_render_panel()
     {
+        RT_PROFILE;
         if (ImGui::BeginMainMenuBar())
         {
             if (ImGui::BeginMenu("File"))

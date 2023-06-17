@@ -13,6 +13,8 @@
 #include "renderer/window/window.h"
 #include "renderer/renderer/renderer.h"
 
+#include "renderer/debug/debug_renderer.h"
+
 #include "renderer/shaders/shader.h"
 #include "renderer/shaders/shader_loader.h"
 #include "renderer/shaders/shader_file_watcher.h"

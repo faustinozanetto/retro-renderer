@@ -17,6 +17,7 @@ namespace retro::editor
 
 	void editor_scene_hierarchy_panel::on_render_panel()
 	{
+		RT_PROFILE;
 		auto app = dynamic_cast<editor_app *>(&core::application::get());
 		auto current_scene = scene::scene_manager::get().get_active_scene();
 

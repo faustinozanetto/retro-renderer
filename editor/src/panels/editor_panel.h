@@ -1,6 +1,7 @@
 #pragma once
 
 #include <imgui.h>
+#include <profiling/profiling.h>
 
 namespace retro::editor
 {

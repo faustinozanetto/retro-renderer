@@ -35,6 +35,7 @@ namespace retro::editor
 
 	void editor_actor_details_panel::initialize()
 	{
+		RT_PROFILE;
 		/* Common Components*/
 		m_component_panels.push_back(std::make_shared<editor_actor_name_component_panel>());
 		m_component_panels.push_back(std::make_shared<editor_actor_transform_component_panel>());
@@ -58,6 +59,7 @@ namespace retro::editor
 
 	void editor_actor_details_panel::on_render_panel()
 	{
+		RT_PROFILE;
 		auto current_scene = scene::scene_manager::get().get_active_scene();
 
 		ImGui::Begin("Actor Details");

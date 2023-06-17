@@ -15,6 +15,7 @@ namespace retro::editor
 
     void editor_console_panel::on_render_panel()
     {
+        RT_PROFILE;
         auto app = dynamic_cast<editor_app *>(&core::application::get());
         auto console_panel = app->get_main_layer()->get_console_panel();
         auto camera = app->get_main_layer()->get_camera();
@@ -48,6 +49,7 @@ namespace retro::editor
 
     void editor_console_panel::add_message(const std::shared_ptr<editor_console_message>& message)
     {
+        RT_PROFILE;
         m_messages.push_back(message);
     }
 }

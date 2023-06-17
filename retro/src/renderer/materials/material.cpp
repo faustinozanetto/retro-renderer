@@ -213,6 +213,7 @@ namespace retro::renderer
 
     std::vector<material_texture_type> material::get_material_texture_types()
     {
+        RT_PROFILE;
         return { material_texture_type::albedo,
         material_texture_type::normal,
         material_texture_type::roughness,

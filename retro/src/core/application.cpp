@@ -5,6 +5,7 @@
 #include "scene/scene_manager.h"
 #include "assets/asset_manager.h"
 #include "renderer/renderer/renderer.h"
+#include "renderer/debug/debug_renderer.h"
 #include "physics/physics_world.h"
 #include "ui/engine_ui.h"
 
@@ -29,6 +30,7 @@ namespace retro::core
         physics::physics_world::initialize();
         /* Renderer */
         renderer::renderer::initialize();
+        renderer::debug_renderer::initialize();
         /* UI */
         ui::engine_ui::initialize();
         /* Scene */
