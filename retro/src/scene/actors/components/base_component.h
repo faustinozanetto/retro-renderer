@@ -4,7 +4,7 @@
 
 namespace retro::scene
 {
-    struct base_component
+    class base_component
     {
     public:
 		virtual ~base_component() = default;

@@ -5,7 +5,7 @@
 
 namespace retro::scene
 {
-    struct transform_component : public base_component
+    class transform_component : public base_component
     {
     public:
         transform_component(const glm::vec3& location = glm::vec3(0.0f), const glm::quat& rotation = glm::quat(1.0f, 0.0f, 0.0, 0.0f), const glm::vec3& scale = glm::vec3(1.0f));

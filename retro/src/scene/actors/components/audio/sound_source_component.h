@@ -6,7 +6,7 @@
 
 namespace retro::scene
 {
-    struct sound_source_component : public base_component
+    class sound_source_component : public base_component
     {
     public:
         sound_source_component(const std::shared_ptr<audio::sound> &sound);

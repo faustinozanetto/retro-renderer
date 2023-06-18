@@ -35,7 +35,7 @@ namespace retro::editor
         void end_dockspace();
 
         /* Scene */
-        static entt::entity s_selected_actor;
+        static scene::scene_actor s_selected_actor;
 
     private:
         /* Rendering */
@@ -44,7 +44,7 @@ namespace retro::editor
 		std::shared_ptr<renderer::model> m_model;
 
         /* Model Variables */
-        std::shared_ptr<retro::scene::scene_actor> m_demo_actor;
+        std::shared_ptr<scene::scene_actor> m_demo_actor;
 
         /* Camera */
         std::shared_ptr<camera::camera> m_camera;

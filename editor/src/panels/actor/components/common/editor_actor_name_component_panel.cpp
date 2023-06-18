@@ -1,7 +1,5 @@
 #include "editor_actor_name_component_panel.h"
 
-#include <scene/scene_manager.h>
-
 namespace retro::editor
 {
 	editor_actor_name_component_panel::editor_actor_name_component_panel() : editor_actor_component_panel("Name Component")
@@ -11,8 +9,7 @@ namespace retro::editor
 	std::pair<bool, size_t> editor_actor_name_component_panel::get_actor_component_details()
 	{
 		RT_PROFILE;
-		const auto& current_scene = scene::scene_manager::get().get_active_scene();
-		bool has_component = current_scene->get_actors_registry()->any_of<scene::name_component>(editor_main_layer::s_selected_actor);
+		bool has_component = editor_main_layer::s_selected_actor.has_component<scene::name_component>();
 		auto component_hash = typeid(scene::name_component).hash_code();
 		return std::make_pair(has_component, component_hash);
 	}
@@ -20,10 +17,7 @@ namespace retro::editor
 	void editor_actor_name_component_panel::on_render_component_details()
 	{
 		RT_PROFILE;
-		const auto& current_scene = scene::scene_manager::get().get_active_scene();
-
-		auto &name_component = current_scene->get_actors_registry()->get<scene::name_component>(
-			editor_main_layer::s_selected_actor);
+		auto &name_component = editor_main_layer::s_selected_actor.get_component<scene::name_component>();
 
 		// Editable name field.
 		char buffer[256] = {};
@@ -36,6 +30,6 @@ namespace retro::editor
 		// Actor handle
 		ImGui::SameLine();
 		ImGui::Text("Actor Handle: %s",
-					std::to_string(static_cast<uint32_t>(editor_main_layer::s_selected_actor)).c_str());
+					std::to_string(static_cast<uint32_t>(editor_main_layer::s_selected_actor.get_handle())).c_str());
 	}
 }

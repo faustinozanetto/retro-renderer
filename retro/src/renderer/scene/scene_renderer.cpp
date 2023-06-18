@@ -40,6 +40,7 @@ namespace retro::renderer
 
 		s_data.camera_ubo->bind(0);
 
+		collect_render_commands();
 		geometry_pass();
 		lighting_pass();
 		bloom_pass();
@@ -64,10 +65,40 @@ namespace retro::renderer
 		s_data.camera_ubo->set_data(sizeof(camera_data), &s_data.camera_data);
 	}
 
+	void scene_renderer::collect_render_commands()
+	{
+		RT_PROFILE;
+		RT_PROFILE_GPU("Collect Render Commandss Pass");
+		s_data.render_queue.command_queue.clear();
+		
+		const auto &current_scene = scene::scene_manager::get().get_active_scene();
+		const auto &view = current_scene->get_actors_registry()->view<scene::transform_component, scene::model_renderer_component, scene::material_renderer_component>();
+		for (auto &&[actor, transform_comp, model_renderer_comp, material_renderer_comp] :
+			 view.each())
+		{
+			const std::shared_ptr<math::transform> &transform = transform_comp.get_transform();
+			const std::shared_ptr<material> &material = material_renderer_comp.get_material();
+			const std::shared_ptr<model> &model = model_renderer_comp.get_model();
+
+			for (const auto& mesh : model->get_meshes())
+			{
+				RT_PROFILE_SECTION("Submit Render Command");
+				render_command command{};
+				command.mesh = mesh.get();
+				command.material = material.get();
+				command.transform = transform.get();
+
+				s_data.render_queue.command_queue.push_back(command);
+			}
+		}
+	}
+
 	void scene_renderer::geometry_pass()
 	{
 		RT_PROFILE;
-		const auto &current_scene = scene::scene_manager::get().get_active_scene();
+		RT_PROFILE_GPU("Geometry Pass");
+		if (s_data.render_queue.command_queue.empty())
+			return;
 
 		renderer::set_state(renderer_state::blend, false);
 		renderer::set_state(renderer_state::depth, true);
@@ -75,20 +106,20 @@ namespace retro::renderer
 		renderer::clear_screen();
 		s_data.geometry_shader->bind();
 
-		const auto &geometry_pass_view = current_scene->get_actors_registry()->view<scene::transform_component, scene::model_renderer_component, scene::material_renderer_component>();
-		for (auto &&[actor, transform_comp, model_renderer_comp, material_renderer_comp] :
-			 geometry_pass_view.each())
+		for (const auto& command : s_data.render_queue.command_queue)
 		{
-			const std::shared_ptr<math::transform> &transform = transform_comp.get_transform();
-			const std::shared_ptr<material> &material = material_renderer_comp.get_material();
-			const std::shared_ptr<model> &model = model_renderer_comp.get_model();
-
-			// Submit to renderer
-			s_data.geometry_shader->set_mat4("u_transform", transform->get_transform());
+			RT_PROFILE_SECTION("Draw Render Command");
+			mesh* mesh = command.mesh;
+			material* material = command.material;
+			math::transform* transform = command.transform;
+			
 			material->bind(s_data.geometry_shader);
-			renderer::submit_model(model);
+			s_data.geometry_shader->set_mat4("u_transform", transform->get_transform());
+			mesh->get_vao()->bind();
+			renderer::submit_elements(GL_TRIANGLES, mesh->get_vao()->get_index_buffer()->get_count());
+			mesh->get_vao()->un_bind();
 		}
-
+		
 		s_data.geometry_shader->un_bind();
 		s_data.geometry_fbo->un_bind();
 		renderer::set_state(renderer_state::depth, false);
@@ -97,6 +128,7 @@ namespace retro::renderer
 	void scene_renderer::lighting_pass()
 	{
 		RT_PROFILE;
+		RT_PROFILE_GPU("Lighting Pass");
 		s_data.lighting_fbo->bind();
 		renderer::clear_screen();
 		s_data.lighting_shader->bind();
@@ -122,6 +154,7 @@ namespace retro::renderer
 	void scene_renderer::bloom_pass()
 	{
 		RT_PROFILE;
+		RT_PROFILE_GPU("Bloom Pass");
 		// 1. Bloom down sample pass
 		s_data.bloom_fbo->bind();
 		s_data.bloom_down_sample_shader->bind();
@@ -194,6 +227,7 @@ namespace retro::renderer
 	void scene_renderer::fxaa_pass()
 	{
 		RT_PROFILE;
+		RT_PROFILE_GPU("FXAA Pass");
 		s_data.fxaa_fbo->bind();
 		renderer::clear_screen();
 		s_data.fxaa_shader->bind();
@@ -211,6 +245,7 @@ namespace retro::renderer
 	void scene_renderer::final_pass()
 	{
 		RT_PROFILE;
+		RT_PROFILE_GPU("Final Pass");
 		s_data.final_fbo->bind();
 		renderer::clear_screen();
 		s_data.final_shader->bind();

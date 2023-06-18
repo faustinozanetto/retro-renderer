@@ -7,7 +7,7 @@
 
 namespace retro::scene
 {
-    struct text_renderer_component : public base_component
+    class text_renderer_component : public base_component
     {
     public:
         text_renderer_component(const std::shared_ptr<renderer::font> &font, const std::shared_ptr<renderer::text> &text);

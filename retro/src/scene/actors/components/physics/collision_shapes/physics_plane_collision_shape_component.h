@@ -6,7 +6,7 @@
 
 namespace retro::scene
 {
-    struct physics_plane_collision_shape_component : public physics_collision_shape_component
+    class physics_plane_collision_shape_component : public physics_collision_shape_component
     {
     public:
         physics_plane_collision_shape_component(const std::shared_ptr<physics::physics_plane_collision> &plane_collision) : m_plane_collision(plane_collision) {}

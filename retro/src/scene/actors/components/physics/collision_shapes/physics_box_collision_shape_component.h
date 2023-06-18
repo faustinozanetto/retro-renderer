@@ -6,7 +6,7 @@
 
 namespace retro::scene
 {
-    struct physics_box_collision_shape_component : public physics_collision_shape_component
+    class physics_box_collision_shape_component : public physics_collision_shape_component
     {
     public:
         physics_box_collision_shape_component(const std::shared_ptr<physics::physics_box_collision> &box_collision) : m_box_collision(box_collision) {}

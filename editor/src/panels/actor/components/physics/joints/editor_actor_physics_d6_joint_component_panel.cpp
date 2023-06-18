@@ -1,9 +1,6 @@
 #include "editor_actor_physics_d6_joint_component_panel.h"
 
-#include <scene/scene_manager.h>
-#include <renderer/models/model_loader.h>
 #include <memory>
-#include <format>
 
 namespace retro::editor
 {
@@ -14,8 +11,7 @@ namespace retro::editor
 	std::pair<bool, size_t> editor_actor_physics_d6_joint_component_panel::get_actor_component_details()
 	{
 		RT_PROFILE;
-		const auto& current_scene = scene::scene_manager::get().get_active_scene();
-		bool has_component = current_scene->get_actors_registry()->any_of<scene::physics_d6_joint_component>(editor_main_layer::s_selected_actor);
+		bool has_component = editor_main_layer::s_selected_actor.has_component<scene::physics_d6_joint_component>();
 		auto component_hash = typeid(scene::physics_d6_joint_component).hash_code();
 		return std::make_pair(has_component, component_hash);
 	}
@@ -23,14 +19,12 @@ namespace retro::editor
 	void EditMotion(physx::PxD6Axis::Enum axis, physx::PxD6Motion::Enum& type)
 	{
 		RT_PROFILE;
-		const auto& current_scene = scene::scene_manager::get().get_active_scene();
-		auto& physics_d6_joint_component = current_scene->get_actors_registry()->get<scene::physics_d6_joint_component>(
-			editor_main_layer::s_selected_actor);
+		const auto& physics_d6_joint_component = editor_main_layer::s_selected_actor.get_component<scene::physics_d6_joint_component>();
 
 		ImGui::PushID(axis);
 
 		const std::vector<std::string> motion_types = { "Locked", "Limited", "Free" };
-		int selected_index = static_cast<int>(type);
+		int selected_index = type;
 
 		std::string name = "Motion " + std::string(physics::physics_utils::get_physx_d6_axis_to_string(axis));
 
@@ -47,10 +41,7 @@ namespace retro::editor
 	void editor_actor_physics_d6_joint_component_panel::on_render_component_details()
 	{
 		RT_PROFILE;
-		const auto& current_scene = scene::scene_manager::get().get_active_scene();
-
-		auto &physics_d6_joint_component = current_scene->get_actors_registry()->get<scene::physics_d6_joint_component>(
-			editor_main_layer::s_selected_actor);
+		const auto &physics_d6_joint_component =  editor_main_layer::s_selected_actor.get_component<scene::physics_d6_joint_component>();
 
 		// Motion
 		for (int axis = 0; axis < physx::PxD6Axis::eCOUNT; ++axis)
@@ -62,7 +53,7 @@ namespace retro::editor
 		// Distance Limit
 		float distance_limit_extent = physics_d6_joint_component.get_d6_joint()->get_distance_limit().value;
 		if (editor_ui_utils::draw_property("Distance Limit Extent", distance_limit_extent, 0.0f, 50.0f, 0.01f)) {
-			physx::PxJointLinearLimit distance_limit = physx::PxJointLinearLimit(physics::physics_world::get().get_physics()->getTolerancesScale(), distance_limit_extent);
+			const physx::PxJointLinearLimit distance_limit = physx::PxJointLinearLimit(physics::physics_world::get().get_physics()->getTolerancesScale(), distance_limit_extent);
 			physics_d6_joint_component.get_d6_joint()->set_distance_limit(distance_limit);
 		}
 

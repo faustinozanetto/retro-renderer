@@ -68,18 +68,51 @@ namespace retro::editor
 		auto current_scene = scene::scene_manager::get().get_active_scene();
 
 		ImGui::Begin("Actor Details");
-		if (editor_main_layer::s_selected_actor != entt::null)
+		if (editor_main_layer::s_selected_actor && editor_main_layer::s_selected_actor.get_handle() != entt::null)
 		{
 			// Draw all the component panels
 			for (const auto &component_panel : m_component_panels)
 			{
 				component_panel->on_render_panel();
 			}
+
+			// Draw additional panel details
+			render_add_component();
 		}
 		else
 		{
 			ImGui::Text("No active actor!");
 		}
 		ImGui::End();
+	}
+
+	void editor_actor_details_panel::render_add_component()
+	{
+		if (ImGui::Button("Add Component"))
+		{
+			ImGui::OpenPopup("AddComponent");
+		}
+
+		if (ImGui::BeginPopup("AddComponent"))
+		{
+			render_add_component_entry<scene::model_renderer_component>("Model Renderer Component");
+			render_add_component_entry<scene::material_renderer_component>("Material Renderer Component");
+			render_add_component_entry<scene::physics_static_actor_component>("Physics Static Actor Component");
+			render_add_component_entry<scene::physics_dynamic_actor_component>("Physics Dynamic Actor Component");
+			ImGui::EndPopup();
+		}
+	}
+
+	template <typename T>
+	void editor_actor_details_panel::render_add_component_entry(const std::string& component_name) const
+	{
+		if (!editor_main_layer::s_selected_actor.has_component<T>())
+		{
+			if (ImGui::MenuItem(component_name.c_str()))
+			{
+				editor_main_layer::s_selected_actor.add_component<T>();
+				ImGui::CloseCurrentPopup();
+			}
+		}
 	}
 }

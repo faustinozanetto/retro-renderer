@@ -4,7 +4,7 @@
 
 namespace retro::scene
 {
-    struct physics_joint_component : public base_component
+    class physics_joint_component : public base_component
     {
     public:
         virtual ~physics_joint_component() override = default;

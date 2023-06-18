@@ -5,7 +5,7 @@
 
 namespace retro::scene
 {
-    struct physics_material_component : public base_component
+    class physics_material_component : public base_component
     {
     public:
         physics_material_component(const std::shared_ptr<physics::physics_material> &physics_material);

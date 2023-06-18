@@ -6,7 +6,7 @@
 
 namespace retro::scene
 {
-    struct sound_emitter_component : public base_component
+    class sound_emitter_component : public base_component
     {
     public:
         sound_emitter_component();

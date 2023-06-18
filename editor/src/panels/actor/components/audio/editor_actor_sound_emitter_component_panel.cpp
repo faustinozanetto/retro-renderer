@@ -1,7 +1,5 @@
 #include "editor_actor_sound_emitter_component_panel.h"
 
-#include <scene/scene_manager.h>
-
 namespace retro::editor
 {
 	editor_actor_sound_emitter_component_panel::editor_actor_sound_emitter_component_panel() : editor_actor_component_panel("Sound Emitter Component")
@@ -11,8 +9,7 @@ namespace retro::editor
 	std::pair<bool, size_t> editor_actor_sound_emitter_component_panel::get_actor_component_details()
 	{
 		RT_PROFILE;
-		const auto& current_scene = scene::scene_manager::get().get_active_scene();
-		bool has_component = current_scene->get_actors_registry()->any_of<scene::sound_emitter_component>(editor_main_layer::s_selected_actor);
+		bool has_component = editor_main_layer::s_selected_actor.has_component<scene::sound_emitter_component>();
 		auto component_hash = typeid(scene::sound_emitter_component).hash_code();
 		return std::make_pair(has_component, component_hash);
 	}
@@ -20,10 +17,7 @@ namespace retro::editor
 	void editor_actor_sound_emitter_component_panel::on_render_component_details()
 	{
 		RT_PROFILE;
-		const auto& current_scene = scene::scene_manager::get().get_active_scene();
-
-		auto &sound_emitter_component = current_scene->get_actors_registry()->get<scene::sound_emitter_component>(
-			editor_main_layer::s_selected_actor);
+		const auto &sound_emitter_component = editor_main_layer::s_selected_actor.get_component<scene::sound_emitter_component>();
 
 		float volume = sound_emitter_component.get_sound_emitter()->get_volume();
 		if (editor_ui_utils::draw_property("Volume", volume, 0.0f, 5.0f, 0.01f)) {

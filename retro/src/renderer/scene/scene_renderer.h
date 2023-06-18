@@ -9,6 +9,8 @@
 
 #include <glm/glm.hpp>
 
+#include "renderer/renderer/render_queue.h"
+
 namespace retro::renderer
 {
     struct camera_data
@@ -30,6 +32,8 @@ namespace retro::renderer
         std::shared_ptr<camera::camera> camera;
         std::shared_ptr<uniform_buffer_object> camera_ubo;
 
+        render_queue render_queue;
+        
         /* Common */
         std::shared_ptr<vertex_array_object> screen_vao;
 
@@ -75,6 +79,7 @@ namespace retro::renderer
         static void update_camera_data();
         static void update_camera_buffer();
 
+        static void collect_render_commands();
         static void geometry_pass();
         static void lighting_pass();
         static void bloom_pass();

@@ -1,10 +1,7 @@
 #include "editor_actor_material_renderer_component_panel.h"
 
-#include <scene/scene_manager.h>
-#include <renderer/models/model_loader.h>
 #include <utils/files.h>
 #include <memory>
-#include <format>
 
 namespace retro::editor
 {
@@ -15,8 +12,7 @@ namespace retro::editor
 	std::pair<bool, size_t> editor_actor_material_renderer_component_panel::get_actor_component_details()
 	{
 		RT_PROFILE;
-		const auto& current_scene = scene::scene_manager::get().get_active_scene();
-		bool has_component = current_scene->get_actors_registry()->any_of<scene::material_renderer_component>(editor_main_layer::s_selected_actor);
+		bool has_component =  editor_main_layer::s_selected_actor.has_component<scene::material_renderer_component>();
 		auto component_hash = typeid(scene::material_renderer_component).hash_code();
 		return std::make_pair(has_component, component_hash);
 	}
@@ -24,10 +20,7 @@ namespace retro::editor
 	void editor_actor_material_renderer_component_panel::on_render_component_details()
 	{
 		RT_PROFILE;
-		const auto& current_scene = scene::scene_manager::get().get_active_scene();
-
-		auto &material_renderer_component = current_scene->get_actors_registry()->get<scene::material_renderer_component>(
-			editor_main_layer::s_selected_actor);
+		const auto &material_renderer_component =  editor_main_layer::s_selected_actor.get_component<scene::material_renderer_component>();
 
 		editor_ui_utils::draw_property("Parameters");
 		ImGui::Separator();
@@ -76,7 +69,7 @@ namespace retro::editor
 					std::string file_path = files::open_file_dialog("Texture File", { "*.png", "*.jpg", "*.jpeg" });
 					if (!file_path.empty()) {
 						// Create and load new texture and save the material texture.
-						auto new_texture = renderer::texture_loader::load_texture_from_file(file_path);
+						const auto new_texture = renderer::texture_loader::load_texture_from_file(file_path);
 						renderer::material_texture material_texture;
 						material_texture.is_enabled = true;
 						material_texture.type = type;

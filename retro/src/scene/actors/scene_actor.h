@@ -9,7 +9,9 @@ namespace retro::scene
     class scene_actor
     {
     public:
+        scene_actor();
         scene_actor(entt::entity handle);
+        scene_actor(entt::entity handle, scene* scene);
         scene_actor(const scene_actor &other) = default;
 
         /* Getters */
@@ -34,13 +36,13 @@ namespace retro::scene
         }
 
         template <typename T>
-        bool has_component()
+        bool has_component() const
         {
             return m_scene->get_actors_registry()->any_of<T>(m_handle);
         }
 
         template <typename T>
-        void remove_component()
+        void remove_component() const
         {
             assert(has_component<T>(), "Scene actor does not have that component!");
             m_scene->get_actors_registry()->remove<T>(m_handle);

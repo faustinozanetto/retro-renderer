@@ -6,7 +6,7 @@
 
 namespace retro::scene
 {
-    struct physics_prismatic_joint_component : public physics_joint_component
+    class physics_prismatic_joint_component : public physics_joint_component
     {
     public:
         physics_prismatic_joint_component(const std::shared_ptr<physics::physics_prismatic_joint> &prismatic_joint);

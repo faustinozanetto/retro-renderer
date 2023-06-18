@@ -6,7 +6,7 @@
 
 namespace retro::scene
 {
-    struct physics_spherical_joint_component : public physics_joint_component
+    class physics_spherical_joint_component : public physics_joint_component
     {
     public:
         physics_spherical_joint_component(const std::shared_ptr<physics::physics_spherical_joint> &spherical_joint);

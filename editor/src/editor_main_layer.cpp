@@ -19,7 +19,7 @@
 
 namespace retro::editor
 {
-    entt::entity editor_main_layer::s_selected_actor = entt::null;
+    scene::scene_actor editor_main_layer::s_selected_actor = {};
 
     editor_main_layer::editor_main_layer()
     {
