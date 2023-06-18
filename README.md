@@ -50,6 +50,11 @@ The project is being developed with the latest technlogoies used in the industry
   - Simple but powerful windowing system.
 - Physics
   - Implemented physics system using NVIDIA PhysX.
+  - Support for both static and dynamic rigid bodies.
+  - Complete support for multiple joints types such as D6 or Revolute joints.
+  - Multiple collision shapes like box, sphere or plane.
+- Profiling
+  - Implemented tracy as the main profiling platform.
 
 ## 🎛️ Project Structure
 

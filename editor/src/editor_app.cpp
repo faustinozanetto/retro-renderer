@@ -44,6 +44,7 @@ namespace retro::editor
     bool editor_app::on_window_resize(events::window_resize_event &resize_event)
     {
         RT_PROFILE;
+        renderer::scene_renderer::on_window_resize(resize_event.get_size());
         return application::on_window_resize(resize_event);
     }
 

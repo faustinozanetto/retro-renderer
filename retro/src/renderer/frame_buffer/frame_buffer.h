@@ -37,7 +37,7 @@ namespace retro::renderer
         void bind(bool set_viewport_size = true);
         void un_bind();
 
-        void attach_texture(const std::shared_ptr<texture> &texture, uint32_t target, render_buffer_attachment_type attachment, uint32_t texture_target, int mipmaps_level = 0);
+        void attach_texture(const std::shared_ptr<texture> &texture, uint32_t target, render_buffer_attachment_type attachment, uint32_t texture_target, bool register_attachment = true, int mipmaps_level = 0);
 
         void resize(const glm::ivec2 &dimensions, bool update_attachments = true);
 

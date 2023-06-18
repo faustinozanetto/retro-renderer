@@ -91,24 +91,6 @@ namespace retro::editor
     void editor_main_layer::on_render()
     {
         RT_PROFILE;
-        /*
-		 // 1. Update dynamic physics actors
-			if (scene::scene_manager::get().get_active_scene()->get_actors_registry()->any_of<retro::scene::physics_dynamic_actor_component>(actor))
-			{
-				auto &physics_dynamic_actor_comp = scene::scene_manager::get().get_active_scene()->get_actors_registry()->get<retro::scene::physics_dynamic_actor_component>(actor);
-				if (!physics_dynamic_actor_comp.get_dynamic_actor()->get_physx_rigid_dynamic_actor())
-					continue;
-				if (physics_dynamic_actor_comp.get_dynamic_actor()->get_physx_rigid_dynamic_actor()->isSleeping())
-					continue;
-
-				glm::vec3 updated_location = retro::physics::physics_utils::convert_physx_vec3_to_glm(physics_dynamic_actor_comp.get_dynamic_actor()->get_physx_rigid_dynamic_actor()->getGlobalPose().p);
-				glm::quat updated_rotation = retro::physics::physics_utils::convert_physx_quat_to_glm(physics_dynamic_actor_comp.get_dynamic_actor()->get_physx_rigid_dynamic_actor()->getGlobalPose().q);
-
-				// Update the cube's position and rotation
-				transform->set_location(updated_location);
-				transform->set_rotation(updated_rotation);
-			}
-        */
         renderer::scene_renderer::begin_render(m_camera);
         renderer::scene_renderer::end_render();
       

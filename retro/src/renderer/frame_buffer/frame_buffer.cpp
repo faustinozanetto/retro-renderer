@@ -12,7 +12,9 @@ namespace retro::renderer
         m_height = height;
         m_has_depth_attachment = false;
 
+        m_attachments = {};
         m_attachments_data = {};
+        m_depth_attachment = {};
         m_depth_attachment_data = {};
 
         RT_TRACE("  - Width: {0}px", m_width);
@@ -33,6 +35,8 @@ namespace retro::renderer
 
         m_attachments_data = attachments;
         m_depth_attachment_data = depth_attachment;
+		m_attachments = {};
+		m_depth_attachment = {};
 
         RT_TRACE("  - Width: {0}px", m_width);
         RT_TRACE("  - Height: {0}px", m_height);
@@ -51,7 +55,10 @@ namespace retro::renderer
         m_has_depth_attachment = false;
 
         m_attachments_data = attachments;
-        m_depth_attachment_data = {};
+		m_attachments = {};
+		m_depth_attachment = {};
+		m_depth_attachment_data = {};
+
 
         RT_TRACE("  - Width: {0}px", m_width);
         RT_TRACE("  - Height: {0}px", m_height);
@@ -233,20 +240,20 @@ namespace retro::renderer
     }
 
     void frame_buffer::attach_texture(const std::shared_ptr<texture> &texture, uint32_t target,
-                                      render_buffer_attachment_type attachment, uint32_t texture_target,
+                                      render_buffer_attachment_type attachment, uint32_t texture_target, bool register_attachment,
                                       int mipmaps_level)
     {
         RT_PROFILE;
         glFramebufferTexture2D(target, render_buffer::get_render_buffer_attachment_type_to_opengl(attachment),
                                texture_target, texture->get_handle_id(), mipmaps_level);
-     
-        m_attachments.push_back(texture->get_handle_id());
-        frame_buffer_attachment attachment_data;
-        attachment_data.size = {texture->get_data().width, texture->get_data().height};
-        attachment_data.filtering = texture_filtering::linear;
-        attachment_data.wrapping = texture_wrapping::clamp_to_edge;
-        attachment_data.internal_format = texture->get_data().internal_format;
-        m_attachments_data.push_back(attachment_data);
-        
+        if (register_attachment) {
+            frame_buffer_attachment attachment_data;
+            attachment_data.size = { texture->get_data().width, texture->get_data().height };
+            attachment_data.filtering = texture_filtering::linear;
+            attachment_data.wrapping = texture_wrapping::clamp_to_edge;
+            attachment_data.internal_format = texture->get_data().internal_format;
+            m_attachments_data.push_back(attachment_data);
+            m_attachments.push_back(texture->get_handle_id());
+        }
     }
 }

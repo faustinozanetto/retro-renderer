@@ -11,17 +11,18 @@
 
 namespace retro::renderer
 {
-    struct camera_data {
+    struct camera_data
+    {
         glm::mat4 view_matrix;
         glm::mat4 projection_matrix;
         glm::vec3 position;
     };
 
-	struct bloom_mip_data
-	{
-		glm::ivec2 size;
-		std::shared_ptr<texture> texture;
-	};
+    struct bloom_mip_data
+    {
+        glm::ivec2 size;
+        std::shared_ptr<texture> texture;
+    };
 
     struct scene_renderer_data
     {
@@ -37,20 +38,25 @@ namespace retro::renderer
         std::shared_ptr<shader> geometry_shader;
 
         /* Lighting Pass */
-		std::shared_ptr<frame_buffer> lighting_fbo;
-		std::shared_ptr<shader> lighting_shader;
+        std::shared_ptr<frame_buffer> lighting_fbo;
+        std::shared_ptr<shader> lighting_shader;
 
-		/* Bloom Pass */
-		int bloom_sample_count;
-		std::shared_ptr<frame_buffer> bloom_fbo;
-		std::shared_ptr<shader> bloom_down_sample_shader;
-		std::shared_ptr<shader> bloom_up_sample_shader;
-		std::shared_ptr<shader> bloom_composition_shader;
-		std::vector<bloom_mip_data> bloom_mips;
-		float bloom_filter_radius;
+        /* Bloom Pass */
+        int bloom_sample_count;
+        std::shared_ptr<frame_buffer> bloom_fbo;
+        std::shared_ptr<shader> bloom_down_sample_shader;
+        std::shared_ptr<shader> bloom_up_sample_shader;
+        std::shared_ptr<shader> bloom_composition_shader;
+        std::vector<bloom_mip_data> bloom_mips;
+        float bloom_filter_radius;
+
+        /* FXAA Pass */
+        std::shared_ptr<frame_buffer> fxaa_fbo;
+        std::shared_ptr<shader> fxaa_shader;
 
         /* Final Pass */
-        std::shared_ptr<frame_buffer> final_fbo;
+        std::shared_ptr<frame_buffer>
+            final_fbo;
         std::shared_ptr<shader> final_shader;
     };
 
@@ -72,7 +78,10 @@ namespace retro::renderer
         static void geometry_pass();
         static void lighting_pass();
         static void bloom_pass();
+        static void fxaa_pass();
         static void final_pass();
+
+        static void on_window_resize(const glm::ivec2& window_size);
 
     private:
         static void setup_camera();
@@ -80,6 +89,7 @@ namespace retro::renderer
         static void setup_geometry_pass();
         static void setup_lighting_pass();
         static void setup_bloom_pass();
+        static void setup_fxaa_pass();
         static void setup_final_pass();
 
         static scene_renderer_data s_data;

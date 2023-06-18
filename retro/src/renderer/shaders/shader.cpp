@@ -214,18 +214,18 @@ namespace retro::renderer
             glGetShaderiv(shader_id, GL_COMPILE_STATUS, &success);
             if (success == GL_FALSE)
             {
-                int max_lenght = 0;
-                glGetShaderiv(shader_id, GL_INFO_LOG_LENGTH, &max_lenght);
+                int max_length = 0;
+                glGetShaderiv(shader_id, GL_INFO_LOG_LENGTH, &max_length);
 
-                std::vector<char> infoLog(max_lenght);
-                glGetShaderInfoLog(shader_id, max_lenght, &max_lenght, infoLog.data());
+                std::vector<char> infoLog(max_length);
+                glGetShaderInfoLog(shader_id, max_length, &max_length, infoLog.data());
 
                 glDeleteShader(shader_id);
 
                 // Print error log.
                 std::string error_message = std::string(
                     infoLog.begin(), infoLog.end());
-                RT_ERROR("An error ocurred while compiling shader '{}'", error_message);
+                RT_ERROR("An error occurred while compiling shader '{}'", error_message);
                 RT_ASSERT_MSG(false, "Shader compilation failed!");
             }
 

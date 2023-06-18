@@ -20,6 +20,7 @@ namespace retro::renderer
 		setup_geometry_pass();
 		setup_lighting_pass();
 		setup_bloom_pass();
+		setup_fxaa_pass();
 		setup_final_pass();
 	}
 
@@ -42,6 +43,7 @@ namespace retro::renderer
 		geometry_pass();
 		lighting_pass();
 		bloom_pass();
+		fxaa_pass();
 		final_pass();
 	}
 
@@ -129,10 +131,10 @@ namespace retro::renderer
 		s_data.bloom_down_sample_shader->set_int("u_mip_level", 0);
 		for (int i = 0; i < s_data.bloom_mips.size(); i++)
 		{
-			bloom_mip_data& bloom_mip = s_data.bloom_mips[i];
+			bloom_mip_data &bloom_mip = s_data.bloom_mips[i];
 			renderer::set_viewport_size(bloom_mip.size);
 			// Attach bloom mip textue to rbo.
-			s_data.bloom_fbo->attach_texture(bloom_mip.texture, GL_FRAMEBUFFER, render_buffer_attachment_type::color, GL_TEXTURE_2D, 0);
+			s_data.bloom_fbo->attach_texture(bloom_mip.texture, GL_FRAMEBUFFER, render_buffer_attachment_type::color, GL_TEXTURE_2D, false, 0);
 
 			// Draw screen quad
 			s_data.screen_vao->bind();
@@ -159,31 +161,25 @@ namespace retro::renderer
 		s_data.bloom_up_sample_shader->set_float("u_filter_radius", s_data.bloom_filter_radius);
 		for (int i = s_data.bloom_mips.size() - 1; i > 0; i--)
 		{
-			bloom_mip_data& bloom_mip = s_data.bloom_mips[i];
-			bloom_mip_data& bloom_next_mip = s_data.bloom_mips[i - 1];
+			bloom_mip_data &bloom_mip = s_data.bloom_mips[i];
+			bloom_mip_data &bloom_next_mip = s_data.bloom_mips[i - 1];
 			// Bind mip texture
 			renderer::bind_texture(0, bloom_mip.texture->get_handle_id());
 			renderer::set_viewport_size(bloom_next_mip.size);
 			// Attach bloom mip texture to render buffer object.
-			s_data.bloom_fbo->attach_texture(bloom_next_mip.texture, GL_FRAMEBUFFER, render_buffer_attachment_type::color, GL_TEXTURE_2D, 0);
+			s_data.bloom_fbo->attach_texture(bloom_next_mip.texture, GL_FRAMEBUFFER, render_buffer_attachment_type::color, GL_TEXTURE_2D, false, 0);
 			// Draw screen quad
 			s_data.screen_vao->bind();
 			renderer::submit_elements(GL_TRIANGLES, 6);
 			s_data.screen_vao->un_bind();
 		}
 
-		renderer::set_state(renderer_state::blend, false);
 		s_data.bloom_up_sample_shader->un_bind();
-		s_data.bloom_fbo->un_bind();
-	}
+		renderer::set_state(renderer_state::blend, false);
 
-	void scene_renderer::final_pass()
-	{
-		RT_PROFILE;
-		s_data.final_fbo->bind();
-		renderer::clear_screen();
+		// 3. Bloom composition pass
 		s_data.bloom_composition_shader->bind();
-		renderer::bind_texture(0, s_data.lighting_fbo->get_attachment_id(0)); // Lighting
+		renderer::bind_texture(0, s_data.lighting_fbo->get_attachment_id(0));	  // Lighting
 		renderer::bind_texture(1, s_data.bloom_mips[0].texture->get_handle_id()); // Bloom
 
 		// Render screen quad
@@ -192,7 +188,50 @@ namespace retro::renderer
 		s_data.screen_vao->un_bind();
 
 		s_data.bloom_composition_shader->un_bind();
+		s_data.bloom_fbo->un_bind();
+	}
+
+	void scene_renderer::fxaa_pass()
+	{
+		RT_PROFILE;
+		s_data.fxaa_fbo->bind();
+		renderer::clear_screen();
+		s_data.fxaa_shader->bind();
+		renderer::bind_texture(0, s_data.bloom_fbo->get_attachment_id(0)); // Bloom output
+
+		// Render screen quad
+		s_data.screen_vao->bind();
+		renderer::submit_elements(GL_TRIANGLES, 6);
+		s_data.screen_vao->un_bind();
+
+		s_data.fxaa_shader->un_bind();
+		s_data.fxaa_fbo->un_bind();
+	}
+
+	void scene_renderer::final_pass()
+	{
+		RT_PROFILE;
+		s_data.final_fbo->bind();
+		renderer::clear_screen();
+		s_data.final_shader->bind();
+		renderer::bind_texture(0, s_data.fxaa_fbo->get_attachment_id(0)); // FXAA Pass
+
+		// Render screen quad
+		s_data.screen_vao->bind();
+		renderer::submit_elements(GL_TRIANGLES, 6);
+		s_data.screen_vao->un_bind();
+
+		s_data.final_shader->un_bind();
 		s_data.final_fbo->un_bind();
+	}
+
+	void scene_renderer::on_window_resize(const glm::ivec2& window_size)
+	{
+		s_data.geometry_fbo->resize(window_size);
+		s_data.lighting_fbo->resize(window_size);
+		s_data.fxaa_fbo->resize(window_size);
+		s_data.final_fbo->resize(window_size);
+		s_data.bloom_fbo->resize(window_size, false);
 	}
 
 	void scene_renderer::setup_camera()
@@ -309,7 +348,7 @@ namespace retro::renderer
 	{
 		RT_PROFILE;
 		glm::vec2 viewport_size = renderer::get_viewport_size();
-		glm::ivec2 viewport_size_int =renderer::get_viewport_size();
+		glm::ivec2 viewport_size_int = renderer::get_viewport_size();
 
 		s_data.bloom_filter_radius = 0.005f;
 		s_data.bloom_sample_count = 6;
@@ -329,15 +368,15 @@ namespace retro::renderer
 
 			bloom_mip.texture =
 				std::make_shared<texture>(std::format("bloom_mip_{}", i),
-					texture_data(bloom_mip.size.x, bloom_mip.size.y, 3, 1,
-						texture_internal_format::r11g11b10,
-						texture_type::none, nullptr));
+										  texture_data(bloom_mip.size.x, bloom_mip.size.y, 3, 1,
+													   texture_internal_format::r11g11b10,
+													   texture_type::none, nullptr));
 
 			s_data.bloom_mips[i] = bloom_mip;
 		}
 
 		// Attach first bloom mip texture to rbo.
-		s_data.bloom_fbo->attach_texture(s_data.bloom_mips[0].texture, GL_FRAMEBUFFER, render_buffer_attachment_type::color, GL_TEXTURE_2D, 0);
+		s_data.bloom_fbo->attach_texture(s_data.bloom_mips[0].texture, GL_FRAMEBUFFER, render_buffer_attachment_type::color, GL_TEXTURE_2D, true, 0);
 		s_data.bloom_fbo->initialize();
 
 		// Load shaders
@@ -347,6 +386,21 @@ namespace retro::renderer
 			"resources/shaders/bloom/bloom_upsample.rrs");
 		s_data.bloom_composition_shader = shader_loader::load_shader_from_file(
 			"resources/shaders/bloom/bloom_composition.rrs");
+	}
+
+	void scene_renderer::setup_fxaa_pass()
+	{
+		RT_PROFILE;
+		glm::ivec2 viewport_size = renderer::get_viewport_size();
+		std::vector<frame_buffer_attachment> fxaa_fbo_attachments = {
+			{texture_internal_format::rgba16f,
+			 texture_filtering::linear,
+			 texture_wrapping::clamp_to_edge, viewport_size},
+		};
+		s_data.fxaa_fbo = std::make_shared<frame_buffer>(
+			fxaa_fbo_attachments, viewport_size.x, viewport_size.y);
+		s_data.fxaa_fbo->initialize();
+		s_data.fxaa_shader = shader_loader::load_shader_from_file("resources/shaders/antialiasing/fxaa.rrs");
 	}
 
 	void scene_renderer::setup_final_pass()
