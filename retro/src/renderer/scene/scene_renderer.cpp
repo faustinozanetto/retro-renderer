@@ -19,13 +19,14 @@ namespace retro::renderer
 		setup_camera();
 		setup_geometry_pass();
 		setup_lighting_pass();
+		setup_bloom_pass();
 		setup_final_pass();
 	}
 
 	uint32_t scene_renderer::get_final_render_target()
 	{
 		RT_PROFILE;
-		return s_data.lighting_fbo->get_attachment_id(0);
+		return s_data.final_fbo->get_attachment_id(0);
 	}
 
 	void scene_renderer::begin_render(const std::shared_ptr<camera::camera> &camera)
@@ -40,6 +41,7 @@ namespace retro::renderer
 
 		geometry_pass();
 		lighting_pass();
+		bloom_pass();
 		final_pass();
 	}
 
@@ -115,20 +117,81 @@ namespace retro::renderer
 		s_data.lighting_fbo->un_bind();
 	}
 
+	void scene_renderer::bloom_pass()
+	{
+		RT_PROFILE;
+		// 1. Bloom down sample pass
+		s_data.bloom_fbo->bind();
+		s_data.bloom_down_sample_shader->bind();
+		// Bind texture from previous pass
+		renderer::bind_texture(0, s_data.lighting_fbo->get_attachment_id(0));
+		s_data.bloom_down_sample_shader->set_vec_float2("u_source_res", renderer::get_viewport_size());
+		s_data.bloom_down_sample_shader->set_int("u_mip_level", 0);
+		for (int i = 0; i < s_data.bloom_mips.size(); i++)
+		{
+			bloom_mip_data& bloom_mip = s_data.bloom_mips[i];
+			renderer::set_viewport_size(bloom_mip.size);
+			// Attach bloom mip textue to rbo.
+			s_data.bloom_fbo->attach_texture(bloom_mip.texture, GL_FRAMEBUFFER, render_buffer_attachment_type::color, GL_TEXTURE_2D, 0);
+
+			// Draw screen quad
+			s_data.screen_vao->bind();
+			renderer::submit_elements(GL_TRIANGLES, 6);
+			s_data.screen_vao->un_bind();
+
+			// Set current mip resolution as srcResolution for next iteration
+			s_data.bloom_down_sample_shader->set_vec_float2("u_source_res", bloom_mip.size);
+			// Set current mip as texture input for next iteration
+			renderer::bind_texture(0, bloom_mip.texture->get_handle_id());
+			// Disable Karis average for consequent down samples
+			if (i == 0)
+			{
+				s_data.bloom_down_sample_shader->set_int("u_mip_level", 1);
+			}
+		}
+		s_data.bloom_down_sample_shader->un_bind();
+
+		// 2. Bloom up sample pass
+		renderer::set_state(renderer_state::blend, true);
+		glBlendFunc(GL_ONE, GL_ONE);
+		glBlendEquation(GL_FUNC_ADD);
+		s_data.bloom_up_sample_shader->bind();
+		s_data.bloom_up_sample_shader->set_float("u_filter_radius", s_data.bloom_filter_radius);
+		for (int i = s_data.bloom_mips.size() - 1; i > 0; i--)
+		{
+			bloom_mip_data& bloom_mip = s_data.bloom_mips[i];
+			bloom_mip_data& bloom_next_mip = s_data.bloom_mips[i - 1];
+			// Bind mip texture
+			renderer::bind_texture(0, bloom_mip.texture->get_handle_id());
+			renderer::set_viewport_size(bloom_next_mip.size);
+			// Attach bloom mip texture to render buffer object.
+			s_data.bloom_fbo->attach_texture(bloom_next_mip.texture, GL_FRAMEBUFFER, render_buffer_attachment_type::color, GL_TEXTURE_2D, 0);
+			// Draw screen quad
+			s_data.screen_vao->bind();
+			renderer::submit_elements(GL_TRIANGLES, 6);
+			s_data.screen_vao->un_bind();
+		}
+
+		renderer::set_state(renderer_state::blend, false);
+		s_data.bloom_up_sample_shader->un_bind();
+		s_data.bloom_fbo->un_bind();
+	}
+
 	void scene_renderer::final_pass()
 	{
 		RT_PROFILE;
 		s_data.final_fbo->bind();
 		renderer::clear_screen();
-		s_data.final_shader->bind();
-		renderer::bind_texture(0, s_data.geometry_fbo->get_attachment_id(1));
+		s_data.bloom_composition_shader->bind();
+		renderer::bind_texture(0, s_data.lighting_fbo->get_attachment_id(0)); // Lighting
+		renderer::bind_texture(1, s_data.bloom_mips[0].texture->get_handle_id()); // Bloom
 
 		// Render screen quad
 		s_data.screen_vao->bind();
 		renderer::submit_elements(GL_TRIANGLES, 6);
 		s_data.screen_vao->un_bind();
 
-		s_data.final_shader->un_bind();
+		s_data.bloom_composition_shader->un_bind();
 		s_data.final_fbo->un_bind();
 	}
 
@@ -156,29 +219,29 @@ namespace retro::renderer
 		size_t vertex_buffer_size = vertices.size() * sizeof(&vertices[0]);
 		size_t index_buffer_size = indices.size() * sizeof(&indices[0]);
 
-		s_data.screen_vao = std::make_shared<retro::renderer::vertex_array_object>();
-		std::shared_ptr<retro::renderer::vertex_buffer_object> vertices_vbo = std::make_shared<
-			retro::renderer::vertex_buffer_object>(retro::renderer::vertex_buffer_object_target::arrays);
+		s_data.screen_vao = std::make_shared<vertex_array_object>();
+		std::shared_ptr<vertex_buffer_object> vertices_vbo = std::make_shared<
+			vertex_buffer_object>(vertex_buffer_object_target::arrays);
 
-		std::shared_ptr<retro::renderer::vertex_buffer_object> index_buffer = std::make_shared<
-			retro::renderer::vertex_buffer_object>(retro::renderer::vertex_buffer_object_target::elements, indices.size());
+		std::shared_ptr<vertex_buffer_object> index_buffer = std::make_shared<
+			vertex_buffer_object>(vertex_buffer_object_target::elements, indices.size());
 
 		s_data.screen_vao->bind();
 		vertices_vbo->bind();
-		vertices_vbo->set_data(retro::renderer::vertex_buffer_object_usage::static_draw, vertex_buffer_size,
+		vertices_vbo->set_data(vertex_buffer_object_usage::static_draw, vertex_buffer_size,
 							   vertices.data());
 
 		index_buffer->bind();
-		index_buffer->set_data(retro::renderer::vertex_buffer_object_usage::static_draw, index_buffer_size, indices.data());
+		index_buffer->set_data(vertex_buffer_object_usage::static_draw, index_buffer_size, indices.data());
 
-		std::initializer_list<retro::renderer::vertex_buffer_layout_entry>
+		std::initializer_list<vertex_buffer_layout_entry>
 			layout_elements = {
-				{"a_pos", retro::renderer::vertex_buffer_entry_type::vec_float3, false},
-				{"a_tex_coord", retro::renderer::vertex_buffer_entry_type::vec_float2, false},
+				{"a_pos", vertex_buffer_entry_type::vec_float3, false},
+				{"a_tex_coord", vertex_buffer_entry_type::vec_float2, false},
 			};
 
-		std::shared_ptr<retro::renderer::vertex_buffer_layout_descriptor>
-			vertices_vbo_layout_descriptor = std::make_shared<retro::renderer::vertex_buffer_layout_descriptor>(
+		std::shared_ptr<vertex_buffer_layout_descriptor>
+			vertices_vbo_layout_descriptor = std::make_shared<vertex_buffer_layout_descriptor>(
 				layout_elements);
 		vertices_vbo->set_layout_descriptor(vertices_vbo_layout_descriptor);
 
@@ -240,6 +303,50 @@ namespace retro::renderer
 			final_fbo_attachments, viewport_size.x, viewport_size.y);
 		s_data.lighting_fbo->initialize();
 		s_data.lighting_shader = shader_loader::load_shader_from_file("resources/shaders/pbr.rrs");
+	}
+
+	void scene_renderer::setup_bloom_pass()
+	{
+		RT_PROFILE;
+		glm::vec2 viewport_size = renderer::get_viewport_size();
+		glm::ivec2 viewport_size_int =renderer::get_viewport_size();
+
+		s_data.bloom_filter_radius = 0.005f;
+		s_data.bloom_sample_count = 6;
+		s_data.bloom_mips.resize(s_data.bloom_sample_count);
+
+		// Create the bloom fbo
+		s_data.bloom_fbo = std::make_shared<frame_buffer>(renderer::get_viewport_size().x, renderer::get_viewport_size().y);
+
+		// Setup bloom fbo
+		for (int i = 0; i < s_data.bloom_sample_count; i++)
+		{
+			bloom_mip_data bloom_mip;
+			viewport_size *= 0.5f;
+			viewport_size_int /= 2;
+
+			bloom_mip.size = viewport_size_int;
+
+			bloom_mip.texture =
+				std::make_shared<texture>(std::format("bloom_mip_{}", i),
+					texture_data(bloom_mip.size.x, bloom_mip.size.y, 3, 1,
+						texture_internal_format::r11g11b10,
+						texture_type::none, nullptr));
+
+			s_data.bloom_mips[i] = bloom_mip;
+		}
+
+		// Attach first bloom mip texture to rbo.
+		s_data.bloom_fbo->attach_texture(s_data.bloom_mips[0].texture, GL_FRAMEBUFFER, render_buffer_attachment_type::color, GL_TEXTURE_2D, 0);
+		s_data.bloom_fbo->initialize();
+
+		// Load shaders
+		s_data.bloom_down_sample_shader = shader_loader::load_shader_from_file(
+			"resources/shaders/bloom/bloom_downsample.rrs");
+		s_data.bloom_up_sample_shader = shader_loader::load_shader_from_file(
+			"resources/shaders/bloom/bloom_upsample.rrs");
+		s_data.bloom_composition_shader = shader_loader::load_shader_from_file(
+			"resources/shaders/bloom/bloom_composition.rrs");
 	}
 
 	void scene_renderer::setup_final_pass()

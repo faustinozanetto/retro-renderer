@@ -1,0 +1,97 @@
+#shader vertex
+#version 450 core
+
+layout (location = 0) in vec3 a_pos;
+layout (location = 1) in vec2 a_tex_coord;
+
+layout (location = 0) out vec2 o_tex_coord;
+
+void main() {
+    o_tex_coord = a_tex_coord;
+    gl_Position = vec4(a_pos, 1.0f);
+}
+
+#shader fragment
+#version 450 core
+
+layout (location = 0) out vec3 frag_color;
+
+layout (location = 0) in vec2 o_tex_coord;
+
+layout (binding = 0) uniform sampler2D u_texture;
+
+uniform vec2 u_source_res;
+uniform int u_mip_level = 1;
+
+vec3 PowVec3(vec3 v, float p)
+{
+    return vec3(pow(v.x, p), pow(v.y, p), pow(v.z, p));
+}
+
+const float invGamma = 1.0 / 2.2;
+vec3 ToSRGB(vec3 v)   { return PowVec3(v, invGamma); }
+
+float sRGBToLuma(vec3 col)
+{
+    //return dot(col, vec3(0.2126f, 0.7152f, 0.0722f));
+	return dot(col, vec3(0.299f, 0.587f, 0.114f));
+}
+
+float KarisAverage(vec3 col)
+{
+	// Formula is 1 / (1 + luma)
+	float luma = sRGBToLuma(ToSRGB(col)) * 0.25f;
+	return 1.0f / (1.0f + luma);
+}
+
+void main()
+{
+    vec2 source_texel_size = 1.0 / u_source_res;
+    float x = source_texel_size.x;
+    float y = source_texel_size.y;
+
+    vec3 a = texture(u_texture, vec2(o_tex_coord.x - 2*x, o_tex_coord.y + 2*y)).rgb;
+    vec3 b = texture(u_texture, vec2(o_tex_coord.x,       o_tex_coord.y + 2*y)).rgb;
+    vec3 c = texture(u_texture, vec2(o_tex_coord.x + 2*x, o_tex_coord.y + 2*y)).rgb;
+
+    vec3 d = texture(u_texture, vec2(o_tex_coord.x - 2*x, o_tex_coord.y)).rgb;
+    vec3 e = texture(u_texture, vec2(o_tex_coord.x,       o_tex_coord.y)).rgb;
+    vec3 f = texture(u_texture, vec2(o_tex_coord.x + 2*x, o_tex_coord.y)).rgb;
+
+    vec3 g = texture(u_texture, vec2(o_tex_coord.x - 2*x, o_tex_coord.y - 2*y)).rgb;
+    vec3 h = texture(u_texture, vec2(o_tex_coord.x,       o_tex_coord.y - 2*y)).rgb;
+    vec3 i = texture(u_texture, vec2(o_tex_coord.x + 2*x, o_tex_coord.y - 2*y)).rgb;
+
+    vec3 j = texture(u_texture, vec2(o_tex_coord.x - x, o_tex_coord.y + y)).rgb;
+    vec3 k = texture(u_texture, vec2(o_tex_coord.x + x, o_tex_coord.y + y)).rgb;
+    vec3 l = texture(u_texture, vec2(o_tex_coord.x - x, o_tex_coord.y - y)).rgb;
+    vec3 m = texture(u_texture, vec2(o_tex_coord.x + x, o_tex_coord.y - y)).rgb;
+
+vec3 groups[5];
+	switch (u_mip_level)
+	{
+	case 0:
+	  // We are writing to mip 0, so we need to apply Karis average to each block
+	  // of 4 samples to prevent fireflies (very bright subpixels, leads to pulsating
+	  // artifacts).
+	  groups[0] = (a+b+d+e) * (0.125f/4.0f);
+	  groups[1] = (b+c+e+f) * (0.125f/4.0f);
+	  groups[2] = (d+e+g+h) * (0.125f/4.0f);
+	  groups[3] = (e+f+h+i) * (0.125f/4.0f);
+	  groups[4] = (j+k+l+m) * (0.5f/4.0f);
+	  groups[0] *= KarisAverage(groups[0]);
+	  groups[1] *= KarisAverage(groups[1]);
+	  groups[2] *= KarisAverage(groups[2]);
+	  groups[3] *= KarisAverage(groups[3]);
+	  groups[4] *= KarisAverage(groups[4]);
+	  frag_color = groups[0]+groups[1]+groups[2]+groups[3]+groups[4];
+	  frag_color = max(frag_color, 0.0001f);
+	  break;
+	default:
+	  frag_color = e*0.125;                // ok
+	  frag_color += (a+c+g+i)*0.03125;     // ok
+	  frag_color += (b+d+f+h)*0.0625;      // ok
+	  frag_color += (j+k+l+m)*0.125;       // ok
+	  break;
+	}
+}

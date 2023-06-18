@@ -1,0 +1,40 @@
+#shader vertex
+#version 450 core
+
+layout (location = 0) in vec3 a_pos;
+layout (location = 1) in vec2 a_tex_coord;
+
+layout (location = 0) out vec2 o_tex_coord;
+
+void main() {
+    o_tex_coord = a_tex_coord;
+    gl_Position = vec4(a_pos, 1.0f);
+}
+
+#shader fragment
+#version 450 core
+
+layout (location = 0) out vec4 frag_color;
+
+layout (location = 0) in vec2 o_tex_coord;
+
+layout (binding = 0) uniform sampler2D u_texture;
+layout (binding = 1) uniform sampler2D u_bloom_texture;
+
+float bloomStrength = 0.04;
+float exposure = 0.95;
+
+void main()
+{
+	vec3 hdr_color = texture(u_texture, o_tex_coord).rgb;
+    vec3 bloom_color = texture(u_bloom_texture, o_tex_coord).rgb;
+    vec3 result = mix(hdr_color, bloom_color, bloomStrength); // linear interpolation
+
+    // tone mapping
+    result = vec3(1.0) - exp(-result * exposure);
+    // also gamma correct while we're at it
+    const float gamma = 2.2;
+    result = pow(result, vec3(1.0 / gamma));
+
+    frag_color = vec4(result, 1.0);
+}
