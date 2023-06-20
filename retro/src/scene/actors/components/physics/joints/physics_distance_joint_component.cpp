@@ -11,4 +11,8 @@ namespace retro::scene
     physics_distance_joint_component::~physics_distance_joint_component()
     {
     }
+
+    void physics_distance_joint_component::initialize()
+    {
+    }
 }

@@ -28,6 +28,7 @@ project "retro"
         "%{include_dirs.spdlog}",
         "%{include_dirs.stb}",
         "%{include_dirs.imgui}",
+        "%{include_dirs.imguizmo}",
         "%{include_dirs.assimp}",
         "%{include_dirs.freetype}",
         "%{include_dirs.openal}",
@@ -43,11 +44,8 @@ project "retro"
         "glfw",
         "glad",
         "imgui",
+        "imguizmo",
     }
-
-    filter "system:windows"
-        files 'third_party/tracy/public/TracyClient.cpp'    
-            flags  { 'NoPCH' }
 
     filter "configurations:debug"
         defines "RT_DEBUG;TRACY_ENABLE"

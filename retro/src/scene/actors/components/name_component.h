@@ -10,6 +10,8 @@ namespace retro::scene
         name_component(const std::string &name);
         ~name_component() override;
 
+        void initialize() override;
+
         /* Getters */
         const std::string &get_name() const { return m_name; }
 

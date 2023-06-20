@@ -15,7 +15,9 @@
 
 #include <imgui.h>
 #include <imgui_internal.h>
+#include <ImGuizmo.h>
 #include <profiling/profiling.h>
+#include <glm/gtc/type_ptr.hpp>
 
 namespace retro::editor
 {
@@ -64,10 +66,6 @@ namespace retro::editor
         m_demo_actor->add_component<scene::transform_component>();
         m_demo_actor->add_component<scene::model_renderer_component>(m_model);
         m_demo_actor->add_component<scene::material_renderer_component>(material);
-        auto sound_emitter_comp = m_demo_actor->add_component<scene::sound_emitter_component>();
-        auto sound = audio::sound_loader::load_sound_from_file("resources/sounds/player_shoot.ogg");
-        m_demo_actor->add_component<scene::sound_source_component>(sound);
-        sound_emitter_comp.get_sound_emitter()->set_sound(sound);
 
         // Create test chain
         physics::physics_utils::create_chain({0.0f, 20.0f, 0.0f}, {0.5f, 0.125f, 0.125f}, 1.1f);
@@ -93,11 +91,6 @@ namespace retro::editor
         RT_PROFILE;
         renderer::scene_renderer::begin_render(m_camera);
         renderer::scene_renderer::end_render();
-      
-        renderer::debug_renderer::begin_render(m_camera);
-        renderer::debug_renderer::submit_line({2.0f, 2.0f, 2.0f}, {4.0f, 3.0f, -5.0f}, {1.0f, 0.85f, 0.85f});
-        renderer::debug_renderer::submit_bounding_box(m_model->get_bounding_box(), {1.0f, 0.85f, 0.65f});
-        renderer::debug_renderer::end_render();
     }
 
     void editor_main_layer::on_update()
@@ -117,9 +110,17 @@ namespace retro::editor
         {
             panel->on_render_panel();
         }
-        ImGui::ShowDemoWindow();
         end_dockspace();
         ui::engine_ui::end_frame();
+    }
+
+    static const float identityMatrix[16] = { 1.f, 0.f, 0.f, 0.f, 0.f, 1.f, 0.f, 0.f, 0.f, 0.f, 1.f, 0.f, 0.f, 0.f, 0.f, 1.f };
+
+    void editor_main_layer::draw_imguizmo()
+    {
+        glm::mat4 view_matrix = m_camera->get_view_matrix();
+        glm::mat4 projection_matrix = m_camera->get_projection_matrix();
+        ImGuizmo::DrawGrid(glm::value_ptr(view_matrix), glm::value_ptr(projection_matrix), identityMatrix, 100.0f);
     }
 
     void editor_main_layer::begin_dockspace()

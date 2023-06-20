@@ -13,6 +13,8 @@ namespace retro::scene
         material_renderer_component(const std::shared_ptr<renderer::material> &material);
         ~material_renderer_component() override;
 
+        void initialize() override;
+
         /* Getters */
         const std::shared_ptr<renderer::material> &get_material() const { return m_material; }
 

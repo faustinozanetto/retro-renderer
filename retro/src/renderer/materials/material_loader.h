@@ -7,6 +7,7 @@ namespace retro::renderer
     class material_loader
     {
     public:
+        static std::shared_ptr<material> load_material_default();
         static std::shared_ptr<material> load_material_from_data(const material_data& data);
         static std::shared_ptr<material> load_material_from_file(const std::string &file_path);
 

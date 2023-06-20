@@ -10,4 +10,8 @@ namespace retro::scene
     name_component::~name_component()
     {
     }
+
+    void name_component::initialize()
+    {
+    }
 }

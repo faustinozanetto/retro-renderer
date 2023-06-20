@@ -19,12 +19,14 @@
 #include "components/audio/editor_actor_sound_emitter_component_panel.h"
 #include "components/audio/editor_actor_sound_source_component_panel.h"
 
+#include <core/application.h>
+#include <scene/scene_manager.h>
+#include "scene/actors/components/audio/sound_emitter_component.h"
+#include "scene/actors/components/audio/sound_source_component.h"
+
 #include "../../utils/editor_ui_utils.h"
 
 #include "../../editor_main_layer.h"
-
-#include <core/application.h>
-#include <scene/scene_manager.h>
 
 namespace retro::editor
 {
@@ -95,10 +97,14 @@ namespace retro::editor
 
 		if (ImGui::BeginPopup("AddComponent"))
 		{
+			render_add_component_entry<scene::transform_component>("Transform Component");
 			render_add_component_entry<scene::model_renderer_component>("Model Renderer Component");
 			render_add_component_entry<scene::material_renderer_component>("Material Renderer Component");
 			render_add_component_entry<scene::physics_static_actor_component>("Physics Static Actor Component");
 			render_add_component_entry<scene::physics_dynamic_actor_component>("Physics Dynamic Actor Component");
+			render_add_component_entry<scene::physics_box_collision_shape_component>("Physics Box Collision Component");
+			render_add_component_entry<scene::sound_emitter_component>("Sound Emitter Component");
+			render_add_component_entry<scene::sound_source_component>("Sound Source Component");
 			ImGui::EndPopup();
 		}
 	}

@@ -16,4 +16,8 @@ namespace retro::scene
     transform_component::~transform_component()
     {
     }
+
+    void transform_component::initialize()
+    {
+    }
 }

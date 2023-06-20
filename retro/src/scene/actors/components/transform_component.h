@@ -12,6 +12,8 @@ namespace retro::scene
         transform_component(const std::shared_ptr<math::transform>& transform);
         ~transform_component() override;
 
+        void initialize() override;
+
         /* Getters */
         const std::shared_ptr<math::transform>&get_transform() const { return m_transform; }
 

@@ -12,6 +12,8 @@ namespace retro::scene
         physics_capsule_collision_shape_component(const std::shared_ptr<physics::physics_capsule_collision> &capsule_collision) : m_capsule_collision(capsule_collision) {}
         virtual ~physics_capsule_collision_shape_component() override = default;
 
+        void initialize() override;
+
         /* Getters */
         const std::shared_ptr<physics::physics_capsule_collision> &get_capsule_collision() const { return m_capsule_collision; }
 

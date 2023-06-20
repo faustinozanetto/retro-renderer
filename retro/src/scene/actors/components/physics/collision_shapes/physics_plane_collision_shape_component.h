@@ -12,6 +12,8 @@ namespace retro::scene
         physics_plane_collision_shape_component(const std::shared_ptr<physics::physics_plane_collision> &plane_collision) : m_plane_collision(plane_collision) {}
         virtual ~physics_plane_collision_shape_component() override = default;
 
+        void initialize() override;
+
         /* Getters */
         const std::shared_ptr<physics::physics_plane_collision> &get_plane_collision() const { return m_plane_collision; }
 

@@ -12,12 +12,14 @@ namespace retro::scene
         physics_fixed_joint_component(const std::shared_ptr<physics::physics_fixed_joint> &fixed_joint);
         ~physics_fixed_joint_component() override;
 
+        void initialize() override;
+
         /* Getters */
         const std::shared_ptr<physics::physics_fixed_joint> &get_fixed_joint() const { return m_fixed_joint; }
 
         /* Setters */
         void set_fixed_joint(const std::shared_ptr<physics::physics_fixed_joint> &fixed_joint) { m_fixed_joint = fixed_joint; }
-
+        
     private:
         std::shared_ptr<physics::physics_fixed_joint> m_fixed_joint;
     };

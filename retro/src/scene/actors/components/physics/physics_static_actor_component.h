@@ -13,6 +13,8 @@ namespace retro::scene
         physics_static_actor_component(const std::shared_ptr<physics::physics_static_actor> &static_actor);
         ~physics_static_actor_component() override;
 
+        void initialize() override;
+
         /* Getters */
         const std::shared_ptr<physics::physics_static_actor> &get_static_actor() const { return m_static_actor; }
 

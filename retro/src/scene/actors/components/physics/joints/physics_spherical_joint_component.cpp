@@ -11,4 +11,8 @@ namespace retro::scene
     physics_spherical_joint_component::~physics_spherical_joint_component()
     {
     }
+
+    void physics_spherical_joint_component::initialize()
+    {
+    }
 }

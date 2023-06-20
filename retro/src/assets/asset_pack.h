@@ -28,7 +28,7 @@ namespace retro::assets
                     return found_asset;
                 }
             }
-            assert(false, "Could not find asset!");
+            RT_ASSERT_MSG(false, "Could not find asset!");
             return nullptr;
         }
 
@@ -44,7 +44,7 @@ namespace retro::assets
         const std::unordered_set<std::shared_ptr<asset_pack>> &get_dependencies() const { return m_dependencies; }
 
         /* Operators */
-        bool operator<(const asset_pack &other)
+        bool operator<(const asset_pack &other) const
         {
             return get_name() < other.get_name();
         }

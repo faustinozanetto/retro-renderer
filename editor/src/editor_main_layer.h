@@ -31,6 +31,8 @@ namespace retro::editor
         void on_render();
         void on_update();
 
+        void draw_imguizmo();
+
         void begin_dockspace();
         void end_dockspace();
 

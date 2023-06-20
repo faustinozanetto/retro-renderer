@@ -35,5 +35,11 @@ namespace retro::editor
 		if (editor_ui_utils::draw_property("Angular Damping", angular_damping, 0.0f, 100.0f, 0.01f)) {
 			physics_dynamic_actor_component.get_dynamic_actor()->set_angular_damping(angular_damping);
 		}
+
+		bool is_kinematic = physics_dynamic_actor_component.get_dynamic_actor()->get_is_kinematic();
+		if (editor_ui_utils::draw_property("Is Kinematic", is_kinematic))
+		{
+			physics_dynamic_actor_component.get_dynamic_actor()->set_kinematic(is_kinematic);
+		}
 	}
 }

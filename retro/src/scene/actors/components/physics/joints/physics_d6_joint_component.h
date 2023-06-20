@@ -12,12 +12,14 @@ namespace retro::scene
         physics_d6_joint_component(const std::shared_ptr<physics::physics_d6_joint> &d6_joint);
         ~physics_d6_joint_component() override;
 
+        void initialize() override;
+
         /* Getters */
         const std::shared_ptr<physics::physics_d6_joint> &get_d6_joint() const { return m_d6_joint; }
 
         /* Setters */
         void set_d6_joint(const std::shared_ptr<physics::physics_d6_joint> &d6_joint) { m_d6_joint = d6_joint; }
-
+        
     private:
         std::shared_ptr<physics::physics_d6_joint> m_d6_joint;
     };

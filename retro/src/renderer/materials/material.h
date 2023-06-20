@@ -47,7 +47,8 @@ namespace retro::renderer
 
         std::map<material_texture_type, material_texture> textures;
 
-        material_data() : textures({}), albedo(glm::vec3(0.0f)), emissive(glm::vec3(0.0f)), roughness(1.0f), metallic(0.0f), ambient_occlusion(1.0f), emissive_strength(0.0f), tilling(1.0f) {}
+        material_data() : albedo(glm::vec3(0.0f)), emissive(glm::vec3(0.0f)), roughness(1.0f), metallic(0.0f),
+                          ambient_occlusion(1.0f), emissive_strength(0.0f), tilling(1.0f), textures({}) {}
 
         material_data(const std::map<material_texture_type, material_texture> &textures, const glm::vec3 &albedo = glm::vec3(0.0f), const glm::vec3 &emissive = glm::vec3(0.0f), float roughness = 1.0f, float metallic = 0.0f, float ambient_occlusion = 1.0f, float emissive_strength = 0.0f, float tilling = 1.0f) : textures(textures), albedo(albedo), emissive(emissive), roughness(roughness), metallic(metallic), ambient_occlusion(ambient_occlusion), emissive_strength(emissive_strength), tilling(tilling) {}
     };
@@ -61,15 +62,18 @@ namespace retro::renderer
         material_texture_type::emissive,
         material_texture_type::opacity};
 
+    static material_data material_default_data = {};
+
     class material : public assets::asset
     {
     public:
         material(const std::string &file_name, const material_data &material_data,
                  const std::map<material_texture_type, int> &texture_bindings);
-        ~material();
+        ~material() override;
 
         /* Functions */
         void bind(const std::shared_ptr<shader> &shader);
+        static void bind_default(const std::shared_ptr<shader> &shader);
 
         /* Getters */
         const material_texture& get_material_texture(material_texture_type texture_type) const { return m_data.textures.at(texture_type); }
@@ -81,7 +85,6 @@ namespace retro::renderer
 		float get_tilling() const { return m_data.tilling; }
 		float get_roughness() const { return m_data.roughness; }
 		float get_metallic() const { return m_data.metallic; }
-
 
         /* Setters */
         void set_texture(const material_texture& material_texture);
@@ -95,7 +98,7 @@ namespace retro::renderer
         void set_metallic(float metallic) { m_data.metallic = metallic; }
 
         /* Asset */
-        void save_textures(const std::shared_ptr<assets::asset_pack> &asset_pack);
+        void save_textures(const std::shared_ptr<assets::asset_pack> &asset_pack) const;
         void serialize(std::ofstream &asset_pack_file) override;
         static std::shared_ptr<material> deserialize(const assets::asset_metadata &metadata, std::ifstream &asset_pack_file);
 

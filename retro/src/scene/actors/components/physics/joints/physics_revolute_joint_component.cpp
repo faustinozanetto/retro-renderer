@@ -11,4 +11,8 @@ namespace retro::scene
     physics_revolute_joint_component::~physics_revolute_joint_component()
     {
     }
+
+    void physics_revolute_joint_component::initialize()
+    {
+    }
 }

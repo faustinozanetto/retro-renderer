@@ -24,7 +24,16 @@ namespace retro::editor
 		RT_PROFILE;
 		auto &model_renderer_component = editor_main_layer::s_selected_actor.get_component<scene::model_renderer_component>();
 
-		editor_ui_utils::draw_property("File Path", model_renderer_component.get_model()->get_metadata().file_path);
+		// Model details section
+		if (model_renderer_component.get_model())
+		{
+			editor_ui_utils::draw_property("File Path", model_renderer_component.get_model()->get_metadata().file_path);
+			editor_ui_utils::draw_property("Mesh Count", std::format("{}", model_renderer_component.get_model()->get_meshes().size()));
+		} else
+		{
+			ImGui::Text("No Model!");
+		}
+		// Load model section
 		if (ImGui::Button("Load Model")) {
 			const std::string file_path = files::open_file_dialog("Model", {"*.fbx", "*.obj", "*.gltf"});
 			if (!file_path.empty()) {
@@ -32,6 +41,6 @@ namespace retro::editor
 				model_renderer_component.set_model(new_model);
 			}
 		}
-		editor_ui_utils::draw_property("Mesh Count", std::format("{}", model_renderer_component.get_model()->get_meshes().size()));
+
 	}
 }

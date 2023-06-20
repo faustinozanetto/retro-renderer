@@ -1,7 +1,6 @@
 #pragma once
 
 #include <glm/glm.hpp>
-#include <glm/ext/quaternion_float.hpp>
 #include <glm/gtx/quaternion.hpp>
 
 namespace retro::math

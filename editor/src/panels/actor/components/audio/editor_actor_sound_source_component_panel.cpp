@@ -22,10 +22,16 @@ namespace retro::editor
 		RT_PROFILE;
 		auto& sound_source_component = editor_main_layer::s_selected_actor.get_component<scene::sound_source_component>();
 
-		ImGui::Text("File Path: %s", sound_source_component.get_sound()->get_metadata().file_path.c_str());
-		ImGui::Text("Frequency: %.4f", sound_source_component.get_sound()->get_frequency());
-		ImGui::Text("Length: %.4f", sound_source_component.get_sound()->get_length() / 1000.0f);
-		ImGui::Text("Channels: %d", sound_source_component.get_sound()->get_channels());
+		if (sound_source_component.get_sound())
+		{
+			ImGui::Text("File Path: %s", sound_source_component.get_sound()->get_metadata().file_path.c_str());
+			ImGui::Text("Frequency: %.4f", sound_source_component.get_sound()->get_frequency());
+			ImGui::Text("Length: %.4f", sound_source_component.get_sound()->get_length() / 1000.0f);
+			ImGui::Text("Channels: %d", sound_source_component.get_sound()->get_channels());
+		} else
+		{
+			ImGui::Text("No Sound!");
+		}
 
 		if (ImGui::Button("Load Sound")) {
 			const std::string file_path = files::open_file_dialog("Sound File", { "*.ogg", "*.wav", "*.mp3" });

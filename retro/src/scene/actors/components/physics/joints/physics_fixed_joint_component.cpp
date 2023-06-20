@@ -11,4 +11,8 @@ namespace retro::scene
     physics_fixed_joint_component::~physics_fixed_joint_component()
     {
     }
+
+    void physics_fixed_joint_component::initialize()
+    {
+    }
 }

@@ -9,8 +9,11 @@ namespace retro::scene
     class physics_box_collision_shape_component : public physics_collision_shape_component
     {
     public:
+        physics_box_collision_shape_component();
         physics_box_collision_shape_component(const std::shared_ptr<physics::physics_box_collision> &box_collision) : m_box_collision(box_collision) {}
         virtual ~physics_box_collision_shape_component() override = default;
+
+        void initialize() override;
 
         /* Getters */
         const std::shared_ptr<physics::physics_box_collision> &get_box_collision() const { return m_box_collision; }

@@ -9,8 +9,11 @@ namespace retro::scene
     class sound_source_component : public base_component
     {
     public:
+        sound_source_component();
         sound_source_component(const std::shared_ptr<audio::sound> &sound);
         ~sound_source_component() override;
+
+        void initialize() override;
 
         /* Getters */
         const std::shared_ptr<audio::sound> &get_sound() const { return m_sound; }

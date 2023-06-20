@@ -19,6 +19,7 @@ project "editor"
         "%{include_dirs.spdlog}",
         "%{include_dirs.stb}",
         "%{include_dirs.imgui}",
+        "%{include_dirs.imguizmo}",
         "%{include_dirs.assimp}",
         "%{include_dirs.freetype}",
         "%{include_dirs.openal}",

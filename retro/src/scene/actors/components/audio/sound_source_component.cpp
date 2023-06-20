@@ -8,7 +8,16 @@ namespace retro::scene
         m_sound = sound;
     }
 
+	sound_source_component::sound_source_component()
+	{
+
+	}
+
     sound_source_component::~sound_source_component()
+    {
+    }
+
+    void sound_source_component::initialize()
     {
     }
 }

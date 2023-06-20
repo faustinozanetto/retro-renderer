@@ -24,14 +24,17 @@ namespace retro::scene
         template <typename T, typename... Args>
         T &add_component(Args &&...args)
         {
-            assert(!has_component<T>(), "Scene actor already has that component!");
-            return m_scene->get_actors_registry()->emplace<T>(m_handle, std::forward<Args>(args)...);
+            RT_ASSERT_MSG(!has_component<T>(), "Scene actor already has that component!");
+            auto& component = m_scene->get_actors_registry()->emplace<T>(m_handle, std::forward<Args>(args)...);
+            component.set_actor(this);
+            component.initialize();
+            return component;
         }
 
         template <typename T>
         T &get_component()
         {
-            assert(has_component<T>(), "Scene actor does not have that component!");
+            RT_ASSERT_MSG(has_component<T>(), "Scene actor does not have that component!");
             return m_scene->get_actors_registry()->get<T>(m_handle);
         }
 
@@ -44,7 +47,7 @@ namespace retro::scene
         template <typename T>
         void remove_component() const
         {
-            assert(has_component<T>(), "Scene actor does not have that component!");
+            RT_ASSERT_MSG(has_component<T>(), "Scene actor does not have that component!");
             m_scene->get_actors_registry()->remove<T>(m_handle);
         }
 

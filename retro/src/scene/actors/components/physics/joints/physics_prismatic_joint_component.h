@@ -11,13 +11,15 @@ namespace retro::scene
     public:
         physics_prismatic_joint_component(const std::shared_ptr<physics::physics_prismatic_joint> &prismatic_joint);
         ~physics_prismatic_joint_component() override;
+        
+        void initialize() override;
 
         /* Getters */
         const std::shared_ptr<physics::physics_prismatic_joint> &get_prismatic_joint() const { return m_prismatic_joint; }
 
         /* Setters */
         void set_prismatic_joint(const std::shared_ptr<physics::physics_prismatic_joint> &prismatic_joint) { m_prismatic_joint = prismatic_joint; }
-
+        
     private:
         std::shared_ptr<physics::physics_prismatic_joint> m_prismatic_joint;
     };

@@ -11,4 +11,8 @@ namespace retro::scene
     physics_d6_joint_component::~physics_d6_joint_component()
     {
     }
+
+    void physics_d6_joint_component::initialize()
+    {
+    }
 }

@@ -23,6 +23,7 @@ namespace retro::physics
 		glm::vec3 get_linear_velocity() const;
 		glm::vec3 get_angular_velocity() const;
         glm::vec3 get_center_of_mass() const;
+        bool get_is_kinematic() const;
 
         /* Setters */
         void set_mass(float mass);
@@ -31,6 +32,7 @@ namespace retro::physics
 		void set_linear_velocity(const glm::vec3& linear_velocity);
 		void set_angular_velocity(const glm::vec3& angular_velocity);
 		void set_center_of_mass(const glm::vec3& center_of_mass);
+        void set_kinematic(bool is_kinematic);
 
         /* Functions */
         void initialize() override;

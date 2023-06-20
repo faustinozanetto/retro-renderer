@@ -21,6 +21,7 @@ group "Dependencies"
 	include "third_party/glad"
 	include "third_party/imgui"
 	include "third_party/imgui_node_editor"
+	include "third_party/imguizmo"
 group ""
 
 group "core"

@@ -13,6 +13,8 @@ namespace retro::scene
         text_renderer_component(const std::shared_ptr<renderer::font> &font, const std::shared_ptr<renderer::text> &text);
         ~text_renderer_component() override;
 
+        void initialize() override;
+        
         /* Getters */
         const std::shared_ptr<renderer::font> &get_font() const { return m_font; }
         const std::shared_ptr<renderer::text> &get_text() const { return m_text; }

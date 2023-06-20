@@ -11,4 +11,8 @@ namespace retro::scene
     physics_prismatic_joint_component::~physics_prismatic_joint_component()
     {
     }
+
+    void physics_prismatic_joint_component::initialize()
+    {
+    }
 }

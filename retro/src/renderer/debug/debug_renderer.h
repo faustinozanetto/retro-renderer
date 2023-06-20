@@ -1,9 +1,8 @@
 #pragma once
 
-#include <renderer/buffers/vertex_array_object.h>
-#include <renderer/shaders/shader.h>
-#include <camera/camera.h>
+#include "physics/collision_shapes/physics_box_collision.h"
 #include "math/bounding_box.h"
+#include "math/transform/transform.h"
 
 #include <glm/glm.hpp>
 
@@ -26,20 +25,7 @@ namespace retro::renderer
 
     struct debug_renderer_data
     {
-        uint32_t max_quads = 20000;
-        uint32_t max_vertices = max_quads * 4;
-
-        glm::mat4 view_matrix;
-        glm::mat4 projection_matrix;
-
         std::vector<debug_line> debug_lines;
-        std::shared_ptr<vertex_array_object> line_vao;
-        std::shared_ptr<vertex_buffer_object> line_vbo;
-        std::shared_ptr<shader> lines_shader;
-
-		uint32_t line_vertex_count = 0;
-        debug_line_vertex* line_vertex_buffer_base = nullptr;
-        debug_line_vertex* line_vertex_buffer_ptr = nullptr;
     };
 
     class debug_renderer
@@ -47,11 +33,20 @@ namespace retro::renderer
     public:
         static void initialize();
 
-        static void begin_render(const std::shared_ptr<camera::camera>& camera);
-        static void end_render();
+        /* Getters */
+        static std::vector<debug_line>& get_debug_lines();
+
+        /* Functions */
+        static void reset();
+
+       // static void begin_render(const std::shared_ptr<camera::camera>& camera);
+        //static void end_render();
 
         static void submit_line(const glm::vec3& point_a, const glm::vec3& point_b, const glm::vec3& color);
-        static void submit_bounding_box(const math::bounding_box& bounding_box, const glm::vec3& color);
+        static void submit_bounding_box(const math::bounding_box& bounding_box, math::transform transform = math::transform(), const glm::vec3& color = glm::vec3(0.85f));
+
+        static void submit_physics_box_collision(const std::shared_ptr<physics::physics_box_collision>& physics_box_collision,
+                                                 const math::transform& transform = math::transform(), const glm::vec3& color = glm::vec3(0.85f));
     private:
         static debug_renderer_data s_data;
     };

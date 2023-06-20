@@ -11,46 +11,61 @@
 
 namespace retro::renderer
 {
-    std::shared_ptr<material> material_loader::load_material_from_data(const material_data& data)
+    std::shared_ptr<material> material_loader::load_material_default()
     {
-		RT_PROFILE;
-		RT_SEPARATOR();
-		RT_TRACE("Retro Renderer | Started loading material from data.");
-		std::map<retro::renderer::material_texture_type, int> material_bindings;
-		material_bindings[retro::renderer::material_texture_type::albedo] = 0;
-		material_bindings[retro::renderer::material_texture_type::normal] = 1;
-		material_bindings[retro::renderer::material_texture_type::roughness] = 2;
-		material_bindings[retro::renderer::material_texture_type::metallic] = 3;
-		material_bindings[retro::renderer::material_texture_type::ambient_occlusion] = 4;
-		material_bindings[retro::renderer::material_texture_type::emissive] = 5;
-		material_bindings[retro::renderer::material_texture_type::opacity] = 6;
-		auto created_material = std::make_shared<material>("from_data", data, material_bindings);
-		RT_TRACE("Retro Renderer | Material loaded from data successfully!");
-		RT_SEPARATOR();
-		return created_material;
+        std::map<material_texture_type, int> material_bindings;
+        material_bindings[material_texture_type::albedo] = 0;
+        material_bindings[material_texture_type::normal] = 1;
+        material_bindings[material_texture_type::roughness] = 2;
+        material_bindings[material_texture_type::metallic] = 3;
+        material_bindings[material_texture_type::ambient_occlusion] = 4;
+        material_bindings[material_texture_type::emissive] = 5;
+        material_bindings[material_texture_type::opacity] = 6;
+        material_data data;
+        auto created_material = std::make_shared<material>("from_data", data, material_bindings);
+        return created_material;
     }
 
-    std::shared_ptr<material> material_loader::load_material_from_file(const std::string &file_path)
+    std::shared_ptr<material> material_loader::load_material_from_data(const material_data& data)
+    {
+        RT_PROFILE;
+        RT_SEPARATOR();
+        RT_TRACE("Retro Renderer | Started loading material from data.");
+        std::map<material_texture_type, int> material_bindings;
+        material_bindings[material_texture_type::albedo] = 0;
+        material_bindings[material_texture_type::normal] = 1;
+        material_bindings[material_texture_type::roughness] = 2;
+        material_bindings[material_texture_type::metallic] = 3;
+        material_bindings[material_texture_type::ambient_occlusion] = 4;
+        material_bindings[material_texture_type::emissive] = 5;
+        material_bindings[material_texture_type::opacity] = 6;
+        auto created_material = std::make_shared<material>("from_data", data, material_bindings);
+        RT_TRACE("Retro Renderer | Material loaded from data successfully!");
+        RT_SEPARATOR();
+        return created_material;
+    }
+
+    std::shared_ptr<material> material_loader::load_material_from_file(const std::string& file_path)
     {
         RT_PROFILE;
         RT_SEPARATOR();
         RT_TRACE("Retro Renderer | Started loading material from file.");
         const material_data material_data = parse_material_data_from_file(file_path);
-        std::map<retro::renderer::material_texture_type, int> material_bindings;
-        material_bindings[retro::renderer::material_texture_type::albedo] = 0;
-        material_bindings[retro::renderer::material_texture_type::normal] = 1;
-        material_bindings[retro::renderer::material_texture_type::roughness] = 2;
-        material_bindings[retro::renderer::material_texture_type::metallic] = 3;
-        material_bindings[retro::renderer::material_texture_type::ambient_occlusion] = 4;
-        material_bindings[retro::renderer::material_texture_type::emissive] = 5;
-        material_bindings[retro::renderer::material_texture_type::opacity] = 6;
+        std::map<material_texture_type, int> material_bindings;
+        material_bindings[material_texture_type::albedo] = 0;
+        material_bindings[material_texture_type::normal] = 1;
+        material_bindings[material_texture_type::roughness] = 2;
+        material_bindings[material_texture_type::metallic] = 3;
+        material_bindings[material_texture_type::ambient_occlusion] = 4;
+        material_bindings[material_texture_type::emissive] = 5;
+        material_bindings[material_texture_type::opacity] = 6;
         auto created_material = std::make_shared<material>(file_path, material_data, material_bindings);
         RT_TRACE("Retro Renderer | Material loaded from file successfully!");
         RT_SEPARATOR();
         return created_material;
     }
 
-    material_data material_loader::parse_material_data_from_file(const std::string &file_path)
+    material_data material_loader::parse_material_data_from_file(const std::string& file_path)
     {
         RT_PROFILE;
         std::string shader_contents;
@@ -73,7 +88,7 @@ namespace retro::renderer
             {
                 continue;
             }
-            else if (line[0] == '[' && line[line.length() - 2] == ']')
+            if (line[0] == '[' && line[line.length() - 2] == ']')
             {
                 current_section = line.substr(1, line.length() - 3);
             }
@@ -93,7 +108,7 @@ namespace retro::renderer
         return material_data;
     }
 
-    void material_loader::parse_material_parameters_from_file(const std::string &line, material_data &material_data)
+    void material_loader::parse_material_parameters_from_file(const std::string& line, material_data& material_data)
     {
         RT_PROFILE;
         std::istringstream iss(line);
@@ -133,7 +148,8 @@ namespace retro::renderer
         }
     }
 
-    void material_loader::parse_material_textures_from_file(const std::string &line, std::ifstream &material_file, material_data &material_data)
+    void material_loader::parse_material_textures_from_file(const std::string& line, std::ifstream& material_file,
+                                                            material_data& material_data)
     {
         RT_PROFILE;
         std::string texture_section_line;
@@ -168,7 +184,8 @@ namespace retro::renderer
             // Create and store the material_texture object
             material_texture material_texture;
             std::string file_name = utils::remove_carriage(utils::extract_file_name(texture_path));
-            auto texture_asset = assets::asset_manager::get().get_asset<texture, assets::asset_type::texture>(file_name);
+            auto texture_asset = assets::asset_manager::get().get_asset<
+                texture, assets::asset_type::texture>(file_name);
             // If the texture was previously loaded use that one
             if (texture_asset)
             {

@@ -8,13 +8,15 @@ namespace retro::physics
     physics_dynamic_actor::physics_dynamic_actor(physx::PxRigidDynamic* rigid_dynamic)
     {
         m_rigid_dynamic = rigid_dynamic;
+        set_kinematic(false);
     }
 
     physics_dynamic_actor::physics_dynamic_actor(const glm::vec3 &location, const glm::quat &rotation, float mass) : physics_actor()
     {
-        physx::PxTransform transform = physics_utils::create_transform_from_glm(location, rotation);
+        const physx::PxTransform transform = physics_utils::create_transform_from_glm(location, rotation);
         m_rigid_dynamic = physics_world::get().get_physics()->createRigidDynamic(transform);
         m_mass = mass;
+        set_kinematic(false);
     }
 
     physics_dynamic_actor::~physics_dynamic_actor()
@@ -53,6 +55,12 @@ namespace retro::physics
         return physics_utils::convert_physx_vec3_to_glm(m_rigid_dynamic->getCMassLocalPose().p);
     }
 
+    bool physics_dynamic_actor::get_is_kinematic() const
+    {
+        RT_PROFILE;
+        return m_rigid_dynamic->getRigidBodyFlags().isSet(physx::PxRigidBodyFlag::eKINEMATIC);
+    }
+
     void physics_dynamic_actor::set_mass(float mass)
     {
         RT_PROFILE;
@@ -88,6 +96,12 @@ namespace retro::physics
     {
         RT_PROFILE;
 		m_rigid_dynamic->setCMassLocalPose(physics_utils::create_transform_from_glm(center_of_mass));
+    }
+
+    void physics_dynamic_actor::set_kinematic(bool is_kinematic)
+    {
+        RT_PROFILE;
+        m_rigid_dynamic->setRigidBodyFlag(physx::PxRigidBodyFlag::eKINEMATIC, is_kinematic);
     }
 
     void physics_dynamic_actor::initialize()

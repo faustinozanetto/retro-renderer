@@ -13,4 +13,7 @@ namespace retro::scene
     {
     }
 
+    void text_renderer_component::initialize()
+    {
+    }
 }

@@ -16,4 +16,7 @@ namespace retro::scene
     {
     }
 
+    void model_renderer_component::initialize()
+    {
+    }
 }

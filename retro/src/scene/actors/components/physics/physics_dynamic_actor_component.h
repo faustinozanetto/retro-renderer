@@ -13,12 +13,14 @@ namespace retro::scene
         physics_dynamic_actor_component(const std::shared_ptr<physics::physics_dynamic_actor> &dynamic_actor);
         ~physics_dynamic_actor_component() override;
 
+        void initialize() override;
+        
         /* Getters */
         const std::shared_ptr<physics::physics_dynamic_actor> &get_dynamic_actor() const { return m_dynamic_actor; }
 
         /* Setters */
         void set_material(const std::shared_ptr<physics::physics_dynamic_actor> &dynamic_actor) { m_dynamic_actor = dynamic_actor; }
-
+        
     private:
         std::shared_ptr<physics::physics_dynamic_actor> m_dynamic_actor;
     };

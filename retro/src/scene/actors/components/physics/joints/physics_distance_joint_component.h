@@ -12,6 +12,8 @@ namespace retro::scene
         physics_distance_joint_component(const std::shared_ptr<physics::physics_distance_joint> &distance_joint);
         ~physics_distance_joint_component() override;
 
+        void initialize() override;
+
         /* Getters */
         const std::shared_ptr<physics::physics_distance_joint> &get_distance_joint() const { return m_distance_joint; }
 

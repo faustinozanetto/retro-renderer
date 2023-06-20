@@ -1,15 +1,14 @@
 #pragma once
 
-#include <camera/camera.h>
-#include <renderer/buffers/vertex_array_object.h>
-#include <renderer/shaders/shader.h>
-#include <renderer/frame_buffer/frame_buffer.h>
-#include <renderer/renderer/renderer.h>
-#include <renderer/buffers/uniform_buffer_object.h>
+#include "camera/camera.h"
+#include "renderer/buffers/vertex_array_object.h"
+#include "renderer/shaders/shader.h"
+#include "renderer/frame_buffer/frame_buffer.h"
+#include "renderer/buffers/uniform_buffer_object.h"
+#include "renderer/debug/debug_renderer.h"
+#include "renderer/renderer/render_queue.h"
 
 #include <glm/glm.hpp>
-
-#include "renderer/renderer/render_queue.h"
 
 namespace retro::renderer
 {
@@ -24,6 +23,19 @@ namespace retro::renderer
     {
         glm::ivec2 size;
         std::shared_ptr<texture> texture;
+    };
+
+    struct debug_pass_data
+    {
+        uint32_t max_quads = 20000;
+        uint32_t max_vertices = max_quads * 4;
+
+        std::shared_ptr<vertex_array_object> line_vao;
+        std::shared_ptr<vertex_buffer_object> line_vbo;
+        
+        uint32_t line_vertex_count = 0;
+        debug_line_vertex* line_vertex_buffer_base = nullptr;
+        debug_line_vertex* line_vertex_buffer_ptr = nullptr;
     };
 
     struct scene_renderer_data
@@ -58,6 +70,11 @@ namespace retro::renderer
         std::shared_ptr<frame_buffer> fxaa_fbo;
         std::shared_ptr<shader> fxaa_shader;
 
+        /* Debug Pass */
+        debug_pass_data debug_pass_data;
+        std::shared_ptr<frame_buffer> debug_fbo;
+        std::shared_ptr<shader> debug_lines_shader;
+
         /* Final Pass */
         std::shared_ptr<frame_buffer>
             final_fbo;
@@ -85,6 +102,7 @@ namespace retro::renderer
         static void bloom_pass();
         static void fxaa_pass();
         static void final_pass();
+        static void debug_pass();
 
         static void on_window_resize(const glm::ivec2& window_size);
 
@@ -95,6 +113,7 @@ namespace retro::renderer
         static void setup_lighting_pass();
         static void setup_bloom_pass();
         static void setup_fxaa_pass();
+        static void setup_debug_pass();
         static void setup_final_pass();
 
         static scene_renderer_data s_data;

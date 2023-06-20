@@ -12,6 +12,8 @@ namespace retro::scene
         physics_sphere_collision_shape_component(const std::shared_ptr<physics::physics_sphere_collision> &sphere_collision) : m_sphere_collision(sphere_collision) {}
         virtual ~physics_sphere_collision_shape_component() override = default;
 
+        void initialize() override;
+
         /* Getters */
         const std::shared_ptr<physics::physics_sphere_collision> &get_sphere_collision() const { return m_sphere_collision; }
 
