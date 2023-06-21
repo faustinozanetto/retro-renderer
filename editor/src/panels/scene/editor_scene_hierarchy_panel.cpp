@@ -8,7 +8,7 @@
 
 namespace retro::editor
 {
-    editor_scene_hierarchy_panel::editor_scene_hierarchy_panel()
+    editor_scene_hierarchy_panel::editor_scene_hierarchy_panel(): editor_panel("Scene Hierarchy")
     {
     }
 
@@ -21,7 +21,7 @@ namespace retro::editor
         RT_PROFILE;
         const auto& current_scene = scene::scene_manager::get().get_active_scene();
 
-        ImGui::Begin("Hierarchy");
+        ImGui::Begin("Hierarchy", &m_show);
         if (current_scene)
         {
             if (ImGui::BeginPopupContextWindow("create_actor", ImGuiPopupFlags_MouseButtonRight))

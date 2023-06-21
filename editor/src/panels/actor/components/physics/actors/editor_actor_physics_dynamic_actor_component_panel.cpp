@@ -42,4 +42,9 @@ namespace retro::editor
 			physics_dynamic_actor_component.get_dynamic_actor()->set_kinematic(is_kinematic);
 		}
 	}
+
+	void editor_actor_physics_dynamic_actor_component_panel::on_remove_component()
+	{
+		editor_main_layer::s_selected_actor.remove_component<scene::physics_dynamic_actor_component>();
+	}
 }

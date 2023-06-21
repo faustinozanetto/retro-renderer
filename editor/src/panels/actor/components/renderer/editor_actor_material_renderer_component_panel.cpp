@@ -86,4 +86,9 @@ namespace retro::editor
 			}
 		}
 	}
+
+	void editor_actor_material_renderer_component_panel::on_remove_component()
+	{
+		editor_main_layer::s_selected_actor.remove_component<scene::material_renderer_component>();
+	}
 }

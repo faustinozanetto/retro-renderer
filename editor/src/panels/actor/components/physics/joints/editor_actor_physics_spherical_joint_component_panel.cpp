@@ -34,4 +34,9 @@ namespace retro::editor
 			physics_spherical_joint_component.get_spherical_joint()->set_limit_cone(y_angle_limit, z_angle_limit);
 		}
 	}
+
+	void editor_actor_physics_spherical_joint_component_panel::on_remove_component()
+	{
+		editor_main_layer::s_selected_actor.remove_component<scene::physics_spherical_joint_component>();
+	}
 }

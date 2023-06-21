@@ -27,4 +27,9 @@ namespace retro::editor
 			physics_box_collision_shape_component.get_box_collision()->set_half_extents(half_extents);
 		}
 	}
+
+	void editor_actor_physics_box_collision_component_panel::on_remove_component()
+	{
+		editor_main_layer::s_selected_actor.remove_component<scene::physics_box_collision_shape_component>();
+	}
 }

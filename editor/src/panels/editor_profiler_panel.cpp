@@ -7,7 +7,7 @@
 
 namespace retro::editor
 {
-	editor_profiler_panel::editor_profiler_panel()
+	editor_profiler_panel::editor_profiler_panel(): editor_panel("Profiler")
 	{
 	}
 
@@ -28,7 +28,7 @@ namespace retro::editor
 			average_frame_time /= frame_times.size();
 		}
 
-		ImGui::Begin("Profiler");
+		ImGui::Begin("Profiler", &m_show);
 		ImGui::Text("FPS %.6f", core::time::get_fps());
 		ImGui::PlotLines("Frame Times", frame_times.data(), static_cast<int>(core::time::get_frame_times().size()), 0, nullptr, 0.0f, 0.01f, ImVec2(0, 100));
 		ImGui::Text("Average Frame Time: %.6f ms", average_frame_time);

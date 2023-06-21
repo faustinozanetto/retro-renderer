@@ -11,5 +11,6 @@ namespace retro::editor
 
         std::pair<bool, size_t> get_actor_component_details() override;
         void on_render_component_details() override;
+        void on_remove_component() override;
     };
 }

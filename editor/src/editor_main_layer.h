@@ -20,8 +20,9 @@ namespace retro::editor
 
         /* Getters */
         uint32_t get_main_render_target() { return renderer::scene_renderer::get_final_render_target(); }
-        const std::shared_ptr<camera::camera> &get_camera() const { return m_camera; }
+        const std::shared_ptr<camera::camera>& get_camera() const { return m_camera; }
         const std::shared_ptr<editor_console_panel>& get_console_panel() const { return m_console_panel; }
+        std::vector<std::shared_ptr<editor_panel>>& get_editor_panels() { return m_panels; }
 
         /* Initialization */
         void initialize();
@@ -43,7 +44,7 @@ namespace retro::editor
         /* Rendering */
         uint32_t m_main_render_target;
 
-		std::shared_ptr<renderer::model> m_model;
+        std::shared_ptr<renderer::model> m_model;
 
         /* Model Variables */
         std::shared_ptr<scene::scene_actor> m_demo_actor;

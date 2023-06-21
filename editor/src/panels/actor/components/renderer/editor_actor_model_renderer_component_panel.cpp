@@ -41,6 +41,10 @@ namespace retro::editor
 				model_renderer_component.set_model(new_model);
 			}
 		}
+	}
 
+	void editor_actor_model_renderer_component_panel::on_remove_component()
+	{
+		editor_main_layer::s_selected_actor.remove_component<scene::model_renderer_component>();
 	}
 }

@@ -7,7 +7,7 @@
 
 namespace retro::editor
 {
-    editor_camera_panel::editor_camera_panel()
+    editor_camera_panel::editor_camera_panel(): editor_panel("Camera")
     {
     }
 
@@ -19,7 +19,7 @@ namespace retro::editor
         auto app = dynamic_cast<editor_app *>(&core::application::get());
         auto camera = app->get_main_layer()->get_camera();
 
-		ImGui::Begin("Camera");
+		ImGui::Begin("Camera", &m_show);
 
 		glm::vec3 location = camera->get_position();
 		if (editor_ui_utils::draw_property("Position", location, -25.0f, 25.0f, 0.05f))

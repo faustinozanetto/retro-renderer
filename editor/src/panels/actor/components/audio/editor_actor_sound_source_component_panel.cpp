@@ -46,4 +46,9 @@ namespace retro::editor
 			}
 		}
 	}
+
+	void editor_actor_sound_source_component_panel::on_remove_component()
+	{
+		editor_main_layer::s_selected_actor.remove_component<scene::sound_source_component>();
+	}
 }

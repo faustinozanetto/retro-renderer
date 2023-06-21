@@ -118,7 +118,7 @@ namespace retro::renderer
         if (s_data.render_queue.command_queue.empty())
             return;
 
-        //   renderer::set_state(renderer_state::blend, false);
+        renderer::set_state(renderer_state::blend, false);
         renderer::set_state(renderer_state::depth, true);
         s_data.geometry_fbo->bind();
         renderer::clear_screen();
@@ -140,12 +140,9 @@ namespace retro::renderer
                 material::bind_default(s_data.geometry_shader);
             }
             s_data.geometry_shader->set_mat4("u_transform", transform->get_transform());
-            mesh->get_vao()->bind();
-            renderer::submit_elements(GL_TRIANGLES, mesh->get_vao()->get_index_buffer()->get_count());
-            mesh->get_vao()->un_bind();
+            renderer::submit_mesh(mesh, renderer_draw_mode::triangles);
         }
-        //  renderer::set_state(renderer_state::depth, false);
-
+        renderer::set_state(renderer_state::depth, false);
         s_data.geometry_shader->un_bind();
         s_data.geometry_fbo->un_bind();
     }
@@ -169,7 +166,7 @@ namespace retro::renderer
 
         // Render screen quad
         s_data.screen_vao->bind();
-        renderer::submit_elements(GL_TRIANGLES, 6);
+        renderer::submit_elements(6);
         s_data.screen_vao->un_bind();
 
         s_data.lighting_shader->un_bind();
@@ -197,7 +194,7 @@ namespace retro::renderer
 
             // Draw screen quad
             s_data.screen_vao->bind();
-            renderer::submit_elements(GL_TRIANGLES, 6);
+            renderer::submit_elements(6);
             s_data.screen_vao->un_bind();
 
             // Set current mip resolution as srcResolution for next iteration
@@ -230,7 +227,7 @@ namespace retro::renderer
                                              render_buffer_attachment_type::color, GL_TEXTURE_2D, false, 0);
             // Draw screen quad
             s_data.screen_vao->bind();
-            renderer::submit_elements(GL_TRIANGLES, 6);
+            renderer::submit_elements(6);
             s_data.screen_vao->un_bind();
         }
 
@@ -244,7 +241,7 @@ namespace retro::renderer
 
         // Render screen quad
         s_data.screen_vao->bind();
-        renderer::submit_elements(GL_TRIANGLES, 6);
+        renderer::submit_elements(6);
         s_data.screen_vao->un_bind();
 
         s_data.bloom_composition_shader->un_bind();
@@ -262,7 +259,7 @@ namespace retro::renderer
 
         // Render screen quad
         s_data.screen_vao->bind();
-        renderer::submit_elements(GL_TRIANGLES, 6);
+        renderer::submit_elements(6);
         s_data.screen_vao->un_bind();
 
         s_data.fxaa_shader->un_bind();
@@ -280,7 +277,7 @@ namespace retro::renderer
 
         // Render screen quad
         s_data.screen_vao->bind();
-        renderer::submit_elements(GL_TRIANGLES, 6);
+        renderer::submit_elements(6);
         s_data.screen_vao->un_bind();
 
         s_data.final_shader->un_bind();
@@ -324,26 +321,12 @@ namespace retro::renderer
         s_data.debug_pass_data.line_vbo->set_data(vertex_buffer_object_usage::dynamic_draw, size,
                                                   s_data.debug_pass_data.line_vertex_buffer_base);
         s_data.fxaa_fbo->bind();
-        renderer::set_clear_color({0.0f, 0.0f, 0.0f, 1.0f});
-
-        glLineWidth(2.0f);
-        glDisable(GL_BLEND);
-        glEnable(GL_DEPTH_TEST);
-        glEnable(GL_CULL_FACE);
-        glCullFace(GL_BACK);
-        glFrontFace(GL_CCW);
-
         s_data.debug_lines_shader->bind();
-        s_data.debug_pass_data.line_vao->bind();
-        renderer::submit_arrays(GL_LINES, s_data.debug_pass_data.line_vertex_count);
-        s_data.debug_pass_data.line_vao->un_bind();
+        renderer::submit_vao(s_data.debug_pass_data.line_vao, s_data.debug_pass_data.line_vertex_count, renderer_draw_mode::lines);
         s_data.debug_lines_shader->un_bind();
         s_data.fxaa_fbo->un_bind();
 
         debug_renderer::reset();
-
-        glDisable(GL_DEPTH_TEST);
-        glDisable(GL_CULL_FACE);
     }
 
     void scene_renderer::on_window_resize(const glm::ivec2& window_size)
@@ -364,26 +347,26 @@ namespace retro::renderer
     void scene_renderer::setup_screen_vao()
     {
         RT_PROFILE;
-        std::vector<float> vertices = {
+        const std::vector<float> vertices = {
             1.0f, 1.0f, 0.0f, 1.0f, 1.0f, // top right
             1.0f, -1.0f, 0.0f, 1.0f, 0.0f, // bottom right
             -1.0f, -1.0f, 0.0f, 0.0f, 0.0f, // bottom left
             -1.0f, 1.0f, 0.0f, 0.0f, 1.0f // top left
         };
 
-        std::vector<uint32_t> indices = {
+        const std::vector<uint32_t> indices = {
             0, 3, 1, // first triangle
             1, 3, 2, // second triangle
         };
 
-        size_t vertex_buffer_size = vertices.size() * sizeof(&vertices[0]);
-        size_t index_buffer_size = indices.size() * sizeof(&indices[0]);
+        const int vertex_buffer_size = vertices.size() * sizeof(vertices.data());
+        const int index_buffer_size = indices.size() * sizeof(indices.data());
 
         s_data.screen_vao = std::make_shared<vertex_array_object>();
-        std::shared_ptr<vertex_buffer_object> vertices_vbo = std::make_shared<
+        const std::shared_ptr<vertex_buffer_object> vertices_vbo = std::make_shared<
             vertex_buffer_object>(vertex_buffer_object_target::arrays);
 
-        std::shared_ptr<vertex_buffer_object> index_buffer = std::make_shared<
+        const std::shared_ptr<vertex_buffer_object> index_buffer = std::make_shared<
             vertex_buffer_object>(vertex_buffer_object_target::elements, indices.size());
 
         s_data.screen_vao->bind();
@@ -400,7 +383,7 @@ namespace retro::renderer
                 {"a_tex_coord", vertex_buffer_entry_type::vec_float2, false},
             };
 
-        std::shared_ptr<vertex_buffer_layout_descriptor>
+        const std::shared_ptr<vertex_buffer_layout_descriptor>
             vertices_vbo_layout_descriptor = std::make_shared<vertex_buffer_layout_descriptor>(
                 layout_elements);
         vertices_vbo->set_layout_descriptor(vertices_vbo_layout_descriptor);

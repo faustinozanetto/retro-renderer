@@ -7,7 +7,7 @@
 
 namespace retro::editor
 {
-    editor_console_panel::editor_console_panel()
+    editor_console_panel::editor_console_panel(): editor_panel("Console")
     {
     }
 
@@ -21,9 +21,7 @@ namespace retro::editor
         auto camera = app->get_main_layer()->get_camera();
 
         ImGuiWindowFlags console_flags = ImGuiWindowFlags_NoCollapse;
-
-        static bool console_open = true;
-        ImGui::Begin("Console", &console_open, console_flags);
+        ImGui::Begin("Console", &m_show, console_flags);
 
         // Render header
 		ImGuiStyle& style = ImGui::GetStyle();

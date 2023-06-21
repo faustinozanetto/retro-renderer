@@ -39,4 +39,9 @@ namespace retro::editor
 			physics_material_component.get_physics_material()->set_restitution(restitution);
 		}
 	}
+
+	void editor_actor_physics_material_component_panel::on_remove_component()
+	{
+		editor_main_layer::s_selected_actor.remove_component<scene::physics_material_component>();
+	}
 }

@@ -17,4 +17,9 @@ namespace retro::editor
 	{
 		const auto &physics_static_actor_component = editor_main_layer::s_selected_actor.get_component<scene::physics_static_actor_component>();
 	}
+
+	void editor_actor_physics_static_actor_component_panel::on_remove_component()
+	{
+		editor_main_layer::s_selected_actor.remove_component<scene::physics_static_actor_component>();
+	}
 }

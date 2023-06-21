@@ -34,4 +34,9 @@ namespace retro::editor
 			physics_prismatic_joint_component.get_prismatic_joint()->set_limit(lower_limit, upper_limit);
 		}
 	}
+
+	void editor_actor_physics_prismatic_joint_component_panel::on_remove_component()
+	{
+		editor_main_layer::s_selected_actor.remove_component<scene::physics_prismatic_joint_component>();
+	}
 }

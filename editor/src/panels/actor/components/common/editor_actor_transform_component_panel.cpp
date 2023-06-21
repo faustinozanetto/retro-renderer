@@ -43,4 +43,9 @@ namespace retro::editor
 			transform->set_scale(scale);
 		}
 	}
+
+	void editor_actor_transform_component_panel::on_remove_component()
+	{
+		editor_main_layer::s_selected_actor.remove_component<scene::transform_component>();
+	}
 }

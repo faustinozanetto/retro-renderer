@@ -33,4 +33,9 @@ namespace retro::editor
 			physics_capsule_collision_shape_component.get_capsule_collision()->set_radius(radius);
 		}
 	}
+
+	void editor_actor_physics_capsule_collision_component_panel::on_remove_component()
+	{
+		editor_main_layer::s_selected_actor.remove_component<scene::physics_capsule_collision_shape_component>();
+	}
 }

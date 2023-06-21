@@ -30,7 +30,7 @@
 
 namespace retro::editor
 {
-	editor_actor_details_panel::editor_actor_details_panel()
+	editor_actor_details_panel::editor_actor_details_panel(): editor_panel("Actor Details")
 	{
 		initialize();
 	}
@@ -69,7 +69,7 @@ namespace retro::editor
 		RT_PROFILE;
 		auto current_scene = scene::scene_manager::get().get_active_scene();
 
-		ImGui::Begin("Actor Details");
+		ImGui::Begin("Actor Details", &m_show);
 		if (editor_main_layer::s_selected_actor && editor_main_layer::s_selected_actor.get_handle() != entt::null)
 		{
 			// Draw all the component panels
@@ -88,7 +88,7 @@ namespace retro::editor
 		ImGui::End();
 	}
 
-	void editor_actor_details_panel::render_add_component()
+	void editor_actor_details_panel::render_add_component() const
 	{
 		if (ImGui::Button("Add Component"))
 		{

@@ -8,7 +8,7 @@
 
 namespace retro::editor
 {
-    editor_viewport_panel::editor_viewport_panel()
+    editor_viewport_panel::editor_viewport_panel() : editor_panel("Viewport")
     {
     }
 
@@ -18,7 +18,7 @@ namespace retro::editor
     {
         RT_PROFILE;
         auto app = dynamic_cast<editor_app*>(&core::application::get());
-        ImGui::Begin("Viewport");
+        ImGui::Begin("Viewport", &m_show);
 
 		// Draw viewport
 		const ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
@@ -28,6 +28,7 @@ namespace retro::editor
 			ImVec2{ 1, 0 });
 
         // ImGuizmo
+    	/*
 		auto min_region = ImGui::GetWindowContentRegionMin();
 		auto max_region = ImGui::GetWindowContentRegionMax();
 		auto offset = ImGui::GetWindowPos();
@@ -40,6 +41,7 @@ namespace retro::editor
         ImGuizmo::SetDrawlist();
         ImGuizmo::SetOrthographic(false);
         app->get_main_layer()->draw_imguizmo();
+        */
 
         ImGui::End();
     }

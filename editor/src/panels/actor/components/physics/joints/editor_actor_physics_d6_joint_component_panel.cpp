@@ -96,6 +96,11 @@ namespace retro::editor
 		}
 	}
 
+	void editor_actor_physics_d6_joint_component_panel::on_remove_component()
+	{
+		editor_main_layer::s_selected_actor.remove_component<scene::physics_d6_joint_component>();
+	}
+
 	void editor_actor_physics_d6_joint_component_panel::draw_d6_joint_motion_edit(const std::shared_ptr<physics::physics_d6_joint>& joint, physx::PxD6Axis::Enum axis, physx::PxD6Motion::Enum& type)
 	{
 		ImGui::PushID(axis);

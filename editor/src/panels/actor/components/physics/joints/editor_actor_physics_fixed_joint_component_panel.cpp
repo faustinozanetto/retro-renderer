@@ -19,4 +19,9 @@ namespace retro::editor
 		RT_PROFILE;
 		const auto &physics_fixed_joint_component =  editor_main_layer::s_selected_actor.get_component<scene::physics_fixed_joint_component>();
 	}
+
+	void editor_actor_physics_fixed_joint_component_panel::on_remove_component()
+	{
+		editor_main_layer::s_selected_actor.remove_component<scene::physics_fixed_joint_component>();
+	}
 }

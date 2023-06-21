@@ -17,7 +17,7 @@ namespace retro::renderer
     {
         RT_PROFILE;
         RT_TRACE("Retro Renderer | Renderer initialization started.");
-        core::application &application = core::application::get();
+        core::application& application = core::application::get();
         s_data.window = application.get_window();
         set_text_projection();
         /* Renderer context */
@@ -65,7 +65,7 @@ namespace retro::renderer
 #endif
     }
 
-    void renderer::set_clear_color(const glm::vec4 &clear_color)
+    void renderer::set_clear_color(const glm::vec4& clear_color)
     {
         RT_PROFILE;
         s_data.clear_color = clear_color;
@@ -79,7 +79,7 @@ namespace retro::renderer
         glfwSwapInterval(s_data.vsync_enabled ? 1 : 0);
     }
 
-    void renderer::set_viewport_size(const glm::ivec2 &viewport_size)
+    void renderer::set_viewport_size(const glm::ivec2& viewport_size)
     {
         RT_PROFILE;
         glViewport(0, 0, viewport_size.x, viewport_size.y);
@@ -97,13 +97,19 @@ namespace retro::renderer
         glDisable(get_renderer_state_to_opengl(state));
     }
 
+    void renderer::set_line_width(float line_width)
+    {
+        glLineWidth(line_width);
+    }
+
     void renderer::bind_texture(uint32_t slot, uint32_t handle_id)
     {
         RT_PROFILE;
         glBindTextureUnit(slot, handle_id);
     }
 
-    void renderer::submit_text(const std::shared_ptr<shader> &shader, const std::shared_ptr<font> &font, const std::shared_ptr<text> &text)
+    void renderer::submit_text(const std::shared_ptr<shader>& shader, const std::shared_ptr<font>& font,
+                               const std::shared_ptr<text>& text)
     {
         RT_PROFILE;
         shader->set_vec_float3("u_color", text->get_color());
@@ -118,7 +124,7 @@ namespace retro::renderer
         for (char c : text->get_content())
         {
             // Retrieve the glyph information for the map
-            const glyph_data &data = font->get_glyphs_data().at(c);
+            const glyph_data& data = font->get_glyphs_data().at(c);
 
             float xpos = x + data.bearing.x * text->get_scale().x;
             float ypos = y - (data.size.y - data.bearing.y) * text->get_scale().y;
@@ -145,62 +151,86 @@ namespace retro::renderer
         }
 
         // Update vbo data
-        auto &vbo = font->get_font_vao()->get_vertex_buffers()[0];
+        auto& vbo = font->get_font_vao()->get_vertex_buffers()[0];
         vbo->bind();
-        vbo->set_data(vertex_buffer_object_usage::dynamic_draw, sizeof(text_vertex) * text_vertices.size(), text_vertices.data());
+        vbo->set_data(vertex_buffer_object_usage::dynamic_draw, sizeof(text_vertex) * text_vertices.size(),
+                      text_vertices.data());
         vbo->un_bind();
 
         font->get_font_vao()->bind();
         bind_texture(0, glyph_atlas);
-        submit_arrays(GL_TRIANGLES, (int)text_vertices.size());
+        submit_arrays(text_vertices.size(), renderer_draw_mode::triangles);
         font->get_font_vao()->un_bind();
     }
 
-    void renderer::submit_arrays(uint32_t draw_mode, int count)
+    void renderer::submit_arrays(int count, renderer_draw_mode draw_mode)
     {
         RT_PROFILE;
-        glDrawArrays(draw_mode, 0, count);
+        glDrawArrays(get_renderer_draw_mode_to_opengl(draw_mode), 0, count);
     }
 
-    void renderer::submit_elements(uint32_t draw_mode, int count)
+    void renderer::submit_arrays_instanced(int count, int instance_count, renderer_draw_mode draw_mode)
     {
         RT_PROFILE;
-        glDrawElements(draw_mode, count, GL_UNSIGNED_INT, 0);
+        glDrawArraysInstanced(get_renderer_draw_mode_to_opengl(draw_mode), 0, count, instance_count);
     }
 
-    void renderer::submit_vao(const std::shared_ptr<vertex_array_object> &vao, int count)
+    void renderer::submit_elements(int count, renderer_draw_mode draw_mode)
+    {
+        RT_PROFILE;
+        glDrawElements(get_renderer_draw_mode_to_opengl(draw_mode), count, GL_UNSIGNED_INT, 0);
+    }
+
+    void renderer::submit_vao(const std::shared_ptr<vertex_array_object>& vao, int count, renderer_draw_mode draw_mode)
     {
         RT_PROFILE;
         vao->bind();
-        submit_arrays(GL_TRIANGLES, count);
+        submit_arrays(count, draw_mode);
         vao->un_bind();
     }
 
-    void renderer::submit_vao_instanced(const std::shared_ptr<vertex_array_object> &vao, int count, int instance_count)
+    void renderer::submit_vao_instanced(const std::shared_ptr<vertex_array_object>& vao,
+                                        int count, int instance_count, renderer_draw_mode draw_mode)
     {
         RT_PROFILE;
         vao->bind();
-        glDrawArraysInstanced(GL_TRIANGLES, 0, count, instance_count);
+        submit_arrays_instanced(count, instance_count, draw_mode);
         vao->un_bind();
     }
 
-    void renderer::submit_model(const std::shared_ptr<model> &model)
+    void renderer::submit_mesh(mesh* mesh, renderer_draw_mode draw_mode)
     {
         RT_PROFILE;
-        for (const auto &mesh : model->get_meshes())
+        mesh->get_vao()->bind();
+        submit_elements(mesh->get_vao()->get_index_buffer()->get_count(), draw_mode);
+        mesh->get_vao()->un_bind();
+    }
+
+    void renderer::submit_mesh(const std::shared_ptr<mesh>& mesh, renderer_draw_mode draw_mode)
+    {
+        RT_PROFILE;
+        mesh->get_vao()->bind();
+        submit_elements(mesh->get_vao()->get_index_buffer()->get_count(), draw_mode);
+        mesh->get_vao()->un_bind();
+    }
+
+    void renderer::submit_model(const std::shared_ptr<model>& model, renderer_draw_mode draw_mode)
+    {
+        RT_PROFILE;
+        for (const auto& mesh : model->get_meshes())
         {
-            mesh->get_vao()->bind();
-            submit_elements(GL_TRIANGLES, mesh->get_vao()->get_index_buffer()->get_count());
-            mesh->get_vao()->un_bind();
+            submit_mesh(mesh, draw_mode);
         }
     }
 
-    void renderer::submit_model_instanced(const std::shared_ptr<model> &model, int instance_count)
+    void renderer::submit_model_instanced(const std::shared_ptr<model>& model,
+                                          int instance_count, renderer_draw_mode draw_mode)
     {
         RT_PROFILE;
-        for (const auto &mesh : model->get_meshes())
+        for (const auto& mesh : model->get_meshes())
         {
-            submit_vao_instanced(mesh->get_vao(), mesh->get_vao()->get_index_buffer()->get_count(), instance_count);
+            submit_vao_instanced(mesh->get_vao(), mesh->get_vao()->get_index_buffer()->get_count(),
+                                 instance_count, draw_mode);
         }
     }
 
@@ -210,6 +240,7 @@ namespace retro::renderer
         s_data.text_projection = glm::ortho(0.0f, static_cast<float>(s_data.window->get_width()), 0.0f,
                                             static_cast<float>(s_data.window->get_height()));
     }
+
     uint32_t renderer::get_renderer_state_to_opengl(renderer_state state)
     {
         RT_PROFILE;
@@ -223,5 +254,30 @@ namespace retro::renderer
             return GL_CULL_FACE;
         }
         RT_ASSERT_MSG(false, "Unknown renderer state!");
+        return -1;
+    }
+
+    uint32_t renderer::get_renderer_draw_mode_to_opengl(renderer_draw_mode draw_mode)
+    {
+        RT_PROFILE;
+        switch (draw_mode)
+        {
+        case renderer_draw_mode::line_loop:
+            return GL_LINE_LOOP;
+        case renderer_draw_mode::line_strip:
+            return GL_LINE_STRIP;
+        case renderer_draw_mode::lines:
+            return GL_LINES;
+        case renderer_draw_mode::points:
+            return GL_POINTS;
+        case renderer_draw_mode::triangle_fan:
+            return GL_TRIANGLE_FAN;
+        case renderer_draw_mode::triangle_strip:
+            return GL_TRIANGLE_STRIP;
+        case renderer_draw_mode::triangles:
+            return GL_TRIANGLES;
+        }
+        RT_ASSERT_MSG(false, "Unknown renderer draw mode!");
+        return -1;
     }
 }

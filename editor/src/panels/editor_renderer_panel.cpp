@@ -7,7 +7,7 @@
 
 namespace retro::editor
 {
-	editor_renderer_panel::editor_renderer_panel()
+	editor_renderer_panel::editor_renderer_panel() : editor_panel("Renderer")
 	{
 	}
 
@@ -16,7 +16,7 @@ namespace retro::editor
 	void editor_renderer_panel::on_render_panel()
 	{
 		RT_PROFILE;
-		ImGui::Begin("Renderer");
+		ImGui::Begin("Renderer", &m_show);
 		bool use_vsync = renderer::renderer::get_is_vsync_enabled();
 		if (editor_ui_utils::draw_property("VSync Enabled", use_vsync))
 		{

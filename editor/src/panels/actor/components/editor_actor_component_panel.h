@@ -15,8 +15,10 @@ namespace retro::editor
         ~editor_actor_component_panel() override;
 
         void on_render_panel() override;
+        
         virtual std::pair<bool, size_t> get_actor_component_details() = 0;
         virtual void on_render_component_details() = 0;
+        virtual void on_remove_component() = 0;
 
     protected:
         std::string m_component_name;

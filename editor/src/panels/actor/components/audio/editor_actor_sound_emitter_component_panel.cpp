@@ -53,4 +53,9 @@ namespace retro::editor
 		}
 		ImGui::SameLine();
 	}
+
+	void editor_actor_sound_emitter_component_panel::on_remove_component()
+	{
+		editor_main_layer::s_selected_actor.remove_component<scene::sound_emitter_component>();
+	}
 }

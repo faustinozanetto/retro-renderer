@@ -46,4 +46,9 @@ namespace retro::editor
 			physics_revolute_joint_component.get_revolute_joint()->set_drive_gear_ratio(drive_gear_ratio);
 		}
 	}
+
+	void editor_actor_physics_revolute_joint_component_panel::on_remove_component()
+	{
+		editor_main_layer::s_selected_actor.remove_component<scene::physics_revolute_joint_component>();
+	}
 }

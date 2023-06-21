@@ -32,4 +32,9 @@ namespace retro::editor
 		ImGui::Text("Actor Handle: %s",
 					std::to_string(static_cast<uint32_t>(editor_main_layer::s_selected_actor.get_handle())).c_str());
 	}
+
+	void editor_actor_name_component_panel::on_remove_component()
+	{
+		editor_main_layer::s_selected_actor.remove_component<scene::name_component>();
+	}
 }

@@ -19,7 +19,7 @@ namespace retro::editor
         void on_render_panel() override;
 
     private:
-        void render_add_component();
+        void render_add_component() const;
 
         template <typename T>
         void render_add_component_entry(const std::string &component_name) const;

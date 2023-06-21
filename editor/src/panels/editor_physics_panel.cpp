@@ -7,7 +7,7 @@
 
 namespace retro::editor
 {
-	editor_physics_panel::editor_physics_panel()
+	editor_physics_panel::editor_physics_panel(): editor_panel("Physics")
 	{
 	}
 
@@ -17,7 +17,7 @@ namespace retro::editor
 	{
 		RT_PROFILE;
 
-		ImGui::Begin("Physics");
+		ImGui::Begin("Physics", &m_show);
 		ImGui::End();
 		/*
 		if (!physics::physics_world::get_initialized()) return;

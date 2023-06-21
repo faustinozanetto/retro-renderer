@@ -19,4 +19,9 @@ namespace retro::editor
 		RT_PROFILE;
 		const auto &physics_plane_collision_shape_component =  editor_main_layer::s_selected_actor.get_component<scene::physics_plane_collision_shape_component>();
 	}
+
+	void editor_actor_physics_plane_collision_component_panel::on_remove_component()
+	{
+		editor_main_layer::s_selected_actor.remove_component<scene::physics_plane_collision_shape_component>();
+	}
 }
